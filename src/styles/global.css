@@ -10,6 +10,7 @@
   --color-heading-1: rgb(var(--heading-1));
   --color-heading-2: rgb(var(--heading-2));
   --color-heading-3: rgb(var(--heading-3));
+  --color-box-border-count:blue;
   --breakpoint-midmd: 880px;
 }
 
@@ -33,13 +34,15 @@
   --heading-3: 209 213 219;
 }
 
+
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   background-color: rgb(var(--color-bg));
-  font-family: "Raleway", sans-serif;
+  font-family: "Nunito", sans-serif;
 }
 
 [data-toggle-nav][data-open-nav="true"] #line1 {

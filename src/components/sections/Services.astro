@@ -7,6 +7,7 @@ import { services } from "../../utils/data.ts";
 
 
 type ServicesProps = {
+    week:string;
     title: string;
     description: string;
     icon: string
@@ -19,17 +20,14 @@ type ServicesProps = {
     <Container className="space-y-10 md:sapce-y-12">
         <div class="text-center max-w-3xl mx-auto space-y-4">
             <Title>
-                What we offer
+                <span class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-30% to-green-600">What you will learn in 6 weeks</span>
             </Title>
-            <Paragraph>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            </Paragraph>
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {
                     services.map((service: ServicesProps) => {
                     return (
-                            <Service title={service.title} description={service.description} icon={service.icon}>
+                            <Service title= {service.title} description={service.description} icon={service.icon} week= {service.week}>
                             </Service>
                             );
                     })
