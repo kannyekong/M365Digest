@@ -8,14 +8,14 @@ const services = [
   },
   {
     week: "Week 2",
-    title: "Intro to Microsoft Exchange",
+    title: "Microsoft Exchange",
     description:
       "EAC, Mailflow Rules, User Mailbox and Receipient Management, Security and Protection basics, Email authentication (SPF, DMARC, DKIM), Mailbox Policies and Compliance, Exchange Powershell Scripting",
     icon: `<img src="../images/teaser-2.jpg" width=100 height=100>`,
   },
   {
     week: "Week 3",
-    title: "Intro to SharePoint & OneDrive",
+    title: "SharePoint & OneDrive",
     description:
       "SharePoint Sites & Permissions, Document Management & Governance, SharePoint/OneDrive Administration & Sharing, Security, Compliance & Sync, Automation + Real-world Scenarios",
     icon: `<img src="../images/teaser-3.jpg" width=100 height=100>`,
@@ -23,21 +23,21 @@ const services = [
 
   {
     week: "Week 4",
-    title: "Intro to Microsoft Entra ID",
+    title: "Entra ID",
     description:
       "Microsoft Entra ID overview, Tenant Setup & Configuration, Users & Group Management, Authentication Methods & MFA, Conditional Access Policies, Identity Protection & Security, Application Registration & Enterprise Apps, Device Management Integration, Roles & Administrative Units, Monitoring, Auditing & Sign-In Logs, Automation & PowerShell Basics",
     icon: `<img src="../images/teaser.jpg" width=100 height=100>`,
   },
   {
     week: "Week 5",
-    title: "Intro to Microsoft Power Apps",
+    title: "Microsoft Teams",
     description:
-      "Foundations of Power Apps, Environment Setup & Management, Canvas App Development, Model-Driven Apps Basics, Data Sources & Integration, Dataverse Fundamentals, User Interface & Experience Design, Business Logic & Formulas, Security & Permissions, App Deployment & Sharing, Monitoring & Analytics, Automation with Power Automate",
-    icon: `<img src="../images/powerplatform.png" width=100 height=100>`,
+      "Foundations of Microsoft Teams, Environment Setup, Teams, Channels & Membership Management, User Management, Licensing & Provisioning, Policies & Compliance, Security & Permissions, Meetings, Webinars & Live Events,Teams Phone, Integration with Microsoft 365 Services, Analytics & Reporting.",
+    icon: `<img src="../images/teamss.png" width=100 height=100>`,
   },
   {
     week: "Week 6",
-    title: "Intro to M365 Copilot",
+    title: "M365 Copilot",
     description:
       "Foundations of Copilot in Microsoft 365, Setup & Licensing, Data Access & Permissions, Security & Compliance, Prompting Techniques & Best Practices, Copilot in Outlook, Teams, Word, Excel & PowerPoint,Monitoring, Reporting & Adoption",
     icon: `<img src="../images/teaser-5.jpg" width=100 height=100>`,
