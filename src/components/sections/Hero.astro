@@ -3,6 +3,7 @@ import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import ByNumber from "./ByNumber.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
+import BtnLink from "../shared/BtnLink.astro";
 
 
 ---
@@ -22,20 +23,25 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
              M365 Administration Bootcamp: 
   <span class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-5% to-green-500">6 Weeks to Mastery</span>
             </h1>
-            <mark class="border-2 bg-white border-red-500 p-0.5 rounded font-bold pr-1 pl-1"><i class="fa fa-bullhorn text-red-500"></i>   Starts on 1st June, 2026</mark>
+            <mark class="border-2 bg-white border-yellow-500 p-0.5 rounded font-bold pr-1 pl-1"><i class="fa fa-bullhorn text-yellow-500"></i>   Starts on 1st June, 2026</mark>
             <Paragraph className="mt-8">
 
             In six weeks, you’ll progress from basic familiarity to confident administration of core Microsoft 365 services, including Outlook, Teams, SharePoint, OneDrive, Power Automate, and Power BI. Each session is built around real-world administrative scenarios—equipping you not just to understand the platform, but to effectively manage users, secure data, optimize environments, and resolve everyday operational challenges.
             </Paragraph>
-            <div class="mt-10  w-full flex max-w-full mx-auto lg:mx-0">
+            <div class="mt-10  w-full flex max-w-full mx-auto lg:mx-0 space-x-4">
                 <div class="lg:min-w-max flex lg:items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0">
                     <BtnLinkStart text="Explore Your Learning Path" href="#services" className="flex justify-center w-full sm:w-max" variant="primary"/>
+                </div>
+                <div class="lg:min-w-max flex lg:items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0">
+                    <button data-tally-open="gDkNGO" data-tally-layout="modal" data-tally-width="500" data-tally-hide-title="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" data-tally-auto-close="0" data-tally-form-events-forwarding="1" class="bg-primary text-white lg:px-6 py-3 rounded-full outline-none relative overflow-hidden duration-300 ease-linear
+                    after:absolute after:inset-x-0 after:aspect-square after:scale-0 after:opacity-70 after:origin-center after:duration-300 after:ease-linear after:rounded-full after:top-0 after:left-0 after:bg-[#172554] hover:text-white hover:after:opacity-100 hover:after:scale-[2.5] "> Register Now</button>
+
                 </div>
             </div>
         </div>
 
         <div class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl">
-            <img src="/images/boot.jpg" alt="Hero image" width="2350" height="2359" class="lg:absolute lg:w-full lg:h-full rounded-sm lg:rounded-full object-cover lg:max-h-none max-h-96">
+            <img src="/images/boot.jpg" alt="Hero image" width="2350" height="2359" class="lg:absolute lg:w-full lg:h-full rounded-3xl lg:rounded-full object-cover lg:max-h-none max-h-96">
         </div>
     </Container>
 

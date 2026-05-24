@@ -6,18 +6,19 @@ import Services from '../components/sections/Services.astro';
 import AboutUs from '../components/sections/AboutUs.astro';
 import Features from '../components/sections/Features.astro';
 import CTA from '../components/sections/CTA.astro';
-import Brands from '../components/sections/Brands.astro';
+import Contact from "../components/sections/contact.astro";
 ---
 
 
 <Layout title="M365 Bootcamp">
-	<main class="flex flex-col gap-y-20 md:gap-y-32 overflow-hidden">
+	<main class="flex flex-col gap-y-20 md:gap-y-16 overflow-hidden">
 		<Hero/>
 		<Services/>
 		<AboutUs/>
+		<CTA/>
+
 		<!-- <Requirement/> -->
 		<Features/>
-		<Brands/>
-		<CTA/>
+		<Contact/>
 	</main>
 </Layout>

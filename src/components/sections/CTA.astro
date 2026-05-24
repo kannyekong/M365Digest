@@ -1,7 +1,7 @@
 ---
-import BtnLinkStart from "../shared/BtnLinkStart.astro";
 import Container from "../shared/Container.astro";
-import BtnLink from "../shared/BtnLink.astro";
+import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
+
 
 ---
 
@@ -37,19 +37,86 @@ import BtnLink from "../shared/BtnLink.astro";
             ></span>
           </div>
       </div>
-      <div class="mx-auto text-center max-w-xl md:max-w-2xl relative">
-        <h1
-          class="text-3xl/tight sm:text-4xl/tight md:text-5xl/tight
-          font-bold text-heading-1"
-        >
-          Are you ready to get started? <span class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-30% to-green-600">Click the button below</span>
-        </h1>
+      <div class="mx-auto text-center max-w-full md:max-w-2xl relative">
         
-        <div class="flex flex-row space-x-6 p-6 justify-center mx-auto max-w-md sm:max-w-xl">
-          <BtnLinkStart text="Send an email" href="mailto:admin@m365digest.net" className="flex justify-center w-full sm:w-max sm:text-md" variant="primary"/>
-          <BtnLink text="Call Us" href="tel:+2348143099128" className="flex justify-center w-full sm:w-max rounded-full sm:text-md" variant="primary"/>
+          <section>
+            <div class="mx-auto max-w-full px-6">
 
-        </div>
+                <!-- Heading -->
+                <div class="mb-12 text-center">
+                  <h2
+                    class="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
+                  >
+                    <span
+                      class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
+                    >
+                      Frequently Asked Questions
+                    </span>
+                  </h2>
+                </div>
+
+                <!-- Accordion -->
+                <!-- FAQ Container -->
+    <div id="faq-container" data-items-per-page={ITEMS_PER_PAGE} class="space-y-4">
+      {
+        faqs.map((faq, index) => (
+          <details
+            class="faq-item group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            data-index={index}
+          >
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between px-6 py-5"
+            >
+              <h3
+                class="text-base font-semibold text-gray-800 dark:text-white md:text-lg"
+              >
+                {faq.question}
+              </h3>
+
+              <div
+                class="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-transform duration-300 group-open:rotate-45 dark:bg-gray-800"
+              >
+                <span class="text-xl text-primary">+</span>
+              </div>
+            </summary>
+
+            <div
+              class="border-t border-gray-100 px-6 pb-6 pt-4 dark:border-gray-800"
+            >
+              <p class="leading-7 text-gray-600 dark:text-gray-300 justify-left">
+                {faq.answer}
+              </p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-10 flex items-center justify-center gap-4">
+      <button
+        id="prev-btn"
+        class="rounded-xl bg-gray-200 px-5 py-2 dark:bg-gray-800"
+      >
+        Previous
+      </button>
+
+      <span
+        id="page-indicator"
+        class="text-sm text-gray-600 dark:text-gray-300"
+      >
+      </span>
+
+      <button
+        id="next-btn"
+        class="rounded-xl bg-primary px-5 py-2 text-white"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</section>
+
       </div>
     </div>
   </Container>
