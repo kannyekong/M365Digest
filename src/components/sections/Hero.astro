@@ -9,14 +9,14 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
   <Container className={"flex flex-col lg:flex-row gap-10 lg:gap-12"}>
     <div class="absolute w-full lg:w-1/2 inset-y-0 lg:right-0">
       <span
-        class="absolute -left-6 md:left-4 top-24 lg:top-28 w-24 h-24 rotate-90 skew-x-12 rounded-3xl bg-blue-400 blur-xl opacity-60 lg:opacity-95 lg:block hidden"
+        class="absolute -left-6 md:left-4 top-24 lg:top-28 w-24 h-24 rotate-90 skew-x-12 rounded-3xl bg-red-300 blur-xl opacity-60 lg:opacity-95 lg:block hidden"
       ></span>
       <span
-        class="absolute right-4 bottom-12 w-24 h-24 rounded-3xl bg-primary blur-xl opacity-80"
+        class="absolute right-4 bottom-12 w-24 h-24 rounded-3xl bg-blue-500 blur-xl opacity-80"
       ></span>
     </div>
     <span
-      class="w-4/12 lg:w-2/12 aspect-square bg-gradient-to-tr from-blue-400 to-green-400 absolute -top-5 lg:left-0 rounded-full skew-y-12 blur-2xl opacity-40 skew-x-12 rotate-90"
+      class="w-4/12 lg:w-3/12 aspect-square bg-gradient-to-tr from-blue-400 to-green-400 absolute -top-5 lg:left-0 rounded-full skew-y-12 blur-2xl opacity-40 skew-x-12 rotate-90"
     ></span>
     <div
       class="relative flex flex-col text-left lg:py-7 xl:py-8
@@ -33,8 +33,8 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
         >
       </h1>
       <mark
-        class="border-2 bg-white border-yellow-500 text-yellow-500 dark:border-none p-0.5 rounded font-bold pr-1 pl-1"
-        ><i class="fa fa-bullhorn text-yellow-600"></i> Starts on 1st June, 2026</mark
+        class="border border-pink-500 bg-white p-0.5 rounded font-bold pr-1 pl-1"
+        ><i class="fa fa-bullhorn text-pink-500 font-bold"></i> Starts on 1st June, 2026</mark
       >
       <Paragraph className="mt-5">
         In six weeks, you’ll progress from basic familiarity to confident
@@ -48,9 +48,7 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
       <div
         class="mt-5 w-full flex flex-row max-w-full mx-auto lg:mx-0 space-x-4"
       >
-        <div
-          class="lg:min-w-max flex lg:items-center sm:w-max w-full"
-        >
+        <div class="lg:min-w-max flex lg:items-center sm:w-max w-full">
           <BtnLinkStart
             text="Explore Your Learning Path"
             href="#services"
@@ -70,35 +68,33 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
             data-tally-emoji-animation="wave"
             data-tally-auto-close="0"
             data-tally-form-events-forwarding="1"
-            class="bg-primary
-    text-white
-    text-xs
-    md:text-sm
-    px-6
-    py-3
-    rounded-full
-    outline-none
-    relative
-    overflow-hidden
-    duration-300
-    ease-linear
-    z-0
-    after:absolute
-    after:inset-x-0
-    after:aspect-square
-    after:scale-0
-    after:opacity-70
-    after:origin-center
-    after:duration-300
-    after:ease-linear
-    after:rounded-full
-    after:top-0
-    after:left-0
-    after:bg-[#172554]
-    after:z-[-1]
-    hover:text-white
-    hover:after:opacity-100
-    hover:after:scale-[2.5]"
+            class="bg-primary text-white text-xs
+            md:text-sm
+            px-6
+            py-3
+            rounded-full
+            outline-none
+            relative
+            overflow-hidden
+            duration-300
+            ease-linear
+            z-0
+            after:absolute
+            after:inset-x-0
+            after:aspect-square
+            after:scale-0
+            after:opacity-70
+            after:origin-center
+            after:duration-300
+            after:ease-linear
+            after:rounded-full
+            after:top-0
+            after:left-0
+            after:bg-[#172554]
+            after:z-[-1]
+            hover:text-white
+            hover:after:opacity-100
+            hover:after:scale-[2.5]"
           >
             <span class="relative z-10"> Register Now </span>
           </button>

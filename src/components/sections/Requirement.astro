@@ -2,29 +2,57 @@
 import Container from "../shared/Container.astro";
 ---
 
-<section  id="req">
+<section id="req">
   <Container>
-    
-      <div class="mx-auto text-center max-w-xl md:max-w-2xl relative p-0">
-        <Container>
-            <div
-            class="border-8 border-green-800 rounded-full mx-auto lg:mx-0 p-5 sm:p-6 py-6 sm:py-8 max-w-full bg-box-bg  shadow-box-shadow md:divide-x divide-box-border grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 md:gap-6 lg:gap-12"
+    <div class="mx-auto text-center max-w-xl md:max-w-full relative p-0">
+      <Container>
+        <div
+          class="border-8 border-green-800 rounded-full mx-auto lg:mx-0 p-5 sm:p-6 py-6 sm:py-8 max-w-full bg-box-bg shadow-box-shadow md:divide-x divide-box-border grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-6 lg:gap-12"
+        >
+          <div class="items-right justify-right">
+            <button
+              class="bg-gradient-to-r transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white text-sm lg:text-md p-2 rounded-full pr-2 pl-2"
+              ><a
+                href=""
+                data-tally-open="gDkNGO"
+                data-tally-layout="modal"
+                data-tally-width="500"
+                data-tally-hide-title="1"
+                data-tally-emoji-text="👋"
+                data-tally-emoji-animation="wave"
+                data-tally-auto-close="0"
+                data-tally-form-events-forwarding="1"
+              >
+                Register Now</a
+              ></button
             >
-            <div class="items-right justify-right">
-              <button class="border dark:text-white text-black text-sm lg:text-md p-1 rounded-full pr-2 pl-2"><a href="" data-tally-open="gDkNGO" data-tally-layout="modal" data-tally-width="500" data-tally-hide-title="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" data-tally-auto-close="0" data-tally-form-events-forwarding="1"> Register Now</a></button>
-                
-            </div>
+          </div>
 
-            <div>
-             <button class="open-modal-btn border text-sm lg:text-md p-1 bg-primary text-white rounded-full pr-2 pl-2"><a href="###">Make Payment</a></button>
-            </div>
+          <div>
+            <button
+              class="open-modal-btn border transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full pr-2 pl-2"
+              ><a href="###">Make Payment</a></button
+            >
+          </div>
 
-            <div>
-                  <button class="border dark:text-white text-black text-sm lg:text-md p-1 rounded-full pr-2 pl-2"><a href="#tally-open=VL4vdg&tally-emoji-text=👋&tally-emoji-animation=wave">Contact Us</a></button>
-            </div>
+          <div>
+            <button
+              class="bg-slate-800 hover:bg-slate-900 text-white text-sm transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl lg:text-md p-2 rounded-full pr-2 pl-2"
+              ><a
+                href="#tally-open=VL4vdg&tally-emoji-text=👋&tally-emoji-animation=wave"
+                >Contact Us</a
+              ></button
+            >
+          </div>
 
-            </div>
-        </Container>
-      </div>
+          <div>
+            <button
+              class="bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md p-2 rounded-full pr-2 pl-2"
+              ><a href="###" class="open-chatbot">Ask AI assistant</a></button
+            >
+          </div>
+        </div>
+      </Container>
+    </div>
   </Container>
 </section>

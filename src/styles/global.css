@@ -63,29 +63,4 @@ body {
   display: flex;
 }
 
-.logo {
-  @apply object-contain transition-all duration-300;
-  width: 120px;
-}
-
-/* Small tablets */
-@media (min-width: 640px) {
-  .logo {
-    width: 160px;
-  }
-}
-
-/* Laptops */
-@media (min-width: 1024px) {
-  .logo {
-    width: 160px;
-  }
-}
-
-/* Large screens */
-@media (min-width: 1536px) {
-  .logo {
-    width: 280px;
-  }
-}
 

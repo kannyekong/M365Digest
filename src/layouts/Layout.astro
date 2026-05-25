@@ -9,38 +9,82 @@ export interface Props {
 const { title } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="M365 Digest - M365 Bootcamp training">
+    <meta name="description" content="M365 Digest - M365 Bootcamp training" />
     <title>{title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Changa+One:ital@0;1&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Quicksand:wght@300..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"></head>
-<script async src="https://tally.so/widgets/embed.js"></script>
-<script src="../utils/accordion.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Changa+One:ital@0;1&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Quicksand:wght@300..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    /><script async src="https://tally.so/widgets/embed.js"></script></head
+  >
 
-  
+  <script src="../utils/accordion.js"></script>
 
-<body class="overflow-hidden overflow-y-auto bg-body">
+  <body class="overflow-hidden overflow-y-auto bg-body">
     <Navbar />
     <slot />
     <Footer />
+
+    <!-- CHAT BASE IO -->
+    <script is:inline>
+      window.embeddedChatbotConfig = {
+        chatbotId: "Ox4kE0wR3R-iN8bkXiUUQ",
+        domain: "www.chatbase.co",
+      };
+    </script>
+
+    <script
+      src="https://www.chatbase.co/embed.min.js"
+      chatbotId="Ox4kE0wR3R-iN8bkXiUUQ"
+      domain="www.chatbase.co"
+      defer></script>
+
+    <script>
+      window.addEventListener("load", () => {
+        // Select ALL buttons with this class
+        const buttons = document.querySelectorAll(".open-chatbot");
+
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            // Open Chatbase widget
+            if (window.chatbase) {
+              window.chatbase("open");
+            }
+          });
+        });
+      });
+    </script>
   </body>
   <script>
     const switchTheme = document.querySelector(
@@ -91,77 +135,74 @@ const { title } = Astro.props;
       "[data-nav-overlay]"
     ) as HTMLDivElement;
     if (toggleMenu) {
-      toggleMenu.addEventListener("click", e => {
+      toggleMenu.addEventListener("click", (e) => {
         e.preventDefault();
         if (toggleMenu.getAttribute("data-open-nav") === "false") {
           toggleMenu.setAttribute("data-open-nav", "true");
           overlayNav.setAttribute("data-is-visible", "true");
           document.body.classList.add("!overflow-y-hidden");
-		  navbar.style.height = `${navbar.scrollHeight}px`
-
-        }else{
-			toggleMenu.setAttribute("data-open-nav", "false");
-        	overlayNav.setAttribute("data-is-visible", "false");
-        	document.body.classList.remove("!overflow-y-hidden");
-		  	navbar.style.height = "0px"
-		}
-		
-        
+          navbar.style.height = `${navbar.scrollHeight}px`;
+        } else {
+          toggleMenu.setAttribute("data-open-nav", "false");
+          overlayNav.setAttribute("data-is-visible", "false");
+          document.body.classList.remove("!overflow-y-hidden");
+          navbar.style.height = "0px";
+        }
       });
 
       navbar.addEventListener("click", () => {
         toggleMenu.setAttribute("data-open-nav", "false");
         overlayNav.setAttribute("data-is-visible", "false");
         document.body.classList.remove("!overflow-y-hidden");
-		  	navbar.style.height = "0px"
+        navbar.style.height = "0px";
       });
 
       overlayNav.addEventListener("click", () => {
         toggleMenu.setAttribute("data-open-nav", "false");
-        	overlayNav.setAttribute("data-is-visible", "false");
-        	document.body.classList.remove("!overflow-y-hidden");
-		  	navbar.style.height = "0px"
+        overlayNav.setAttribute("data-is-visible", "false");
+        document.body.classList.remove("!overflow-y-hidden");
+        navbar.style.height = "0px";
       });
     }
   </script>
   <script>
-  const modal = document.getElementById("modal");
-  const closeBtn = document.getElementById("close-modal");
+    const modal = document.getElementById("modal");
+    const closeBtn = document.getElementById("close-modal");
 
-  // Select ALL trigger buttons
-  const openButtons = document.querySelectorAll(".open-modal-btn");
+    // Select ALL trigger buttons
+    const openButtons = document.querySelectorAll(".open-modal-btn");
 
-  // Add click event to each button
-  openButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+    // Add click event to each button
+    openButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
 
-      document.body.classList.add("overflow-hidden");
+        document.body.classList.add("overflow-hidden");
+      });
     });
-  });
 
-  function closeModal() {
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
 
-    document.body.classList.remove("overflow-hidden");
-  }
-
-  closeBtn.addEventListener("click", closeModal);
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      closeModal();
+      document.body.classList.remove("overflow-hidden");
     }
-  });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeModal();
-    }
-  });
-</script>
+    closeBtn.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    });
+  </script>
 </html>
 <style is:global>
   :root {
@@ -170,9 +211,9 @@ const { title } = Astro.props;
     --color-box: 255 255 255;
     --box-border: 229 231 235;
     --box-sd: 226 232 240 / 0.5;
-	--heading-1:  23 37 84;
-	--heading-2: 31 41 55;
-	--heading-3: 55 65 81;
+    --heading-1: 23 37 84;
+    --heading-2: 31 41 55;
+    --heading-3: 55 65 81;
   }
 
   .dark {
@@ -181,20 +222,20 @@ const { title } = Astro.props;
     --box-border: 243 244 246/0.1;
     --box-sd: transparent;
 
-	
-	--heading-1:  255 255 255;
-	--heading-2:  243 244 246;
-	--heading-3:  209 213 219;
+    --heading-1: 255 255 255;
+    --heading-2: 243 244 246;
+    --heading-3: 209 213 219;
   }
 
-  html{
+  html {
     scroll-behavior: smooth;
   }
   body {
     font-family: "Montserrat", sans-serif;
   }
 
-  p, ul {
+  p,
+  ul {
     font-family: "Quicksand", sans-serif;
   }
 
@@ -209,7 +250,6 @@ const { title } = Astro.props;
     transform: translateY(-0.375rem) rotate(-40deg);
   }
 
-  
   [data-nav-overlay][data-is-visible="true"] {
     visibility: visible;
     display: flex;
