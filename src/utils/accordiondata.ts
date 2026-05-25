@@ -3,15 +3,9 @@
 const ITEMS_PER_PAGE = 5;
 const faqs = [
   {
-    question: "What is M365 Digest Bootcamp?",
+    question: "What is this Bootcamp about?",
     answer:
-      "M365 Digest Bootcamp is a hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 administration, Azure, Exchange Online, Intune, Security, Automation, and cloud technologies used in real-world environments.",
-  },
-
-  {
-    question: "Who is this bootcamp for?",
-    answer:
-      "The bootcamp is designed for beginners, IT support professionals, system administrators, students, career switchers, and anyone looking to build a career in Microsoft 365 and cloud computing.",
+      "This Bootcamp is a hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 administration, Azure, Exchange Online, Intune, Security, Automation, and cloud technologies used in real-world environments.",
   },
 
   {

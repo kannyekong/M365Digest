@@ -124,6 +124,44 @@ const { title } = Astro.props;
       });
     }
   </script>
+  <script>
+  const modal = document.getElementById("modal");
+  const closeBtn = document.getElementById("close-modal");
+
+  // Select ALL trigger buttons
+  const openButtons = document.querySelectorAll(".open-modal-btn");
+
+  // Add click event to each button
+  openButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+
+      document.body.classList.add("overflow-hidden");
+    });
+  });
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.body.classList.remove("overflow-hidden");
+  }
+
+  closeBtn.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+</script>
 </html>
 <style is:global>
   :root {

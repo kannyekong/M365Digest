@@ -1,0 +1,98 @@
+---
+const selarLink = "https://selar.co/m365bootcamp";
+---
+
+<!-- Selar Modal --><!-- Modal -->
+<div
+  id="modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+>
+  <!-- Card -->
+  <div
+    class="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900 dark:border dark:border-yellow-500"
+  >
+    <!-- Glow -->
+    <div
+      class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl"
+    >
+    </div>
+
+    <!-- Close -->
+    <button
+      id="close-modal"
+      class="absolute right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-2xl transition hover:rotate-90 dark:bg-gray-800 dark:text-white"
+    >
+      ×
+    </button>
+
+    <!-- Content -->
+    <div class="relative p-8 md:p-10">
+      <!-- Heading -->
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-800 dark:text-white">
+          Payment Portal
+        </h2>
+
+        <p class="mt-3 text-gray-600 dark:text-gray-300">
+          You will be redirected to <span class="font-bold text-yellow-500"
+            >Selar</span
+          > to complete your payment.<br />
+          N/B: Ensure to register before making payment. If you have not registered,
+          click this link: <a class="underline" href="#tally-open=gDkNGO&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave#tally-open=gDkNGO&tally-layout=modal&tally-width=500&tally-hide-title=1&tally-emoji-text=👋&tally-emoji-animation=wave#tally-open=gDkNGO&tally-layout=modal&tally-width=500&tally-hide-title=1&tally-emoji-text=👋&tally-emoji-animation=wave&tally-auto-close=2000">Register Now</a>
+        </p>
+      </div>
+
+      <!-- Features -->
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <div
+          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          ✅ Hands-on Labs
+        </div>
+
+        <div
+          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          ✅ Real-world Scenarios
+        </div>
+
+        <div
+          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          ✅ Career Mentorship
+        </div>
+
+        <div
+          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          ✅ Certification Preparation
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div
+        class="mt-8 rounded-3xl bg-gradient-to-r from-primary to-indigo-600 p-6 text-center text-white shadow-xl"
+      >
+        <p class="text-sm uppercase tracking-widest opacity-80">Bootcamp Fee</p>
+
+        <h3 class="mt-2 text-4xl font-bold">$50</h3>
+
+        <a href="#faq" class="mt-2 text-sm opacity-90">
+          View our Refund Policy
+        </a>
+      </div>
+
+      <!-- CTA -->
+      <div class="mt-8 flex justify-center">
+        <a
+          href={selarLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-2xl bg-primary px-8 py-4 text-lg font-semibold text-white shadow-xl transition hover:scale-105"
+        >
+          Proceed to pay
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

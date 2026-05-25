@@ -3,46 +3,121 @@ import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import ByNumber from "./ByNumber.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
-
-
 ---
 
 <section class="relative pt-32 lg:pt-36">
-    <Container className={"flex flex-col lg:flex-row gap-10 lg:gap-12"}>
-        <div class="absolute w-full lg:w-1/2 inset-y-0 lg:right-0 ">
-            <span class="absolute -left-6 md:left-4 top-24 lg:top-28 w-24 h-24 rotate-90 skew-x-12 rounded-3xl bg-blue-400 blur-xl opacity-60 lg:opacity-95 lg:block hidden"></span>
-            <span class="absolute right-4 bottom-12 w-24 h-24 rounded-3xl bg-primary blur-xl opacity-80"></span>
+  <Container className={"flex flex-col lg:flex-row gap-10 lg:gap-12"}>
+    <div class="absolute w-full lg:w-1/2 inset-y-0 lg:right-0">
+      <span
+        class="absolute -left-6 md:left-4 top-24 lg:top-28 w-24 h-24 rotate-90 skew-x-12 rounded-3xl bg-blue-400 blur-xl opacity-60 lg:opacity-95 lg:block hidden"
+      ></span>
+      <span
+        class="absolute right-4 bottom-12 w-24 h-24 rounded-3xl bg-primary blur-xl opacity-80"
+      ></span>
+    </div>
+    <span
+      class="w-4/12 lg:w-2/12 aspect-square bg-gradient-to-tr from-blue-400 to-green-400 absolute -top-5 lg:left-0 rounded-full skew-y-12 blur-2xl opacity-40 skew-x-12 rotate-90"
+    ></span>
+    <div
+      class="relative flex flex-col text-left lg:py-7 xl:py-8
+        items-start lg:max-w-none max-w-3xl mx-auto lg:mx-0 lg:flex-1 lg:w-1/2"
+    >
+      <h1
+        class="text-5xl/tight sm:text-6xl/tight md:text-5xl/tight xl:text-6xl/tight
+             font-bold text-heading-1"
+      >
+        M365 Administration Bootcamp:
+        <span
+          class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-5% to-green-500"
+          >6 Weeks to Mastery</span
+        >
+      </h1>
+      <mark
+        class="border-2 bg-white border-yellow-500 text-yellow-500 dark:border-none p-0.5 rounded font-bold pr-1 pl-1"
+        ><i class="fa fa-bullhorn text-yellow-600"></i> Starts on 1st June, 2026</mark
+      >
+      <Paragraph className="mt-5">
+        In six weeks, you’ll progress from basic familiarity to confident
+        administration of core Microsoft 365 services, including Outlook, Teams,
+        SharePoint, OneDrive, Power Automate, and Power BI. Each session is
+        built around real-world administrative scenarios—equipping you not just
+        to understand the platform, but to effectively manage users, secure
+        data, optimize environments, and resolve everyday operational
+        challenges.
+      </Paragraph>
+      <div
+        class="mt-5 w-full flex flex-row max-w-full mx-auto lg:mx-0 space-x-4"
+      >
+        <div
+          class="lg:min-w-max flex lg:items-center sm:w-max w-full"
+        >
+          <BtnLinkStart
+            text="Explore Your Learning Path"
+            href="#services"
+            className="flex justify-center w-full sm:w-max"
+            variant="primary"
+          />
         </div>
-        <span class="w-4/12 lg:w-2/12 aspect-square bg-gradient-to-tr from-blue-400 to-green-400 absolute -top-5 lg:left-0 rounded-full skew-y-12 blur-2xl opacity-40 skew-x-12 rotate-90"></span>
-        <div class="relative flex flex-col text-left lg:py-7 xl:py-8 
-        items-start lg:max-w-none max-w-3xl mx-auto lg:mx-0 lg:flex-1 lg:w-1/2">
-            
-            <h1 class="text-5xl/tight sm:text-6xl/tight md:text-5xl/tight xl:text-6xl/tight
-             font-bold text-heading-1">
-             M365 Administration Bootcamp: 
-  <span class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-5% to-green-500">6 Weeks to Mastery</span>
-            </h1>
-            <mark class="border-2 bg-white border-yellow-500 p-0.5 rounded font-bold pr-1 pl-1"><i class="fa fa-bullhorn text-yellow-500"></i>   Starts on 1st June, 2026</mark>
-            <Paragraph className="mt-8">
-
-            In six weeks, you’ll progress from basic familiarity to confident administration of core Microsoft 365 services, including Outlook, Teams, SharePoint, OneDrive, Power Automate, and Power BI. Each session is built around real-world administrative scenarios—equipping you not just to understand the platform, but to effectively manage users, secure data, optimize environments, and resolve everyday operational challenges.
-            </Paragraph>
-            <div class="mt-10  w-full flex max-w-full mx-auto lg:mx-0 space-x-4">
-                <div class="lg:min-w-max flex lg:items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0">
-                    <BtnLinkStart text="Explore Your Learning Path" href="#services" className="flex justify-center w-full sm:w-max" variant="primary"/>
-                </div>
-                <div class="lg:min-w-max flex lg:items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0">
-                    <button data-tally-open="gDkNGO" data-tally-layout="modal" data-tally-width="500" data-tally-hide-title="1" data-tally-emoji-text="👋" data-tally-emoji-animation="wave" data-tally-auto-close="0" data-tally-form-events-forwarding="1" class="bg-primary text-white lg:px-6 py-3 rounded-full outline-none relative overflow-hidden duration-300 ease-linear
-                    after:absolute after:inset-x-0 after:aspect-square after:scale-0 after:opacity-70 after:origin-center after:duration-300 after:ease-linear after:rounded-full after:top-0 after:left-0 after:bg-[#172554] hover:text-white hover:after:opacity-100 hover:after:scale-[2.5] "> Register Now</button>
-
-                </div>
-            </div>
+        <div
+          class="lg:min-w-max flex lg:items-center sm:w-max w-full lg:pb-0 border-b border-box-bg lg:border-0 lg:px-0"
+        >
+          <button
+            data-tally-open="gDkNGO"
+            data-tally-layout="modal"
+            data-tally-width="500"
+            data-tally-hide-title="1"
+            data-tally-emoji-text="👋"
+            data-tally-emoji-animation="wave"
+            data-tally-auto-close="0"
+            data-tally-form-events-forwarding="1"
+            class="bg-primary
+    text-white
+    text-xs
+    md:text-sm
+    px-6
+    py-3
+    rounded-full
+    outline-none
+    relative
+    overflow-hidden
+    duration-300
+    ease-linear
+    z-0
+    after:absolute
+    after:inset-x-0
+    after:aspect-square
+    after:scale-0
+    after:opacity-70
+    after:origin-center
+    after:duration-300
+    after:ease-linear
+    after:rounded-full
+    after:top-0
+    after:left-0
+    after:bg-[#172554]
+    after:z-[-1]
+    hover:text-white
+    hover:after:opacity-100
+    hover:after:scale-[2.5]"
+          >
+            <span class="relative z-10"> Register Now </span>
+          </button>
         </div>
+      </div>
+    </div>
 
-        <div class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl">
-            <img src="/images/boot.jpg" alt="Hero image" width="2350" height="2359" class="lg:absolute lg:w-full lg:h-full rounded-3xl lg:rounded-full object-cover lg:max-h-none max-h-96">
-        </div>
-    </Container>
+    <div
+      class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl"
+    >
+      <img
+        src="/images/boot.jpg"
+        alt="Hero image"
+        width="2350"
+        height="2359"
+        class="lg:absolute lg:w-full lg:h-full rounded-3xl lg:rounded-full object-cover lg:max-h-none max-h-96"
+      />
+    </div>
+  </Container>
 
-    <ByNumber/>
+  <ByNumber />
 </section>

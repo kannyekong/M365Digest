@@ -1,62 +1,217 @@
 ---
-import GroupFooterNav from "../blocks/GroupFooterNav.astro";
-import Container from "../shared/Container.astro";
-import FooterNav from "../shared/FooterNav.astro";
-import Paragraph from "../shared/Paragraph.astro";
-const footerNav1 = [
-    {
-        itemText:"Marketing",
-        itemLink:"#"
-    },
-    {
-        itemText:"Analylitics",
-        itemLink:"#"
-    },
-]
+const footerLinks = {
+  company: [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+    { name: "FAQ", href: "/faq" },
+  ],
 
-const footerSupport = [
-    {
-        itemText:"Pricing",
-        itemLink:"#"
-    },
-    {
-        itemText:"FAQ",
-        itemLink:"#"
-    },
-]
+  bootcamp: [
+    { name: "Curriculum", href: "/curriculum" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Refund Policy", href: "/refund-policy" },
+    { name: "Terms & Conditions", href: "/terms" },
+  ],
 
-const footerCompany = [
-    {
-        itemText:"About",
-        itemLink:"#"
-    },
-    {
-        itemText:"Our Team",
-        itemLink:"#"
-    },
-    
-]
-const footerLegal = [
-  
-    {
-        itemText:"Privacy",
-        itemLink:"#"
-    },
-    {
-        itemText:"T&Cs",
-        itemLink:"#"
-    }
-]
+  resources: [
+    { name: "Blog", href: "/blog" },
+    { name: "Microsoft 365 Guides", href: "/guides" },
+    { name: "Career Roadmap", href: "/roadmap" },
+    { name: "Support", href: "/support" },
+  ],
+
+  socials: [
+    { name: "LinkedIn", href: "https://linkedin.com" },
+    { name: "Twitter/X", href: "https://x.com" },
+    { name: "YouTube", href: "https://youtube.com" },
+    { name: "Instagram", href: "https://instagram.com" },
+  ],
+};
+
+const year = new Date().getFullYear();
 ---
-<footer>
-    <div class="py-2 relative bg-blue-900">
-        <Container>
-            <div class="flex justify-center items-center gap-6 md:text-lg text-heading-3">
-                <div class="text-white justify-center text-xs lg:text-sm">
-                    &copy; <span id="year"></span> M365 Bootcamp. All right reserved | <a href="tel:+2348143099128">Call Us</span> | <a href="mailto:admin@m365digest.net">Email Us</a> 
-                    
-                </div>
-            </div>
-        </Container>
+
+<footer
+  class="relative overflow-hidden mt-16 border-gray-200 dark:border-gray-800 dark:bg-gray-950"
+>
+  <!-- Background Glow -->
+  <div
+    class="absolute left-0 top-0 h-152 w-152 rounded-full bg-blue-500/10 blur-xl"
+  >
+  </div>
+
+  <div
+    class="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-green-300/10 blur-xl"
+  >
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-6 border-t border-t-[#eee] py-16">
+    <!-- Top Section -->
+    <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+      <!-- Brand -->
+      <div class="lg:col-span-2">
+        <a href="/" class="inline-flex items-center gap-3">
+          <!-- Logo -->
+          <img
+            src="./logos/loggo.png"
+            alt="M365 Digest"
+            class="w-[140px] h-auto object-contain"
+          />
+        </a>
+
+        <p class="mt-6 max-w-md leading-7 text-gray-600 dark:text-gray-300">
+          Empowering the next generation of cloud engineers with hands-on
+          Microsoft 365, Azure, Security, Automation, and Enterprise IT
+          training.
+        </p>
+
+        <!-- Social Icons -->
+        <div class="mt-6 flex items-center gap-4">
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1 5 2.12 5 3.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-1 1.8-2.2 3.8-2.2 4 0 4.7 2.6 4.7 6V24h-4v-7.1c0-1.7 0-3.9-2.4-3.9s-2.8 1.9-2.8 3.8V24h-4V8z"
+              ></path>
+            </svg>
+          </a>
+
+          <a
+            href="https://x.com"
+            target="_blank"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M18.244 2H21.5l-7.12 8.14L22 22h-6.95l-5.44-7.1L3.4 22H.14l7.61-8.7L0 2h7.13l4.9 6.46L18.244 2z"
+              ></path>
+            </svg>
+          </a>
+
+          <a
+            href="https://youtube.com"
+            target="_blank"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+          >
+            ▶
+          </a>
+        </div>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Company
+        </h3>
+
+        <ul class="mt-5 space-y-3">
+          {
+            footerLinks.company.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-gray-600 transition hover:text-primary dark:text-gray-300"
+                >
+                  {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Bootcamp -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Bootcamp
+        </h3>
+
+        <ul class="mt-5 space-y-3">
+          {
+            footerLinks.bootcamp.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-gray-600 transition hover:text-primary dark:text-gray-300"
+                >
+                  {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Resources
+        </h3>
+
+        <ul class="mt-5 space-y-3">
+          {
+            footerLinks.resources.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-gray-600 transition hover:text-primary dark:text-gray-300"
+                >
+                  {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
+
+    <!-- Divider -->
+    <div class="my-10 border-t border-gray-200 dark:border-gray-800"></div>
+
+    <!-- Bottom -->
+    <div
+      class="flex flex-col items-center justify-between gap-4 text-center md:flex-row"
+    >
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        © {year} M365 Digest Bootcamp. All rights reserved.
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
+        <a
+          href="/privacy-policy"
+          class="text-gray-500 transition hover:text-primary dark:text-gray-400"
+        >
+          Privacy Policy
+        </a>
+
+        <a
+          href="/terms"
+          class="text-gray-500 transition hover:text-primary dark:text-gray-400"
+        >
+          Terms
+        </a>
+
+        <a
+          href="/refund-policy"
+          class="text-gray-500 transition hover:text-primary dark:text-gray-400"
+        >
+          Refund Policy
+        </a>
+      </div>
+    </div>
+  </div>
 </footer>
