@@ -3,48 +3,94 @@ import Info from "../cards/Info.astro";
 import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import Title from "../shared/Title.astro";
-
+import { BadgeCheck } from "lucide-astro";
 ---
 
 <section id="about-us">
-    <Container className="flex flex-col midmd:flex-row gap-10 lg:gap-12 bg-gradient">
-        <div class="max-w-md mx-auto midmd:max-w-none lg:mx-0  lg:pr-10 xl:pr-2 flex-1 flex w-11/12 midmd:w-5/12 lg:w-1/2 midmd:h-auto">
-            <div class="w-full h-80 sm:h-96 midmd:h-full relative">
-                <div class="absolute rotate-45 -left-5 md:-left-10 lg:-left-20 xl:-left-24 p-1 top-1/2 w-16 h-16 bg-gradient-to-br from-primary to-orange-400 blur-3xl opacity-50"></div>
-                <div class="absolute  p-1 -top-4 md:-top-10 right-0 w-20 h-20 bg-gradient-to-br from-primary to-orange-400 rounded-full blur-3xl opacity-60"></div>
-                
-                <span class="absolute w-full aspect-[16/5] -skew-x-12 rounded-full bg-gradient-to-tr from-primary to-green-400 opacity-40 blur-2xl left-0 bottom-0"></span>
-                <img src={"/images/bootcampp.jpg"} alt="banner image" 
-                width="1240" height="1385"
-                class="rounded-lg lg:rounded-full w-auto left-1/2 -translate-x-1/2 absolute top-8 max-h-full" />
-            </div>
+  <Container
+    className="flex flex-col midmd:flex-row gap-10 lg:gap-12 bg-gradient"
+  >
+    <div
+      class="max-w-md mx-auto midmd:max-w-none lg:mx-0 lg:pr-10 xl:pr-2 flex-1 flex w-11/12 midmd:w-5/12 lg:w-1/2 midmd:h-auto"
+    >
+      <div class="w-full h-80 sm:h-96 midmd:h-full relative">
+        <div
+          class="absolute rotate-45 -left-5 md:-left-10 lg:-left-20 xl:-left-24 p-1 top-1/2 w-16 h-16 bg-gradient-to-br from-primary to-orange-400 blur-3xl opacity-50"
+        >
         </div>
-        <div class="flex-1 flex p-6 md:p-0 midmd:w-7/12 lg:w-1/2 flex-col">
-            <Title>
-                <span class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-30% to-green-600">Benefits of joining this Bootcamp?</span>
-            </Title>
-            <ul class="mt-8 space-y-1">
-                <li>
-                    <Paragraph><span class="bg-box-bg rounded-full w-8 h-8 mr-3 text-primary inline-flex justify-center items-center">&checkmark;</span>Gain hands-on experience with widely used Microsoft 365 technologies used by organizations worldwide</Paragraph>
-                </li>
-                <li>
-                    <Paragraph><span class="bg-box-bg rounded-full w-8 h-8 mr-3 text-primary inline-flex justify-center items-center">&checkmark;</span> Build practical administrative skills in areas such as Exchange Online, SharePoint, OneDrive, Entra ID, Power Platform, and Copilot.</Paragraph>
-                </li>
-                <li>
-                    <Paragraph><span class="bg-box-bg rounded-full w-8 h-8 mr-3 text-primary inline-flex justify-center items-center">&checkmark;</span> Understand real-world workplace scenarios and how administrators manage users, security, collaboration, and cloud services</Paragraph>
-                </li>
-                
-                <li>
-                    <Paragraph><span class="bg-box-bg rounded-full w-8 h-8 mr-3 text-primary inline-flex justify-center items-center">&checkmark;</span> Develop confidence working in enterprise environments and modern digital workplaces</Paragraph>
-                </li>
-                <li>
-                    <Paragraph><span class="bg-box-bg rounded-full w-8 h-8 mr-3 text-primary inline-flex justify-center items-center">&checkmark;</span> Create a strong foundation for advanced Microsoft certifications and career growth</Paragraph>
-                </li>
-            </ul>
-            
-            
+        <div
+          class="absolute p-1 -top-4 md:-top-10 right-0 w-20 h-20 bg-gradient-to-br from-primary to-orange-400 rounded-full blur-3xl opacity-60"
+        >
         </div>
-        
-    </Container>
 
+        <span
+          class="absolute w-full aspect-[16/5] -skew-x-12 rounded-full bg-gradient-to-tr from-primary to-green-400 opacity-40 blur-2xl left-0 bottom-0"
+        ></span>
+        <img
+          src={"/images/bootcampp.jpg"}
+          alt="banner image"
+          width="1240"
+          height="1385"
+          class="rounded-lg lg:rounded-4xl w-auto left-1/2 -translate-x-1/2 absolute max-h-full"
+        />
+      </div>
+    </div>
+    <div class="flex-1 flex p-6 md:p-0 midmd:w-7/12 lg:w-1/2 flex-col">
+      <Title>
+        <span
+          class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-30% to-green-600"
+          >Benefits of joining this Bootcamp?</span
+        >
+        
+      </Title>
+      <ul class="mt-8 space-y-1">
+        <li>
+          <Paragraph
+            ><span
+              class="bg-box-bg rounded-full w-8 h-8 text-primary inline-flex justify-center items-center"
+              ><BadgeCheck size={20} strokeWidth={5} /></span
+            >Gain hands-on experience with widely used Microsoft 365
+            technologies used by organizations worldwide</Paragraph
+          >
+        </li>
+        <li>
+          <Paragraph
+            ><span
+              class="bg-box-bg rounded-full w-8 h-8 text-primary inline-flex justify-center items-center"
+              ><BadgeCheck size={20} strokeWidth={3} /></span
+            > Build practical administrative skills in areas such as Exchange Online,
+            SharePoint, OneDrive, Entra ID, Power Platform, and Copilot.</Paragraph
+          >
+        </li>
+        <li>
+          <Paragraph
+            ><span
+              class="bg-box-bg rounded-full w-8 h-8 text-primary inline-flex justify-center items-center"
+              ><BadgeCheck size={20} strokeWidth={3} /></span
+            > Understand real-world workplace scenarios and how administrators manage
+            users, security, collaboration, and cloud services</Paragraph
+          >
+        </li>
+
+        <li>
+          <Paragraph
+            ><span
+              class="bg-box-bg rounded-full w-8 h-8 text-primary inline-flex justify-center items-center"
+              ><BadgeCheck size={20} strokeWidth={3} /></span
+            > Develop confidence working in enterprise environments and modern digital
+            workplaces</Paragraph
+          >
+        </li>
+        <li>
+          <Paragraph
+            ><span
+              class="bg-box-bg rounded-full w-8 h-8 text-primary inline-flex justify-center items-center"
+              ><BadgeCheck size={20} strokeWidth={3} /></span
+            > Create a strong foundation for advanced Microsoft certifications and
+            career growth</Paragraph
+          >
+        </li>
+      </ul>
+    </div>
+  </Container>
 </section>

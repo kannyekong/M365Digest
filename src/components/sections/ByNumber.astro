@@ -1,5 +1,6 @@
 ---
 import Container from "../shared/Container.astro";
+import { BadgeDollarSign } from "lucide-astro";
 ---
 
 <section class="relative mt-12 md:mt-16">
@@ -14,11 +15,15 @@ import Container from "../shared/Container.astro";
           $50
         </h2>
         <p class="mt-2 text-heading-3">Enrollment Fee</p>
-        <mark
-          class="open-modal-btn border transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full pr-2 pl-2"
+        <a
+          href="###"
+          class="open-modal-btn bg-emerald-600 hover:bg-emerald-700 inline-flex items-center gap-2 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md px-4 py-2 rounded-full group"
         >
-          <button class="open-modal-btn">Make Payment</button></mark
-        >
+          Make Payment
+          <span class="transition group-hover:translate-x-1">
+            <BadgeDollarSign size={15} strokeWidth={3} />
+          </span>
+        </a>
       </div>
 
       <div class="text-center space-y-1">

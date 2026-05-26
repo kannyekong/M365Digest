@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.5",
     "animejs": "^4.4.1",
     "astro": "^6.3.3",
+    "lucide-astro": "^0.556.0",
     "tailwindcss": "^4.1.5"
   },
   "overrides": {
