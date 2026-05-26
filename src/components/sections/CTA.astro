@@ -1,6 +1,7 @@
 ---
 import Container from "../shared/Container.astro";
 import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
+import Title from "../shared/Title.astro";
 ---
 
 <section id="faq" class="">
@@ -37,18 +38,16 @@ import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
       </div>
       <div class="mx-auto text-center max-w-full md:max-w-2xl relative">
         <section>
-          <div class="md:mx-auto max-w-full md:px-6">
+          <div class="mx-auto max-w-full px-6">
             <!-- Heading -->
             <div class="mb-12 text-center">
-              <h2
-                class="font-bold leading-tight sm:text-4xl md:text-5xl"
-              >
+              <Title>
                 <span
                   class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
                 >
                   Frequently Asked Questions
                 </span>
-              </h2>
+              </Title>
             </div>
 
             <!-- Accordion -->
@@ -64,7 +63,7 @@ import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
                     class="faq-item group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
                     data-index={index}
                   >
-                    <summary class="flex cursor-pointer list-none items-start justify-between px-3 py-3 lg:px-6 lg:py-5">
+                    <summary class="flex cursor-pointer list-none items-start justify-between lg:px-6 lg:py-5">
                       <h3 class="text-sm font-semibold text-gray-800 dark:text-white lg:text-lg">
                         {faq.question}
                       </h3>
@@ -88,9 +87,9 @@ import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
             <div class="mt-10 flex items-center justify-center gap-4">
               <button
                 id="prev-btn"
-                class="rounded-full bg-gray-200 px-5 py-2 dark:bg-gray-800"
+                class="rounded-xl bg-gray-200 px-5 py-2 dark:bg-gray-800"
               >
-                Prev
+                Previous
               </button>
 
               <span
@@ -101,7 +100,7 @@ import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
 
               <button
                 id="next-btn"
-                class="rounded-full bg-primary px-5 py-2 text-white"
+                class="rounded-xl bg-primary px-5 py-2 text-white"
               >
                 Next
               </button>
