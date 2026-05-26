@@ -1,27 +1,367 @@
 ---
-import "../styles/global.css"
-import Layout from '../layouts/Layout.astro';
-import Hero from '../components/sections/Hero.astro';
-import Services from '../components/sections/Services.astro';
-import AboutUs from '../components/sections/AboutUs.astro';
-import Features from '../components/sections/Features.astro';
-import CTA from '../components/sections/CTA.astro';
-import Contact from "../components/sections/Contact.astro";
-import Requirement from "../components/sections/Requirement.astro"
-import Selar from "../components/sections/Selar.astro"
-
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import Title from "../components/shared/Title.astro";
+import Paragraph from "../components/shared/Paragraph.astro";
+import {
+  Cloud,
+  ShieldCheck,
+  Users,
+  KeyRound,
+  BarChart3,
+  Terminal,
+  ServerCog,
+  BadgeCheck,
+  Activity,
+} from "lucide-astro";
+import Selar from "../components/sections/Selar.astro";
+import Requirement from "../components/sections/Requirement.astro";
+import Pagebreadcrumb from "../components/shared/Pagebreadcrumb.astro";
 ---
 
+<Layout title="Cloudnova - M365 Bootcamp - Week 1">
+  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+    <section class="relative py-24 overflow-hidden">
+      <!-- Background Effects -->
+      <div
+        class="absolute left-0 top-0 h-[30rem] w-[30rem] rounded-full bg-cyan-500/10 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute right-0 bottom-0 h-[25rem] w-[25rem] rounded-full bg-green-500/10 blur-3xl"
+      >
+      </div>
 
-<Layout title="M365 Bootcamp">
-	<main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
-		<Hero/>
-		<!-- <Selar/>
-		<Services/>
-		<AboutUs/>
-		<Requirement/>
-		<CTA/>
-		<Features/>
-		<Contact/> -->
-	</main>
+      <Container className="relative z-10">
+        <!-- Header -->
+        <div class="max-w-4xl mx-auto text-center">
+          <span
+            class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-cyan-500/20
+          bg-cyan-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-cyan-700
+          dark:text-cyan-300
+          backdrop-blur-xl"
+          >
+            <BadgeCheck size={18} />
+            Week 1 Curriculum
+          </span>
+
+          <h1
+            class="mt-8
+          text-5xl/tight
+          md:text-6xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1"
+          >
+            Microsoft 365
+            <span
+              class="text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-indigo-600
+            via-primary
+            to-green-500"
+            >
+              Fundamentals
+            </span>
+          </h1>
+
+          <Paragraph className="mt-8 text-lg">
+            Week 1 introduces the core concepts of Microsoft 365 administration.
+            Students will learn how Microsoft 365 environments work, how
+            identities are managed, how licenses are assigned, and how
+            administrators secure and monitor enterprise cloud environments.
+          </Paragraph>
+
+          <Pagebreadcrumb active="weekone" />
+        </div>
+
+        <!-- Topics -->
+        <div class="grid lg:grid-cols-2 gap-8 mt-20">
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center"
+              >
+                <Cloud size={26} />
+              </div>
+
+              <Title>M365 Administration Foundations</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn what Microsoft 365 is, how organizations use
+              it, and the responsibilities of a Microsoft 365 administrator.
+              This includes understanding cloud services like Exchange Online,
+              SharePoint, Teams, OneDrive, and Entra ID.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Microsoft 365 Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center"
+              >
+                <ServerCog size={26} />
+              </div>
+
+              <Title>Tenant Setup & Configuration</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Microsoft 365 tenants are created and configured.
+              Students will understand domains, subscriptions, regions,
+              organizational settings, and how businesses structure their cloud
+              environments.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/admin/setup/setup"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Tenant Setup Guide
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center"
+              >
+                <Users size={26} />
+              </div>
+
+              <Title>User & Identity Management</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how administrators create users, manage
+              passwords, reset accounts, configure groups, and handle identities
+              using Microsoft Entra ID. Identity management is one of the most
+              important responsibilities in Microsoft 365 administration.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/fundamentals/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Entra ID Fundamentals
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 text-white flex items-center justify-center"
+              >
+                <KeyRound size={26} />
+              </div>
+
+              <Title>Roles & Access Control</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations control permissions in Microsoft 365.
+              Students will understand administrator roles, role-based access
+              control (RBAC), and why least-privilege access is important for
+              security.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/azure/role-based-access-control/overview"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              RBAC Overview
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center"
+              >
+                <BadgeCheck size={26} />
+              </div>
+
+              <Title>License & Subscription Management</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how Microsoft licenses work, how subscriptions
+              are assigned to users, and how organizations manage Microsoft 365
+              services and billing.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/commerce/licenses/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Licensing Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Security & Compliance Fundamentals</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn the basics of Microsoft 365 security including multi-factor
+              authentication, conditional access, data protection, compliance
+              policies, and how organizations secure cloud identities and
+              information.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/compliance/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Security & Compliance Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center"
+              >
+                <BarChart3 size={26} />
+              </div>
+
+              <Title>Monitoring & Reporting</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will understand how administrators monitor Microsoft 365
+              environments, generate usage reports, track user activities, and
+              identify system or security issues using admin dashboards.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/admin/activity-reports/activity-reports"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Reporting Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-green-500 text-white flex items-center justify-center"
+              >
+                <Activity size={26} />
+              </div>
+
+              <Title>Service Health & Incident Management</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how administrators track Microsoft service outages, monitor
+              incidents, review advisories, and communicate service disruptions
+              affecting users and organizations.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/view-service-health"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Service Health Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center"
+              >
+                <Terminal size={26} />
+              </div>
+
+              <Title>Automation & PowerShell Basics</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will be introduced to PowerShell and automation concepts.
+              Learn how administrators use scripts and commands to automate
+              repetitive tasks, manage users, and simplify Microsoft 365
+              administration.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/powershell/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              PowerShell Documentation
+            </a>
+          </div>
+        </div>
+
+        <Selar />
+        <div class="pt-10">
+          <Requirement />
+        </div>
+      </Container>
+    </section>
+  </main>
 </Layout>

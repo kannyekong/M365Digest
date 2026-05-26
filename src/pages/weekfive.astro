@@ -1,0 +1,393 @@
+---
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import Title from "../components/shared/Title.astro";
+import Paragraph from "../components/shared/Paragraph.astro";
+import Pagebreadcrumb from "../components/shared/Pagebreadcrumb.astro";
+
+import {
+  Users,
+  Video,
+  ShieldCheck,
+  BadgeCheck,
+  Phone,
+  Settings2,
+  UserCog,
+  BarChart3,
+  LockKeyhole,
+  Workflow,
+} from "lucide-astro";
+import Requirement from "../components/sections/Requirement.astro";
+import Selar from "../components/sections/Selar.astro";
+---
+
+<Layout title="Cloudnova - M365 Bootcamp - Week 5">
+  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+    <section class="relative py-24 overflow-hidden">
+      <!-- Background Effects -->
+      <div
+        class="absolute left-0 top-0 h-[30rem] w-[30rem] rounded-full bg-purple-500/10 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute right-0 bottom-0 h-[25rem] w-[25rem] rounded-full bg-blue-500/10 blur-3xl"
+      >
+      </div>
+
+      <Container className="relative z-10">
+        <!-- Header -->
+        <div class="max-w-4xl mx-auto text-center">
+          <span
+            class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-purple-500/20
+          bg-purple-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-purple-700
+          dark:text-purple-300
+          backdrop-blur-xl"
+          >
+            <BadgeCheck size={18} />
+            Week 5 Curriculum
+          </span>
+
+          <h1
+            class="mt-8
+          text-5xl/tight
+          md:text-6xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1"
+          >
+            Microsoft
+            <span
+              class="text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-purple-600
+            via-primary
+            to-cyan-500"
+            >
+              Teams
+            </span>
+          </h1>
+
+          <Paragraph className="mt-8 text-lg">
+            Week 5 introduces students to Microsoft Teams administration,
+            collaboration management, communication services, meetings,
+            governance, and enterprise Teams deployment within Microsoft 365
+            environments.
+          </Paragraph>
+
+          <Pagebreadcrumb active="weekfive" />
+        </div>
+
+        <!-- Grid -->
+        <div class="grid lg:grid-cols-2 gap-8 mt-20">
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 text-white flex items-center justify-center"
+              >
+                <Users size={26} />
+              </div>
+
+              <Title>Foundations of Microsoft Teams</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn what Microsoft Teams is, how organizations use
+              it for communication and collaboration, and how it integrates into
+              the Microsoft 365 ecosystem.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-overview"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Overview Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 text-white flex items-center justify-center"
+              >
+                <Settings2 size={26} />
+              </div>
+
+              <Title>Environment Setup</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Microsoft Teams environments are configured, including
+              Teams settings, organization-wide configurations, external access,
+              guest access, and Teams administration basics.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/get-started-with-teams"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Setup Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center"
+              >
+                <Workflow size={26} />
+              </div>
+
+              <Title>Teams, Channels & Membership Management</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how to create Teams, manage channels, assign
+              owners and members, configure permissions, and organize
+              collaboration spaces effectively.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-channels-overview"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams & Channels Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 text-white flex items-center justify-center"
+              >
+                <UserCog size={26} />
+              </div>
+
+              <Title>User Management, Licensing & Provisioning</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Teams users are provisioned, licensed, and managed
+              within Microsoft 365. Students will understand Teams service
+              enablement, policy assignment, and user lifecycle management.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/manage-teams-users"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams User Management Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Policies, Compliance & Security</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how administrators apply Teams policies,
+              manage permissions, secure communications, and configure
+              compliance settings for enterprise collaboration environments.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/security-compliance-overview"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Security Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center"
+              >
+                <LockKeyhole size={26} />
+              </div>
+
+              <Title>Security & Permissions</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations manage Teams access control, guest
+              permissions, external collaboration, and secure user
+              communications using Microsoft 365 security best practices.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/guest-access"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Guest Access & Permissions Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center"
+              >
+                <Video size={26} />
+              </div>
+
+              <Title>Meetings, Webinars & Live Events</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how organizations manage Teams meetings,
+              webinars, live events, meeting policies, recording settings, and
+              collaboration experiences for users.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-live-events/plan-for-teams-live-events"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Meetings & Live Events Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center"
+              >
+                <Phone size={26} />
+              </div>
+
+              <Title>Teams Phone</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn the basics of Microsoft Teams Phone, cloud calling, phone
+              system concepts, voicemail, auto attendants, and enterprise
+              communication services within Teams.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/what-is-phone-system-in-office-365"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Phone Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center"
+              >
+                <Workflow size={26} />
+              </div>
+
+              <Title>Integration with Microsoft 365 Services</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will understand how Microsoft Teams integrates with
+              SharePoint, OneDrive, Exchange Online, Entra ID, Power Platform,
+              and other Microsoft 365 services for collaboration and
+              productivity.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-architecture-solutions-posters"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Architecture Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center"
+              >
+                <BarChart3 size={26} />
+              </div>
+
+              <Title>Analytics & Reporting</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how administrators monitor Teams usage, meeting quality,
+              collaboration analytics, user activity, and reporting dashboards
+              to improve communication experiences within organizations.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-analytics-and-reports"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Teams Reporting Documentation
+            </a>
+          </div>
+        </div>
+
+        <Selar />
+        <div class="pt-10">
+          <Requirement />
+        </div>
+      </Container>
+    </section>
+  </main>
+</Layout>

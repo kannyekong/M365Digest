@@ -1,0 +1,400 @@
+---
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import Title from "../components/shared/Title.astro";
+import Paragraph from "../components/shared/Paragraph.astro";
+import Pagebreadcrumb from "../components/shared/Pagebreadcrumb.astro";
+
+import {
+  ShieldCheck,
+  Users,
+  KeyRound,
+  LockKeyhole,
+  Activity,
+  Terminal,
+  BadgeCheck,
+  ServerCog,
+  Laptop,
+  UserCog,
+} from "lucide-astro";
+import Requirement from "../components/sections/Requirement.astro";
+import Selar from "../components/sections/Selar.astro";
+---
+
+<Layout title="Cloudnova - M365 Bootcamp - Week 4">
+  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+    <section class="relative py-24 overflow-hidden">
+      <!-- Background Effects -->
+      <div
+        class="absolute left-0 top-0 h-[30rem] w-[30rem] rounded-full bg-indigo-500/10 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute right-0 bottom-0 h-[25rem] w-[25rem] rounded-full bg-cyan-500/10 blur-3xl"
+      >
+      </div>
+
+      <Container className="relative z-10">
+        <!-- Header -->
+        <div class="max-w-4xl mx-auto text-center">
+          <span
+            class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-indigo-500/20
+          bg-indigo-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-indigo-700
+          dark:text-indigo-300
+          backdrop-blur-xl"
+          >
+            <BadgeCheck size={18} />
+            Week 4 Curriculum
+          </span>
+
+          <h1
+            class="mt-8
+          text-5xl/tight
+          md:text-6xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1"
+          >
+            Microsoft
+            <span
+              class="text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-indigo-600
+            via-primary
+            to-cyan-500"
+            >
+              Entra ID
+            </span>
+          </h1>
+
+          <Paragraph className="mt-8 text-lg">
+            Week 4 introduces students to Microsoft Entra ID, the identity and
+            access management platform used in Microsoft 365. Students will
+            learn how organizations manage identities, authentication, access
+            control, security policies, and cloud-based identity protection.
+          </Paragraph>
+
+          <Pagebreadcrumb active="weekfour" />
+        </div>
+
+        <!-- Grid -->
+        <div class="grid lg:grid-cols-2 gap-8 mt-20">
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Microsoft Entra ID Overview</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn what Microsoft Entra ID is and how it provides
+              identity and access management for Microsoft 365 environments.
+              This includes understanding cloud identities, authentication,
+              authorization, and enterprise identity concepts.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/fundamentals/whatis"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Entra ID Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white flex items-center justify-center"
+              >
+                <ServerCog size={26} />
+              </div>
+
+              <Title>Tenant Setup & Configuration</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations configure Entra ID tenants, domains,
+              identity synchronization, and organizational settings. Students
+              will understand how businesses structure their identity
+              environments.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-create-first-tenant"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Tenant Configuration Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center"
+              >
+                <Users size={26} />
+              </div>
+
+              <Title>Users & Group Management</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how administrators create users, manage
+              passwords, configure groups, assign licenses, and organize users
+              within Microsoft 365 environments.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-create-delete-users"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              User Management Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-yellow-400 text-white flex items-center justify-center"
+              >
+                <KeyRound size={26} />
+              </div>
+
+              <Title>Authentication Methods & MFA</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations secure accounts using authentication
+              methods such as passwords, Microsoft Authenticator, SMS
+              verification, and Multi-Factor Authentication (MFA). Students will
+              understand why MFA is critical for security.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mfa-howitworks"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              MFA Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 text-white flex items-center justify-center"
+              >
+                <LockKeyhole size={26} />
+              </div>
+
+              <Title>Conditional Access Policies</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how organizations control access to
+              applications using Conditional Access policies. Topics include
+              location-based access, device compliance, MFA enforcement, and
+              risk-based access control.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Conditional Access Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Identity Protection & Security</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Microsoft Entra ID helps organizations detect suspicious
+              activities, risky sign-ins, compromised accounts, and
+              identity-based threats. Students will understand the basics of
+              identity protection.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/id-protection/overview-identity-protection"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Identity Protection Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-teal-500 text-white flex items-center justify-center"
+              >
+                <Laptop size={26} />
+              </div>
+
+              <Title>Device Management Integration</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how Microsoft Entra ID integrates with device
+              management solutions such as Microsoft Intune. Topics include
+              device registration, compliance, and secure access from managed
+              devices.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/mem/intune/fundamentals/what-is-intune"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Intune Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-600 to-slate-900 text-white flex items-center justify-center"
+              >
+                <UserCog size={26} />
+              </div>
+
+              <Title>Roles & Administrative Units</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations delegate administrative responsibilities
+              using roles and administrative units. Students will understand
+              role-based access control (RBAC) and how permissions are assigned
+              securely.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              RBAC Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center"
+              >
+                <Activity size={26} />
+              </div>
+
+              <Title>Monitoring, Auditing & Sign-In Logs</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how administrators monitor sign-ins, review
+              audit logs, track user activities, and investigate suspicious
+              login attempts within Microsoft Entra ID.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Monitoring & Audit Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-black text-white flex items-center justify-center"
+              >
+                <Terminal size={26} />
+              </div>
+
+              <Title>Automation & PowerShell Basics</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will be introduced to Microsoft Graph and PowerShell
+              basics for Entra ID administration. Learn how administrators
+              automate repetitive tasks, manage users, generate reports, and
+              simplify identity management operations.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/powershell/entra-powershell/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Entra PowerShell Docs
+            </a>
+          </div>
+        </div>
+
+        <Selar />
+        <div class="pt-10">
+          <Requirement />
+        </div>
+      </Container>
+    </section>
+  </main>
+</Layout>

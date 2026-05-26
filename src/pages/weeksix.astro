@@ -1,0 +1,430 @@
+---
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import Title from "../components/shared/Title.astro";
+import Paragraph from "../components/shared/Paragraph.astro";
+import Pagebreadcrumb from "../components/shared/Pagebreadcrumb.astro";
+
+import {
+  Bot,
+  ShieldCheck,
+  BadgeCheck,
+  KeyRound,
+  Sparkles,
+  Mail,
+  MessagesSquare,
+  FileText,
+  Sheet,
+  Presentation,
+  Activity,
+} from "lucide-astro";
+
+import Requirement from "../components/sections/Requirement.astro";
+import Selar from "../components/sections/Selar.astro";
+---
+
+<Layout title="Cloudnova - M365 Bootcamp - Week 6">
+  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+    <section class="relative py-24 overflow-hidden">
+      <!-- Background Effects -->
+      <div
+        class="absolute left-0 top-0 h-[30rem] w-[30rem] rounded-full bg-cyan-500/10 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute right-0 bottom-0 h-[25rem] w-[25rem] rounded-full bg-indigo-500/10 blur-3xl"
+      >
+      </div>
+
+      <Container className="relative z-10">
+        <!-- Header -->
+        <div class="max-w-4xl mx-auto text-center">
+          <span
+            class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-cyan-500/20
+          bg-cyan-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-cyan-700
+          dark:text-cyan-300
+          backdrop-blur-xl"
+          >
+            <BadgeCheck size={18} />
+            Week 6 Curriculum
+          </span>
+
+          <h1
+            class="mt-8
+          text-5xl/tight
+          md:text-6xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1"
+          >
+            Microsoft
+            <span
+              class="text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-cyan-500
+            via-primary
+            to-indigo-500"
+            >
+              Copilot
+            </span>
+          </h1>
+
+          <Paragraph className="mt-8 text-lg">
+            Week 6 introduces students to Microsoft Copilot for Microsoft 365.
+            Students will learn how organizations use AI-powered productivity
+            tools, secure Copilot deployments, manage permissions, and improve
+            workplace productivity using Microsoft AI technologies.
+          </Paragraph>
+
+              <Pagebreadcrumb active="weeksix" />
+        </div>
+
+        <!-- Grid -->
+        <div class="grid lg:grid-cols-2 gap-8 mt-20">
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 text-white flex items-center justify-center"
+              >
+                <Bot size={26} />
+              </div>
+
+              <Title>Foundations of Copilot in Microsoft 365</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn what Microsoft Copilot is, how generative AI
+              works within Microsoft 365, and how organizations use AI
+              assistants to improve productivity, collaboration, and automation.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Microsoft Copilot Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center"
+              >
+                <KeyRound size={26} />
+              </div>
+
+              <Title>Setup & Licensing</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Microsoft Copilot licenses are assigned, prerequisites
+              for deployment, supported Microsoft 365 plans, and how
+              organizations prepare their environments for Copilot adoption.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-setup"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot Setup Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Data Access & Permissions</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will understand how Microsoft Copilot accesses
+              organizational data through Microsoft Graph permissions. This
+              section explains why proper file permissions, sharing settings,
+              and identity management are important when using AI tools.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot Privacy & Permissions Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 text-white flex items-center justify-center"
+              >
+                <ShieldCheck size={26} />
+              </div>
+
+              <Title>Security & Compliance</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how organizations secure Microsoft Copilot deployments using
+              compliance policies, data protection controls, sensitivity labels,
+              and Microsoft Purview security features.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-security"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot Security Documentation
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-400 text-white flex items-center justify-center"
+              >
+                <Sparkles size={26} />
+              </div>
+
+              <Title>Prompting Techniques & Best Practices</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how to write effective prompts for Microsoft
+              Copilot. Topics include prompt structure, context building, clear
+              instructions, iterative prompting, and AI productivity best
+              practices.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/copilot-ask-effective-questions"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Prompting Best Practices
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center"
+              >
+                <Mail size={26} />
+              </div>
+
+              <Title>Copilot in Outlook</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Microsoft Copilot assists users in Outlook by
+              summarizing emails, drafting responses, generating meeting recaps,
+              and improving communication productivity.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-outlook"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot for Outlook Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-white flex items-center justify-center"
+              >
+                <MessagesSquare size={26} />
+              </div>
+
+              <Title>Copilot in Teams</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how Copilot enhances Microsoft Teams meetings
+              by generating summaries, capturing action items, and assisting
+              collaboration workflows.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-teams"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot for Teams Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center"
+              >
+                <FileText size={26} />
+              </div>
+
+              <Title>Copilot in Word</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Copilot helps users generate documents, rewrite content,
+              summarize information, and improve productivity within Microsoft
+              Word.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-word"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot for Word Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center"
+              >
+                <Sheet size={26} />
+              </div>
+
+              <Title>Copilot in Excel</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will explore how Copilot assists with data analysis,
+              formulas, trends, visualizations, and spreadsheet productivity
+              within Microsoft Excel.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-excel"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot for Excel Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white flex items-center justify-center"
+              >
+                <Presentation size={26} />
+              </div>
+
+              <Title>Copilot in PowerPoint</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Learn how Copilot helps users create presentations, generate
+              slides, summarize content, and improve storytelling using
+              Microsoft PowerPoint.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-powerpoint"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot for PowerPoint Docs
+            </a>
+          </div>
+
+          <!-- Card -->
+          <div
+            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl lg:col-span-2"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white flex items-center justify-center"
+              >
+                <Activity size={26} />
+              </div>
+
+              <Title>Monitoring, Reporting & Adoption</Title>
+            </div>
+
+            <Paragraph className="mt-6">
+              Students will learn how organizations monitor Copilot usage,
+              review adoption metrics, analyze productivity insights, and
+              encourage responsible AI adoption across enterprise environments.
+            </Paragraph>
+
+            <Paragraph className="mt-4">
+              This section also introduces governance, usage reporting, and
+              strategies for improving user adoption of AI-powered tools.
+            </Paragraph>
+
+            <a
+              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-dashboard"
+              target="_blank"
+              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
+            >
+              Copilot Reporting Documentation
+            </a>
+          </div>
+        </div>
+
+        <Selar />
+        <div class="pt-10">
+          <Requirement />
+        </div>
+      </Container>
+    </section>
+  </main>
+</Layout>
