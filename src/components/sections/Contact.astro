@@ -1,64 +1,86 @@
 ---
 import Container from "../shared/Container.astro";
-
-
-
+import Title from "../shared/Title.astro";
 ---
 
-<section  id="cta" class="pb-20">
+<section id="cta" class="pb-20">
   <Container>
-    <div class="w-full relative py-8 md:py-10 px-6 md:px-8 rounded-2xl bg-gradient-to-tr from-gray-100 to-yellow-50 dark:from-yellow-900 dark:to-transparent">
-        <div class="absolute right-0 top-0 h-full w-full flex justify-end">
-            <div class="w-28 h-28 overflow-auto flex rounded-xl relative blur-2xl">
-                <span
-                class="absolute w-16 h-16 -top-1 -right-1 bg-green-500 rounded-md rotate-45"
-                ></span>
-                <span
-                class="absolute w-16 h-16 -bottom-1 -right-1 bg-[#FCDC58] rounded-md rotate-45"
-                ></span>
-                <span
-                class="absolute w-16 h-16 -bottom-1 -left-1 bg-primary rounded-md rotate-45"
-                ></span>
-            </div>
+    <div
+      class="w-full relative py-8 md:py-10 px-6 md:px-8 rounded-2xl bg-gradient-to-tr from-gray-100 to-yellow-50 dark:from-yellow-900 dark:to-transparent"
+    >
+      <div class="absolute right-0 top-0 h-full w-full flex justify-end">
+        <div class="w-28 h-28 overflow-auto flex rounded-xl relative blur-2xl">
+          <span
+            class="absolute w-16 h-16 -top-1 -right-1 bg-green-500 rounded-md rotate-45"
+          ></span>
+          <span
+            class="absolute w-16 h-16 -bottom-1 -right-1 bg-[#FCDC58] rounded-md rotate-45"
+          ></span>
+          <span
+            class="absolute w-16 h-16 -bottom-1 -left-1 bg-primary rounded-md rotate-45"
+          ></span>
         </div>
+      </div>
 
-        <div class="absolute left-0 bottom-0 h-full w-full flex items-end">
-            <div class="w-28 h-28 overflow-auto flex rounded-xl relative blur-2xl">
-                <span
-                class="absolute w-16 h-16 -top-1 -right-1 bg-green-500 rounded-md rotate-45"
-                ></span>
-                <span
-                class="absolute w-16 h-16 -bottom-1 -right-1 bg-[#FCDC58] rounded-md rotate-45"
-                ></span>
-                <span
-                class="absolute w-16 h-16 -bottom-1 -left-1 bg-primary rounded-md rotate-45"
-                ></span>
-            </div>
+      <div class="absolute left-0 bottom-0 h-full w-full flex items-end">
+        <div class="w-28 h-28 overflow-auto flex rounded-xl relative blur-2xl">
+          <span
+            class="absolute w-16 h-16 -top-1 -right-1 bg-green-500 rounded-md rotate-45"
+          ></span>
+          <span
+            class="absolute w-16 h-16 -bottom-1 -right-1 bg-[#FCDC58] rounded-md rotate-45"
+          ></span>
+          <span
+            class="absolute w-16 h-16 -bottom-1 -left-1 bg-primary rounded-md rotate-45"
+          ></span>
         </div>
-        <div class="mx-auto text-center max-w-full md:max-w-2xl relative">
-            <section>
-            <div class="mx-auto max-w-full px-6 max-h-full">
-
-                <!-- Heading -->
-                <div class="mb-12 text-center">
-                  <h2
-                    class="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl"
-                  >
-                    <span
-                      class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
-                    >
-                        Contact Us</span>
-                  </h2>
-
-                </div>
-                    <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
-                    <iframe data-tally-src="https://tally.so/embed/VL4vdg?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="476" frameborder="0" marginheight="0" marginwidth="0" title="null"></iframe>
+      </div>
+      <div class="mx-auto text-center max-w-full md:max-w-2xl relative">
+        <section>
+          <div class="mx-auto max-w-full px-6 max-h-full">
+            <!-- Heading -->
+            <div class="mb-12 text-center">
+              <Title>
+                <span
+                  class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
+                >
+                  Contact Us</span
+                >
+              </Title>
             </div>
-            </section>
-        </div>
-    
-    
-    
+            <script>
+              var d = document,
+                w = "https://tally.so/widgets/embed.js",
+                v = function () {
+                  "undefined" != typeof Tally
+                    ? Tally.loadEmbeds()
+                    : d
+                        .querySelectorAll("iframe[data-tally-src]:not([src])")
+                        .forEach(function (e) {
+                          e.src = e.dataset.tallySrc;
+                        });
+                };
+              if ("undefined" != typeof Tally) v();
+              else if (d.querySelector('script[src="' + w + '"]') == null) {
+                var s = d.createElement("script");
+                ((s.src = w),
+                  (s.onload = v),
+                  (s.onerror = v),
+                  d.body.appendChild(s));
+              }
+            </script>
+            <iframe
+              data-tally-src="https://tally.so/embed/VL4vdg?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+              loading="lazy"
+              width="100%"
+              height="476"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              title="null"></iframe>
+          </div>
+        </section>
+      </div>
     </div>
   </Container>
 </section>
