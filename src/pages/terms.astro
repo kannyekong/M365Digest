@@ -1,0 +1,387 @@
+---
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import Paragraph from "../components/shared/Paragraph.astro";
+import Container from "../components/shared/Container.astro";
+import Titlenew from "../components/shared/Titlenew.astro";
+import Selar from "../components/sections/Selar.astro";
+---
+
+<Layout title="CloudTweak - M365 Bootcamp - T&C">
+  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+    <section class="relative py-24 overflow-hidden">
+      <!-- Background Effects -->
+      <div
+        class="absolute top-0 left-0 w-72 h-72 bg-cyan-400/10 blur-3xl rounded-full"
+      >
+      </div>
+      <div
+        class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"
+      >
+      </div>
+
+      <Container className="relative z-10 max-w-5xl">
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto">
+          <span
+            class="inline-flex
+          items-center
+          rounded-full
+          border
+          border-cyan-500/20
+          bg-cyan-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-cyan-700
+          dark:text-cyan-300
+          backdrop-blur-xl"
+          >
+            CloudTweak Academy
+          </span>
+
+          <h1
+            class="mt-8
+          text-5xl/tight
+          md:text-6xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1"
+          >
+            Terms &
+            <span
+              class="text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-cyan-500
+            via-primary
+            to-green-500"
+            >
+              Conditions
+            </span>
+          </h1>
+
+          <Paragraph className="mt-6 text-lg">
+            Last Updated: May 27, 2026
+          </Paragraph>
+        </div>
+
+        <!-- Main Card -->
+        <div
+          class="mt-16
+        rounded-[2rem]
+        border
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
+        p-8
+        md:p-12
+        shadow-2xl
+        space-y-12"
+        >
+          <!-- Intro -->
+          <div class="space-y-4">
+            <Titlenew>Welcome to CloudTweak Academy</Titlenew>
+
+            <Paragraph>
+              These Terms & Conditions govern your access to and use of
+              CloudTweak Academy’s training programs, website, bootcamps,
+              digital resources, communities, and related services.
+            </Paragraph>
+
+            <Paragraph>
+              By enrolling in any CloudTweak program or using our platform, you
+              agree to comply with these terms.
+            </Paragraph>
+          </div>
+
+          <!-- Section 1 -->
+          <div class="space-y-4">
+            <Titlenew>1. Eligibility</Titlenew>
+
+            <Paragraph>
+              Participants must be at least 18 years old or have the permission
+              of a parent or guardian before enrolling in any CloudTweak
+              program.
+            </Paragraph>
+
+            <Paragraph>
+              You are responsible for ensuring that your device, internet
+              connection, and software environment are adequate for
+              participating in online training.
+            </Paragraph>
+          </div>
+
+          <!-- Section 2 -->
+          <div class="space-y-4">
+            <Titlenew>2. Enrollment & Payments</Titlenew>
+
+            <Paragraph>
+              Enrollment into any bootcamp or training program is confirmed only
+              after successful payment processing.
+            </Paragraph>
+
+            <Paragraph>
+              CloudTweak reserves the right to refuse, suspend, or cancel
+              enrollment in situations involving payment disputes, fraudulent
+              activity, or violations of these terms.
+            </Paragraph>
+
+            <Paragraph>
+              All pricing displayed on our platform is subject to change without
+              prior notice.
+            </Paragraph>
+          </div>
+
+          <!-- Section 3 -->
+          <div class="space-y-4">
+            <Titlenew>3. Refund Policy</Titlenew>
+
+            <Paragraph>
+              Refund requests are governed by our official Refund Policy.
+            </Paragraph>
+
+            <Paragraph>
+              Participants may request refunds only within the eligible refund
+              period stated in the Refund Policy page.
+            </Paragraph>
+
+            <Paragraph>
+              After the refund eligibility window expires, all payments become
+              non-refundable.
+            </Paragraph>
+          </div>
+
+          <!-- Section 4 -->
+          <div class="space-y-4">
+            <Titlenew>4. Intellectual Property</Titlenew>
+
+            <Paragraph>
+              All training materials, presentations, labs, recordings,
+              documentation, videos, and downloadable resources provided by
+              CloudTweak remain the intellectual property of CloudTweak Academy.
+            </Paragraph>
+
+            <Paragraph> Participants may not: </Paragraph>
+
+            <ul class="space-y-3 text-heading-2">
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-cyan-500"></span>
+                Redistribute course materials
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-cyan-500"></span>
+                Resell or commercially reproduce training content
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-cyan-500"></span>
+                Share private learning resources publicly
+              </li>
+            </ul>
+          </div>
+
+          <!-- Section 5 -->
+          <div class="space-y-4">
+            <Titlenew>5. Account & Access Restrictions</Titlenew>
+
+            <Paragraph>
+              Access to training platforms, communities, labs, and recordings is
+              intended solely for the enrolled participant.
+            </Paragraph>
+
+            <Paragraph>
+              Sharing accounts, login credentials, or private access links with
+              unauthorized individuals is prohibited.
+            </Paragraph>
+
+            <Paragraph>
+              CloudTweak reserves the right to suspend or revoke access where
+              misuse or unauthorized sharing is detected.
+            </Paragraph>
+          </div>
+
+          <!-- Section 6 -->
+          <div class="space-y-4">
+            <Titlenew>6. Code of Conduct</Titlenew>
+
+            <Paragraph>
+              Participants are expected to maintain respectful, professional,
+              and constructive behavior throughout all CloudTweak programs and
+              communities.
+            </Paragraph>
+
+            <Paragraph>
+              Harassment, abuse, discrimination, disruptive conduct, or
+              malicious behavior toward instructors, staff, or fellow
+              participants will not be tolerated.
+            </Paragraph>
+
+            <Paragraph>
+              Violations may result in immediate removal from the program
+              without refund.
+            </Paragraph>
+          </div>
+
+          <!-- Section 7 -->
+          <div class="space-y-4">
+            <Titlenew>7. No Employment Guarantee</Titlenew>
+
+            <Paragraph>
+              CloudTweak Academy provides educational and practical training
+              experiences designed to improve participants’ technical skills.
+            </Paragraph>
+
+            <Paragraph>
+              However, enrollment or completion of any program does not
+              guarantee:
+            </Paragraph>
+
+            <ul class="space-y-3 text-heading-2">
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-green-500"></span>
+                Employment opportunities
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-green-500"></span>
+                Job placement
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-green-500"></span>
+                Certification success
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-green-500"></span>
+                Career advancement outcomes
+              </li>
+            </ul>
+          </div>
+
+          <!-- Section 8 -->
+          <div class="space-y-4">
+            <Titlenew>8. Third-Party Services</Titlenew>
+
+            <Paragraph>
+              Certain practical labs or demonstrations may involve third-party
+              platforms, including Microsoft 365 services, Microsoft Azure,
+              Power Platform, or other external tools.
+            </Paragraph>
+
+            <Paragraph>
+              CloudTweak is not responsible for outages, service interruptions,
+              pricing changes, or policy changes introduced by third-party
+              providers.
+            </Paragraph>
+          </div>
+
+          <!-- Section 9 -->
+          <div class="space-y-4">
+            <Titlenew>9. Limitation of Liability</Titlenew>
+
+            <Paragraph>
+              CloudTweak Academy shall not be held liable for:
+            </Paragraph>
+
+            <ul class="space-y-3 text-heading-2">
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-yellow-400"></span>
+                Indirect or consequential losses
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-yellow-400"></span>
+                Technical interruptions or platform downtime
+              </li>
+
+              <li class="flex items-start gap-3">
+                <span class="mt-1 w-2 h-2 rounded-full bg-yellow-400"></span>
+                Personal business or career decisions made based on training content
+              </li>
+            </ul>
+
+            <Paragraph>
+              All services are provided on an “as available” basis.
+            </Paragraph>
+          </div>
+
+          <!-- Section 10 -->
+          <div class="space-y-4">
+            <Titlenew>10. Changes to Programs & Content</Titlenew>
+
+            <Paragraph>
+              CloudTweak reserves the right to modify, update, improve, or
+              restructure training materials, schedules, instructors, and
+              program content at any time.
+            </Paragraph>
+
+            <Paragraph>
+              We continuously improve our curriculum to align with evolving
+              Microsoft technologies and industry best practices.
+            </Paragraph>
+          </div>
+
+          <!-- Section 11 -->
+          <div class="space-y-4">
+            <Titlenew>11. Termination of Access</Titlenew>
+
+            <Paragraph>
+              CloudTweak may suspend or terminate access to any participant who
+              violates these Terms & Conditions, engages in misconduct, or
+              compromises the integrity of our learning environment.
+            </Paragraph>
+          </div>
+
+          <!-- Section 12 -->
+          <div class="space-y-4">
+            <Titlenew>12. Privacy</Titlenew>
+
+            <Paragraph>
+              Your use of CloudTweak services may involve the collection and
+              processing of limited personal information required for
+              enrollment, communication, and service delivery.
+            </Paragraph>
+
+            <Paragraph>
+              Additional information regarding data handling practices may be
+              outlined in our Privacy Policy.
+            </Paragraph>
+          </div>
+
+          <!-- Section 13 -->
+          <div class="space-y-4">
+            <Titlenew>13. Contact Information</Titlenew>
+
+            <Paragraph>
+              For questions regarding these Terms & Conditions, billing, or
+              support inquiries, please contact:
+            </Paragraph>
+
+            <div
+              class="rounded-2xl
+            border
+            border-cyan-500/20
+            bg-cyan-500/5
+            p-6
+            backdrop-blur-xl"
+            >
+              <p class="font-semibold text-heading-1">CloudTweak Support</p>
+
+              <a
+                href="mailto:support@cloudtweak.io"
+                class="text-primary hover:underline"
+              >
+                support@cloudtweak.io
+              </a>
+            </div>
+          </div>
+        </div>
+        <Selar />
+      </Container>
+    </section>
+  </main>
+</Layout>

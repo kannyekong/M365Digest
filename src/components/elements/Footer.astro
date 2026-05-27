@@ -3,29 +3,33 @@ const footerLinks = {
   company: [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-    { name: "FAQ", href: "/faq" },
+    {
+      name: "Contact",
+      href: "#tally-open=VL4vdg&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave",
+    },
+    { name: "FAQ", href: "./../#faq" },
   ],
 
   bootcamp: [
-    { name: "Curriculum", href: "/curriculum" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "Refund Policy", href: "/refund-policy" },
+    { name: "Curriculum", href: "./weekone" },
+    { name: "Pricing", href: "##", class: "open-modal-btn" },
+    { name: "Refund Policy", href: "/refundpolicy" },
     { name: "Terms & Conditions", href: "/terms" },
   ],
 
   resources: [
     { name: "Blog", href: "/blog" },
-    { name: "Microsoft 365 Guides", href: "/guides" },
-    { name: "Career Roadmap", href: "/roadmap" },
-    { name: "Support", href: "/support" },
+    {
+      name: "Bootcamp Videos",
+      target: "_blank",
+      href: "https://wedefix-my.sharepoint.com/:f:/g/personal/kanny_wedefix_onmicrosoft_com/IgB1xhp7-ddaTYdgxUhvmC6WAVgm2m966OTHZ_dvr_3hfZ4?e=lafcfG",
+    },
   ],
 
   socials: [
-    { name: "LinkedIn", href: "https://linkedin.com" },
-    { name: "Twitter/X", href: "https://x.com" },
-    { name: "YouTube", href: "https://youtube.com" },
-    { name: "Instagram", href: "https://instagram.com" },
+    { name: "LinkedIn", href: "https://linkedin.com/in/akanenoekong" },
+    { name: "Twitter/X", href: "https://x.com/kannyekong" },
+    { name: "Github", href: "https://github.com/kannyekong" },
   ],
 };
 
@@ -54,14 +58,14 @@ const year = new Date().getFullYear();
         <a href="/" class="inline-flex items-center gap-3">
           <!-- Logo -->
           <img
-            src="./logos/cloudnovanew.png"
-            alt="M365 Digest"
+            src="./logos/cloudtweak.png"
+            alt="Cloudtweak"
             class="w-[200px] md:w-[350px] object-contain"
           />
         </a>
 
         <p class="mt-6 max-w-md leading-7 text-gray-600 dark:text-gray-300">
-          Empowering the next generation of cloud engineers with hands-on
+          Empowering the next generation of Cloud Engineers with hands-on
           Microsoft 365, Azure, Security, Automation, and Enterprise IT
           training.
         </p>
@@ -86,7 +90,7 @@ const year = new Date().getFullYear();
           </a>
 
           <a
-            href="https://x.com"
+            href="https://x.com/KannyyEkong"
             target="_blank"
             class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
           >
@@ -103,7 +107,7 @@ const year = new Date().getFullYear();
           </a>
 
           <a
-            href="https://youtube.com"
+            href="https://github.com/kannyekong"
             target="_blank"
             class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
           >
@@ -146,7 +150,7 @@ const year = new Date().getFullYear();
               <li>
                 <a
                   href={link.href}
-                  class="text-gray-600 transition hover:text-primary dark:text-gray-300"
+                  class={`text-gray-600 transition hover:text-primary dark:text-gray-300 ${link.class}`}
                 >
                   {link.name}
                 </a>
@@ -187,12 +191,12 @@ const year = new Date().getFullYear();
       class="flex flex-col items-center justify-between gap-4 text-center md:flex-row"
     >
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        © {year} CloudNova. All rights reserved.
+        © {year} CloudTweak. All rights reserved.
       </p>
 
       <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
         <a
-          href="/privacy-policy"
+          href="/privacypolicy"
           class="text-gray-500 transition hover:text-primary dark:text-gray-400"
         >
           Privacy Policy
@@ -206,7 +210,7 @@ const year = new Date().getFullYear();
         </a>
 
         <a
-          href="/refund-policy"
+          href="/refundpolicy"
           class="text-gray-500 transition hover:text-primary dark:text-gray-400"
         >
           Refund Policy
