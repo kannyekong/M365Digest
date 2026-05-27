@@ -64,7 +64,7 @@ const { title } = Astro.props;
     <slot />
     <Footer />
 
-    <!-- CHAT BASE IO -->
+    <!-- NVITI CHATBOT
     <script is:inline>
       window.embeddedChatbotConfig = {
         chatbotId: "Ox4kE0wR3R-iN8bkXiUUQ",
@@ -77,26 +77,25 @@ const { title } = Astro.props;
       chatbotId="Ox4kE0wR3R-iN8bkXiUUQ"
       domain="www.chatbase.co"
       defer></script>
+-->
+    <script
+      src="https://api.nviti.ng/api/chat-widget/widget_5f1e111f0efc6f8e52d50680aa0b20a0/js"
+    ></script>
 
     <script>
       window.addEventListener("load", () => {
-        // Select ALL buttons with this class
         const buttons = document.querySelectorAll(".open-chatbot");
 
         buttons.forEach((button) => {
-          button.addEventListener("click", () => {
-            // Open Chatbase widget
-            if (window.chatbase) {
-              window.chatbase("open");
-            }
+          button.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            // Simple open
+            openNvitiChat();
           });
         });
       });
     </script>
-
-    <!-- <script
-      src="https://api.nviti.ng/api/chat-widget/widget_5f1e111f0efc6f8e52d50680aa0b20a0/js"
-    ></script> -->
   </body>
   <script>
     const switchTheme = document.querySelector(
