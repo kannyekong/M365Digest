@@ -3,6 +3,7 @@ import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import ByNumber from "./ByNumber.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
+import { Award } from "lucide-astro";
 ---
 
 <section class="relative pt-32 lg:pt-36">
@@ -34,12 +35,12 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
         >
       </h1>
       <mark
-        class="border border-yellow-500 bg-white p-0.5 rounded font-bold pr-1 pl-1"
-        ><i class="fa fa-bullhorn text-yellow-500 font-bold"></i> 1st June - 13th July,
-        2026</mark
+        class="border-2 border-yellow-500 bg-white p-0.5 rounded font-bold pr-1 pl-1"
+        ><i class="fa fa-bullhorn text-yellow-500 font-bold"></i> 1st June - 13th
+        July, 2026</mark
       >
       <Paragraph className="mt-5">
-        In six weeks, you’ll progress from basic familiarity to confident
+        In six weeks, you will progress from basic familiarity to confident
         administration of core Microsoft 365 services, including Outlook, Teams,
         SharePoint, OneDrive, Power Automate, and Power BI. Each session is
         built around real-world administrative scenarios—equipping you not just
@@ -53,7 +54,7 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
         <div class="lg:min-w-max flex lg:items-center sm:w-max w-full">
           <BtnLinkStart
             text="Explore Learning"
-            href="#services"
+            href="/weekone"
             className="flex justify-center w-full sm:w-max"
             variant="primary"
           />
@@ -96,8 +97,8 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
             after:z-[-1]
             hover:text-white
             hover:after:opacity-100
-            shadow-[0_0_20px_rgba(59,130,246,0.7)]
-            animate-pulse
+            shadow-orange-500
+            animate-soft-glow
             hover:after:scale-[2.5]"
           >
             <span class="relative z-10"> Register Now </span>

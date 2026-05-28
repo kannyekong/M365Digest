@@ -61,32 +61,22 @@ body {
   display: flex;
 }
 
-@keyframes flip {
-  0%,
-  20% {
-    transform: translateY(0);
+@keyframes neonGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 20px #06b6d4,
+      0 0 40px #06b6d4,
+      0 0 80px #06b6d4;
   }
 
-  25%,
-  45% {
-    transform: translateY(-56px);
-  }
-
-  50%,
-  70% {
-    transform: translateY(-112px);
-  }
-
-  75%,
-  95% {
-    transform: translateY(-168px);
-  }
-
-  100% {
-    transform: translateY(0);
+  50% {
+    box-shadow:
+      0 0 40px #22d3ee,
+      0 0 80px #22d3ee,
+      0 0 160px #22d3ee;
   }
 }
 
-.animate-flip {
-  animation: flip 10s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+.animate-soft-glow {
+  animation: neonGlow 1.8s infinite ease-in-out;
 }
