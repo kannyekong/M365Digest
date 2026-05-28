@@ -10,7 +10,7 @@
   --color-heading-1: rgb(var(--heading-1));
   --color-heading-2: rgb(var(--heading-2));
   --color-heading-3: rgb(var(--heading-3));
-  --color-box-border-count:blue;
+  --color-box-border-count: blue;
   --breakpoint-midmd: 880px;
 }
 
@@ -33,8 +33,6 @@
   --heading-2: 243 244 246;
   --heading-3: 209 213 219;
 }
-
-
 
 html {
   scroll-behavior: smooth;
@@ -63,4 +61,32 @@ body {
   display: flex;
 }
 
+@keyframes flip {
+  0%,
+  20% {
+    transform: translateY(0);
+  }
 
+  25%,
+  45% {
+    transform: translateY(-56px);
+  }
+
+  50%,
+  70% {
+    transform: translateY(-112px);
+  }
+
+  75%,
+  95% {
+    transform: translateY(-168px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-flip {
+  animation: flip 10s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+}
