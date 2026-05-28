@@ -7,6 +7,7 @@ import Selar from "../components/sections/Selar.astro";
 import Requirement from "../components/sections/Requirement.astro";
 import { services } from "../utils/data.ts";
 import Service from "../components/cards/Service.astro";
+import { Award } from "lucide-astro";
 
 type ServicesProps = {
   week: string;
@@ -20,7 +21,26 @@ type ServicesProps = {
 <Layout title="Cloudnova - M365 Bootcamp - About Page">
   <section id="about-page" class="relative py-24 overflow-hidden">
     <Container className="space-y-10 md:space-y-12 mt-12">
-      <div class="text-center max-w-3xl mx-auto space-y-4">
+      <div class="text-center max-w-5xl mx-auto space-y-3 md:space-y-6">
+        <span
+          class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-blue-500/20
+          bg-blue-500/10
+          px-5
+          py-2
+          text-sm
+          font-medium
+          text-blue-700
+          dark:text-blue-300
+          backdrop-blur-xl"
+        >
+          <Award size={18} />
+          Cohort 1.0
+        </span>
         <Title>
           <span
             class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-30% to-green-600"
@@ -28,8 +48,17 @@ type ServicesProps = {
           >
         </Title>
         <p>
-          Click on <span class="font-bold text-primary">View details</span> to learn
-          more about each week's learning module
+          In six weeks, you’ll progress from basic familiarity to confident
+          administration of core Microsoft 365 services, including Outlook,
+          Teams, SharePoint, OneDrive, Power Automate, and Power BI. Each
+          session is built around real-world administrative scenarios—equipping
+          you not just to understand the platform, but to effectively manage
+          users, secure data, optimize environments, and resolve everyday
+          operational challenges. <br /><span
+            class="font-bold bg-pink-50 p-1 rounded-full"
+            >For more answers to your questions, visit our FAQ page or Contact
+            Page or engage with our AI Assistant.</span
+          >
         </p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">

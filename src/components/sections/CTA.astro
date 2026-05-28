@@ -2,6 +2,7 @@
 import Container from "../shared/Container.astro";
 import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
 import Title from "../shared/Title.astro";
+import { ChevronRight, ChevronLeft } from "lucide-astro";
 ---
 
 <section id="faq" class="">
@@ -85,12 +86,13 @@ import Title from "../shared/Title.astro";
 
             <!-- Pagination -->
             <div class="mt-10 flex items-center justify-center gap-4">
-              <button
+              <!-- <button
                 id="prev-btn"
                 class="rounded-full bg-gray-200 px-5 py-2 dark:bg-gray-800"
               >
                 Prev
-              </button>
+              </button> -->
+              <ChevronLeft size={24} id="prev-btn" />
 
               <span
                 id="page-indicator"
@@ -98,12 +100,9 @@ import Title from "../shared/Title.astro";
               >
               </span>
 
-              <button
-                id="next-btn"
-                class="rounded-full bg-primary px-5 py-2 text-white"
-              >
-                Next
-              </button>
+              <span class="rounded-full bg-primary p-3 text-white">
+                <ChevronRight size={24} id="next-btn" />
+              </span>
             </div>
           </div>
         </section>

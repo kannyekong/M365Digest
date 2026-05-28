@@ -1,0 +1,326 @@
+---
+import Container from "../shared/Container.astro";
+import { ChevronLeft, ChevronRight, Linkedin, BadgeCheck, Github, X, Twitter } from "lucide-astro";
+
+const instructors = [
+  {
+    name: "Akaneno Godwin Ekong",
+    role: "Microsoft 365 Technical Support Engineer",
+    image: "/images/darkgreen.jpg",
+    bio: "I work for Microsoft as a Technical Support Engineer with over 4 years of experience. I am a seasoned Microsoft 365 administrator with years of hands-on enterprise experience managing Exchange Online, SharePoint, Teams, Entra ID, and cloud security environments for organizations globally. I specialize in simplifying complex M365 cloud technologies for beginners. I will handle the following weeks below during this Bootcamp.",
+    skills: [
+      "Week One - M365 Fundamentals",
+      "Week three - SharePoint Online & OneDrive for Business",
+      "Week Four - Entra ID Administration",
+    ],
+    linkedin: "https://linkedin.com/in/akanenoekong",
+  },
+
+  {
+    name: "Ayomide Olamilekan Adedeji",
+    role: "Microsoft 365 Technical Support Engineer",
+    image: "/images/instructor2.jpg",
+    bio: "Jane helps organizations modernize workplace collaboration using Microsoft Teams, SharePoint, OneDrive, and Copilot technologies. She focuses on practical real-world implementation scenarios and cloud productivity solutions.",
+    skills: [
+      "Microsoft Teams",
+      "SharePoint & OneDrive",
+      "Microsoft Copilot",
+      "Cloud Collaboration",
+    ],
+    linkedin: "#",
+  },
+];
+---
+
+<section
+  id="instructors"
+  class="relative overflow-hidden"
+>
+  <!-- Background Effects -->
+  <div class="absolute top-0 left-0 w-80 h-80 bg-cyan-400/10 blur-3xl rounded-full"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"></div>
+
+  <Container className="relative z-10">
+
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto">
+
+      <h2
+        class="
+          mt-8
+          text-4xl/tight
+          md:text-5xl/tight
+          font-bold
+          tracking-tight
+          text-heading-1
+        "
+      >
+        About The
+        <span
+          class="
+            text-transparent
+            bg-clip-text
+            bg-gradient-to-r
+            from-cyan-500
+            via-primary
+            to-green-500
+          "
+        >
+          Instructors
+        </span>
+      </h2>
+
+    </div>
+
+    <!-- Carousel -->
+    <div class="relative mt-20">
+
+      <!-- Slides -->
+      <div
+        id="instructor-carousel"
+        class="relative overflow-hidden"
+      >
+
+        {
+          instructors.map((instructor, index) => (
+
+            <div
+              class={`instructor-slide ${
+                index === 0 ? "flex" : "hidden"
+              } flex-col lg:flex-row gap-12 items-center`}
+            >
+
+              <!-- Image Side -->
+              <div class="relative flex-1">
+
+                <!-- Glow -->
+                <div
+                  class="
+                    absolute
+                    inset-0
+                    bg-gradient-to-r
+                    from-cyan-400/20
+                    via-primary/20
+                    to-green-400/20
+                    blur-3xl
+                    rounded-full
+                    scale-90
+                  "
+                ></div>
+
+                <div
+                  class="
+                    relative
+                    rounded-[2rem]
+                    overflow-hidden
+                    border
+                    border-white/10
+                    bg-white/5
+                    backdrop-blur-xl
+                  "
+                >
+
+                  <img
+                    src={instructor.image}
+                    alt={instructor.name}
+                    class="
+                      w-full
+                      h-[500px]
+                      object-cover
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+              <!-- Content Side -->
+              <div class="flex-1">
+
+                <h3
+                  class="
+                    mt-6
+                    text-4xl
+                    font-bold
+                    text-heading-1
+                  "
+                >
+                  {instructor.name}
+                </h3>
+
+                <p
+                  class="
+                    mt-3
+                    text-primary
+                    font-medium
+                    text-lg
+                  "
+                >
+                  {instructor.role}
+                </p>
+
+                <p
+                  class="
+                    mt-8
+                    text-heading-2
+                    leading-relaxed
+                    text-lg
+                  "
+                >
+                  {instructor.bio}
+                </p>
+
+                <!-- Skills -->
+                <div class="mt-8 flex flex-wrap gap-4">
+
+                  {
+                    instructor.skills.map((skill) => (
+
+                      <div
+                        class="
+                          inline-flex
+                          items-center
+                          gap-2
+                          rounded-full
+                          border
+                          border-white/10
+                          bg-white/5
+                          backdrop-blur-xl
+                          px-4
+                          py-2
+                          text-sm
+                        "
+                      >
+                        <BadgeCheck
+                          size={16}
+                          class="text-green-500"
+                        />
+
+                        {skill}
+                      </div>
+
+                    ))
+                  }
+
+                </div>
+
+                <!-- CTA -->
+                <div class="mt-10 flex items-center gap-4">
+
+                  <a href={instructor.linkedin} class="border rounded p-1 bg-[#181717]">
+                    <Github size={18} color="#fff"/>
+                </a>
+                <a href={instructor.linkedin} class="border rounded p-1 bg-[#2563EB]">
+                    <Linkedin size={18} color="#fff"/>
+                </a>
+                <a href={instructor.linkedin} class="border rounded p-1 bg-[#38BDF8]">
+                    <Twitter size={18} color="#fff"/>
+                </a>
+                </div>
+
+              </div>
+
+            </div>
+
+          ))
+        }
+
+      </div>
+
+      <!-- Controls -->
+      <div
+        class="
+          mt-10
+          flex
+          items-center
+          justify-center
+          gap-4
+        "
+      >
+
+        <button
+          id="prevInstructor"
+          class="
+            w-14
+            h-14
+            rounded-full
+            border
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
+            flex
+            items-center
+            justify-center
+            hover:bg-white/10
+            transition-all
+            duration-300
+          "
+        >
+          <ChevronLeft size={24} />
+        </button>
+
+        <button
+          id="nextInstructor"
+          class="
+            w-14
+            h-14
+            rounded-full
+            bg-primary
+            text-white
+            flex
+            items-center
+            justify-center
+            hover:scale-105
+            transition-all
+            duration-300
+            shadow-xl
+          "
+        >
+          <ChevronRight size={24} />
+        </button>
+
+      </div>
+
+    </div>
+
+  </Container>
+</section>
+
+<script>
+  let currentSlide = 0;
+
+  const slides = document.querySelectorAll(".instructor-slide");
+
+  const showSlide = (index) => {
+
+    slides.forEach((slide, i) => {
+
+      slide.classList.toggle("hidden", i !== index);
+      slide.classList.toggle("flex", i === index);
+
+    });
+
+  };
+
+  document
+    .getElementById("nextInstructor")
+    ?.addEventListener("click", () => {
+
+      currentSlide = (currentSlide + 1) % slides.length;
+
+      showSlide(currentSlide);
+
+    });
+
+  document
+    .getElementById("prevInstructor")
+    ?.addEventListener("click", () => {
+
+      currentSlide =
+        (currentSlide - 1 + slides.length) % slides.length;
+
+      showSlide(currentSlide);
+
+    });
+
+</script>
