@@ -18,7 +18,7 @@ type ServicesProps = {
 };
 ---
 
-<Layout title="Cloudnova - M365 Bootcamp - About Page">
+<Layout title="CloudTweak - M365 Bootcamp - About Page">
   <section id="about-page" class="relative py-24 overflow-hidden">
     <Container className="space-y-10 md:space-y-12 mt-12">
       <div class="text-center max-w-5xl mx-auto space-y-3 md:space-y-6">
@@ -54,10 +54,19 @@ type ServicesProps = {
           session is built around real-world administrative scenarios—equipping
           you not just to understand the platform, but to effectively manage
           users, secure data, optimize environments, and resolve everyday
-          operational challenges. <br /><span
-            class="font-bold bg-pink-50 p-1 rounded-full"
-            >For more answers to your questions, visit our FAQ page or Contact
-            Page or engage with our AI Assistant.</span
+          operational challenges. <br /><br /><span
+            >For more answers to your questions, visit our <a
+              href="./../#faq"
+              class="text-blue-500">FAQ page</a
+            > or <a
+              href="#tally-open=VL4vdg&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave"
+              class="text-blue-500">Contact Page</a
+            >
+            or engage with our <a
+              href="#"
+              class="text-blue-500"
+              onclick="event.preventDefault(); openNvitiChat()">AI Assistant</a
+            >.</span
           >
         </p>
       </div>
