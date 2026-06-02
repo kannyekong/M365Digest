@@ -1,4 +1,10 @@
 ---
+import {
+  MailQuestionMark,
+  MessageCircleHeart,
+  PhoneOutgoing,
+} from "lucide-astro";
+
 const footerLinks = {
   company: [
     { name: "Home", href: "/" },
@@ -62,7 +68,6 @@ const year = new Date().getFullYear();
             alt="Cloudtweak"
             class="w-[200px] md:w-[350px] object-contain dark:hidden"
           />
-         
         </a>
 
         <p class="mt-6 max-w-md leading-7 text-gray-600 dark:text-gray-300">
@@ -74,45 +79,26 @@ const year = new Date().getFullYear();
         <!-- Social Icons -->
         <div class="mt-6 flex items-center gap-4">
           <a
-            href="https://linkedin.com"
-            target="_blank"
+            href="mailto:support@cloudtweak.net"
             class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1 5 2.12 5 3.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.1c.5-1 1.8-2.2 3.8-2.2 4 0 4.7 2.6 4.7 6V24h-4v-7.1c0-1.7 0-3.9-2.4-3.9s-2.8 1.9-2.8 3.8V24h-4V8z"
-              ></path>
-            </svg>
+            <MailQuestionMark />
           </a>
 
           <a
-            href="https://x.com/KannyyEkong"
-            target="_blank"
+            href="tel:+2348143099128"
             class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M18.244 2H21.5l-7.12 8.14L22 22h-6.95l-5.44-7.1L3.4 22H.14l7.61-8.7L0 2h7.13l4.9 6.46L18.244 2z"
-              ></path>
-            </svg>
+            <PhoneOutgoing />
           </a>
 
           <a
-            href="https://github.com/kannyekong"
+            <a
+            href="https://wa.me"
             target="_blank"
             class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
           >
-            ▶
+            <MessageCircleHeart color="text-green" />
           </a>
         </div>
       </div>

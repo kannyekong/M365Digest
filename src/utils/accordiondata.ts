@@ -1,13 +1,15 @@
-  
-  
 const ITEMS_PER_PAGE = 5;
 const faqs = [
   {
     question: "What is this Bootcamp about?",
     answer:
-      "This Bootcamp is a hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 administration, Azure, Exchange Online, Intune, Security, Automation, and cloud technologies used in real-world environments.",
+      "This Bootcamp is a 6-weeks hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 Fundamentals, Azure, Exchange Online, SharePoint & OneDrive, Entra ID, Teams and Copilot. You will have two practical labs every week and take home assignments. Registration fee costs $50",
   },
-
+  {
+    question: "How do I enroll in the bootcamp?",
+    answer:
+      "You can enroll through the registration page on the website or by contacting the CloudTweak team directly for enrollment assistance.",
+  },
   {
     question: "Do I need prior cloud experience before joining?",
     answer:
@@ -15,27 +17,9 @@ const faqs = [
   },
 
   {
-    question: "What technologies will I learn?",
-    answer:
-      "You will learn Microsoft 365 Administration, Exchange Online, Microsoft Entra ID (Azure AD), Azure fundamentals, Security & Compliance, Mail Flow, PowerShell Scripting, Power Automate, SharePoint Online & OneDrive administration, Teams administration, and troubleshooting techniques.",
-  },
-
-  {
     question: "Is the training practical or theory-based?",
     answer:
-      "The bootcamp is highly practical and focused on real-world scenarios, labs, troubleshooting exercises, and enterprise-level Microsoft 365 administration tasks.",
-  },
-
-  {
-    question: "How long is the bootcamp?",
-    answer:
-      "The duration of the bootcamp is 6 Weeks",
-  },
-
-  {
-    question: "Is the bootcamp online or physical?",
-    answer:
-      "The bootcamp is primarily conducted online, allowing students from different locations to participate remotely.",
+      "The bootcamp is Online and is highly practical and focused on real-world scenarios, labs, troubleshooting exercises, and enterprise-level Microsoft 365 administration tasks.",
   },
 
   {
@@ -50,11 +34,10 @@ const faqs = [
       "Yes. Students who successfully complete the bootcamp will receive a certificate of completion from M365 Digest Bootcamp.",
   },
 
-
   {
     question: "Will I get access to lab environments?",
     answer:
-      "Yes. Students may receive access to practice environments, demo tenants, and guided labs depending on the training module.",
+      "Yes. Students will receive access to practice environments, demo tenants, and guided labs depending on the training module. Test accounts will be created for every registered user.",
   },
 
   {
@@ -70,15 +53,9 @@ const faqs = [
   },
 
   {
-    question: "How much does the bootcamp cost?",
-    answer:
-      "This bootcamp costs $50",
-  },
-
-  {
     question: "Are there installment payment options available?",
     answer:
-      "No. It is a one-time payment facilitated by Selar",
+      "No. It is a one-time payment that costs $50 USD facilitated by Selar",
   },
 
   {
@@ -90,7 +67,7 @@ const faqs = [
   {
     question: "Can I get a refund after classes have started?",
     answer:
-      "Refund eligibility after the commencement of classes may be limited due to access to course materials, recordings, labs, and resources already provided.",
+      "Refund eligibility after the commencement of classes may be limited due to access to course materials, recordings, labs, and resources already provided. Kindly go through our refund policy and T&Cs on our footer. ",
   },
 
   {
@@ -100,43 +77,16 @@ const faqs = [
   },
 
   {
-    question: "Do you provide technical support during the bootcamp?",
-    answer:
-      "Yes. Students receive technical assistance and support throughout the duration of the training program.",
-  },
-
-  {
-    question: "What equipment do I need for the bootcamp?",
+    question: "What equipment do I need for the Bootcamp?",
     answer:
       "Students should have a reliable internet connection and a laptop or desktop computer capable of running modern browsers and Microsoft administration tools.",
   },
 
   {
-    question: "Can beginners understand the training?",
+    question: "Is this Bootcamp affiliated with Microsoft?",
     answer:
-      "Yes. The bootcamp is structured to guide beginners progressively while still providing advanced insights for experienced IT professionals.",
-  },
-
-  {
-    question: "Do you guarantee certification success or employment?",
-    answer:
-      "No. While we provide training, mentorship, and preparation resources, certification success and employment outcomes depend on individual effort, consistency, and external factors.",
-  },
-
-  {
-    question: "Is M365 Digest affiliated with Microsoft?",
-    answer:
-      "No. M365 Digest is an independent training and consulting platform and is not officially owned or operated by Microsoft.",
-  },
-
-
-  {
-    question: "How do I enroll in the bootcamp?",
-    answer:
-      "You can enroll through the registration page on the website or by contacting the M365 Digest team directly for enrollment assistance.",
+      "No. This is an independent training and consulting bootcamp and is not officially owned or operated by Microsoft.",
   },
 ];
-
-
 
 export { ITEMS_PER_PAGE, faqs };
