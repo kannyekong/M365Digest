@@ -10,10 +10,16 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astroanimate/core": "^0.1.2",
+    "@astrojs/react": "^5.0.7",
     "@tailwindcss/vite": "^4.1.5",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
     "animejs": "^4.4.1",
     "astro": "^6.3.3",
     "lucide-astro": "^0.556.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "tailwindcss": "^4.1.5"
   },
   "overrides": {

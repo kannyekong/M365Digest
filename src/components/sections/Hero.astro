@@ -3,6 +3,7 @@ import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import ByNumber from "./ByNumber.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
+import TypewriterText from "@astroanimate/core/TypewriterText";
 ---
 
 <section class="relative pt-32 lg:pt-36">
@@ -27,10 +28,13 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
         class="text-5xl/tight sm:text-6xl/tight md:text-5xl/tight tracking-tight xl:text-6xl/tight
              font-bold text-heading-1"
       >
-        M365 Administration Bootcamp:
+        M365 Bootcamp:
         <span
           class="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 from-20% via-primary via-5% to-green-500"
-          >6 Weeks to Mastery</span
+          >6 Weeks to Mastery of <TypewriterText
+            texts={["Exchange", "SharePoint", "Entra ID","OneDrive","Copilot", "Teams"]}
+            enhance
+          /></span
         >
       </h1>
       <mark
