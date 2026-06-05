@@ -1,6 +1,6 @@
 ---
 import Container from "../shared/Container.astro";
-import { BadgeDollarSign } from "lucide-astro";
+import { BadgeDollarSign,ShieldCheck } from "lucide-astro";
 ---
 
 <section class="relative mt-12 md:mt-16">
@@ -17,11 +17,11 @@ import { BadgeDollarSign } from "lucide-astro";
         <p class="mt-2 text-heading-3">Enrollment Fee</p>
         <a
           onclick="e.preventdefault()"
-          class="open-modal-btn bg-emerald-600 hover:bg-emerald-700 inline-flex items-center md:gap-2 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md px-2 md:px-4 py-1 rounded-full group"
+          class="open-modal-btn bg-emerald-600 hover:bg-emerald-700 inline-flex items-center md:gap-1 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm lg:text-md px-2 md:px-4 py-1 rounded-full group"
         >
-          Make Payment
+          Payment secured by<span class="font-bold">Selar</span>
           <span class="transition group-hover:translate-x-1">
-            <BadgeDollarSign size={15} strokeWidth={3} />
+            <ShieldCheck size={15} strokeWidth={3} />
           </span>
         </a>
       </div>
@@ -36,7 +36,7 @@ import { BadgeDollarSign } from "lucide-astro";
         <mark
           class="border bg-white p-1 rounded-full text-xs font-bold pr-2 pl-2"
         >
-          1st June - 14 July, 2026</mark
+          15th June - 28 July, 2026</mark
         >
       </div>
 

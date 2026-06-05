@@ -1,6 +1,7 @@
 ---
 import Container from "../shared/Container.astro";
-import { ChevronLeft, ChevronRight, Linkedin, BadgeCheck, Github, X, Twitter } from "lucide-astro";
+import Title from "../shared/Title.astro";
+import { ChevronLeft, ChevronRight, Linkedin, BadgeCheck, Github, X, Twitter, Mail, PhoneCall } from "lucide-astro";
 
 const instructors = [
   {
@@ -12,18 +13,22 @@ const instructors = [
       
     ],
     linkedin: "https://linkedin.com/in/akanenoekong",
+    twitter:"https://x.com/kannyyekong",
+    github:"https://github.com/kannyekong",
+    email:"ekongakaneno@gmail.com",
+    phone:"+2348143099128"
   },
 
-  {
-    name: "Ayomide Olamilekan Adedeji",
-    role: "Microsoft 365 Technical Support Engineer",
-    image: "/images/ayo.png",
-    bio: "I work for Microsoft as a Technical Support Engineer with over 4 years of experience. I help organizations modernize workplace collaboration using Microsoft Teams, SharePoint, OneDrive, and Copilot technologies while focusing on a practical real-world implementation scenarios and cloud productivity solutions.",
-    skills: [
+  // {
+  //   name: "Ayomide Olamilekan Adedeji",
+  //   role: "Microsoft 365 Technical Support Engineer",
+  //   image: "/images/ayo.png",
+  //   bio: "I work for Microsoft as a Technical Support Engineer with over 4 years of experience. I help organizations modernize workplace collaboration using Microsoft Teams, SharePoint, OneDrive, and Copilot technologies while focusing on a practical real-world implementation scenarios and cloud productivity solutions.",
+  //   skills: [
       
-    ],
-    linkedin: "#",
-  },
+  //   ],
+  //   linkedin: "#",
+  // },
 ];
 ---
 
@@ -40,35 +45,18 @@ const instructors = [
     <!-- Header -->
     <div class="text-center max-w-3xl mx-auto">
 
-      <h2
-        class="
-          mt-8
-          text-4xl/tight
-          md:text-5xl/tight
-          font-bold
-          tracking-tight
-          text-heading-1
-        "
-      >
-        About The
+      <Title>
         <span
-          class="
-            text-transparent
-            bg-clip-text
-            bg-gradient-to-r
-            from-cyan-500
-            via-primary
-            to-green-500
-          "
+          class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
         >
-          Instructors
+          About the Instructor
         </span>
-      </h2>
+      </Title>
 
     </div>
 
     <!-- Carousel -->
-    <div class="relative mt-20">
+    <div class="relative mt-4 md:mt-12">
 
       <!-- Slides -->
       <div
@@ -82,31 +70,19 @@ const instructors = [
             <div
               class={`instructor-slide ${
                 index === 0 ? "flex" : "hidden"
-              } flex-col lg:flex-row gap-12 items-center`}
+              } flex-col lg:flex-row items-center`}
             >
 
               <!-- Image Side -->
               <div class="relative flex-1">
 
-                <!-- Glow -->
-                <div
-                  class="
-                    absolute
-                    inset-0
-                    bg-gradient-to-r
-                    from-cyan-400/20
-                    via-primary/20
-                    to-green-400/20
-                    blur-3xl
-                    rounded-full
-                    scale-90
-                  "
-                ></div>
+                
 
                 <div
                   class="
                     relative
                     overflow-hidden
+
                   "
                 >
 
@@ -140,7 +116,7 @@ const instructors = [
 
                 <p
                   class="
-                    mt-3
+                    mt-1
                     text-primary
                     font-medium
                     text-lg
@@ -197,14 +173,17 @@ const instructors = [
                 <!-- CTA -->
                 <div class="mt-10 flex items-center gap-4">
 
-                  <a href={instructor.linkedin} class="border rounded p-1 bg-[#181717]">
+                  <a href={instructor.github} class="border rounded p-1 bg-[#181717]">
                     <Github size={18} color="#fff"/>
                 </a>
                 <a href={instructor.linkedin} class="border rounded p-1 bg-[#2563EB]">
                     <Linkedin size={18} color="#fff"/>
                 </a>
-                <a href={instructor.linkedin} class="border rounded p-1 bg-[#38BDF8]">
-                    <Twitter size={18} color="#fff"/>
+                <a href={instructor.email} class="border rounded p-1 bg-pink-500">
+                    <Mail size={18} color="#fff"/>
+                </a>
+                <a href={instructor.phone} class="border rounded p-1 bg-black">
+                    <PhoneCall size={18} color="#fff"/>
                 </a>
                 </div>
 

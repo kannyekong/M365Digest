@@ -1,5 +1,6 @@
 ---
 const selarLink = "https://selar.co/m365bootcamp";
+import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
 ---
 
 <!-- Selar Modal --><!-- Modal -->
@@ -9,14 +10,8 @@ const selarLink = "https://selar.co/m365bootcamp";
 >
   <!-- Card -->
   <div
-    class="relative w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900 dark:border dark:border-yellow-500"
+    class="relative w-full max-w-[450px] overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900 dark:border dark:border-yellow-500"
   >
-    <!-- Glow -->
-    <div
-      class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl"
-    >
-    </div>
-
     <!-- Close -->
     <button
       id="close-modal"
@@ -40,33 +35,6 @@ const selarLink = "https://selar.co/m365bootcamp";
         </p>
       </div>
 
-      <!-- Features -->
-      <div class="mt-8 grid gap-4 md:grid-cols-2">
-        <div
-          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
-        >
-          ✅ Hands-on Labs
-        </div>
-
-        <div
-          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
-        >
-          ✅ Real-world Scenarios
-        </div>
-
-        <div
-          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
-        >
-          ✅ Recorded Sessions
-        </div>
-
-        <div
-          class="rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
-        >
-          ✅ Career Mentorship
-        </div>
-      </div>
-
       <!-- Pricing -->
       <div
         class="mt-8 rounded-3xl bg-gradient-to-r from-primary to-indigo-600 p-6 text-center text-white shadow-xl"
@@ -74,20 +42,39 @@ const selarLink = "https://selar.co/m365bootcamp";
         <p class="text-sm uppercase tracking-widest opacity-80">Bootcamp Fee</p>
 
         <h3 class="mt-2 text-4xl font-bold">$50</h3>
+      </div>
 
-        <a href="#faq" class="mt-2 text-sm opacity-90">
-          View our Refund Policy
-        </a>
+      <!-- Features -->
+      <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <div
+          class="flex flex-row space-x-2 items-center rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          <HandCoins />
+          <span>T&C</span>
+        </div>
+
+        <div
+          class="flex flex-row space-x-1 items-center rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+        >
+          <Handshake />
+          <span>Refund Policy</span>
+        </div>
       </div>
 
       <!-- CTA -->
-      <div class="mt-8 flex justify-center">
+      <div class="grid grid-1 mt-8 justify-center space-y-2">
         <a
           href="#tally-open=gDkNGO&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave"
-          class="rounded-2xl bg-primary px-8 py-4 text-lg font-semibold text-white shadow-xl transition hover:scale-105"
+          class="rounded-full bg-primary px-8 py-4 text-md font-semibold text-white shadow-xl transition hover:scale-105"
         >
           Proceed to register
         </a>
+        <div class="flex flex-row justify-center text-xs">
+          <span>Payment secured by Selar </span>
+          <span class="transition group-hover:translate-x-1">
+            <ShieldCheck size={15} strokeWidth={3} />
+          </span>
+        </div>
       </div>
     </div>
   </div>
