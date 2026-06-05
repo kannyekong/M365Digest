@@ -25,13 +25,13 @@ import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
       <!-- Heading -->
       <div class="text-center">
         <h2 class="text-3xl font-bold text-gray-800 dark:text-white">
-          Payment Portal
+          Registration Portal
         </h2>
 
         <p class="mt-3 text-gray-600 dark:text-gray-300">
-          You will be redirected to <span class="font-bold text-yellow-500"
-            >Selar</span
-          > to complete your payment after your registration.<br />
+          Kindly proceed to register. After registration, You will be redirected
+          automatically to <span class="font-bold text-yellow-500">Selar</span> to
+          complete your payment.<br />
         </p>
       </div>
 
@@ -47,24 +47,33 @@ import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
       <!-- Features -->
       <div class="mt-8 grid gap-4 md:grid-cols-2">
         <div
-          class="flex flex-row space-x-2 items-center rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+          class="hover:bg-blue-200 border border-gray-200 dark:border-gray-800 rounded-2xl"
         >
-          <HandCoins />
-          <span>T&C</span>
+          <a
+            href="/terms"
+            class="flex flex-row space-x-2 items-center p-4 dark:text-white"
+          >
+            <Handshake />
+            <span>T&C</span>
+          </a>
         </div>
-
         <div
-          class="flex flex-row space-x-1 items-center rounded-2xl border border-gray-200 p-4 dark:border-gray-800 dark:text-white"
+          class="hover:bg-red-200 border border-gray-200 dark:border-gray-800 rounded-2xl"
         >
-          <Handshake />
-          <span>Refund Policy</span>
+          <a
+            href="/refundpolicy"
+            class="flex flex-row space-x-1 items-center p-4 dark:text-white"
+          >
+            <HandCoins />
+            <span>Refund Policy</span>
+          </a>
         </div>
       </div>
 
       <!-- CTA -->
       <div class="grid grid-1 mt-8 justify-center space-y-2">
         <a
-          href="#tally-open=gDkNGO&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave"
+          href="#tally-open=gDkNGO&tally-layout=modal&tally-width=800&tally-emoji-text=👋&tally-emoji-animation=wave"
           class="rounded-full bg-primary px-8 py-4 text-md font-semibold text-white shadow-xl transition hover:scale-105"
         >
           Proceed to register
