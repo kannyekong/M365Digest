@@ -12,7 +12,7 @@ const services = [
     title: "Microsoft Exchange",
     description:
       "EAC, Mailflow Rules, User Mailbox and Receipient Management, Security and Protection basics, Email authentication (SPF, DMARC, DKIM), Mailbox Policies and Compliance, Exchange Powershell Scripting",
-    icon: `<img src="../images/teaser-2.jpg" width=100 height=100>`,
+    icon: `<img src="../images/teaser-2.jpg" width="50" height="100">`,
     href: `/weektwo`,
   },
   {
@@ -20,7 +20,7 @@ const services = [
     title: "SharePoint & OneDrive",
     description:
       "SharePoint Sites & Permissions, Document Management & Governance, SharePoint/OneDrive Administration & Sharing, Security, Compliance & Sync, Automation + Real-world Scenarios",
-    icon: `<img src="../images/teaser-3.jpg" width=100 height=100>`,
+    icon: `<img src="../images/teaser-3.jpg" width="50" height="100">`,
     href: `/weekthree`,
   },
 
@@ -29,7 +29,7 @@ const services = [
     title: "Entra ID",
     description:
       "Microsoft Entra ID overview, Tenant Setup & Configuration, Users & Group Management, Authentication Methods & MFA, Conditional Access Policies, Identity Protection & Security, Application Registration & Enterprise Apps, Device Management Integration, Roles & Administrative Units, Monitoring, Auditing & Sign-In Logs, Automation & PowerShell Basics",
-    icon: `<img src="../images/teaser.jpg" width=100 height=100>`,
+    icon: `<img src="../images/teaser.jpg" width=50 height=100>`,
     href: `/weekfour`,
   },
   {
@@ -42,10 +42,10 @@ const services = [
   },
   {
     week: "Week 6",
-    title: "M365 Copilot",
+    title: "Microsoft Defender",
     description:
-      "Foundations of Copilot in Microsoft 365, Setup & Licensing, Data Access & Permissions, Security & Compliance, Prompting Techniques & Best Practices, Copilot in Outlook, Teams, Word, Excel & PowerPoint,Monitoring, Reporting & Adoption",
-    icon: `<img src="../images/teaser-5.jpg" width=100 height=100>`,
+      "Foundations of Microsoft Defender, Environment Setup & Licensing, Microsoft Defender Portal Navigation, Defender for Office 365,Defender for Cloud Apps, User & Device Onboarding, Policies & Security Configuration, Threat Protection & Detection, Incident Management & Response,Integration with Microsoft 365 Services, Analytics & Reporting.",
+    icon: `<img src="../images/defender.png" width=100 height=100>`,
     href: `/weeksix`,
   },
 ];

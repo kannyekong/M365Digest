@@ -3,7 +3,7 @@ const faqs = [
   {
     question: "What is this Bootcamp about?",
     answer:
-      "This Bootcamp is a 6-weeks hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 Fundamentals, Azure, Exchange Online, SharePoint & OneDrive, Entra ID, Teams and Copilot. You will have two practical labs every week and take home assignments. Registration fee costs $50",
+      "This Bootcamp is a 6-weeks hands-on cloud and Microsoft 365 training program designed to equip students with practical skills in Microsoft 365 Fundamentals, Azure, Exchange Online, SharePoint & OneDrive, Entra ID, Teams and Microsoft Defender for office 365. You will have two practical labs every week. Registration fee costs $50",
   },
   {
     question: "How do I enroll in the bootcamp?",
@@ -19,7 +19,7 @@ const faqs = [
   {
     question: "Is the training practical or theory-based?",
     answer:
-      "The bootcamp is Online and is highly practical and focused on real-world scenarios, labs, troubleshooting exercises, and enterprise-level Microsoft 365 administration tasks.",
+      "The bootcamp is Online hosted on Microsoft Teams. Every participant should have a personal Microsoft Account where there will be admitted into every sessions. Training is focused on real-world scenarios, labs, troubleshooting exercises, and enterprise-level Microsoft 365 administration tasks.",
   },
 
   {
@@ -31,7 +31,7 @@ const faqs = [
   {
     question: "Will I receive a certificate after completion?",
     answer:
-      "Yes. Students who successfully complete the bootcamp will receive a certificate of completion from M365 Digest Bootcamp.",
+      "Yes. Students who successfully complete the bootcamp will receive a certificate of completion from CloudTweak.",
   },
 
   {

@@ -7,16 +7,16 @@ const instructors = [
   {
     name: "Akaneno Godwin Ekong",
     role: "Microsoft 365 Technical Support Engineer",
-    image: "/images/kannynew.png",
-    bio: "I work for Microsoft as a Technical Support Engineer with over 4 years of experience. I am a seasoned Microsoft 365 administrator with years of hands-on enterprise experience managing Exchange Online, SharePoint, Teams, Entra ID, and cloud security environments for organizations globally. I specialize in simplifying complex M365 cloud technologies for beginners.",
-    skills: [
+    image: "/images/checker.png",
+    bio: "I work for Microsoft as a Technical Support Engineer with 5 years of experience. I am a seasoned Microsoft 365 administrator with years of hands-on enterprise experience managing Exchange Online, SharePoint, Teams, Entra ID, and cloud security environments for organizations globally. I specialize in simplifying complex M365 cloud technologies for beginners.",
+    skills: ['Senior IT support Specialist', 'Frontend Web Developer','M365 Technical Support Engineer', "Forward Deployment Engineer", "M365 Migration Expert", "Office 365 Technical Advisor"
       
     ],
     linkedin: "https://linkedin.com/in/akanenoekong",
     twitter:"https://x.com/kannyyekong",
     github:"https://github.com/kannyekong",
-    email:"ekongakaneno@gmail.com",
-    phone:"+2348143099128"
+    email:"mailto:ekongakaneno@gmail.com",
+    phone:"tel:+2348143099128"
   },
 
   // {
@@ -36,9 +36,9 @@ const instructors = [
   id="instructors"
   class="relative overflow-hidden"
 >
-  <!-- Background Effects -->
+  <!-- Background Effects
   <div class="absolute top-0 left-0 w-80 h-80 bg-cyan-400/10 blur-3xl rounded-full"></div>
-  <div class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"></div> -->
 
   <Container className="relative z-10">
 
@@ -49,7 +49,7 @@ const instructors = [
         <span
           class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
         >
-          About the Instructor
+          About your Instructor
         </span>
       </Title>
 
@@ -93,7 +93,7 @@ const instructors = [
                       w-full
                       md:w-3/4
                       object-cover
-                      rounded-2xl
+                      rounded-full
                     "
                   />
 
@@ -109,6 +109,7 @@ const instructors = [
                     text-2xl
                     font-bold
                     text-heading-1
+                    tracking-tight
                   "
                 >
                   {instructor.name}
@@ -120,6 +121,7 @@ const instructors = [
                     text-primary
                     font-medium
                     text-lg
+                    tracking-tighter
                   "
                 >
                   {instructor.role}
@@ -127,17 +129,15 @@ const instructors = [
 
                 <p
                   class="
-                    mt-8
-                    text-heading-2
-                    leading-relaxed
-                    text-lg
+                    mt-4
+                    md:mt-8
                   "
                 >
                   {instructor.bio}
                 </p>
 
                 <!-- Skills -->
-                <div class="mt-8 flex flex-wrap gap-4">
+                <div class="mt-4 md:mt-8 flex flex-wrap gap-4">
 
                   {
                     instructor.skills.map((skill) => (
@@ -171,7 +171,7 @@ const instructors = [
                 </div>
 
                 <!-- CTA -->
-                <div class="mt-10 flex items-center gap-4">
+                <div class="mt-5 md:mt-10 flex items-start gap-4 w-1/3 border-2 p-4 rounded-lg">
 
                   <a href={instructor.github} class="border rounded p-1 bg-[#181717]">
                     <Github size={18} color="#fff"/>
@@ -197,7 +197,7 @@ const instructors = [
       </div>
 
       <!-- Controls -->
-      <div
+      <!-- <div
         class="
           mt-10
           flex
@@ -248,7 +248,7 @@ const instructors = [
           <ChevronRight size={24} />
         </button>
 
-      </div>
+      </div> -->
 
     </div>
 
