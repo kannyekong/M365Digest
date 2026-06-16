@@ -152,8 +152,8 @@ const instructors = [
                           border-white/10
                           bg-white/5
                           backdrop-blur-xl
-                          px-4
-                          py-2
+                          md:px-4
+                          md:py-2
                           text-sm
                         "
                       >
@@ -171,19 +171,18 @@ const instructors = [
                 </div>
 
                 <!-- CTA -->
-                <div class="mt-5 md:mt-10 flex items-start gap-4 w-1/3 border-2 p-4 rounded-lg">
-
+                <div class="mt-5 md:mt-10 flex items-start gap-4">
                   <a href={instructor.github} class="border rounded p-1 bg-[#181717]">
-                    <Github size={18} color="#fff"/>
+                    <Github size={30} color="#fff"/>
                 </a>
                 <a href={instructor.linkedin} class="border rounded p-1 bg-[#2563EB]">
-                    <Linkedin size={18} color="#fff"/>
+                    <Linkedin size={30} color="#fff"/>
                 </a>
-                <a href={instructor.email} class="border rounded p-1 bg-green-600">
-                    <Mail size={18} color="#fff"/>
+                <a href={instructor.email} class="border rounded p-1">
+                    <Mail size={30}/>
                 </a>
-                <a href={instructor.phone} class="border rounded p-1 bg-black">
-                    <PhoneCall size={18} color="#fff"/>
+                <a href={instructor.phone} class="border rounded p-1 bg-pink-600">
+                    <PhoneCall size={30} color="#fff"/>
                 </a>
                 </div>
 
