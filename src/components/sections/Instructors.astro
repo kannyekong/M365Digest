@@ -132,6 +132,7 @@ const instructors = [
                   class="
                     mt-4
                     md:mt-8
+                    dark:text-white
                   "
                 >
                   {instructor.bio}
@@ -151,6 +152,7 @@ const instructors = [
                           md:px-4
                           md:py-2
                           text-sm
+                          dark:text-white
                         "
                       >
                         <BadgeCheck
@@ -174,7 +176,7 @@ const instructors = [
                 <a href={instructor.linkedin} class="border rounded p-1 bg-[#2563EB]">
                     <Linkedin size={30} color="#fff"/>
                 </a>
-                <a href={instructor.email} class="border rounded p-1">
+                <a href={instructor.email} class="border rounded p-1 dark:text-white">
                     <Mail size={30}/>
                 </a>
                 <a href={instructor.phone} class="border rounded p-1 bg-pink-600">

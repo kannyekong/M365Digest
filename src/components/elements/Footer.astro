@@ -1,7 +1,12 @@
 ---
 import {
+  MailOpen,
   MailQuestionMark,
+  MessageCircle,
   MessageCircleHeart,
+  MessageCircleQuestion,
+  MessageCircleReply,
+  PhoneCall,
   PhoneOutgoing,
 } from "lucide-astro";
 
@@ -64,9 +69,15 @@ const year = new Date().getFullYear();
         <a href="/" class="inline-flex items-center gap-3">
           <!-- Logo -->
           <img
-            src="./logos/logonew.png"
-            alt="Cloudtweak"
-            class="w-[200px] md:w-[300px] object-contain"
+            src="/logos/logonew.png"
+            class="dark:hidden w-[200px] md:w-[300px] object-contain"
+            alt="CloudTweak"
+          />
+
+          <img
+            src="/logos/logonew-white.png"
+            class="hidden dark:block w-[200px] md:w-[300px] object-contain"
+            alt="CloudTweak"
           />
         </a>
 
@@ -80,24 +91,23 @@ const year = new Date().getFullYear();
         <div class="mt-6 flex items-center gap-4">
           <a
             href="mailto:support@cloudtweak.net"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:text-white dark:border-white"
           >
-            <MailQuestionMark />
+            <MailOpen />
           </a>
-
           <a
             href="tel:+2348143099128"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-white dark:text-white"
           >
-            <PhoneOutgoing />
+            <PhoneCall />
           </a>
 
           <a
             href="https://wa.me/07087907610"
             target="_blank"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-gray-700"
+            class="flex h-10 w-10 dark:text-white dark:border-white items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white"
           >
-            <MessageCircleHeart color="text-green" />
+            <MessageCircle />
           </a>
         </div>
       </div>

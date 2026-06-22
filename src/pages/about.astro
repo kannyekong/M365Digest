@@ -7,10 +7,7 @@ import Selar from "../components/sections/Selar.astro";
 import Requirement from "../components/sections/Requirement.astro";
 import { services } from "../utils/data.ts";
 import Service from "../components/cards/Service.astro";
-import {
-  Award,
-  
-} from "lucide-astro";
+import { Award } from "lucide-astro";
 import AboutUs from "../components/sections/AboutUs.astro";
 
 type ServicesProps = {
@@ -88,7 +85,9 @@ type ServicesProps = {
           })
         }
       </div>
-      <AboutUs />
+      <div class="md:mt-24">
+        <AboutUs />
+      </div>
       <Requirement />
     </Container>
   </section>
