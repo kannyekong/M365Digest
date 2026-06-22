@@ -7,7 +7,11 @@ import Selar from "../components/sections/Selar.astro";
 import Requirement from "../components/sections/Requirement.astro";
 import { services } from "../utils/data.ts";
 import Service from "../components/cards/Service.astro";
-import { Award } from "lucide-astro";
+import {
+  Award,
+  
+} from "lucide-astro";
+import AboutUs from "../components/sections/AboutUs.astro";
 
 type ServicesProps = {
   week: string;
@@ -47,14 +51,13 @@ type ServicesProps = {
             >About this Bootcamp</span
           >
         </Title>
-        <p>
+        <p class="dark:text-white">
           In six weeks, you’ll progress from basic familiarity to confident
-          administration of core Microsoft 365 services, including Outlook,
-          Teams, SharePoint, OneDrive, Power Automate, and Power BI. Each
-          session is built around real-world administrative scenarios—equipping
-          you not just to understand the platform, but to effectively manage
-          users, secure data, optimize environments, and resolve everyday
-          operational challenges. <br /><br /><span
+          administration of core Microsoft 365 services shown in the sections
+          below. Each session is built around real-world administrative
+          scenarios—equipping you not just to understand the platform, but to
+          effectively manage users, secure data, optimize environments, and
+          resolve everyday operational challenges. <br /><br /><span
             >For more answers to your questions, visit our <a
               href="./../#faq"
               class="text-blue-500">FAQ page</a
@@ -66,7 +69,7 @@ type ServicesProps = {
               href="#"
               class="text-blue-500"
               onclick="event.preventDefault(); openNvitiChat()">AI Assistant</a
-            >.</span
+            ></span
           >
         </p>
       </div>
@@ -85,6 +88,7 @@ type ServicesProps = {
           })
         }
       </div>
+      <AboutUs />
       <Requirement />
     </Container>
   </section>

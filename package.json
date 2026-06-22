@@ -16,6 +16,7 @@
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "animejs": "^4.4.1",
+    "aos": "^2.3.4",
     "astro": "^6.3.3",
     "lucide-astro": "^0.556.0",
     "react": "^19.2.7",
@@ -26,6 +27,7 @@
     "vite": "^7"
   },
   "devDependencies": {
+    "@types/aos": "^3.0.8",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1"
   }

@@ -7,17 +7,17 @@ import Paragraph from "../components/shared/Paragraph.astro";
 import Pagebreadcrumb from "../components/shared/Pagebreadcrumb.astro";
 
 import {
-  Bot,
-  ShieldCheck,
   BadgeCheck,
-  KeyRound,
-  Sparkles,
+  ShieldCheck,
+  Lock,
   Mail,
-  MessagesSquare,
-  FileText,
-  Sheet,
-  Presentation,
-  Activity,
+  Cloud,
+  Monitor,
+  Settings,
+  Radar,
+  Siren,
+  Link2,
+  BarChart3,
 } from "lucide-astro";
 
 import Requirement from "../components/sections/Requirement.astro";
@@ -77,284 +77,197 @@ import Selar from "../components/sections/Selar.astro";
             via-primary
             to-indigo-500"
             >
-              Copilot
+              Defender
             </span>
           </h1>
 
           <Paragraph className="mt-8 text-lg">
-            Week 6 introduces students to Microsoft Copilot for Microsoft 365.
-            Students will learn how organizations use AI-powered productivity
-            tools, secure Copilot deployments, manage permissions, and improve
-            workplace productivity using Microsoft AI technologies.
+            Week 6 introduces students to Learn how Microsoft Defender protects
+            identities, email, devices, applications and data across Microsoft
+            365. This module introduces Microsoft's unified security platform
+            from a practical administrator's perspective.
           </Paragraph>
 
           <Pagebreadcrumb active="weeksix" />
         </div>
 
         <!-- Grid -->
-        <div class="grid lg:grid-cols-2 gap-8 mt-20">
+        <div class="grid lg:grid-cols-2 gap-8 mt-16">
           <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 text-white flex items-center justify-center"
-              >
-                <Bot size={26} />
-              </div>
+            <ShieldCheck class="text-primary mb-5" size={34} />
 
-              <Titlenew>Foundations of Copilot in Microsoft 365</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">
+              Foundations of Microsoft Defender
+            </h3>
 
-            <Paragraph className="mt-6">
-              Students will learn what Microsoft Copilot is, how generative AI
-              works within Microsoft 365, and how organizations use AI
-              assistants to improve productivity, collaboration, and automation.
+            <Paragraph className="mt-4">
+              Understand Microsoft's security ecosystem, Zero Trust principles,
+              Defender products, licensing overview and how Defender protects
+              Microsoft 365 workloads.
             </Paragraph>
 
             <a
-              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/"
+              href="https://support.microsoft.com/en-us/defender/getting-started-with-microsoft-defender"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Microsoft Copilot Documentation
+              Microsoft Defender Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center"
-              >
-                <KeyRound size={26} />
-              </div>
+            <Lock class="text-primary mb-5" size={34} />
 
-              <Titlenew>Setup & Licensing</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Environment Setup & Licensing</h3>
 
-            <Paragraph className="mt-6">
-              Learn how Microsoft Copilot licenses are assigned, prerequisites
-              for deployment, supported Microsoft 365 plans, and how
-              organizations prepare their environments for Copilot adoption.
+            <Paragraph className="mt-4">
+              Configure your Defender environment, understand licensing
+              requirements, activate services and prepare your tenant for
+              enterprise security.
             </Paragraph>
 
             <a
-              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-setup"
+              href="https://learn.microsoft.com/en-us/defender-endpoint/mde-p1-setup-configuration"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot Setup Documentation
+              Environment Setup & Licensing Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 text-white flex items-center justify-center"
-              >
-                <ShieldCheck size={26} />
-              </div>
+            <Mail class="text-primary mb-5" size={34} />
 
-              <Titlenew>Data Access & Permissions</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Defender for Office 365</h3>
 
-            <Paragraph className="mt-6">
-              Students will understand how Microsoft Copilot accesses
-              organizational data through Microsoft Graph permissions. This
-              section explains why proper file permissions, sharing settings,
-              and identity management are important when using AI tools.
+            <Paragraph className="mt-4">
+              Protect users from phishing, malware, malicious attachments, Safe
+              Links and Business Email Compromise attacks.
             </Paragraph>
 
             <a
-              href="https://learn.microsoft.com/en-us/copilot/microsoft-365/microsoft-365-copilot-privacy"
+              href="https://learn.microsoft.com/en-us/defender-office-365/"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot Privacy & Permissions Docs
+              Defender for Office 365 Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-400 text-white flex items-center justify-center"
-              >
-                <Sparkles size={26} />
-              </div>
+            <Cloud class="text-primary mb-5" size={34} />
 
-              <Titlenew>Prompting Techniques & Best Practices</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Defender for Cloud Apps</h3>
 
-            <Paragraph className="mt-6">
-              Students will learn how to write effective prompts for Microsoft
-              Copilot. Topics include prompt structure, context building, clear
-              instructions, iterative prompting, and AI productivity best
-              practices.
+            <Paragraph className="mt-4">
+              Discover cloud applications, monitor risky behaviour, secure SaaS
+              applications and investigate cloud threats.
             </Paragraph>
 
             <a
-              href="https://support.microsoft.com/en-us/microsoft-365-copilot/get-better-copilot-responses-with-great-prompting"
+              href="https://learn.microsoft.com/en-us/defender-cloud-apps/"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Prompting Best Practices
+              Defender for Cloud Apps
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center"
-              >
-                <Mail size={26} />
-              </div>
+            <Settings class="text-primary mb-5" size={34} />
 
-              <Titlenew>Copilot in Outlook</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">
+              Policies & Security Configuration
+            </h3>
 
-            <Paragraph className="mt-6">
-              Learn how Microsoft Copilot assists users in Outlook by
-              summarizing emails, drafting responses, generating meeting recaps,
-              and improving communication productivity.
+            <Paragraph className="mt-4">
+              Configure anti-phishing, anti-malware, Safe Links, Safe
+              Attachments and security policies that protect your organization.
             </Paragraph>
 
             <a
-              href="https://techcommunity.microsoft.com/blog/outlook/copilot-in-outlook-new-agentic-experiences-for-email-and-calendar/4514601"
+              href="https://learn.microsoft.com/en-us/microsoftteams/teams-live-events/plan-for-teams-live-events"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot for Outlook Docs
+              Policies & Security Configuration Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 text-white flex items-center justify-center"
-              >
-                <MessagesSquare size={26} />
-              </div>
+            <Radar class="text-primary mb-5" size={34} />
 
-              <Titlenew>Copilot in Teams</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Threat Protection & Detection</h3>
 
-            <Paragraph className="mt-6">
-              Students will learn how Copilot enhances Microsoft Teams meetings
-              by generating summaries, capturing action items, and assisting
-              collaboration workflows.
+            <Paragraph className="mt-4">
+              Understand how Defender detects ransomware, phishing, suspicious
+              logins, malware and advanced cyber attacks.
             </Paragraph>
 
             <a
-              href="https://support.microsoft.com/en-us/teams/copilot/start-a-conversation-with-microsoft-365-copilot-chat-in-teams"
+              href="https://learn.microsoft.com/en-us/defender-office-365/protection-stack-microsoft-defender-for-office365"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot for Teams Docs
+              Threat Protection & Detection Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center"
-              >
-                <FileText size={26} />
-              </div>
+            <Siren class="text-primary mb-5" size={34} />
 
-              <Titlenew>Copilot in Word</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Incident Management & Response</h3>
 
-            <Paragraph className="mt-6">
-              Learn how Copilot helps users generate documents, rewrite content,
-              summarize information, and improve productivity within Microsoft
-              Word.
+            <Paragraph className="mt-4">
+              Investigate alerts, manage incidents, remediate compromised users
+              and respond to security threats confidently.
             </Paragraph>
 
             <a
-              href="https://support.microsoft.com/en-us/office/welcome-to-copilot-in-word-2135e85f-a467-463b-b2f0-c51a46d625d1"
+              href="https://learn.microsoft.com/en-us/defender-xdr/manage-incidents?tabs=queue"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot for Word Docs
+              Incident Management & Response Documentation
             </a>
-          </div>
+          </article>
 
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          <article
+            class="rounded-3xl border border-box-border bg-box-bg/50 backdrop-blur-xl p-8"
           >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white flex items-center justify-center"
-              >
-                <Sheet size={26} />
-              </div>
+            <BarChart3 class="text-primary mb-5" size={34} />
 
-              <Titlenew>Copilot in Excel</Titlenew>
-            </div>
+            <h3 class="text-2xl font-bold">Analytics & Reporting</h3>
 
-            <Paragraph className="mt-6">
-              Students will explore how Copilot assists with data analysis,
-              formulas, trends, visualizations, and spreadsheet productivity
-              within Microsoft Excel.
+            <Paragraph className="mt-4">
+              Generate reports, monitor security posture, review Secure Score,
+              analyze trends and communicate security insights to management.
             </Paragraph>
 
             <a
-              href="https://support.microsoft.com/en-us/office/get-started-with-copilot-in-excel-d7110502-0334-4b4f-a175-a73abdfc118a"
+              href="https://learn.microsoft.com/en-us/defender-xdr/threat-analytics"
               target="_blank"
               class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
             >
-              Copilot for Excel Docs
+              Analytics and reporting Documentation
             </a>
-          </div>
-
-          <!-- Card -->
-          <div
-            class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-          >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white flex items-center justify-center"
-              >
-                <Presentation size={26} />
-              </div>
-
-              <Titlenew>Copilot in PowerPoint</Titlenew>
-            </div>
-
-            <Paragraph className="mt-6">
-              Learn how Copilot helps users create presentations, generate
-              slides, summarize content, and improve storytelling using
-              Microsoft PowerPoint.
-            </Paragraph>
-
-            <a
-              href="https://support.microsoft.com/en-us/office/create-a-new-presentation-with-copilot-in-powerpoint-3222ee03-f5a4-4d27-8642-9c387ab4854d"
-              target="_blank"
-              class="mt-6 inline-flex items-center gap-2 text-primary hover:underline"
-            >
-              Copilot for PowerPoint Docs
-            </a>
-          </div>
+          </article>
         </div>
 
         <Selar />
