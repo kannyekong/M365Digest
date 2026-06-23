@@ -103,7 +103,7 @@ const instructors = [
               </div>
 
               <!-- Content Side -->
-              <div class="flex-1">
+              <div class="flex-1 space-y-3">
 
                 <h3
                   class="
@@ -139,8 +139,9 @@ const instructors = [
                 </p>
 
                 <!-- Skills -->
-                <div class="mt-4 md:mt-8 flex flex-wrap gap-4">
-
+                
+                <span class="bg-pink-700 text-xs p-0.5 text-white rounded font-semibold">My Skills</span>
+                <div class="flex flex-wrap gap-4">
                   {
                     instructor.skills.map((skill) => (
 
@@ -149,8 +150,8 @@ const instructors = [
                           inline-flex
                           items-center
                           gap-1
-                          md:px-4
-                          md:py-2
+                          md:px-2
+                          md:py-1
                           text-sm
                           dark:text-white
                         "
