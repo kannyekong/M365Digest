@@ -10,9 +10,18 @@ import {
   Network,
   Globe,
   Users,
+Rocket,
+SquareArrowOutDownRight,
 } from "lucide-astro";
 
 const services = [
+   {
+    title: "M365 Bootcamp Training",
+    description:
+      "Hands-on instructor-led Microsoft 365 training designed to prepare beginners and professionals for real-world administration.",
+    icon: GraduationCap,
+    featured: true,
+  },
   {
     title: "M365 Cloud Consultancy",
     description:
@@ -31,13 +40,7 @@ const services = [
       "Seamless migration of mailboxes, SharePoint, OneDrive, Teams, and identities with minimal downtime.",
     icon: ArrowRightLeft,
   },
-  {
-    title: "M365 Bootcamp Training",
-    description:
-      "Hands-on instructor-led Microsoft 365 training designed to prepare beginners and professionals for real-world administration.",
-    icon: GraduationCap,
-    featured: true,
-  },
+ 
   {
     title: "Networking Solutions",
     description:
@@ -143,7 +146,7 @@ const services = [
   </p>
 
   <a
-    href={featured ? "/bootcamp" : "/contact"}
+    href={featured ? "/bootcamp" : "#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"}
     class:list={[
       "relative z-10 mt-8 inline-flex items-center gap-2 font-semibold transition-all",
       featured
@@ -151,9 +154,9 @@ const services = [
         : "text-primary hover:gap-3",
     ]}
   >
-    {featured ? "Explore Bootcamp" : "Learn More"}
+    {featured ? "Explore Bootcamp" : "Request a quote"}
 
-    <ArrowRightLeft size={18} />
+    {featured ? <Rocket size={18} />: <SquareArrowOutDownRight />}
   </a>
 </div>
           ))

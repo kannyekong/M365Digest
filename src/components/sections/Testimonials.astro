@@ -1,6 +1,7 @@
 ---
 import Container from "../shared/Container.astro";
 import { Quote, Star, UserCircle } from "lucide-astro";
+import Title from "../shared/Title.astro";
 
 const testimonials = [
   {
@@ -36,7 +37,16 @@ const testimonials = [
 
 <section class="py-24 overflow-hidden">
   <Container>
-    <div class="text-center max-w-3xl mx-auto"></div>
+    <div class="text-center max-w-3xl mx-auto">
+      <Title className="mt-5">
+        What our 
+        <span
+          class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
+        >
+         Clients say
+        </span>
+      </Title>
+    </div>
   </Container>
 
   <div class="relative mt-10">
