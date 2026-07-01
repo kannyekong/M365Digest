@@ -1,0 +1,67 @@
+---
+import Container from "../shared/Container.astro";
+import Paragraph from "../shared/Paragraph.astro";
+import BtnLinkStart from "../shared/BtnLinkStart.astro";
+import TypewriterText from "@astroanimate/core/TypewriterText";
+---
+
+<section class="relative pt-32 lg:pt-36">
+  <Container
+    className="flex flex-col lg:flex-row gap-10 lg:gap-12 bg-blue-50 border rounded-2xl border-pink-500"
+  >
+    <div
+      class="relative flex flex-col text-left lg:py-12 xl:py-12
+        items-start lg:max-w-full max-w-3xl mx-auto lg:mx-0 lg:flex-1 lg:w-full"
+    >
+      <h1
+        class="text-[40px]/tight md:text-5xl/tight tracking-tight xl:text-[3.4rem]/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
+      >
+        Transforming businesses through Cloud, Consulting & Innovation
+      </h1>
+
+      <Paragraph className="mt-5">
+        We help businesses and professionals unlock the full potential of
+        technology through Microsoft 365 cloud consulting, migration services,
+        technical support, networking solutions, modern web development, and
+        hands-on Microsoft 365 training. Whether you're transforming your
+        workplace, securing your cloud environment, or building the skills to
+        advance your career, CloudTweak delivers practical solutions that drive
+        productivity, innovation, and business growth.
+      </Paragraph>
+      <div
+        class="mt-5 w-full flex flex-row max-w-full mx-auto lg:mx-0 space-x-4"
+      >
+        <div class="lg:min-w-max flex lg:items-center sm:w-max w-full">
+          <BtnLinkStart
+            text="Join our bootcamp"
+            href="/weekone"
+            className="flex justify-center w-full sm:w-max bg-pink-500"
+            variant="primary"
+          />
+        </div>
+        <div
+          class="lg:min-w-max flex lg:items-center sm:w-max w-full lg:pb-0 border-b border-box-bg lg:border-0 lg:px-0"
+        >
+          <BtnLinkStart
+            text="Explore our solutions"
+            href="/weekone"
+            className="flex justify-center w-full sm:w-max bg-primary"
+            variant="primary"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl"
+    >
+      <img
+        src="/images/nn.png"
+        alt="Hero image"
+        width="2350"
+        height="2359"
+        class="lg:absolute lg:w-full lg:h-full object-cover lg:max-h-none max-h-96"
+      />
+    </div>
+  </Container>
+</section>

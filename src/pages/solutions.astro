@@ -1,0 +1,16 @@
+---
+import "../styles/global.css";
+import Solutiondiv from "../components/sections/Solutiondiv.astro";
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import Title from "../components/shared/Title.astro";
+import { Users } from "lucide-astro";
+---
+
+<Layout title="CloudTweak - What we offer">
+  <section id="about-page" class="relative py-24 overflow-hidden">
+    <Container className="space-y-10 md:space-y-12 mt-6">
+      <Solutiondiv />
+    </Container>
+  </section>
+</Layout>

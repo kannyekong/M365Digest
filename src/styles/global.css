@@ -62,10 +62,11 @@ body {
 }
 
 @keyframes neonGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow:
       0 0 5px #06b6d4,
-      0 0 5px #06b6d4,
+      0 0 5px #06b6d4;
   }
 
   50% {

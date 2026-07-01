@@ -1,0 +1,73 @@
+---
+import Container from "../shared/Container.astro";
+import { Quote, Star, UserCircle } from "lucide-astro";
+
+const testimonials = [
+  {
+    name: "Mrs. Sarah Williams",
+    role: "Manager",
+    image: "/images/testimonials/user2.jpg",
+    review:
+      "Ayomide did an excellent job in migrating my users from GSuite to M365. It was a smooth and easy experience",
+  },
+  {
+    name: "Ibrahim Bodude",
+    role: "IT support Specialist",
+    image: "/images/testimonials/user3.jpg",
+    review:
+      "Akaneno is a great instructor. He explains complex Microsoft 365 concepts in a very simple way. Highly recommended.",
+  },
+  {
+    name: "Idiongo-Mfon Etim",
+    role: "Senior Fullstack Engineer",
+    image: "/images/testimonials/user4.jpg",
+    review:
+      "Highly recommended. Excellent learning environment with real-world scenarios instead of just theory.",
+  },
+  {
+    name: "Frank Ntui",
+    role: "IT Consultant",
+    image: "/images/testimonials/user5.jpg",
+    review:
+      "I was looking for a place to learn M365 technology. This looks like a great place to go. I recommend.",
+  },
+];
+---
+
+<section class="py-24 overflow-hidden">
+  <Container>
+    <div class="text-center max-w-3xl mx-auto"></div>
+  </Container>
+
+  <div class="relative mt-10">
+    <div class="testimonial-track">
+      {
+        [...testimonials, ...testimonials].map((item) => (
+          <div class="w-[380px] shrink-0 rounded-3xl border border-box-border bg-white dark:bg-box-bg p-8 shadow-xl">
+            <Quote class="text-primary mb-5" size={34} />
+
+            <p class="leading-7 text-gray-600 dark:text-gray-300">
+              "{item.review}"
+            </p>
+
+            <div class="flex mt-6">
+              {Array.from({ length: 5 }).map(() => (
+                <Star size={16} class="fill-yellow-400 text-yellow-400" />
+              ))}
+            </div>
+
+            <div class="flex items-center gap-4 mt-8">
+              <UserCircle />
+
+              <div>
+                <h4 class="font-semibold text-heading-1">{item.name}</h4>
+
+                <p class="text-sm text-gray-500">{item.role}</p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -1,26 +1,17 @@
 ---
 import "../styles/global.css";
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/sections/Hero.astro";
-import Services from "../components/sections/Services.astro";
-import AboutUs from "../components/sections/AboutUs.astro";
-import CTA from "../components/sections/CTA.astro";
 import Contact from "../components/sections/Contact.astro";
-import Requirement from "../components/sections/Requirement.astro";
-import Selar from "../components/sections/Selar.astro";
-import Instructors from "../components/sections/Instructors.astro";
+import HeroLanding from "../components/sections/HeroLanding.astro";
+import Solutiondiv from "../components/sections/Solutiondiv.astro";
 ---
 
-<Layout title="CloudTweak - M365 Bootcamp">
-  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
-    <Hero />
-    <Selar />
-    <Services />
-    <Instructors />
-    <Requirement />
-    <AboutUs />
-    <CTA />
+<Layout
+  title="CloudTweak | Bridging the Digital Space with innovative solutions"
+>
+  <main class="flex flex-col overflow-hidden space-y-12">
+    <HeroLanding />
+    <Solutiondiv />
     <Contact />
-    <Requirement />
   </main>
 </Layout>
