@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+import Sidebar from "../components/admin/Sidebar.astro";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{title}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <body class="bg-slate-100">
+    <div class="flex">
+      <Sidebar />
+
+      <main class="flex-1 p-10">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

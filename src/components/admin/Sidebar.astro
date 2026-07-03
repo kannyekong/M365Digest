@@ -1,0 +1,84 @@
+---
+import {
+  LayoutDashboard,
+  Newspaper,
+  GraduationCap,
+  Briefcase,
+  Users,
+  MessageSquare,
+  Settings,
+  LogOut,
+} from "lucide-astro";
+
+const links = [
+  {
+    title: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+  },
+
+  {
+    title: "Blog",
+    href: "/admin/blog",
+    icon: Newspaper,
+  },
+
+  {
+    title: "Bootcamp",
+    href: "/admin/bootcamp",
+    icon: GraduationCap,
+  },
+
+  {
+    title: "Services",
+    href: "/admin/services",
+    icon: Briefcase,
+  },
+
+  {
+    title: "Testimonials",
+    href: "/admin/testimonials",
+    icon: MessageSquare,
+  },
+
+  {
+    title: "Instructors",
+    href: "/admin/instructors",
+    icon: Users,
+  },
+
+  {
+    title: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
+  },
+  {
+    title: "Logout",
+    href: "/admin/logout",
+    icon: LogOut,
+  },
+];
+---
+
+<aside class="w-72 min-h-screen bg-slate-950 text-white">
+  <div class="p-8">
+    <h2 class="text-2xl font-bold">CloudTweak CMS</h2>
+
+    <p class="text-slate-400 mt-2">Administration</p>
+  </div>
+
+  <nav class="px-4">
+    {
+      links.map(({ title, href, icon: Icon }) => (
+        <a
+          href={href}
+          class="flex items-center gap-4 rounded-xl px-4 py-3 mb-2 hover:bg-slate-800 transition"
+        >
+          <Icon size={20} />
+
+          {title}
+        </a>
+      ))
+    }
+  </nav>
+</aside>

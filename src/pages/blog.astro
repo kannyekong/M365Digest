@@ -3,207 +3,101 @@ import "../styles/global.css";
 import Layout from "../layouts/Layout.astro";
 import Paragraph from "../components/shared/Paragraph.astro";
 import Container from "../components/shared/Container.astro";
-import Selar from "../components/sections/Selar.astro";
+import Title from "../components/shared/Title.astro";
+import { ArrowRight, Calendar } from "lucide-astro";
+import { posts } from "../utils/blogdata";
 ---
 
-<Layout title="CloudTweak - M365 Bootcamp - T&C">
-  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
-    <section
-      class="relative min-h-screen overflow-hidden py-24 flex items-center"
-    >
-      <!-- Background Effects -->
-      <div
-        class="absolute top-0 left-0 w-80 h-80 bg-cyan-400/10 blur-3xl rounded-full"
-      >
-      </div>
-      <div
-        class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"
-      >
-      </div>
-
-      <Container className="relative z-10">
-        <div
-          class="max-w-6xl
-        mx-auto
-        grid
-        lg:grid-cols-2
-        gap-16
-        items-center"
+<Layout title="CloudTweak | Blog">
+  <section class="py-24">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center my-6">
+        <span
+          class="inline-flex rounded-full bg-primary/10 px-5 py-2 text-primary font-semibold"
         >
-          <!-- Left Content -->
-          <div class="text-center lg:text-left">
-            <span
-              class="inline-flex
-            items-center
-            rounded-full
-            border
-            border-cyan-500/20
-            bg-cyan-500/10
-            px-5
-            py-2
-            text-sm
-            font-medium
-            text-cyan-700
-            dark:text-cyan-300
-            backdrop-blur-xl"
-            >
-              Blog
-            </span>
+          Blog Insights & Resources
+        </span>
 
-            <h1
-              class="mt-8
-            text-5xl/tight
-            md:text-6xl/tight
-            font-bold
-            tracking-tight
-            text-heading-1"
-            >
-              Something
-              <span
-                class="text-transparent
-              bg-clip-text
-              bg-gradient-to-r
-              from-cyan-500
-              via-primary
-              to-green-500"
-              >
-                Awesome
-              </span>
-              <br />
-              is Coming Soon
-            </h1>
 
-            <Paragraph className="mt-8 text-lg max-w-2xl">
-              We are preparing high-quality technical articles, Microsoft 365
-              guides, cloud administration tutorials, career insights, and
-              practical enterprise IT content for the CloudTweak community.
-            </Paragraph>
+        <!-- <Paragraph className="mt-5">
+          Stay updated with practical Microsoft 365 tips, Exchange Online,
+          SharePoint, Microsoft Teams, Entra ID, Defender, Copilot and cloud
+          administration insights.
+        </Paragraph> -->
 
-            <div class="mt-10 lg:justify-start">
-              <a
-                href="/"
-                class="p-4
-              rounded-full
-              bg-red-500
-              text-white
-              font-medium
-              hover:scale-105
-              transition-all
-              duration-300
-              shadow-xl"
-              >
-                Go to Home
-              </a>
-            </div>
-          </div>
+        <!-- <input
+          type="text"
+          placeholder="Search articles..."
+          class="mt-10 w-full rounded-2xl border border-box-border px-6 py-4 bg-white dark:bg-box-bg outline-none focus:ring-2 focus:ring-primary"
+        /> -->
+      </div>
 
-          <!-- Right Illustration -->
-          <div class="relative">
-            <!-- Glow -->
-            <div
-              class="absolute
-            inset-0
-            bg-gradient-to-r
-            from-cyan-400/20
-            via-primary/20
-            to-green-400/20
-            blur-3xl
-            rounded-full
-            scale-110"
-            >
-            </div>
+      <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-16">
+        {
+          posts.map((post) => (
+            <div class="group overflow-hidden rounded-3xl border border-box-border bg-white dark:bg-box-bg shadow-lg hover:shadow-2xl transition duration-500 hover:-translate-y-2">
+              <img
+                src={post.image}
+                alt={post.title}
+                class="h-56 w-full object-cover group-hover:scale-105 transition duration-700"
+              />
 
-            <!-- SVG Illustration -->
-            <div
-              class="relative
-            rounded-[2rem]
-            border
-            border-white/10
-            bg-white/5
-            backdrop-blur-xl
-            p-8
-            shadow-2xl
-            animate-[float_6s_ease-in-out_infinite]"
-            >
-              <svg
-                viewBox="0 0 800 600"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-full h-auto"
-              >
-                <!-- Background Blob -->
-                <path
-                  d="M630 290C630 390 540 470 420 470C300 470 190 390 190 290C190 190 300 110 420 110C540 110 630 190 630 290Z"
-                  fill="#D9F7EC"></path>
+              <div class="p-7">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    {post.category}
+                  </span>
 
-                <!-- Laptop -->
-                <rect
-                  x="240"
-                  y="180"
-                  width="320"
-                  height="190"
-                  rx="18"
-                  fill="#172554"></rect>
+                  <span class="flex items-center gap-2 text-sm text-gray-500">
+                    <Calendar size={15} />
 
-                <rect
-                  x="260"
-                  y="200"
-                  width="280"
-                  height="150"
-                  rx="10"
-                  fill="#ffffff"></rect>
+                    {post.date}
+                  </span>
+                </div>
 
-                <!-- Coming Soon Text -->
-                <text
-                  x="400"
-                  y="285"
-                  text-anchor="middle"
-                  fill="#0F172A"
-                  font-size="28"
-                  font-weight="700"
-                  font-family="Arial"
+                <h3 class="text-xl font-bold text-heading-1 mb-4">
+                  {post.title}
+                </h3>
+
+                <p class="text-gray-600 dark:text-gray-400 leading-7">
+                  {post.excerpt}
+                </p>
+
+                <a
+                  href={post.slug}
+                  class="inline-flex items-center gap-2 mt-6 font-semibold text-primary hover:gap-3 transition-all"
                 >
-                  Coming Soon
-                </text>
-
-                <!-- Rocket -->
-                <g transform="translate(560 120) rotate(20)">
-                  <path
-                    d="M0 40C0 15 20 0 40 0C60 0 80 15 80 40V90H0V40Z"
-                    fill="#06B6D4"></path>
-
-                  <circle cx="40" cy="35" r="10" fill="#ffffff"></circle>
-
-                  <path d="M20 90L10 120L40 100L70 120L60 90" fill="#22C55E"
-                  ></path>
-                </g>
-
-                <!-- Floating Circles -->
-                <circle cx="180" cy="150" r="18" fill="#06B6D4" opacity="0.3"
-                ></circle>
-                <circle cx="660" cy="420" r="24" fill="#22C55E" opacity="0.3"
-                ></circle>
-                <circle cx="120" cy="360" r="12" fill="#6366F1" opacity="0.3"
-                ></circle>
-              </svg>
+                  Read Article
+                  <ArrowRight size={18} />
+                </a>
+              </div>
             </div>
-          </div>
-        </div>
-      </Container>
-    </section>
-
-    <style>
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0px);
+          ))
         }
+      </div>
 
-        50% {
-          transform: translateY(-14px);
-        }
-      }
-    </style>
-    <Selar />
-  </main>
+      <!-- <div class="flex justify-center mt-16 gap-3">
+        <a
+          href="#"
+          class="w-11 h-11 rounded-xl border flex items-center justify-center bg-primary text-white"
+        >
+          1
+        </a>
+
+        <a
+          href="#"
+          class="w-11 h-11 rounded-xl border flex items-center justify-center hover:bg-primary hover:text-white transition"
+        >
+          2
+        </a>
+
+        <a
+          href="#"
+          class="w-11 h-11 rounded-xl border flex items-center justify-center hover:bg-primary hover:text-white transition"
+        >
+          3
+        </a>
+      </div> -->
+    </Container>
+  </section>
 </Layout>

@@ -1,0 +1,8 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import BlogEditor from "../../../islands/BlogEditor";
+---
+
+<AdminLayout title="Edit Article">
+  <BlogEditor client:load editMode={true} />
+</AdminLayout>
