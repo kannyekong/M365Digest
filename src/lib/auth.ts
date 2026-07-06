@@ -1,20 +1,16 @@
-import { supabase } from "./supabase";
+import { supabase } from "./superbase";
 
 export async function login(email: string, password: string) {
-  return await supabase.auth.signInWithPassword({
+  return supabase.auth.signInWithPassword({
     email,
     password,
   });
 }
 
 export async function logout() {
-  return await supabase.auth.signOut();
+  return supabase.auth.signOut();
 }
 
 export async function getSession() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return session;
+  return supabase.auth.getSession();
 }

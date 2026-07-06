@@ -6,6 +6,7 @@ interface Props {
 
 const { title } = Astro.props;
 import Sidebar from "../components/admin/Sidebar.astro";
+import AuthCheck from "../islands/AuthCheck";
 ---
 
 <html lang="en">
@@ -17,6 +18,7 @@ import Sidebar from "../components/admin/Sidebar.astro";
   </head>
 
   <body class="bg-slate-100">
+    <AuthCheck client:load />
     <div class="flex">
       <Sidebar />
 

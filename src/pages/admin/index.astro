@@ -1,14 +1,45 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import Header from "../../components/admin/Header.astro";
+import { getPosts } from "../../lib/blog";
+import StatCard from "../../components/admin/StatCard.astro";
+import { getGreeting } from "../../utils/greetings.ts";
+
+const { data: posts } = await getPosts();
+const totalPosts = posts?.length ?? 0;
+
+const publishedPosts = posts?.filter((post) => post.published).length ?? 0;
+
+const draftPosts = posts?.filter((post) => !post.published).length ?? 0;
 ---
 
 <AdminLayout title="Dashboard">
-  <Header title="Dashboard" />
+  <Header />
 
   <section class="p-10">
-    <h2 class="text-2xl font-semibold">Welcome back 👋</h2>
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <StatCard
+        title="Articles"
+        icon="articles"
+        value={totalPosts}
+        color="bg-pink-300"
+      />
 
-    <p class="text-slate-500 mt-2">Manage your website, blog and bootcamp.</p>
+      <StatCard
+        title="Published"
+        value={publishedPosts}
+        icon="published"
+        color="bg-green-500"
+      />
+
+      <StatCard
+        title="Drafts"
+        value={draftPosts}
+        icon="drafts"
+        color="bg-amber-500"
+      />
+
+      <StatCard title="Views" value={0} icon="views" color="bg-purple-500" />
+    </div>
   </section>
 </AdminLayout>

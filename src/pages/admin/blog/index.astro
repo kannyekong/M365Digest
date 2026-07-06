@@ -5,9 +5,8 @@ import { getPosts } from "../../../lib/blog";
 import DeleteButton from "../../../islands/DeleteButton";
 import StatCard from "../../../components/admin/StatCard.astro";
 
-import { Edit, View } from "lucide-astro";
 
-const { data: posts, error } = await getPosts();
+const { data: posts } = await getPosts();
 const totalPosts = posts?.length ?? 0;
 
 const publishedPosts = posts?.filter((post) => post.published).length ?? 0;

@@ -1,19 +1,20 @@
 ---
+import { getGreeting } from "../../utils/greetings.ts";
 interface Props {
   title: string;
 }
 
-const { title } = Astro.props;
+const { greeting, message } = getGreeting("Akaneno");
 ---
 
 <header class="bg-white border-b border-slate-200">
   <div class="px-10 py-6 flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold">
-        {title}
+        {greeting}
       </h1>
 
-      <p class="text-slate-500 mt-1">CloudTweak Administration Panel</p>
+      <p class="text-slate-500 mt-1">{message}</p>
     </div>
 
     <div>
