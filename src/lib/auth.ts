@@ -1,4 +1,4 @@
-import { supabase } from "./superbase";
+import { supabase } from "./supabase";
 
 export async function login(email: string, password: string) {
   return await supabase.auth.signInWithPassword({
@@ -11,10 +11,10 @@ export async function logout() {
   return await supabase.auth.signOut();
 }
 
-export async function getUser() {
+export async function getSession() {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  return user;
+  return session;
 }

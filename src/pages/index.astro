@@ -4,14 +4,20 @@ import Layout from "../layouts/Layout.astro";
 import Contact from "../components/sections/Contact.astro";
 import HeroLanding from "../components/sections/HeroLanding.astro";
 import Solutiondiv from "../components/sections/Solutiondiv.astro";
+import Vision from "../components/sections/Vision.astro";
+import Testimonials from "../components/sections/Testimonials.astro";
+import Selar from "../components/sections/Selar.astro";
 ---
 
 <Layout
   title="CloudTweak | Bridging the digital space with innovative solutions"
 >
-  <main class="flex flex-col gap-y-16 md:gap-y-24 overflow-hidden">
+  <main class="flex flex-col overflow-hidden">
     <HeroLanding />
+    <Vision />
     <Solutiondiv />
+    <Testimonials />
     <Contact />
+    <Selar />
   </main>
 </Layout>

@@ -1,18 +1,14 @@
 ---
+import Layout from "../../layouts/Layout.astro";
 import LoginForm from "../../islands/LoginForm";
 ---
 
-<html lang="en">
-<head>
+<Layout title="Admin Login">
 
-<title>Login</title>
+    <section class="min-h-screen flex items-center justify-center">
 
-</head>
+        <LoginForm client:load />
 
-<body class="min-h-screen flex items-center justify-center">
+    </section>
 
-<LoginForm client:load />
-
-</body>
-
-</html>
+</Layout>

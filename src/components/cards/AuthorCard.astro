@@ -1,0 +1,74 @@
+---
+import { Github, Linkedin, Mail } from "lucide-astro";
+
+const {
+  name = "Akaneno Ekong",
+  role = "Microsoft 365 Engineer",
+  company = "CloudTweak",
+} = Astro.props;
+---
+
+<div
+  class="mt-20 rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-lg dark:border-slate-800 dark:from-slate-900 dark:to-slate-950"
+>
+  <div class="flex flex-col gap-6 md:flex-row md:items-center">
+    <!-- Avatar -->
+
+    <div class="flex h-24 w-24 items-center justify-center">
+      <img src="/images/checker.png" class="rounded-full" />
+    </div>
+
+    <!-- Details -->
+
+    <div class="flex-1">
+      <p class="text-sm font-semibold uppercase tracking-wider text-primary">
+        Written by
+      </p>
+
+      <h3 class="mt-2 text-2xl font-bold text-heading-1">
+        {name}
+      </h3>
+
+      <p class="mt-1 text-primary font-medium">
+        {role} · {company}
+      </p>
+
+      <p class="mt-4 leading-8 text-gray-600 dark:text-gray-400">
+        Passionate about Microsoft 365, Exchange Online, Azure, cloud security
+        and modern workplace technologies. CloudTweak exists to simplify
+        enterprise cloud administration through practical, real-world guides.
+      </p>
+
+      <div class="mt-6 flex flex-wrap gap-4">
+        <a
+          href="https://linkedin.com/"
+          target="_blank"
+          class="rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:scale-105"
+        >
+          <Linkedin />
+        </a>
+        <a
+          href="mailto:ekongakaneno@gmail.com"
+          target="_blank"
+          class="rounded-xl bg-red-700 px-5 py-3 font-semibold text-white transition hover:scale-105"
+        >
+          <Mail />
+        </a>
+        <a
+          href="https://linkedin.com/"
+          target="_blank"
+          class="rounded-xl bg-black px-5 py-3 font-semibold text-white transition hover:scale-105"
+        >
+          <Github />
+        </a>
+
+        <a
+          href="/blog"
+          class="rounded-xl border border-primary px-5 py-3 font-semibold text-primary transition hover:bg-primary hover:text-white"
+        >
+          View All Articles
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

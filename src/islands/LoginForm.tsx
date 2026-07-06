@@ -1,6 +1,4 @@
 import "../styles/global.css";
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++
 import { useState } from "react";
 import { login } from "../lib/auth";
 
@@ -10,6 +8,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +21,7 @@ export default function LoginForm() {
     setLoading(false);
 
     if (error) {
-      alert(error.message);
+      setError(error.message);
       return;
     }
 
@@ -31,7 +31,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-xl p-10 w-[420px border border-2"
+      className="bg-white rounded-2xl shadow-xl p-10 w-[420px] border-2"
     >
       <h1 className="text-3xl text-center font-bold mb-8">CloudTweak CMS</h1>
 
@@ -39,6 +39,7 @@ export default function LoginForm() {
         className="border w-full p-3 rounded-xl mb-3"
         placeholder="Email"
         type="email"
+        autoComplete="email"
         onChange={(e) => setEmail(e.target.value)}
       />
 
@@ -46,10 +47,19 @@ export default function LoginForm() {
         className="border w-full p-3 rounded-xl mb-6"
         placeholder="Password"
         type="password"
+        autoComplete="current-password"
         onChange={(e) => setPassword(e.target.value)}
       />
+      {error && (
+        <div className="mb-4 rounded-xl bg-red-100 p-3 text-red-600">
+          {error}
+        </div>
+      )}
 
-      <button className="bg-blue-600 text-white w-full rounded-xl py-3">
+      <button
+        disabled={loading}
+        className="bg-blue-600 text-white w-full rounded-xl py-3"
+      >
         {loading ? "Signing In..." : "Login"}
       </button>
     </form>

@@ -1,0 +1,68 @@
+---
+import { Eye, Rocket, Lightbulb } from "lucide-astro";
+---
+
+<section class="py-24">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="grid gap-8 md:grid-cols-3">
+      <!-- Vision -->
+      <div
+        class="group rounded-3xl bg-gradient-to-br from-primary to-emerald-500 shadow-lg shadow-primary/30 p-10 text-white shadow-xl transition duration-500 hover:-translate-y-3 hover:shadow-2xl"
+      >
+        <div
+          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15"
+        >
+          <Eye size={34} />
+        </div>
+
+        <h3 class="mb-5 text-2xl font-bold">Our Vision</h3>
+
+        <p class="leading-8 text-white/90">
+          To become a trusted global destination for cloud technology knowledge,
+          empowering businesses and IT professionals with practical insights,
+          innovative solutions, and expert guidance across the Microsoft
+          ecosystem.
+        </p>
+      </div>
+
+      <!-- Mission -->
+      <div
+        class="group rounded-3xl border-3 border-dashed border-orange-700 bg-white p-10 shadow-xl transition duration-500 hover:-translate-y-3 hover:shadow-2xl dark:bg-box-bg"
+      >
+        <div
+          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-700 text-white"
+        >
+          <Rocket size={34} />
+        </div>
+
+        <h3 class="mb-5 text-2xl font-bold dark:text-white">Our Mission</h3>
+
+        <p class="leading-8 text-gray-600 dark:text-gray-400">
+          To simplify complex cloud technologies through high-quality tutorials,
+          real-world solutions, and actionable best practices that enable
+          organizations to deploy, secure, and optimize Microsoft 365 with
+          confidence.
+        </p>
+      </div>
+
+      <!-- Purpose -->
+      <div
+        class="group rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-rose-800 p-10 text-white shadow-xl transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
+      >
+        <div
+          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15"
+        >
+          <Lightbulb size={34} />
+        </div>
+
+        <h3 class="mb-5 text-2xl font-bold text-white">Our Purpose</h3>
+        <p class="leading-8 text-white/90">
+          CloudTweak exists to bridge the gap between technical complexity and
+          practical implementation. We provide reliable resources that solve
+          real-world challenges, encourage continuous learning, and help
+          organizations maximize the value of modern cloud technologies.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

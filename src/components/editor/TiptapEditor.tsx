@@ -1,19 +1,27 @@
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Toolbar from "./Toolbar";
 
-interface Props {
+interface TiptapEditorProps {
   value: any;
   onChange: (value: any) => void;
 }
 
-export default function TiptapEditor({ value, onChange }: Props) {
+export default function TiptapEditor({ value, onChange }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit],
 
     content: value,
 
     immediatelyRender: false,
+
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-slate max-w-none min-h-[400px] focus:outline-none p-6",
+      },
+    },
 
     onUpdate({ editor }) {
       onChange(editor.getJSON());
@@ -23,7 +31,10 @@ export default function TiptapEditor({ value, onChange }: Props) {
   useEffect(() => {
     if (!editor) return;
 
-    if (JSON.stringify(editor.getJSON()) !== JSON.stringify(value)) {
+    const current = JSON.stringify(editor.getJSON());
+    const incoming = JSON.stringify(value);
+
+    if (current !== incoming) {
       editor.commands.setContent(value);
     }
   }, [value, editor]);
@@ -31,11 +42,10 @@ export default function TiptapEditor({ value, onChange }: Props) {
   if (!editor) return null;
 
   return (
-    <div className="rounded-xl border bg-white">
-      <EditorContent
-        editor={editor}
-        className="min-h-[400px] p-6 outline-none"
-      />
+    <div className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+      <Toolbar editor={editor} />
+
+      <EditorContent editor={editor} />
     </div>
   );
 }

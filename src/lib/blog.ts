@@ -15,6 +15,9 @@ export async function createPost(post: {
   title: string;
   slug: string;
   excerpt: string;
+  content: any;
+  cover_image: string;
+  published: boolean;
 }) {
   return await supabase
     .from("blog_posts")
@@ -22,8 +25,9 @@ export async function createPost(post: {
       title: post.title,
       slug: post.slug,
       excerpt: post.excerpt,
-      content: {},
-      published: false,
+      content: post.content,
+      cover_image: post.cover_image,
+      published: post.published,
     })
     .select()
     .single();
@@ -40,6 +44,7 @@ export async function getPost(id: string) {
 }
 
 // This FXN updates POSTS
+
 export async function updatePost(
   id: string,
   updates: {
@@ -48,7 +53,27 @@ export async function updatePost(
     excerpt: string;
     content: any;
     published: boolean;
+    cover_image: string;
   }
 ) {
   return await supabase.from("blog_posts").update(updates).eq("id", id);
+}
+
+// Fetches BLOG posts by slug
+
+export async function getPostBySlug(slug: string) {
+  return await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+}
+
+export async function getRelatedPosts(currentSlug: string, limit = 3) {
+  return await supabase
+    .from("blog_posts")
+    .select("*")
+    .neq("slug", currentSlug)
+    .order("created_at", { ascending: false })
+    .limit(limit);
 }
