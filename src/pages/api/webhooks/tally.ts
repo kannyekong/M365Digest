@@ -1,10 +1,27 @@
 import type { APIRoute } from "astro";
 
-export const POST: APIRoute = async ({ request }) => {
+import { TALLY_FORMS } from "../../../lib/tallyForms";
+import { insertContact } from "../../../lib/webhooks/contact";
 
+export const POST: APIRoute = async ({ request }) => {
+  try {
     const payload = await request.json();
 
-    console.log(payload.data.fields);
+    switch (payload.data.formId) {
+      case TALLY_FORMS.CONTACT:
+        await insertContact(payload);
+        break;
 
-    return new Response("OK");
+      default:
+        console.warn("Unknown form:", payload.data.formId);
+    }
+
+    return new Response("Success");
+  } catch (error) {
+    console.error(error);
+
+    return new Response("Server Error", {
+      status: 500,
+    });
+  }
 };
