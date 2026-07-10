@@ -4,6 +4,8 @@ import { parseFields } from "../tally";
 export async function insertQuote(payload: any) {
   const fields = parseFields(payload.data.fields);
 
+  console.log(payload.data.fields);
+
   const { error } = await supabaseAdmin
     .from("quote_submissions")
     .insert({

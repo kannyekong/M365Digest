@@ -11,6 +11,27 @@ export function getFieldValue(
 
 export function parseFields(fields: any[]) {
   return Object.fromEntries(
-    fields.map((field) => [field.label, field.value])
-  ) as Record<string, any>;
+    fields.map((field) => {
+      let value = field.value;
+
+      // Convert dropdown option IDs to labels
+      if (
+        field.type === "DROPDOWN" &&
+        Array.isArray(field.value) &&
+        field.options
+      ) {
+        value = field.value
+          .map((id: string) => {
+            const option = field.options.find(
+              (o: any) => o.id === id
+            );
+
+            return option?.text;
+          })
+          .join(", ");
+      }
+
+      return [field.label, value];
+    })
+  );
 }
