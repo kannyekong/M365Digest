@@ -3,29 +3,27 @@ import { parseFields } from "../tally";
 
 export async function insertReview(payload: any) {
   const fields = parseFields(payload.data.fields);
-console.log(
-  JSON.stringify(payload.data.fields, null, 2)
-);
-
+  console.log(fields)
 
   const { error } = await supabaseAdmin
     .from("review_submissions")
     .insert({
-      email: fields["Email"],
+      email: fields["Your email"],
 
-      referral_source: fields["How did you hear about us?"],
+      referral_source:
+        fields["Where did you hear about us?"],
 
-      product_quality: fields["Overall product quality"],
+      ratings:
+        fields["How would you rate our"],
 
-      onboarding_experience: fields["Onboarding experience"],
+      bootcamp_experience:
+        fields["How can we make our Bootcamp better for you?"],
 
-      product_design: fields["Product design"],
+      miscellaneous:
+        fields["Anything else you'd like to share with our team?"],
 
-      bootcamp_experience: fields["Bootcamp experience"],
-
-      miscellaneous: fields["Miscellaneous"],
-
-      tally_submission_id: payload.data.submissionId,
+      tally_submission_id:
+        payload.data.submissionId,
 
       payload,
     });

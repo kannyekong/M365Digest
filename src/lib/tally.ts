@@ -17,18 +17,7 @@ export function parseFields(fields: any[]) {
       switch (field.type) {
         case "DROPDOWN":
         case "MULTIPLE_CHOICE":
-          if (Array.isArray(field.value) && field.options) {
-            value = field.value
-              .map((id: string) => {
-                const option = field.options.find(
-                  (o: any) => o.id === id
-                );
-
-                return option?.text;
-              })
-              .filter(Boolean)
-              .join(", ");
-          }
+          value = parseOptions(field);
           break;
 
         case "MATRIX":
@@ -38,7 +27,24 @@ export function parseFields(fields: any[]) {
 
       return [field.label, value];
     })
-  );
+  ) as Record<string, any>;
+}
+
+function parseOptions(field: any) {
+  if (!Array.isArray(field.value)) {
+    return field.value;
+  }
+
+  return field.value
+    .map((id: string) => {
+      const option = field.options?.find(
+        (o: any) => o.id === id
+      );
+
+      return option?.text;
+    })
+    .filter(Boolean)
+    .join(", ");
 }
 
 function parseMatrix(field: any) {
@@ -62,3 +68,4 @@ function parseMatrix(field: any) {
 
   return result;
 }
+
