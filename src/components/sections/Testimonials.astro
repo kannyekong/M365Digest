@@ -2,48 +2,21 @@
 import Container from "../shared/Container.astro";
 import { Quote, Star, UserCircle } from "lucide-astro";
 import Title from "../shared/Title.astro";
+import { listTestimonials } from "../../lib/testimonials";
 
-const testimonials = [
-  {
-    name: "Mrs. Sarah Williams",
-    role: "Manager",
-    image: "/images/testimonials/user2.jpg",
-    review:
-      "Ayomide did an excellent job in migrating my users from GSuite to M365. It was a smooth and easy experience",
-  },
-  {
-    name: "Ibrahim Bodude",
-    role: "IT support Specialist",
-    image: "/images/testimonials/user3.jpg",
-    review:
-      "Akaneno is a great instructor. He explains complex Microsoft 365 concepts in a very simple way. Highly recommended.",
-  },
-  {
-    name: "Idiongo-Mfon Etim",
-    role: "Senior Fullstack Engineer",
-    image: "/images/testimonials/user4.jpg",
-    review:
-      "Highly recommended. Excellent learning environment with real-world scenarios instead of just theory.",
-  },
-  {
-    name: "Frank Ntui",
-    role: "IT Consultant",
-    image: "/images/testimonials/user5.jpg",
-    review:
-      "I was looking for a place to learn M365 technology. This looks like a great place to go. I recommend.",
-  },
-];
+const { data: testimonials } = await listTestimonials();
 ---
+
 
 <section class="py-24 overflow-hidden">
   <Container>
     <div class="text-center max-w-3xl mx-auto">
       <Title className="mt-5">
-        What our 
+        What our
         <span
           class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
         >
-         Clients say
+          Clients say
         </span>
       </Title>
     </div>
@@ -52,12 +25,12 @@ const testimonials = [
   <div class="relative mt-10">
     <div class="testimonial-track">
       {
-        [...testimonials, ...testimonials].map((item) => (
+        [...(testimonials ?? []), ...(testimonials ?? [])].map((item) => (
           <div class="w-[380px] shrink-0 rounded-3xl border border-box-border bg-white dark:bg-box-bg p-8 shadow-xl">
             <Quote class="text-primary mb-5" size={34} />
 
             <p class="leading-7 text-gray-600 dark:text-gray-300">
-              "{item.review}"
+              "{item.testimonial}"
             </p>
 
             <div class="flex mt-6">
@@ -70,9 +43,9 @@ const testimonials = [
               <UserCircle />
 
               <div>
-                <h4 class="font-semibold text-heading-1">{item.name}</h4>
+                <h4 class="font-semibold text-heading-1">{item.full_name}</h4>
 
-                <p class="text-sm text-gray-500">{item.role}</p>
+                <p class="text-sm text-gray-500">{item.position}</p>
               </div>
             </div>
           </div>

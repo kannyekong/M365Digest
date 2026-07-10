@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ServiceEditPage from "../../../components/admin/services/ServiceEditPage";
+
+const { id } = Astro.params;
+---
+
+<AdminLayout title="Edit Service">
+  <ServiceEditPage client:load serviceId={id!} />
+</AdminLayout>

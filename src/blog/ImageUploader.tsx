@@ -2,11 +2,21 @@ import { useRef, useState } from "react";
 import { uploadCoverImage } from "../lib/storage";
 
 interface Props {
-  value: string;
+  label?: string;
+
+  value?: string;
+
+  bucket: string;
+
   onChange: (url: string) => void;
 }
 
-export default function CoverImageUploader({ value, onChange }: Props) {
+export default function ImageUploader({
+  label = "Upload Image",
+  bucket,
+  value,
+  onChange,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [uploading, setUploading] = useState(false);
@@ -18,7 +28,7 @@ export default function CoverImageUploader({ value, onChange }: Props) {
 
     setUploading(true);
 
-    const { data, error } = await uploadCoverImage(file);
+    const { data, error } = await uploadCoverImage(file, bucket);
 
     setUploading(false);
 
@@ -40,7 +50,7 @@ export default function CoverImageUploader({ value, onChange }: Props) {
         />
       ) : (
         <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400">
-          No Cover Image
+          No Image Selected
         </div>
       )}
 
@@ -57,7 +67,7 @@ export default function CoverImageUploader({ value, onChange }: Props) {
         onClick={() => inputRef.current?.click()}
         className="rounded-xl bg-slate-900 px-5 py-3 text-white"
       >
-        {uploading ? "Uploading..." : "Upload Cover Image"}
+        {uploading ? "Uploading..." : "Upload Image"}
       </button>
     </div>
   );

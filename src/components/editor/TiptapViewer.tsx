@@ -1,5 +1,7 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { addHeadingIds } from "../../lib/addHeadingIds";
+import CustomHeading from "./CustomHeading";
 
 interface Props {
   content: any;
@@ -7,9 +9,15 @@ interface Props {
 
 export default function TiptapViewer({ content }: Props) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+      }),
 
-    content,
+      CustomHeading,
+    ],
+
+    content: addHeadingIds(content),
 
     editable: false,
 

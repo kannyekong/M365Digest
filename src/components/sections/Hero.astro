@@ -3,6 +3,33 @@ import Container from "../shared/Container.astro";
 import Paragraph from "../shared/Paragraph.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
 import TypewriterText from "@astroanimate/core/TypewriterText";
+import { getBootcampSettings } from "../../lib/bootcamp";
+import {
+  BookLock,
+  BookOpen,
+  BadgeDollarSign,
+  Hourglass,
+  Armchair,
+  CalendarCheck,
+  CircleX,
+} from "lucide-astro";
+const { data: settings } = await getBootcampSettings();
+const deadline = settings?.registration_deadline
+  ? new Date(settings.registration_deadline)
+  : null;
+
+let registrationCountdown = "No Deadline";
+
+if (deadline) {
+  const diff = deadline.getTime() - Date.now();
+
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+  if (days > 1) registrationCountdown = `${days} Days Left`;
+  else if (days === 1) registrationCountdown = "Tomorrow";
+  else if (days === 0) registrationCountdown = "Today";
+  else registrationCountdown = "Closed";
+}
 ---
 
 <section class="relative pt-6 lg:pt-12">
@@ -21,46 +48,63 @@ import TypewriterText from "@astroanimate/core/TypewriterText";
       class="relative flex flex-col text-left lg:py-7 xl:py-8
         items-start lg:max-w-none max-w-3xl mx-auto lg:mx-0 lg:flex-1 lg:w-1/2"
     >
-      <span class="bg-pink-700 text-xs p-0.5 text-white rounded font-semibold"
-        >Cohort 1.0</span
+      <span
+        class:list={[
+          "text-xs rounded-sm px-1 py-0.5 font-semibold text-white transition-colors duration-300",
+          settings?.registration_open ? "bg-orange-700" : "bg-pink-700",
+        ]}
       >
+        {
+          settings?.registration_open
+            ? "Registration Ongoing"
+            : "Registration Closed"
+        }
+      </span>
       <h1
         class="text-[40px]/tight md:text-5xl/tight tracking-tight xl:text-[3.4rem]/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
       >
-        M365 Bootcamp: <br />
+        {settings?.hero_prefix || "M365 Bootcamp:"}
+        <br />
 
-        <span> 6 Weeks Admin Mastery of </span>
+        <span> {settings?.hero_suffix || "6 Weeks Admin Mastery of"} </span>
         <span class="inline-block
       min-w-[12ch]
       whitespace-nowrap">
           <TypewriterText
-            texts={[
-              "Exchange",
-              "SharePoint",
-              "Entra ID",
-              "OneDrive",
-              "Security",
-              "Teams",
-            ]}
+            texts={Array.isArray(settings?.hero_rotating_words)
+              ? settings.hero_rotating_words
+              : [
+                  "Exchange",
+                  "SharePoint",
+                  "Entra ID",
+                  "OneDrive",
+                  "Security",
+                  "Teams",
+                ]}
             enhance
           />
         </span>
       </h1>
 
       <mark
-        class="border-2 border-pink-700 bg-white p-0.5 rounded font-bold pr-1 pl-1 text-pink-700 text-xs md:text-sm"
-        ><i class="fa fa-bullhorn font-bold text-pink-700"></i> 1<sup>st</sup> August
-        - 16th September, 2026</mark
+        class:list={[
+          "rounded-full border-2 bg-white px-2 text-xs font-bold md:text-sm transition-colors duration-300",
+          settings?.registration_open
+            ? "border-orange-700 text-orange-700"
+            : "border-red-500 text-red-500",
+        ]}
       >
+        <i
+          class:list={[
+            "fa fa-bullhorn font-bold",
+            settings?.registration_open ? "text-orange-700" : "text-red-500",
+          ]}></i>
+
+        {settings?.next_cohort}
+      </mark>
 
       <Paragraph className="mt-5">
-        In six weeks, you will progress from basic familiarity to confident
-        administration of core Microsoft 365 services, including Exchange,
-        Teams, SharePoint & OneDrive, Azure, Microsoft Defender and Entra ID.
-        Each session is built around real-world administrative
-        scenarios—equipping you not just to understand the platform, but to
-        effectively manage users, secure data, optimize environments, and
-        resolve everyday operational challenges.
+        <span> {settings?.hero_subtitle} </span>
       </Paragraph>
       <div
         class="mt-5 w-full flex flex-row max-w-full mx-auto lg:mx-0 space-x-4"
@@ -107,7 +151,13 @@ import TypewriterText from "@astroanimate/core/TypewriterText";
             animate-soft-glow
             hover:after:scale-[2.5]"
           >
-            <span class="relative z-10"> Register Now </span>
+            <span class="relative z-10">
+              {
+                settings?.registration_open
+                  ? "Register Now"
+                  : "Join Waiting List"
+              }
+            </span>
           </button>
         </div>
       </div>
@@ -117,7 +167,7 @@ import TypewriterText from "@astroanimate/core/TypewriterText";
       class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl"
     >
       <img
-        src="/images/blue.png"
+        src={`${settings?.hero_image}`}
         alt="Hero image"
         width="2350"
         height="2359"
@@ -125,4 +175,200 @@ import TypewriterText from "@astroanimate/core/TypewriterText";
       />
     </div>
   </Container>
+
+  <section class="mt-14">
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <!-- Next Cohort -->
+
+      <div class="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm">
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100"
+        >
+          <CalendarCheck />
+        </div>
+
+        <p class="text-sm text-blue-500">Current Cohort</p>
+
+        <h3 class="mt-2 text-md font-bold">
+          {settings?.next_cohort}
+        </h3>
+      </div>
+
+      <!-- Seats -->
+
+      <div class="rounded-2xl border border-purple-200 bg-white p-6 shadow-sm">
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100"
+        >
+          <Armchair />
+        </div>
+
+        <p class="text-sm text-purple-500">Seats Remaining</p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          {
+            settings?.seats_remaining > 0
+              ? `${settings.seats_remaining} Seats`
+              : "Fully Booked"
+          }
+        </h3>
+      </div>
+
+      <!-- Deadline -->
+
+      <div class="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100"
+        >
+          <Hourglass />
+        </div>
+
+        <p class="text-sm text-orange-500">Registration Deadline</p>
+
+        <h3 class="mt-2 text-xl font-bold">
+          {registrationCountdown}
+        </h3>
+
+        <p class="mt-1 text-sm text-slate-500">
+          {settings?.registration_deadline}
+        </p>
+      </div>
+
+      <!-- Status -->
+      <div
+        class:list={[
+          "rounded-2xl p-6 shadow-sm border justify-center",
+          settings?.registration_open ? "border-green-500" : "border-red-500",
+        ]}
+      >
+        <div
+          class:list={[
+            "mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-white",
+            settings?.registration_open ? "bg-green-500" : "bg-red-500",
+          ]}
+        >
+          {settings?.registration_open ? <BookOpen /> : <BookLock />}
+        </div>
+
+        <span
+          class:list={[
+            "mt-3 inline-flex rounded-full px-4 py-2 text-sm font-semibold",
+            settings?.registration_open
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700",
+          ]}
+        >
+          {
+            settings?.registration_open
+              ? "Registration Open"
+              : "Registration Closed"
+          }
+        </span>
+      </div>
+    </div>
+  </section>
+  <section class="relative mt-10">
+    <Container>
+      <div
+        class="mx-auto lg:mx-0 p-4 max-w-full rounded-3xl bg-box-bg border-8 bg-gradient border-blue-500 shadow-lg shadow-box-shadow md:divide-x divide-box-border grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-6 lg:gap-12"
+      >
+        <div
+          class="flex flex-col items-center rounded-2xl border border-emerald-100 bg-white/80 backdrop-blur-sm py-2 shadow-lg"
+        >
+          <span
+            class="rounded-full bg-red-100 px-4 py-1 text-xs font-bold uppercase tracking-wide text-red-600"
+          >
+            🔥 Limited Time Offer
+          </span>
+
+          <div class="flex items-end gap-3">
+            <span class="text-md font-bold text-slate-400 line-through">
+              ${settings?.price}
+            </span>
+
+            <span
+              class="rounded-full bg-green-100 px-3 text-xs font-semibold text-green-700"
+            >
+              Save 40%
+            </span>
+          </div>
+
+          <div class="mt-2 flex items-end gap-2">
+            <span
+              class="text-3xl font-extrabold tracking-tight text-emerald-600"
+            >
+              ${settings?.discount_price}
+            </span>
+
+            <span class="pb-2 text-sm text-slate-500"> one-time fee </span>
+          </div>
+
+          <a
+            aria-disabled={!settings?.registration_open}
+            class:list={[
+              settings?.registration_open && "open-modal-btn",
+              "inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-lg transition-all duration-300",
+              settings?.registration_open
+                ? "bg-gradient-to-r from-emerald-600 to-green-500 hover:scale-105 hover:shadow-emerald-400/40 cursor-pointer"
+                : "bg-gradient-to-r from-red-600 to-rose-500 opacity-70 pointer-events-none cursor-not-allowed",
+            ]}
+          >
+            {
+              settings?.registration_open
+                ? "Register Now"
+                : "Registration Closed"
+            }
+
+            {
+              settings?.registration_open ? (
+                <BadgeDollarSign size={17} strokeWidth={2.8} />
+              ) : (
+                <CircleX size={17} strokeWidth={2.8} />
+              )
+            }
+          </a>
+        </div>
+
+        <div class="text-center space-y-1 py-4">
+          <h2
+            class="font-semibold text-xl sm:text-2xl md:text-4xl text-heading-1"
+          >
+            {settings?.duration}
+          </h2>
+          <p class="mt-2 text-heading-3">Training Duration</p>
+          <mark
+            class="border bg-white p-1 rounded-full text-xs font-bold pr-2 pl-2"
+          >
+            {settings?.next_cohort}</mark
+          >
+        </div>
+
+        <div class="text-center space-y-1 py-4">
+          <h2
+            class="font-semibold text-xl sm:text-2xl md:text-4xl text-heading-1"
+          >
+            2
+          </h2>
+          <p class="mt-2 text-heading-3">Practical Labs Weekly</p>
+          <mark
+            class="border bg-white p-1 rounded-full text-xs font-bold pr-2 pl-2"
+            >Free Sandbox account</mark
+          >
+        </div>
+
+        <div class="text-center space-y-1 py-4">
+          <h2
+            class="font-semibold text-xl sm:text-2xl md:text-4xl text-heading-1"
+          >
+            {settings?.class_schedule}
+          </h2>
+          <p class="mt-2 text-heading-3">Saturday, Sunday (UTC+1)</p>
+          <mark
+            class="border bg-white p-1 rounded-full text-xs font-bold pr-2 pl-2"
+            >{settings?.delivery_mode} Training Sessions</mark
+          >
+        </div>
+      </div>
+    </Container>
+  </section>
 </section>

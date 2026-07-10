@@ -8,44 +8,89 @@ import {
   Users,
   MessageSquare,
   Settings,
-  LogOut,
-} from "lucide-astro";
+} from "lucide-react";
 
-const links = [
+const sections = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/admin/blog",
     icon: LayoutDashboard,
   },
 
   {
-    title: "Blog",
-    href: "/admin/blog",
+    title: "Content",
     icon: Newspaper,
+    links: [
+      {
+        title: "All articles",
+        href: "/admin/blog/articles",
+      },
+      {
+        title: "Add a new article",
+        href: "/admin/blog/new",
+      },
+    ],
+  },
+
+  {
+    title: "Company",
+    icon: Briefcase,
+    links: [
+      {
+        title: "All services",
+        href: "/admin/services",
+      },
+      {
+        title: "Add a new service",
+        href: "/admin/services/new",
+      },
+      {
+        title: "All testimonials",
+        href: "/admin/testimonials",
+      },
+      {
+        title: "Add a new testimonial",
+        href: "/admin/testimonials/new",
+      },
+    ],
   },
 
   {
     title: "Bootcamp",
-    href: "/admin/bootcamp",
     icon: GraduationCap,
+    links: [
+      {
+        title: "All instructors",
+        href: "/admin/bootcamp/instructors",
+      },
+      {
+        title: "Add instructors",
+        href: "/admin/bootcamp/instructors/new",
+      },
+    ],
   },
 
   {
-    title: "Services",
-    href: "/admin/services",
-    icon: Briefcase,
-  },
-
-  {
-    title: "Testimonials",
-    href: "/admin/testimonials",
+    title: "Forms",
     icon: MessageSquare,
-  },
-
-  {
-    title: "Instructors",
-    href: "/admin/instructors",
-    icon: Users,
+    links: [
+      {
+        title: "Contact",
+        href: "/admin/forms/contact",
+      },
+      {
+        title: "Bootcamp",
+        href: "/admin/forms/bootcamp",
+      },
+      {
+        title: "Quote",
+        href: "/admin/forms/quote",
+      },
+      {
+        title: "General",
+        href: "/admin/forms/general",
+      },
+    ],
   },
 
   {
@@ -56,25 +101,61 @@ const links = [
 ];
 ---
 
-<aside class="w-72 min-h-screen bg-slate-950 text-white">
+<aside class="sticky top-0 h-screen w-72 bg-slate-950 text-white flex flex-col">
   <div class="p-8">
-    <h2 class="text-2xl font-bold">CloudTweak CMS</h2>
-
-    <p class="text-slate-400 mt-2">Administration</p>
+    <img src="/logos/logonew-white.png" alt="logo" class="w-3/4" />
   </div>
 
-  <nav class="px-4">
+  <nav class="px-4 flex-1 overflow-y-auto hide-scrollbar">
     {
-      links.map(({ title, href, icon: Icon }) => (
-        <a
-          href={href}
-          class="flex items-center gap-4 rounded-xl px-4 py-3 mb-2 hover:bg-slate-800 transition"
-        >
-          <Icon size={20} />
+      sections.map((section) =>
+        section.links ? (
+          <details class="group mb-2">
+            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-800 transition list-none">
+              <div class="flex items-center gap-4">
+                <section.icon size={20} />
 
-          {title}
-        </a>
-      ))
+                <span>{section.title}</span>
+              </div>
+
+              <svg
+                class="h-4 w-4 transition-transform group-open:rotate-90"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </summary>
+
+            <div class="ml-10 mt-2 space-y-1">
+              {section.links.map((link) => (
+                <a
+                  href={link.href}
+                  class="block rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  {link.title}
+                </a>
+              ))}
+            </div>
+          </details>
+        ) : (
+          <a
+            href={section.href}
+            class="flex items-center gap-4 rounded-xl px-4 py-3 mb-2 hover:bg-slate-800 transition"
+          >
+            <section.icon size={20} />
+
+            {section.title}
+          </a>
+        )
+      )
     }
   </nav>
   <div class="mt-auto px-4 pb-8">

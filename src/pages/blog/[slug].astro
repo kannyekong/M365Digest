@@ -2,17 +2,18 @@
 import "../../styles/global.css";
 import Layout from "../../layouts/Layout.astro";
 import Container from "../../components/shared/Container.astro";
-import { getPosts, getPostBySlug } from "../../lib/blog";
+import { getPublishedPosts, getPostBySlug } from "../../lib/blog";
 import TiptapViewer from "../../components/editor/TiptapViewer";
 import { calculateReadingTime } from "../../utils/readingTime";
 import { generateTableOfContents } from "../../utils/tableOfContents";
 import AuthorCard from "../../../src/components/cards/AuthorCard.astro";
 import { getRelatedPosts } from "../../lib/blog";
-import { Linkedin, Twitter, Facebook, Link2 } from "lucide-astro";
-
+import { Linkedin, Twitter, Facebook, Link2, Link } from "lucide-astro";
+import CopyLinkButton from "../../islands/CopyLinkButton";
+import ViewTracker from "../../islands/ViewTracker";
 ///////
 export async function getStaticPaths() {
-  const { data: posts } = await getPosts();
+  const { data: posts } = await getPublishedPosts();
 
   return (
     posts?.map((post) => ({
@@ -34,17 +35,48 @@ if (!post) {
 const readingTime = calculateReadingTime(post.content);
 const toc = generateTableOfContents(post.content);
 const { data: relatedPosts } = await getRelatedPosts(post.slug);
-// showToast("Article copied!");
+const site = Astro.site?.toString() ?? "https://cloudtweak.com";
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: post.title,
+  description: post.seo_description || post.excerpt,
+  image: post.cover_image,
+  datePublished: post.created_at,
+  dateModified: post.updated_at ?? post.created_at,
+  timeRequired: `PT${readingTime}M`,
+  author: {
+    "@type": "Person",
+    name: "Akaneno Ekong",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "CloudTweak",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://cloudtweak.com/logos/logonew.png",
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": post.canonical_url,
+  },
+};
 ---
 
-<Layout title=`Cloudtweak | article - ${post.title}`>
+<Layout
+  title={post.seo_title || `CloudTweak | ${post.title}`}
+  description={post.seo_description || post.excerpt}
+  canonical={post.canonical_url}
+  image={post.cover_image}
+>
+  <!-- This is the View Tracker component for UNIQUE post reads -->
+  <ViewTracker client:load postId={post.id} />
+
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <section class="py-6">
     <Container>
       <div class="grid gap-12 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <!-- ========================= -->
-        <!-- TABLE OF CONTENTS -->
-        <!-- ========================= -->
-
         <aside class="hidden lg:block">
           {
             toc.length > 0 && (
@@ -79,7 +111,6 @@ const { data: relatedPosts } = await getRelatedPosts(post.slug);
                       >
                         <Linkedin size={18} />
                       </a>
-
                       <a
                         target="_blank"
                         href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(Astro.url.href)}&text=${encodeURIComponent(post.title)}`}
@@ -87,7 +118,6 @@ const { data: relatedPosts } = await getRelatedPosts(post.slug);
                       >
                         <Twitter size={18} />
                       </a>
-
                       <a
                         target="_blank"
                         href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(Astro.url.href)}`}
@@ -95,13 +125,13 @@ const { data: relatedPosts } = await getRelatedPosts(post.slug);
                       >
                         <Facebook size={18} />
                       </a>
-
-                      <button
-                        id="copy-link"
-                        class="flex items-center rounded-xl bg-green-500 text-white p-2 text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
+                      <CopyLinkButton
+                        client:load
+                        message="Article URL copied!"
+                        className="p-2 text-white bg-green-500 rounded-xl text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
                       >
                         <Link2 size={18} />
-                      </button>
+                      </CopyLinkButton>
                     </div>
                   </div>
                 </div>
@@ -192,12 +222,13 @@ const { data: relatedPosts } = await getRelatedPosts(post.slug);
                   <Facebook size={18} />
                 </a>
 
-                <button
-                  id="copy-link"
-                  class="flex items-center rounded-xl bg-green-500 text-white p-2 text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
+                <CopyLinkButton
+                  client:load
+                  message="Article URL copied!"
+                  className="p-2 text-white bg-green-500 rounded-xl text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
                 >
                   <Link2 size={18} />
-                </button>
+                </CopyLinkButton>
               </div>
             </div>
           </header>
@@ -257,14 +288,7 @@ const { data: relatedPosts } = await getRelatedPosts(post.slug);
           await navigator.clipboard.writeText(window.location.href);
 
           // Dispatch a custom event for your reusable alert component
-          window.dispatchEvent(
-            new CustomEvent("toast", {
-              detail: {
-                message: "Article link copied!",
-                type: "success",
-              },
-            })
-          );
+          toast.success("Success");
         } catch (err) {
           window.dispatchEvent(
             new CustomEvent("toast", {

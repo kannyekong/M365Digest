@@ -1,0 +1,13 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/Header.astro";
+import AdminBlogPage from "../../../islands/AdminBlogPage";
+---
+
+<AdminLayout title="CloudTweak - Admin | Blog Management">
+  <Header title="Blog Management" />
+
+  <section class="p-10">
+    <AdminBlogPage client:load />
+  </section>
+</AdminLayout>

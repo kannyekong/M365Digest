@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import TestimonialEditPage from "../../../components/admin/testimonials/TestimonialEditPage";
+
+const { id } = Astro.params;
+---
+
+<AdminLayout title="Edit Testimonial">
+  <TestimonialEditPage client:load testimonialId={id!} />
+</AdminLayout>

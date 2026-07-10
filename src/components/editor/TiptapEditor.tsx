@@ -1,7 +1,14 @@
 import { useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+
+import { common, createLowlight } from "lowlight";
+
 import Toolbar from "./Toolbar";
+
+const lowlight = createLowlight(common);
 
 interface TiptapEditorProps {
   value: any;
@@ -10,7 +17,15 @@ interface TiptapEditorProps {
 
 export default function TiptapEditor({ value, onChange }: TiptapEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+    ],
 
     content: value,
 

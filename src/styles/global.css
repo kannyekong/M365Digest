@@ -40,7 +40,7 @@ html {
 
 body {
   background-color: rgb(var(--color-bg));
-  font-family: "Nunito", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 [data-toggle-nav][data-open-nav="true"] #line1 {
@@ -78,4 +78,13 @@ body {
 
 .animate-soft-glow {
   animation: neonGlow 1.8s infinite ease-in-out;
+}
+/* globals.css */
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
 }

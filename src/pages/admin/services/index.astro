@@ -1,0 +1,8 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ServiceListPage from "../../../components/admin/services/ServiceListPage";
+---
+
+<AdminLayout title="Services">
+  <ServiceListPage client:load />
+</AdminLayout>
