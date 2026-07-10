@@ -3,7 +3,9 @@ import { parseFields } from "../tally";
 
 export async function insertReview(payload: any) {
   const fields = parseFields(payload.data.fields);
-console.log(payload.data.fields);
+console.log(
+  JSON.stringify(payload.data.fields, null, 2)
+);
 
 
   const { error } = await supabaseAdmin

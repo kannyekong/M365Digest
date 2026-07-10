@@ -14,24 +14,51 @@ export function parseFields(fields: any[]) {
     fields.map((field) => {
       let value = field.value;
 
-      // Convert dropdown option IDs to labels
-      if (
-        field.type === "DROPDOWN" &&
-        Array.isArray(field.value) &&
-        field.options
-      ) {
-        value = field.value
-          .map((id: string) => {
-            const option = field.options.find(
-              (o: any) => o.id === id
-            );
+      switch (field.type) {
+        case "DROPDOWN":
+        case "MULTIPLE_CHOICE":
+          if (Array.isArray(field.value) && field.options) {
+            value = field.value
+              .map((id: string) => {
+                const option = field.options.find(
+                  (o: any) => o.id === id
+                );
 
-            return option?.text;
-          })
-          .join(", ");
+                return option?.text;
+              })
+              .filter(Boolean)
+              .join(", ");
+          }
+          break;
+
+        case "MATRIX":
+          value = parseMatrix(field);
+          break;
       }
 
       return [field.label, value];
     })
   );
+}
+
+function parseMatrix(field: any) {
+  const result: Record<string, string> = {};
+
+  Object.entries(field.value).forEach(
+    ([rowId, columnIds]: any) => {
+      const row = field.rows.find(
+        (r: any) => r.id === rowId
+      );
+
+      const column = field.columns.find(
+        (c: any) => c.id === columnIds[0]
+      );
+
+      if (row && column) {
+        result[row.text] = column.text;
+      }
+    }
+  );
+
+  return result;
 }
