@@ -1,31 +1,24 @@
 import { supabaseAdmin } from "../server/supabase";
 import { parseFields } from "../tally";
 
-export async function insertContact(payload: any) {
+export async function insertQuote(payload: any) {
   const fields = parseFields(payload.data.fields);
 
-
-
-
   const { error } = await supabaseAdmin
-    .from("contact_submissions")
+    .from("quote_submissions")
     .insert({
-      first_name: fields["First name"],
-      last_name: fields["Last name"],
-      phone_number: fields["Phone number"],
+      name: fields["Name"],
       email: fields["Email"],
-      question: fields["Your question"],
+      phone_number: fields["Phone number"],
+      organization: fields["Organization"],
+      project_details: fields["Project details"],
 
       tally_submission_id: payload.data.submissionId,
 
       payload,
     });
 
-
-
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return true;
 }

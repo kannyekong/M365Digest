@@ -1,9 +1,9 @@
 export const TALLY_FORMS = {
   CONTACT: "VL4vdg",
 
-  BOOTCAMP: "xxxxxxxx",
+  BOOTCAMP: "gDkNGO",
 
-  REVIEW: "xxxxxxxx",
+  REVIEW: "5Bp5qN",
 
-  QUOTE: "xxxxxxxx",
+  QUOTE: "MeglOM",
 } as const;

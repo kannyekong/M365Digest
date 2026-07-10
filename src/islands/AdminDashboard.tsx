@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAllPosts } from "../lib/blog";
-import StatCard from "../components/admin/Statcard";
 import { getDashboardAnalytics } from "../lib/blog";
 import { Briefcase, CirclePlus, Cog, PencilIcon, Users } from "lucide-react";
 import CategoryLeaderboard from "../components/admin/CategoryLeaderBoard";
+import SingleStatCard from "../components/admin/SingleStatCard";
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -53,32 +53,68 @@ export default function AdminDashboard() {
   return (
     <>
       <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-        <StatCard
-          title="Articles"
-          value={totalPosts}
+        <SingleStatCard
+          title="Articles Overview"
+          value1={totalPosts}
+          subtitle="total articles"
+          value2={publishedPosts}
+          subtitleTwo="Published"
+          value3={draftPosts}
+          subtitleThree="Draft"
+          value4={totalViews}
+          subtitleFour="Views"
+          value5={totalCategories}
+          subtitleFive="Categories"
           icon="articles"
           color="bg-pink-300"
         />
 
-        <StatCard
-          title="Published"
-          value={publishedPosts}
-          icon="published"
+        <SingleStatCard
+          title="Company Overview"
+          subtitle="Total Staff"
+          value1={0}
+          value2={0}
+          subtitleTwo="Testimonials"
+          value3={0}
+          subtitleThree="Services"
+          value4={0}
+          subtitleFour="Admin staff"
+          value5={0}
+          subtitleFive="Regular staff"
+          icon="drafts"
           color="bg-green-500"
         />
 
-        <StatCard
-          title="Drafts"
-          value={draftPosts}
-          icon="drafts"
-          color="bg-amber-500"
+        <SingleStatCard
+          title="Bootcamp"
+          value1={0}
+          subtitle="Active Bootcamp(s)"
+          value2={0}
+          subtitleTwo="Instructors"
+          value3={0}
+          subtitleThree="Students"
+          value4={0}
+          subtitleFour="Certs Issued"
+          value5={0}
+          subtitleFive="Regular staff"
+          icon="articles"
+          color="bg-orange-500"
         />
 
-        <StatCard
-          title="Unique Views"
-          value={totalCategories}
-          icon="views"
-          color="bg-black"
+        <SingleStatCard
+          title="User Engagements"
+          value1={0}
+          subtitle="Total User(s)"
+          value2={0}
+          subtitleTwo="Contact Form"
+          value3={0}
+          subtitleThree="Feedback Form"
+          value4={0}
+          subtitleFour="Reg Form"
+          value5={0}
+          subtitleFive="Quote Requests"
+          icon="drafts"
+          color="bg-blue-500"
         />
       </div>
 

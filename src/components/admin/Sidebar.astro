@@ -16,9 +16,8 @@ const sections = [
     href: "/admin/blog",
     icon: LayoutDashboard,
   },
-
   {
-    title: "Content",
+    title: "Blog content",
     icon: Newspaper,
     links: [
       {
@@ -33,13 +32,14 @@ const sections = [
   },
 
   {
-    title: "Company",
+    title: "Company info",
     icon: Briefcase,
     links: [
       {
-        title: "All services",
+        title: " All services",
         href: "/admin/services",
       },
+
       {
         title: "Add a new service",
         href: "/admin/services/new",
@@ -54,9 +54,41 @@ const sections = [
       },
     ],
   },
+  {
+    title: "Manage staff",
+    icon: Users,
+    links: [
+      {
+        title: "Overview",
+        href: "/admin/staff",
+      },
+      {
+        title: "Manage Staff",
+        href: "/admin/staff/manage",
+      },
+    ],
+  },
+  {
+    title: "Manage students",
+    icon: Users,
+    links: [
+      {
+        title: "Overview",
+        href: "/admin/students",
+      },
+      {
+        title: "Manage Students",
+        href: "/admin/students/manage",
+      },
+      {
+        title: "Generate Certificate",
+        href: "/admin/students/manage/certificate",
+      },
+    ],
+  },
 
   {
-    title: "Bootcamp",
+    title: "Bootcamp settings",
     icon: GraduationCap,
     links: [
       {
@@ -71,7 +103,7 @@ const sections = [
   },
 
   {
-    title: "Forms",
+    title: "Form submissions",
     icon: MessageSquare,
     links: [
       {
@@ -87,21 +119,30 @@ const sections = [
         href: "/admin/forms/quote",
       },
       {
-        title: "General",
-        href: "/admin/forms/general",
+        title: "Reviews",
+        href: "/admin/forms/reviews",
       },
     ],
   },
 
   {
-    title: "Settings",
-    href: "/admin/settings",
+    title: "Account settings",
     icon: Settings,
+    links: [
+      {
+        title: "Change password",
+        href: "/admin/profile/",
+      },
+      {
+        title: "Update profile picture",
+        href: "/admin/profile",
+      },
+    ],
   },
 ];
 ---
 
-<aside class="sticky top-0 h-screen w-72 bg-slate-950 text-white flex flex-col">
+<aside class="sticky top-0 h-screen w-72 bg-[#000033] text-white flex flex-col">
   <div class="p-8">
     <img src="/logos/logonew-white.png" alt="logo" class="w-3/4" />
   </div>
@@ -134,11 +175,11 @@ const sections = [
               </svg>
             </summary>
 
-            <div class="ml-10 mt-2 space-y-1">
+            <div class="ml-10 mt-2 space-y-1 border border-slate-200 rounded-lg">
               {section.links.map((link) => (
                 <a
                   href={link.href}
-                  class="block rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                  class="block rounded-lg px-3 py-2 text-sm text-slate-200 hover:mr-1 hover:m-0.5 hover:bg-slate-800 hover:text-white transition"
                 >
                   {link.title}
                 </a>

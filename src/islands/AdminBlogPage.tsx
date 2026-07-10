@@ -121,7 +121,7 @@ export default function AdminBlogPage() {
         <div>
           <h2 className="text-2xl font-semibold">All Articles</h2>
 
-          <p className="mt-1">Create and manage blog posts</p>
+          <p className="mt-1">Create and Edit blog posts</p>
         </div>
 
         <a
