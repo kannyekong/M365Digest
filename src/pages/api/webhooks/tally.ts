@@ -8,6 +8,9 @@ import { insertContact } from "../../../lib/webhooks/contact";
 export const POST: APIRoute = async ({ request }) => {
   try {
     const payload = await request.json();
+console.log("Form ID:", payload.data.formId);
+
+
 
     switch (payload.data.formId) {
   case TALLY_FORMS.CONTACT:
@@ -16,6 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   case TALLY_FORMS.BOOTCAMP:
     await insertBootcamp(payload);
+    console.log("Bootcamp webhook reached");
     break;
 
   case TALLY_FORMS.QUOTE:
@@ -28,6 +32,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   default:
     console.warn("Unknown form:", payload.data.formId);
+    
 }
 
     return new Response("Success");
