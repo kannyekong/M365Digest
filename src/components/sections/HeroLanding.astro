@@ -4,10 +4,14 @@ import Paragraph from "../shared/Paragraph.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
 ---
 
-<section class="relative pt-6 lg:pt-12">
-  <Container
-    className="flex flex-col lg:flex-row gap-10 lg:gap-12"
-  >
+<section class="relative pt-6 lg:pt-6">
+  <Container className="flex flex-col lg:flex-row gap-10 lg:gap-12">
+    <!-- Background Effects -->
+    <div
+      class="absolute top-25 left-30 w-30 h-30 bg-pink-500/50 blur-3xl rounded-full"
+    >
+    </div>
+
     <div
       class="relative flex flex-col text-left py-6 lg:py-12
         items-start lg:max-w-full max-w-3xl mx-auto lg:flex-1 lg:w-full"
@@ -15,7 +19,8 @@ import BtnLinkStart from "../shared/BtnLinkStart.astro";
       <h1
         class="text-4xl/tight md:text-5xl/tight tracking-tight xl:text-[3.4rem]/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
       >
-        Transforming businesses through Cloud, Consulting & Innovative solutions.
+        Transforming businesses through Cloud, Consulting & Innovative
+        solutions.
       </h1>
 
       <Paragraph className="mt-5">

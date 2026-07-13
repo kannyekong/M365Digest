@@ -2,44 +2,15 @@
 import Container from "../shared/Container.astro";
 import Title from "../shared/Title.astro";
 import { ChevronLeft, ChevronRight, Linkedin, BadgeCheck, Github, Mail, PhoneCall } from "lucide-astro";
+import { listActiveInstructors } from "../../lib/bootcamp_instructors";
 
-const instructors = [
-  {
-    name: "Akaneno Ekong",
-    role: "Senior Technical Support Engineer",
-    image: "/images/checker.png",
-    bio: "I work for Microsoft as a Technical Support Engineer with 5 years of experience. I am a seasoned Microsoft 365 administrator with years of hands-on enterprise experience managing Exchange Online, SharePoint, Teams, Entra ID, and cloud security environments for organizations globally. I specialize in simplifying complex M365 cloud technologies for beginners.",
-    skills: ["M365 Technical Support Engineer","Senior IT Support Specialist", "Frontend Web Developer", "Forward Deployment Engineer", "M365 Migration Expert", "Cloud Engineer"
-      
-    ],
-    linkedin: "https://linkedin.com/in/akanenoekong",
-    github:"https://github.com/kannyekong",
-    email:"mailto:ekongakaneno@gmail.com",
-    phone:"tel:+2348143099128"
-  },
-
-  {
-    name: "Ayomide  Adedeji",
-    role: "Technical Support Engineer",
-    image: "/images/ayo.png",
-    bio: "Technical Support Engineer with 5+ years of experience diagnosing and resolving complex hardware, software, networking, and cloud-related issues across enterprise environments. Currently working with Microsoft, specializing in Microsoft 365, Microsoft Azure, and Amazon Web Services (AWS). Experienced in managing Azure, Exchange Online, SharePoint, Microsoft Teams, Entra ID, cloud security, and enterprise infrastructure.",
-    skills: ["M365 Administration & Support", "Azure Cloud Administration", "Cloud Migration & Deployment", "Forward Deployment Engineer", "Enterprise IT Support", "Network Engineering" 
-    ],
-    linkedin: "https://linkedin.com/in/ayomide-adedeji-755013220",
-    email:"mailto:adedejiayomide663@gmail.com",
-    phone:"tel:+2348155753784"
-  },
-];
+const instructors = await listActiveInstructors();
 ---
 
 <section
   id="instructors"
   class="relative overflow-hidden"
 >
-  <!-- Background Effects
-  <div class="absolute top-0 left-0 w-80 h-80 bg-cyan-400/10 blur-3xl rounded-full"></div>
-  <div class="absolute bottom-0 right-0 w-96 h-96 bg-green-400/10 blur-3xl rounded-full"></div> -->
-
   <Container className="relative z-10">
 
     <!-- Header -->
@@ -75,9 +46,6 @@ const instructors = [
 
               <!-- Image Side -->
               <div class="relative flex-1">
-
-                
-
                 <div
                   class="
                     relative
@@ -87,8 +55,8 @@ const instructors = [
                 >
 
                   <img
-                    src={instructor.image}
-                    alt={instructor.name}
+                    src={instructor.image_url}
+                    alt={instructor.full_name}
                     class="
                       w-full
                       md:w-3/4
@@ -113,7 +81,7 @@ const instructors = [
                     tracking-tight
                   "
                 >
-                  {instructor.name}
+                  {instructor.full_name}
                 </h3>
 
                 <p
@@ -125,7 +93,7 @@ const instructors = [
                     tracking-tighter
                   "
                 >
-                  {instructor.role}
+                  {instructor.title}
                 </p>
 
                 <p
