@@ -1,9 +1,10 @@
 import { supabaseAdmin } from "../server/supabase";
 import { parseFields } from "../tally";
 
+
 export async function insertReview(payload: any) {
   const fields = parseFields(payload.data.fields);
-  console.log(fields)
+ 
 
   const { error } = await supabaseAdmin
     .from("review_submissions")

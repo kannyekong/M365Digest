@@ -5,7 +5,7 @@ interface Props {
 }
 
 const { title } = Astro.props;
-import Sidebar from "../components/admin/Sidebar.astro";
+import Sidebar from "../components/admin/UI/Sidebar.astro";
 import AuthCheck from "../islands/AuthCheck";
 import ToastProvider from "../islands/ToastProvider";
 ---
@@ -47,12 +47,12 @@ import ToastProvider from "../islands/ToastProvider";
     />
   </head>
 
-  <body class="bg-slate-100">
+  <body>
     <AuthCheck client:load />
-    <div class="flex">
+    <div class="flex w-full">
       <Sidebar />
 
-      <main class="flex-1 p-10">
+      <main class="flex-1 px-4 py-6">
         <slot />
       </main>
     </div>

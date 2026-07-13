@@ -16,7 +16,7 @@ export function getGreeting(name = "Commander") {
   const messages = [
     "Ready to build something amazing today?",
     "Let's ship some great features.",
-    "Your CMS is looking fantastic.",
+    "Ensure to publish some articles today.",
     "Time to make CloudTweak even better.",
     "Let's keep the momentum going!",
   ];

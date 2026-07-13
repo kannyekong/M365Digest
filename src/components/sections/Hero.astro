@@ -176,8 +176,8 @@ if (deadline) {
     </div>
   </Container>
 
-  <section class="mt-14">
-    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+  <section class="mt-7">
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4 px-6">
       <!-- Next Cohort -->
 
       <div class="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm">
@@ -270,24 +270,24 @@ if (deadline) {
   <section class="relative mt-10">
     <Container>
       <div
-        class="mx-auto lg:mx-0 p-4 max-w-full rounded-3xl bg-box-bg border-8 bg-gradient border-blue-500 shadow-lg shadow-box-shadow md:divide-x divide-box-border grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-6 lg:gap-12"
+        class="mx-auto lg:mx-0 p-2 md:p-4 max-w-full rounded-3xl bg-box-bg border-8 bg-gradient border-blue-500 shadow-lg shadow-box-shadow md:divide-x divide-box-border grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 md:gap-6 lg:gap-12"
       >
         <div
           class="flex flex-col items-center rounded-2xl border border-emerald-100 bg-white/80 backdrop-blur-sm py-2 shadow-lg"
         >
           <span
-            class="rounded-full bg-red-100 px-4 py-1 text-xs font-bold uppercase tracking-wide text-red-600"
+            class="rounded-full bg-red-100 sm:px-2 px-4 py-1 text-xs font-bold uppercase tracking-wide sm:tracking-tighter text-red-600"
           >
-            🔥 Limited Time Offer
+            🔥 Discounted Offer
           </span>
 
           <div class="flex items-end gap-3">
-            <span class="text-md font-bold text-slate-400 line-through">
+            <span class="text-xs md:text-md font-bold text-slate-400 line-through">
               ${settings?.price}
             </span>
 
             <span
-              class="rounded-full bg-green-100 px-3 text-xs font-semibold text-green-700"
+              class="rounded-full bg-green-100 px-2 mt-2 md:px-3 text-xs font-semibold text-green-700"
             >
               Save 40%
             </span>
@@ -295,19 +295,19 @@ if (deadline) {
 
           <div class="mt-2 flex items-end gap-2">
             <span
-              class="text-3xl font-extrabold tracking-tight text-emerald-600"
+              class="text-xl md:text-3xl font-extrabold tracking-tight text-emerald-600"
             >
               ${settings?.discount_price}
             </span>
 
-            <span class="pb-2 text-sm text-slate-500"> one-time fee </span>
+            <span class="pb-1 md:pb-2 text-xs md:text-sm text-slate-500"> one-time fee </span>
           </div>
 
           <a
             aria-disabled={!settings?.registration_open}
             class:list={[
               settings?.registration_open && "open-modal-btn",
-              "inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-lg transition-all duration-300",
+              "inline-flex w-fit items-center gap-2 rounded-full px-1 md:px-3 py-1 text-xs font-semibold text-white shadow-lg transition-all duration-300",
               settings?.registration_open
                 ? "bg-gradient-to-r from-emerald-600 to-green-500 hover:scale-105 hover:shadow-emerald-400/40 cursor-pointer"
                 : "bg-gradient-to-r from-red-600 to-rose-500 opacity-70 pointer-events-none cursor-not-allowed",

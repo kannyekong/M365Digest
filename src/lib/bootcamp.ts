@@ -46,3 +46,10 @@ export async function updateBootcampSettings(
 ) {
   return await supabase.from("bootcamp_settings").update(values).eq("id", id);
 }
+
+export async function deleteRegistration(id: string) {
+  return await supabase
+    .from("bootcamp_registrations")
+    .delete()
+    .eq("id", id);
+}

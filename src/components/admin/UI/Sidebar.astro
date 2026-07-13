@@ -1,5 +1,5 @@
 ---
-import LogoutButton from "../../islands/LogoutButton";
+import LogoutButton from "../../../islands/LogoutButton";
 import {
   LayoutDashboard,
   Newspaper,
@@ -7,17 +7,32 @@ import {
   Briefcase,
   Users,
   MessageSquare,
+  Workflow,
   Settings,
 } from "lucide-react";
 
 const sections = [
   {
     title: "Dashboard",
-    href: "/admin/blog",
+    href: "/admin/",
     icon: LayoutDashboard,
   },
   {
-    title: "Blog content",
+    title: "My To-Dos",
+    icon: Workflow,
+    links: [
+      {
+        title: "Manage to-do",
+        href: "/admin/tasks",
+      },
+      {
+        title: "Add a new to-do",
+        href: "/admin/blog/new",
+      },
+    ],
+  },
+  {
+    title: "Blog articles",
     icon: Newspaper,
     links: [
       {
@@ -52,6 +67,10 @@ const sections = [
         title: "Add a new testimonial",
         href: "/admin/testimonials/new",
       },
+      {
+        title: "Document Library",
+        href: "/admin/testimonials/new",
+      },
     ],
   },
   {
@@ -59,12 +78,12 @@ const sections = [
     icon: Users,
     links: [
       {
-        title: "Overview",
-        href: "/admin/staff",
-      },
-      {
         title: "Manage Staff",
         href: "/admin/staff/manage",
+      },
+      {
+        title: "Add a new staff",
+        href: "/admin/staff",
       },
     ],
   },
@@ -73,12 +92,12 @@ const sections = [
     icon: Users,
     links: [
       {
-        title: "Overview",
-        href: "/admin/students",
-      },
-      {
         title: "Manage Students",
         href: "/admin/students/manage",
+      },
+      {
+        title: "Add a new student",
+        href: "/admin/students/new",
       },
       {
         title: "Generate Certificate",
@@ -96,7 +115,7 @@ const sections = [
         href: "/admin/bootcamp/instructors",
       },
       {
-        title: "Add instructors",
+        title: "Add a new instructor",
         href: "/admin/bootcamp/instructors/new",
       },
     ],
@@ -111,16 +130,16 @@ const sections = [
         href: "/admin/forms/contact",
       },
       {
-        title: "Bootcamp",
-        href: "/admin/forms/bootcamp",
+        title: "Registrations",
+        href: "/admin/forms/registrations",
       },
       {
         title: "Quote",
-        href: "/admin/forms/quote",
+        href: "/admin/forms/quotes",
       },
       {
         title: "Reviews",
-        href: "/admin/forms/reviews",
+        href: "/admin/forms/review",
       },
     ],
   },
@@ -131,20 +150,21 @@ const sections = [
     links: [
       {
         title: "Change password",
-        href: "/admin/profile/",
+        href: "/admin/profile/profile",
       },
       {
         title: "Update profile picture",
-        href: "/admin/profile",
+        href: "/admin/profile/profile",
       },
     ],
   },
 ];
 ---
 
-<aside class="sticky top-0 h-screen w-72 bg-[#000033] text-white flex flex-col">
-  <div class="p-8">
+<aside class="sticky top-0 h-screen w-62 bg-[#000033] text-white flex flex-col">
+  <div class="p-6">
     <img src="/logos/logonew-white.png" alt="logo" class="w-3/4" />
+    <!-- <div class="my-2 border-b border-slate-50"></div> -->
   </div>
 
   <nav class="px-4 flex-1 overflow-y-auto hide-scrollbar">
@@ -152,11 +172,10 @@ const sections = [
       sections.map((section) =>
         section.links ? (
           <details class="group mb-2">
-            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-4 py-3 hover:bg-slate-800 transition list-none">
+            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-3 py-3 hover:bg-slate-800 transition list-none">
               <div class="flex items-center gap-4">
-                <section.icon size={20} />
-
-                <span>{section.title}</span>
+                <section.icon size={18} />
+                <span class="text-xs">{section.title}</span>
               </div>
 
               <svg
@@ -179,7 +198,7 @@ const sections = [
               {section.links.map((link) => (
                 <a
                   href={link.href}
-                  class="block rounded-lg px-3 py-2 text-sm text-slate-200 hover:mr-1 hover:m-0.5 hover:bg-slate-800 hover:text-white transition"
+                  class="block rounded-lg px-2 py-2 text-xs text-slate-200 hover:mr-1 hover:m-0.5 hover:bg-slate-800 hover:text-white transition"
                 >
                   {link.title}
                 </a>
@@ -189,9 +208,9 @@ const sections = [
         ) : (
           <a
             href={section.href}
-            class="flex items-center gap-4 rounded-xl px-4 py-3 mb-2 hover:bg-slate-800 transition"
+            class="flex items-center gap-4 rounded-xl px-4 text-xs py-3 mb-2 hover:bg-slate-800 transition"
           >
-            <section.icon size={20} />
+            <section.icon size={18} />
 
             {section.title}
           </a>

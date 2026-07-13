@@ -32,27 +32,27 @@ export default function SingleStatCard({
   color = "bg-blue-500",
 }: Props) {
   return (
-    <div className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+    <div className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
             {title}
           </p>
 
-          <h2 className="mt-3 text-2xl font-bold text-slate-900">
+          <h2 className="mt-3 text-xl font-bold text-slate-900">
             {value1} <span className="text-sm">{subtitle}</span>
           </h2>
         </div>
 
         <div
-          className={`${color} h-8 w-8 rounded-xl flex items-center justify-center shadow-lg`}
+          className={`${color} h-7 w-7 rounded-xl flex items-center justify-center shadow-lg`}
         >
           {icon === "articles" && <BookOpen className="h-4 w-4 text-white" />}
           {icon === "drafts" && <Users className="h-4 w-4 text-white" />}
         </div>
       </div>
 
-      <div className="my-2 border-t border-slate-100"></div>
+      <div className="my-2 border-t border-blue-100"></div>
 
       <div className="grid grid-cols-2 items-start gap-2">
         <div className="flex gap-1 text-xs">

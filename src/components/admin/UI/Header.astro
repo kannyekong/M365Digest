@@ -1,5 +1,8 @@
 ---
-import { getGreeting } from "../../utils/greetings.ts";
+import { getGreeting } from "../../../utils/greetings.ts";
+import UserMenu from "../../../islands/UserMenu";
+import { getCurrentUser } from "../../../lib/profile";
+import { useState, useEffect } from "react";
 
 const { greeting, message } = getGreeting("Akaneno");
 ---
@@ -15,7 +18,7 @@ const { greeting, message } = getGreeting("Akaneno");
     </div>
 
     <div>
-      <img src="../../images/thumbnail.png" class="w-15 h-15 rounded-full" />
+      <UserMenu client:load />
     </div>
   </div>
 </header>

@@ -4,6 +4,8 @@ import { getDashboardAnalytics } from "../lib/blog";
 import { Briefcase, CirclePlus, Cog, PencilIcon, Users } from "lucide-react";
 import CategoryLeaderboard from "../components/admin/CategoryLeaderBoard";
 import SingleStatCard from "../components/admin/SingleStatCard";
+import { getDashboardStats } from "../lib/getDashboardStats";
+const dashboard = await getDashboardStats();
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -52,9 +54,9 @@ export default function AdminDashboard() {
   }
   return (
     <>
-      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
         <SingleStatCard
-          title="Articles Overview"
+          title="Articles"
           value1={totalPosts}
           subtitle="total articles"
           value2={publishedPosts}
@@ -70,7 +72,7 @@ export default function AdminDashboard() {
         />
 
         <SingleStatCard
-          title="Company Overview"
+          title="Company"
           subtitle="Total Staff"
           value1={0}
           value2={0}
@@ -80,7 +82,7 @@ export default function AdminDashboard() {
           value4={0}
           subtitleFour="Admin staff"
           value5={0}
-          subtitleFive="Regular staff"
+          subtitleFive="Other staff"
           icon="drafts"
           color="bg-green-500"
         />
@@ -88,7 +90,7 @@ export default function AdminDashboard() {
         <SingleStatCard
           title="Bootcamp"
           value1={0}
-          subtitle="Active Bootcamp(s)"
+          subtitle="Bootcamps"
           value2={0}
           subtitleTwo="Instructors"
           value3={0}
@@ -96,23 +98,23 @@ export default function AdminDashboard() {
           value4={0}
           subtitleFour="Certs Issued"
           value5={0}
-          subtitleFive="Regular staff"
+          subtitleFive="Courses"
           icon="articles"
           color="bg-orange-500"
         />
 
         <SingleStatCard
-          title="User Engagements"
-          value1={0}
-          subtitle="Total User(s)"
-          value2={0}
-          subtitleTwo="Contact Form"
-          value3={0}
-          subtitleThree="Feedback Form"
-          value4={0}
-          subtitleFour="Reg Form"
-          value5={0}
-          subtitleFive="Quote Requests"
+          title="Engagements"
+          value1={dashboard.totalEngagement}
+          subtitle="Interactions"
+          value2={dashboard.contacts}
+          subtitleTwo="Contacts"
+          value3={dashboard.reviews}
+          subtitleThree="Reviews"
+          value4={dashboard.registrations}
+          subtitleFour="Registrations"
+          value5={dashboard.quotes}
+          subtitleFive="Quotes"
           icon="drafts"
           color="bg-blue-500"
         />
@@ -179,7 +181,7 @@ export default function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/settings"
+                  href="/admin/profile/profile"
                   className="flex flex-col items-center rounded-2xl border border-slate-200 bg-yellow-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-xs text-center">Manage Settings</p>
@@ -279,7 +281,7 @@ export default function AdminDashboard() {
 
             <a
               href="/admin/blog/articles"
-              className="items-center rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 px-2 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="items-center animate-soft-glow rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 px-2 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
               Manage
               <span className="transition-transform duration-300 group-hover:translate-x-1">
@@ -298,7 +300,7 @@ export default function AdminDashboard() {
                   <h3 className="font-semibold">{post.title}</h3>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    <span className="text-black text-xs bg-blue-300 rounded-l-2xl pl-2 pr-0.5">
+                    <span className="text-white text-xs bg-blue-700 rounded-full p-1">
                       category
                     </span>
                     {post.category}

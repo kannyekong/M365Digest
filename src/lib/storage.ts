@@ -1,9 +1,17 @@
 import { supabase } from "./superbase";
 
-export async function uploadCoverImage(file: File, bucket: string) {
-  const path = `${Date.now()}-${file.name}`;
+export async function uploadCoverImage(
+  file: File,
+  bucket: string,
+  filename?: string
+) {
+  const path = filename ?? `${Date.now()}-${file.name}`;
 
-  const { error } = await supabase.storage.from(bucket).upload(path, file);
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, {
+      upsert: true,
+    });
 
   if (error) {
     return {
@@ -12,7 +20,10 @@ export async function uploadCoverImage(file: File, bucket: string) {
     };
   }
 
-  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  const { data } =
+    supabase.storage
+      .from(bucket)
+      .getPublicUrl(path);
 
   return {
     data: data.publicUrl,
@@ -20,8 +31,10 @@ export async function uploadCoverImage(file: File, bucket: string) {
   };
 }
 
-export async function deleteCoverImage(imageUrl: string, bucket: string) {
-  // Extract the filename from the public URL
+export async function deleteCoverImage(
+  imageUrl: string,
+  bucket: string
+) {
   const path = imageUrl.split("/").pop();
 
   if (!path) {
@@ -30,7 +43,10 @@ export async function deleteCoverImage(imageUrl: string, bucket: string) {
     };
   }
 
-  const { error } = await supabase.storage.from(bucket).remove([path]);
+  const { error } =
+    await supabase.storage
+      .from(bucket)
+      .remove([path]);
 
   return { error };
 }

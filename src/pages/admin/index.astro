@@ -1,8 +1,7 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import Header from "../../components/admin/Header.astro";
-import AdminBlogPage from "../../islands/AdminBlogPage";
-
+import Header from "../../components/admin/UI/Header.astro";
+import AdminDashboard from "../../islands/AdminDashboard";
 ---
 
 <AdminLayout title="Dashboard">
@@ -10,7 +9,7 @@ import AdminBlogPage from "../../islands/AdminBlogPage";
 
   <section class="p-10">
     <section class="p-10">
-      <AdminBlogPage client:load />
+      <AdminDashboard client:load />
     </section>
   </section>
 </AdminLayout>
