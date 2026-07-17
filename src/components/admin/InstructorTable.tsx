@@ -122,8 +122,8 @@ export default function InstructorTable({ instructors }: Props) {
 
               {/* Skills */}
               <td className="px-6 py-5">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {instructor.skills?.length ?? 0} Skills
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {instructor.skills?.length ?? 0}
                 </span>
               </td>
 

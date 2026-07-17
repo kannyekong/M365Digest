@@ -56,12 +56,12 @@ export default function TestimonialListPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-12">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">All Testimonials</h1>
+          <h1 className="text-xl font-bold">All Testimonials</h1>
 
-          <p className="mt-2 text-slate-500">Manage client testimonials.</p>
+          <p className="mt-2 text-slate-500 text-sm">Manage client testimonials.</p>
         </div>
 
         <a

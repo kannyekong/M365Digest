@@ -6,7 +6,7 @@ import {
   GraduationCap,
   Briefcase,
   Users,
-  MessageSquare,
+  MailOpen,
   Workflow,
   Settings,
 } from "lucide-react";
@@ -23,11 +23,11 @@ const sections = [
     links: [
       {
         title: "Manage to-do",
-        href: "/admin/tasks",
+        href: "/admin/tasks/",
       },
       {
         title: "Add a new to-do",
-        href: "/admin/blog/new",
+        href: "/admin/tasks/add",
       },
     ],
   },
@@ -69,7 +69,7 @@ const sections = [
       },
       {
         title: "Document Library",
-        href: "/admin/testimonials/new",
+        href: "/admin/documents",
       },
     ],
   },
@@ -79,11 +79,11 @@ const sections = [
     links: [
       {
         title: "Manage Staff",
-        href: "/admin/staff/manage",
+        href: "/admin/staff/",
       },
       {
         title: "Add a new staff",
-        href: "/admin/staff",
+        href: "/admin/staff/new",
       },
     ],
   },
@@ -93,11 +93,7 @@ const sections = [
     links: [
       {
         title: "Manage Students",
-        href: "/admin/students/manage",
-      },
-      {
-        title: "Add a new student",
-        href: "/admin/students/new",
+        href: "/admin/forms/registrations",
       },
       {
         title: "Generate Certificate",
@@ -111,6 +107,14 @@ const sections = [
     icon: GraduationCap,
     links: [
       {
+        title: "Bootcamp overview",
+        href: "/admin/bootcamp/bootcamp",
+      },
+      {
+        title: "Add bootcamp",
+        href: "/admin/bootcamp/bootcamp",
+      },
+      {
         title: "All instructors",
         href: "/admin/bootcamp/instructors",
       },
@@ -123,7 +127,7 @@ const sections = [
 
   {
     title: "Form submissions",
-    icon: MessageSquare,
+    icon: MailOpen,
     links: [
       {
         title: "Contact",

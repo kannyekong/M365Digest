@@ -1,0 +1,82 @@
+---
+import "../styles/global.css";
+import Layout from "../layouts/Layout.astro";
+import { CheckCircle2, Mail, ArrowRight } from "lucide-react";
+import { Home } from "lucide-astro";
+---
+
+<Layout title="Payment Successful | CloudTweak Academy">
+  <main
+    class="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 px-6 py-10"
+  >
+    <!-- Decorative background glow elements -->
+    <div
+      class="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl"
+    >
+    </div>
+
+    <div
+      class="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-green-500/10 blur-3xl"
+    >
+    </div>
+
+    <!-- Main payment success card -->
+    <section
+      class="relative z-10 w-full max-w-2xl rounded-3xl border border-white/10 bg-white/[0.06] dark:border-pink-600 p-8 text-center shadow-2xl backdrop-blur-xl sm:p-12"
+    >
+      <!-- Success icon -->
+      <div
+        class="mx-auto flex h-20 w-20 items-center justify-center"
+      >
+        <CheckCircle2 className="text-green-500" size={50}/>
+      </div>
+
+      <!-- Success heading -->
+      <h1 class="mt-8 text-3xl font-bold tracking-tight text-blue-600 sm:text-4xl">
+        Payment Successful 🎉
+      </h1>
+
+      <!-- Success message -->
+      <p class="mx-auto mt-5 max-w-lg text-base leading-7 text-green-700">
+        Thank you for registering for the CloudTweak Academy Bootcamp.
+      </p>
+
+      <!-- Email notification card -->
+      <div
+        class="mt-8 rounded-2xl border border-blue-400/10 dark:border-white bg-blue-500/5 p-6 text-left"
+      >
+        <div class="flex gap-4">
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center"
+          >
+            <Mail className="h-5 w-5 text-blue-400" />
+          </div>
+
+          <div>
+            <h2 class="font-semibold text-blue-600">What happens next?</h2>
+
+            <p class="mt-2 text-sm leading-6 text-slate-700 dark:text-white">
+              Our team will contact you via email with the next steps, bootcamp
+              details, and everything you need to get started.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation message -->
+      <p class="mt-8 text-sm text-slate-700 dark:text-white">
+        Please keep an eye on your inbox and check your spam folder if you don't
+        see our email.
+      </p>
+
+      <!-- Return home action -->
+      <a
+        href="/bootcamp"
+        class="mx-auto mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 font-medium text-white shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-all duration-300 hover:bg-blue-600 hover:shadow-[0_0_30px_rgba(37,99,235,0.6)]"
+      >
+        Back to Home
+        <Home className="h-4 w-4" />
+      </a>
+    </section>
+  </main>
+</Layout>

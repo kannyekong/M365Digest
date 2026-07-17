@@ -1,4 +1,4 @@
-import { BookOpen, Users } from "lucide-react";
+import { BookOpen, Users, Workflow, Sparkles } from "lucide-react";
 
 interface Props {
   title: string;
@@ -12,7 +12,7 @@ interface Props {
   subtitleThree: string;
   subtitleFour: string;
   subtitleFive: string;
-  icon: "articles" | "company" | "drafts" | "Users";
+  icon: "articles" | "tasks" | "drafts" | "engagements";
   color?: string;
 }
 
@@ -45,16 +45,20 @@ export default function SingleStatCard({
         </div>
 
         <div
-          className={`${color} h-7 w-7 rounded-xl flex items-center justify-center shadow-lg`}
+          className={`bg-${color}-500 h-7 w-7 rounded-xl flex items-center justify-center shadow-lg`}
         >
           {icon === "articles" && <BookOpen className="h-4 w-4 text-white" />}
           {icon === "drafts" && <Users className="h-4 w-4 text-white" />}
+          {icon === "tasks" && <Workflow className="h-4 w-4 text-white" />}
+          {icon === "engagements" && (
+            <Sparkles className="h-4 w-4 text-white" />
+          )}
         </div>
       </div>
 
       <div className="my-2 border-t border-blue-100"></div>
 
-      <div className="grid grid-cols-2 items-start gap-2">
+      <div className="flex flex-row justify-between pb-1">
         <div className="flex gap-1 text-xs">
           <span className="font-semibold text-emerald-600">{value2}</span>
           <span className="text-slate-500">{subtitleTwo}</span>
@@ -64,15 +68,21 @@ export default function SingleStatCard({
           <span className="font-semibold text-amber-500">{value3}</span>
           <span className="text-slate-500">{subtitleThree}</span>
         </div>
+      </div>
 
+      <div className="flex flex-row justify-between">
         <div className="flex gap-1 text-xs">
           <span className="font-semibold text-slate-900">{value4}</span>
           <span className="text-slate-500">{subtitleFour}</span>
         </div>
 
         <div className="flex gap-1 text-xs">
-          <span className="font-semibold text-slate-900">{value5}</span>
-          <span className="text-slate-500">{subtitleFive}</span>
+          <a
+            href={subtitleFive}
+            className={`text-black border border-${color}-500 pr-1 pl-1 rounded-full`}
+          >
+            Manage
+          </a>
         </div>
       </div>
     </div>

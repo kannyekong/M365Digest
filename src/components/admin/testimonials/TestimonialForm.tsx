@@ -9,6 +9,7 @@ import Toggle from "../../ui/Toggle";
 
 import PrimaryButton from "../../ui/PrimaryButton";
 import SecondaryButton from "../../ui/SecondaryButton";
+import { ArrowLeftCircle } from "lucide-react";
 
 interface Props {
   initialValues?: Partial<Testimonial>;
@@ -49,115 +50,124 @@ export default function TestimonialForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-8">
-      <h1 className="text-3xl font-bold">Testimonial Form</h1>
-      <SectionCard
-        title="What our clients say about us"
-        subtitle="This information is displayed on https://cloudtweak.com/#testimonials"
-      >
-        <a
-          className="underline text-blue-500 "
-          href="https://cloudtweak.net/#testimonials"
-        >
-          See Live Preview
+    <div className="p-12">
+      <div className="flex flex-row justify-between">
+        <div className="mb-10">
+          <h1 className="text-xl font-bold">Add Testimonial</h1>
+          <p className="mt-2 text-slate-500 text-sm">
+            Create a new testimonial item
+          </p>
+        </div>
+        <a href="/admin/testimonials/">
+          <ArrowLeftCircle size={50} className="text-orange-500" />
         </a>
-        <div className="space-y-5">
-          <TextInput
-            label="Full Name"
-            value={values.full_name}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                full_name: e.target.value,
-              })
-            }
-          />
-
-          <TextInput
-            label="Position"
-            value={values.position}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                position: e.target.value,
-              })
-            }
-          />
-
-          <TextInput
-            label="Company"
-            value={values.company ?? ""}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                company: e.target.value,
-              })
-            }
-          />
-
-          <TextArea
-            label="Testimonial"
-            rows={7}
-            value={values.testimonial}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                testimonial: e.target.value,
-              })
-            }
-          />
-
-          <TextInput
-            label="Rating"
-            type="number"
-            value={String(values.rating)}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                rating: Number(e.target.value),
-              })
-            }
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Display" subtitle="Homepage settings.">
-        <div className="space-y-5">
-          <TextInput
-            label="Display Order"
-            type="number"
-            value={String(values.display_order)}
-            onChange={(e) =>
-              setValues({
-                ...values,
-                display_order: Number(e.target.value),
-              })
-            }
-          />
-
-          <Toggle
-            label="Active"
-            description="Display on homepage."
-            checked={values.is_active ?? true}
-            onChange={(checked) =>
-              setValues({
-                ...values,
-                is_active: checked,
-              })
-            }
-          />
-        </div>
-      </SectionCard>
-
-      <div className="flex gap-4">
-        <PrimaryButton type="submit" loading={loading}>
-          Save Testimonial
-        </PrimaryButton>
-
-        <SecondaryButton type="button" onClick={onCancel}>
-          Cancel
-        </SecondaryButton>
       </div>
-    </form>
+      <form onSubmit={submit} className="space-y-4">
+        <a
+          className="text-sm underline text-blue-500"
+          href="https://cloudtweak.com/#testimonials"
+        >
+          See live preview{" "}
+        </a>
+        <SectionCard title="What our clients say about us" subtitle="">
+          <div className="space-y-5">
+            <TextInput
+              label="Full Name"
+              value={values.full_name}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  full_name: e.target.value,
+                })
+              }
+            />
+
+            <TextInput
+              label="Position"
+              value={values.position}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  position: e.target.value,
+                })
+              }
+            />
+
+            <TextInput
+              label="Company"
+              value={values.company ?? ""}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  company: e.target.value,
+                })
+              }
+            />
+
+            <TextArea
+              label="Testimonial"
+              rows={7}
+              value={values.testimonial}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  testimonial: e.target.value,
+                })
+              }
+            />
+
+            <TextInput
+              label="Rating"
+              type="number"
+              value={String(values.rating)}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  rating: Number(e.target.value),
+                })
+              }
+            />
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Display" subtitle="Homepage settings.">
+          <div className="space-y-5">
+            <TextInput
+              label="Display Order"
+              type="number"
+              value={String(values.display_order)}
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  display_order: Number(e.target.value),
+                })
+              }
+            />
+
+            <Toggle
+              label="Active"
+              description="Display on homepage."
+              checked={values.is_active ?? true}
+              onChange={(checked) =>
+                setValues({
+                  ...values,
+                  is_active: checked,
+                })
+              }
+            />
+          </div>
+        </SectionCard>
+
+        <div className="flex gap-4">
+          <PrimaryButton type="submit" loading={loading}>
+            Save Testimonial
+          </PrimaryButton>
+
+          <SecondaryButton type="button" onClick={onCancel}>
+            Cancel
+          </SecondaryButton>
+        </div>
+      </form>
+    </div>
   );
 }

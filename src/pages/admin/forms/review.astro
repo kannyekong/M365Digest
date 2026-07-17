@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import ReviewManagement from "../../../components/admin/forms/ReviewManagement";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Review Submissions">
+  <Header title="Reviews" />
   <ReviewManagement client:load />
 </AdminLayout>

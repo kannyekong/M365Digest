@@ -1,0 +1,8 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import StaffForm from "../../../components/admin/staff/StaffForm";
+---
+
+<AdminLayout title="Add Staff">
+  <StaffForm client:load mode="create" />
+</AdminLayout>

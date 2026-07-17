@@ -1,0 +1,11 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import TaskWidget from "../../../components/admin/tasks/TaskWidget";
+import Header from "../../../components/admin/UI/Header.astro";
+import TaskPage from "../../../components/admin/tasks/TaskPage";
+---
+
+<AdminLayout title="Add Task">
+  <Header title="Task Management" />
+  <TaskPage client:load />
+</AdminLayout>

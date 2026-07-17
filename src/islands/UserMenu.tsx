@@ -7,7 +7,7 @@ interface Props {
   image?: string;
 }
 
-export default function UserMenu({ image = "/images/checker.png" }: Props) {
+export default function UserMenu() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [cacheKey, setCacheKey] = useState(Date.now());
@@ -68,7 +68,7 @@ export default function UserMenu({ image = "/images/checker.png" }: Props) {
             className="h-10 w-10 rounded-full border object-cover"
           />
         ) : (
-          <div className="flex h-32 w-32 items-center justify-center rounded-full bg-primary text-4xl font-bold text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-4xl font-bold text-white">
             {initials}
           </div>
         )}

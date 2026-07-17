@@ -4,10 +4,13 @@ import { Eye, X } from "lucide-react";
 interface Props {
   title: string;
   data: Record<string, any>;
+  preferredOrder?: string[];
+  hiddenFields?: string[];
+  showDeveloperTools?: boolean;
 }
-const hiddenFields = ["id", "payload", "tally_submission_id"];
+const defaultHiddenFields = ["id", "payload", "tally_submission_id"];
 
-const preferredOrder = [
+const defaultPreferredOrder = [
   "first_name",
   "last_name",
   "name",
@@ -26,7 +29,6 @@ const preferredOrder = [
   "bootcamp_experience",
   "miscellaneous",
   "created_at",
-  "ratings",
 ];
 
 function formatLabel(key: string) {
@@ -78,16 +80,22 @@ function renderStars(rating: string) {
   );
 }
 
-export default function ViewSubmissionModal({ title, data }: Props) {
+export default function ViewSubmissionModal({
+  title,
+  data,
+  preferredOrder = defaultPreferredOrder,
+  hiddenFields = defaultHiddenFields,
+  showDeveloperTools = true,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg border p-2 hover:bg-slate-100 transition"
+        className="rounded-lg p-2 hover:bg-blue-900 transition bg-blue-700"
       >
-        <Eye size={16} />
+        <Eye size={12} className="text-white" />
       </button>
 
       {open && (
@@ -112,7 +120,7 @@ export default function ViewSubmissionModal({ title, data }: Props) {
 
             <div className="max-h-[70vh] space-y-4 p-6 overflow-y-auto">
               {preferredOrder
-                .filter((key) => key in data)
+                .filter((key) => key in data && !hiddenFields.includes(key))
                 .map((key) => {
                   if (key === "ratings") {
                     return (
@@ -156,8 +164,24 @@ export default function ViewSubmissionModal({ title, data }: Props) {
                         {formatLabel(key)}
                       </div>
 
-                      <div className="flex-1 break-words text-slate-900">
-                        {key === "availability" ? (
+                      <div className="flex-1 text-slate-900 break-words">
+                        {key === "avatar_url" ? (
+                          <img
+                            src={data[key]}
+                            alt="Profile"
+                            className="h-32 w-32 rounded-full border object-cover"
+                          />
+                        ) : key === "status" ? (
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              data[key] === "Active"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {data[key]}
+                          </span>
+                        ) : key === "availability" ? (
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${
                               String(data[key]).toLowerCase().includes("yes")

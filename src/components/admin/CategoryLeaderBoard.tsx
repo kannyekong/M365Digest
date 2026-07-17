@@ -1,3 +1,5 @@
+import { Trophy } from "lucide-react";
+
 interface Props {
   data: {
     category: string;
@@ -17,7 +19,11 @@ export default function CategoryLeaderboard({ data }: Props) {
           <div key={item.category}>
             <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {index === 0 && <span className="text-lg">🏆</span>}
+                {index === 0 && (
+                  <span className="text-lg">
+                    <Trophy className="text-orange-500"/>
+                  </span>
+                )}
 
                 <span className="font-medium text-slate-700">
                   {item.category}

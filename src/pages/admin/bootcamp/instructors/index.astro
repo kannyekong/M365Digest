@@ -1,8 +1,10 @@
 ---
 import InstructorManagement from "../../../../components/admin/InstructorManagement";
+import Header from "../../../../components/admin/UI/Header.astro";
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 ---
 
 <AdminLayout title="Bootcamp Instructors">
+  <Header title="Instructors" />
   <InstructorManagement client:load />
 </AdminLayout>

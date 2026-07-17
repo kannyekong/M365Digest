@@ -1,17 +1,42 @@
 import { useEffect, useState } from "react";
 import { getAllPosts } from "../lib/blog";
 import { getDashboardAnalytics } from "../lib/blog";
-import { Briefcase, CirclePlus, Cog, PencilIcon, Users } from "lucide-react";
+import {
+  Award,
+  Briefcase,
+  CirclePlus,
+  Cog,
+  PencilIcon,
+  Podium,
+  StarPlus,
+  Trophy,
+  Users,
+} from "lucide-react";
 import CategoryLeaderboard from "../components/admin/CategoryLeaderBoard";
 import SingleStatCard from "../components/admin/SingleStatCard";
 import { getDashboardStats } from "../lib/getDashboardStats";
+import TaskWidget from "../components/admin/tasks/TaskWidget";
+import { getTaskCounts } from "../lib/tasks";
+import { getStaffSummary } from "../lib/staff";
+
 const dashboard = await getDashboardStats();
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<any>(null);
-
+  const [taskCounts, setTaskCounts] = useState({
+    pending: 0,
+    in_progress: 0,
+    completed: 0,
+  });
+  // Store the staff summary returned from Supabase.
+  const [staffSummary, setStaffSummary] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    operations: 0,
+  });
   const totalPosts = posts.length;
 
   const publishedPosts = posts.filter((p) => p.published).length;
@@ -32,6 +57,9 @@ export default function AdminDashboard() {
 
   const categoryViews = analytics?.categoryViews ?? [];
 
+  const totalStatCount =
+    taskCounts.pending + taskCounts.completed + taskCounts.in_progress;
+
   async function loadDashboard() {
     const [{ data: posts }, { data: analytics }] = await Promise.all([
       getAllPosts(),
@@ -47,6 +75,50 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadDashboard();
+  }, []);
+
+  // Load the task counts when the dashboard first loads.
+  useEffect(() => {
+    // Create a function for loading task counts.
+    async function loadTaskCounts() {
+      // Retrieve task counts from Supabase.
+      const { data, error } = await getTaskCounts();
+
+      // Log the error when task counts cannot be loaded.
+      if (error) {
+        console.error(error);
+
+        return;
+      }
+
+      // Store the returned task counts in React state.
+      setTaskCounts(data);
+    }
+
+    // Execute the task count loading function.
+    loadTaskCounts();
+  }, []);
+
+  // Load the staff summary from Supabase.
+  async function loadStaffSummary() {
+    // Retrieve the staff summary.
+    const { data, error } = await getStaffSummary();
+
+    // Log the database error when the request fails.
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    // Store the returned staff summary.
+    if (data) {
+      setStaffSummary(data);
+    }
+  }
+
+  // Load the staff summary when the dashboard mounts.
+  useEffect(() => {
+    loadStaffSummary();
   }, []);
 
   if (loading) {
@@ -66,41 +138,41 @@ export default function AdminDashboard() {
           value4={totalViews}
           subtitleFour="Views"
           value5={totalCategories}
-          subtitleFive="Categories"
+          subtitleFive="/admin/blog/articles"
           icon="articles"
-          color="bg-pink-300"
+          color="pink"
         />
 
         <SingleStatCard
           title="Company"
           subtitle="Total Staff"
-          value1={0}
-          value2={0}
-          subtitleTwo="Testimonials"
-          value3={0}
-          subtitleThree="Services"
-          value4={0}
-          subtitleFour="Admin staff"
+          value1={staffSummary.total}
+          value2={staffSummary.active}
+          subtitleTwo="Active"
+          value3={staffSummary.inactive}
+          subtitleThree="Inactive"
+          value4={staffSummary.operations}
+          subtitleFour="Operations"
           value5={0}
-          subtitleFive="Other staff"
+          subtitleFive="/admin/staff"
           icon="drafts"
-          color="bg-green-500"
+          color="green"
         />
 
         <SingleStatCard
-          title="Bootcamp"
-          value1={0}
-          subtitle="Bootcamps"
-          value2={0}
-          subtitleTwo="Instructors"
-          value3={0}
-          subtitleThree="Students"
-          value4={0}
-          subtitleFour="Certs Issued"
+          title="To-Dos"
+          value1={totalStatCount}
+          subtitle="Tasks"
+          value2={taskCounts.completed}
+          subtitleTwo="Completed"
+          value3={taskCounts.pending}
+          subtitleThree="Pending"
+          value4={taskCounts.in_progress}
+          subtitleFour="In Progress"
           value5={0}
-          subtitleFive="Courses"
-          icon="articles"
-          color="bg-orange-500"
+          subtitleFive="/admin/tasks"
+          icon="tasks"
+          color="orange"
         />
 
         <SingleStatCard
@@ -114,35 +186,15 @@ export default function AdminDashboard() {
           value4={dashboard.registrations}
           subtitleFour="Registrations"
           value5={dashboard.quotes}
-          subtitleFive="Quotes"
-          icon="drafts"
-          color="bg-blue-500"
+          subtitleFive="/admin/forms/contact"
+          icon="engagements"
+          color="blue"
         />
       </div>
 
       <div className="mt-6 space-y-6">
         <div className="grid grid-cols-2 gap-4">
-          {/* Category Performance */}
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">
-                  Category Performance
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Reader engagement by technology.
-                </p>
-              </div>
-
-              <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">
-                {categoryViews.length} Categories
-              </span>
-            </div>
-
-            <CategoryLeaderboard data={categoryViews} />
-          </section>
+          <TaskWidget />
 
           <section className="grid gap-6">
             <div>
@@ -213,12 +265,14 @@ export default function AdminDashboard() {
           {/* MOST RECENT ARTICLES */}
         </div>
         {/* Insights */}
-
         <section className="grid gap-5 md:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs uppercase tracking-wide text-slate-400">
-              🏆 Most Viewed Article
-            </p>
+            <div className="flex flex-row gap-2">
+              <Trophy className="text-orange-500" />
+              <p className="text-sm uppercase tracking-wide text-slate-400">
+                Most Viewed
+              </p>
+            </div>
 
             <h3 className="mt-3 line-clamp-2 text-sm font-semibold">
               {mostViewedArticle?.title}
@@ -230,9 +284,12 @@ export default function AdminDashboard() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs uppercase tracking-wide text-slate-400">
-              📂 Top Category
-            </p>
+            <div className="flex flex-row gap-2">
+              <Podium className="text-green-500" />
+              <p className="text-sm uppercase tracking-wide text-slate-400">
+                Top Category
+              </p>
+            </div>
 
             <h3 className="mt-3 text-sm font-semibold">
               {mostViewedCategory?.category}
@@ -244,9 +301,12 @@ export default function AdminDashboard() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs uppercase tracking-wide text-slate-400">
-              🆕 Latest Article
-            </p>
+            <div className="flex flex-row gap-2">
+              <StarPlus className="text-blue-500" />
+              <p className="text-sm uppercase tracking-wide text-slate-400">
+                Latest Article
+              </p>
+            </div>
 
             <h3 className="mt-3 line-clamp-2 text-sm font-semibold">
               {latestArticle?.title}
@@ -269,57 +329,78 @@ export default function AdminDashboard() {
             </p>
           </div>
         </section>
+        <div className="grid grid-cols-2 gap-4">
+          <section className="rounded-2xl bg-white shadow-lg border border-slate-200">
+            <div className="flex items-center justify-between space-x-4 border-b border-slate-200 p-6">
+              <div>
+                <h2 className="text-xl font-semibold">Top 3 Recent Articles</h2>
+                <p className="text-xs">
+                  Manage all articles on the articles page.
+                </p>
+              </div>
 
-        <section className="rounded-2xl bg-white shadow-lg border border-slate-200">
-          <div className="flex items-center justify-between space-x-4 border-b border-slate-200 p-6">
-            <div>
-              <h2 className="text-xl font-semibold">Top 3 Recent Articles</h2>
-              <p className="text-xs">
-                Manage all articles on the articles page.
-              </p>
+              <a
+                href="/admin/blog/articles"
+                className="items-center animate-soft-glow rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 px-2 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Manage
+                <span className="transition-transform duration-300 group-hover:translate-x-1">
+                  →
+                </span>
+              </a>
             </div>
 
-            <a
-              href="/admin/blog/articles"
-              className="items-center animate-soft-glow rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 px-2 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              Manage
-              <span className="transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
-            </a>
-          </div>
-
-          <div>
-            {recentPosts.map((post) => (
-              <div
-                key={post.id}
-                className="flex items-center justify-between border-b last:border-0 px-6 py-5 border-slate-200 hover:bg-slate-50 transition"
-              >
-                <div>
-                  <h3 className="font-semibold">{post.title}</h3>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    <span className="text-white text-xs bg-blue-700 rounded-full p-1">
-                      category
-                    </span>
-                    {post.category}
-                  </p>
-                </div>
-
-                <span
-                  className={`rounded-full px-3 py-1 text-sm ${
-                    post.published
-                      ? "bg-green-100 text-green-700"
-                      : "bg-amber-100 text-amber-700"
-                  }`}
+            <div>
+              {recentPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="flex items-center justify-between border-b last:border-0 px-6 py-5 border-slate-200 hover:bg-slate-50 transition"
                 >
-                  {post.published ? "Published" : "Draft"}
-                </span>
+                  <div>
+                    <h3 className="font-semibold">{post.title}</h3>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      <span className="text-white text-xs bg-blue-700 rounded-full p-1">
+                        category
+                      </span>
+                      {post.category}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-sm ${
+                      post.published
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {post.published ? "Published" : "Draft"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+          {/* Category Performance */}
+
+          <section className="rounded-2xl bg-white shadow-lg border border-slate-200">
+            <div className="flex items-center justify-between space-x-4 border-b border-slate-200 p-5">
+              <div>
+                <h2 className="text-xl font-semibold">Category Performance</h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Reader engagement by technology.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
+
+              <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">
+                {categoryViews.length} Categories
+              </span>
+            </div>
+            <div className="p-6">
+              <CategoryLeaderboard data={categoryViews} />
+            </div>
+          </section>
+        </div>
       </div>
     </>
   );

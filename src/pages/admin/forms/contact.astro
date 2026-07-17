@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import ContactManagement from "../../../components/admin/forms/ContactManagement";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Contact Submissions">
+  <Header title="People who reached out via contact form"/>
   <ContactManagement client:load />
 </AdminLayout>

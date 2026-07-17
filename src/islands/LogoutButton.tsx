@@ -4,7 +4,9 @@ import { logout } from "../lib/auth";
 export default function LogoutButton() {
   async function handleLogout() {
     await logout();
-
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith("tip-"))
+      .forEach((key) => localStorage.removeItem(key));
     window.location.href = "/admin/login";
   }
 

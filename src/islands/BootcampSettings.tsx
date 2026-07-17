@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import CoverImageUploader from "../blog/ImageUploader";
 import { getBootcampSettings, updateBootcampSettings } from "../lib/bootcamp";
 import { Typewriter } from "react-simple-typewriter";
+import { ArrowLeftCircle } from "lucide-react";
 
 export default function BootcampSettings() {
   const [loading, setLoading] = useState(true);
@@ -48,14 +49,14 @@ export default function BootcampSettings() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-12">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">
+          <h1 className="text-xl font-bold text-slate-800">
             Bootcamp Settings
           </h1>
 
-          <p className="mt-1 text-slate-500">
+          <p className="mt-1 text-slate-500 text-xs">
             Manage your bootcamp landing page without editing code.
           </p>
         </div>

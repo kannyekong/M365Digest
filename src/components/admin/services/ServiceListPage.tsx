@@ -54,14 +54,14 @@ export default function ServiceListPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-12">
       {/* Header */}
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Services</h1>
+          <h3 className="text-xl font-bold">All Services</h3>
 
-          <p className="mt-2 text-slate-500">
+          <p className="mt-2 text-slate-500 text-sm">
             Manage the services displayed on the CloudTweak website.
           </p>
         </div>

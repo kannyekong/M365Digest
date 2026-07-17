@@ -1,8 +1,11 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import ServiceListPage from "../../../components/admin/services/ServiceListPage";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Services">
+  <Header title="New Article" />
+
   <ServiceListPage client:load />
 </AdminLayout>

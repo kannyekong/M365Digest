@@ -1,11 +1,9 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
-import Header from "../../../components/admin/UI/Header.astro";
 import BlogEditor from "../../../islands/BlogEditor";
 ---
 
 <AdminLayout title="New Article">
-  <Header title="New Article" />
 
   <section class="p-10">
     <BlogEditor client:load />

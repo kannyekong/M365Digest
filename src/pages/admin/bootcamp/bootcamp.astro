@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import BootcampSettings from "../../../islands/BootcampSettings";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Bootcamp Settings">
+  <Header />
   <BootcampSettings client:load />
 </AdminLayout>

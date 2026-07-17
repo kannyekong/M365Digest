@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import QuoteManagement from "../../../components/admin/forms/QuoteManagement";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Quote Requests">
+  <Header />
   <QuoteManagement client:load />
 </AdminLayout>

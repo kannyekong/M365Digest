@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import TaskForm from "../../../../components/admin/tasks/TaskForm";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Edit Task">
+  <Header />
+  <TaskForm client:load mode="edit" />
+</AdminLayout>

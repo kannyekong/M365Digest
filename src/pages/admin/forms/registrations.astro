@@ -1,8 +1,11 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import RegistrationManagement from "../../../components/admin/forms/RegistrationManagement";
+import Header from "../../../components/admin/UI/Header.astro";
+
 ---
 
-<AdminLayout title="Review Submissions">
+<AdminLayout title="Registration submissions">
+  <Header />
   <RegistrationManagement client:load />
 </AdminLayout>

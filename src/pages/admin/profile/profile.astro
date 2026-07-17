@@ -1,8 +1,10 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import ProfileManagement from "../../../components/admin/profile/ProfileManagement";
+import Header from "../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="My Profile">
+  <Header title="Profile" />
   <ProfileManagement client:load />
 </AdminLayout>

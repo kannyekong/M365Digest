@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { createPost, updatePost, getPost } from "../lib/blog";
 import TiptapEditor from "../components/editor/TiptapEditor";
-import CoverImageUploader from "../blog/ImageUploader";
+import ImageUploader from "../blog/ImageUploader";
 import toast from "react-hot-toast";
 import PreviewModal from "../components/admin/PreviewModal";
+import { ArrowLeftCircle } from "lucide-react";
 
 interface BlogEditorProps {
   editMode?: boolean;
@@ -157,146 +158,161 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-sm">
-      <div className="space-y-6">
-        {/* Image Uploader Field */}
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Cover Image
-          </label>
-
-          <CoverImageUploader value={coverImage} onChange={setCoverImage} />
+    <div>
+      <div className="flex flex-row justify-between">
+        <div className="mb-10">
+          <h1 className="text-xl font-bold">New article</h1>
+          <p className="mt-2 text-slate-500 text-xs">Create a new article.</p>
         </div>
+        <a href="/admin/blog/articles">
+          <ArrowLeftCircle size={50} className="text-orange-500" />
+        </a>
+      </div>
+      <div className="rounded-2xl bg-white p-8 shadow-sm">
+        <div className="space-y-6">
+          {/* Image Uploader Field */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Cover Image
+            </label>
 
-        {/* Title Field */}
-        <input
-          value={title}
-          onChange={(e) => {
-            const value = e.target.value;
+            <ImageUploader
+              value={coverImage}
+              onChange={setCoverImage}
+              bucket="blog-images"
+            />
+          </div>
 
-            setTitle(value);
-
-            if (!slugEdited) {
-              setSlug(generateSlug(value));
-            }
-          }}
-          placeholder="Article Title"
-          className="w-full rounded-xl border p-4 text-3xl font-bold"
-        />
-        <div>
-          <mark className="text-xs text-white bg-pink-500 pr-2 pl-2 rounded-r-full">
-            Select a post category
-          </mark>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 p-3"
-          >
-            <option>General</option>
-            <option>Microsoft 365</option>
-            <option>Exchange Online</option>
-            <option>SharePoint</option>
-            <option>Microsoft Teams</option>
-            <option>Microsoft Entra ID</option>
-            <option>Microsoft Defender</option>
-            <option>Microsoft Intune</option>
-            <option>Power Platform</option>
-            <option>Copilot</option>
-          </select>
-        </div>
-        <input
-          value={slug}
-          onChange={(e) => {
-            setSlugEdited(true);
-            setSlug(e.target.value);
-          }}
-          placeholder="Slug"
-          className="w-full rounded-xl border p-4"
-        />
-
-        <div className="rounded-xl border border-slate-300 p-6 space-y-4">
-          <h3 className="text-lg font-semibold">SEO Settings</h3>
-
+          {/* Title Field */}
           <input
-            value={seoTitle}
-            onChange={(e) => setSeoTitle(e.target.value)}
-            placeholder="SEO Title"
-            className="w-full rounded-xl border p-3"
-          />
+            value={title}
+            onChange={(e) => {
+              const value = e.target.value;
 
-          <textarea
-            value={seoDescription}
-            onChange={(e) => setSeoDescription(e.target.value)}
-            placeholder="Meta Description"
-            rows={3}
-            className="w-full rounded-xl border p-3"
-          />
+              setTitle(value);
 
+              if (!slugEdited) {
+                setSlug(generateSlug(value));
+              }
+            }}
+            placeholder="Article Title"
+            className="w-full rounded-xl border p-4 text-3xl font-bold"
+          />
+          <div>
+            <mark className="text-xs text-white bg-orange-700 pr-2 pl-2 rounded-full">
+              Select a post category
+            </mark>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 p-3"
+            >
+              <option>General</option>
+              <option>Microsoft 365</option>
+              <option>Exchange Online</option>
+              <option>SharePoint</option>
+              <option>Microsoft Teams</option>
+              <option>Microsoft Entra ID</option>
+              <option>Microsoft Defender</option>
+              <option>Microsoft Intune</option>
+              <option>Power Platform</option>
+              <option>Copilot</option>
+            </select>
+          </div>
           <input
-            value={canonicalUrl}
-            onChange={(e) => setCanonicalUrl(e.target.value)}
-            placeholder="Canonical URL (optional)"
-            className="w-full rounded-xl border p-3"
+            value={slug}
+            onChange={(e) => {
+              setSlugEdited(true);
+              setSlug(e.target.value);
+            }}
+            placeholder="Slug"
+            className="w-full rounded-xl border p-4"
           />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Article Content
-          </label>
 
-          <TiptapEditor value={content} onChange={setContent} />
-        </div>
-        <div className="rounded-xl border border-slate-300 p-5">
-          <label className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold">Publish Article</h3>
-
-              <p className="text-sm text-slate-500">
-                Draft articles are hidden from visitors.
-              </p>
-            </div>
+          <div className="rounded-xl border border-slate-300 p-6 space-y-4">
+            <h3 className="text-lg font-semibold">SEO Settings</h3>
 
             <input
-              type="checkbox"
-              checked={published}
-              onChange={(e) => setPublished(e.target.checked)}
-              className="h-5 w-5 accent-red-600"
+              value={seoTitle}
+              onChange={(e) => setSeoTitle(e.target.value)}
+              placeholder="SEO Title"
+              className="w-full rounded-xl border p-3"
             />
-          </label>
+
+            <textarea
+              value={seoDescription}
+              onChange={(e) => setSeoDescription(e.target.value)}
+              placeholder="Meta Description"
+              rows={3}
+              className="w-full rounded-xl border p-3"
+            />
+
+            <input
+              value={canonicalUrl}
+              onChange={(e) => setCanonicalUrl(e.target.value)}
+              placeholder="Canonical URL (optional)"
+              className="w-full rounded-xl border p-3"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Article Content
+            </label>
+
+            <TiptapEditor value={content} onChange={setContent} />
+          </div>
+          <div className="rounded-xl border border-slate-300 p-5">
+            <label className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold">Publish Article</h3>
+
+                <p className="text-sm text-slate-500">
+                  Draft articles are hidden from visitors.
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={published}
+                onChange={(e) => setPublished(e.target.checked)}
+                className="h-5 w-5 accent-red-600"
+              />
+            </label>
+          </div>
+          <div className="space-x-5">
+            <button
+              onClick={() => setPreviewOpen(true)}
+              className="rounded-xl border border-green-300 bg-white px-3 py-2 font-medium text-slate-700 transition hover:border-red-400 hover:text-red-600"
+            >
+              Preview
+            </button>
+            <button
+              onClick={publish}
+              className="rounded-xl bg-green-600 px-3 py-2 text-white"
+            >
+              {loading
+                ? editMode
+                  ? "Updating..."
+                  : "Publishing..."
+                : editMode
+                  ? "Update Article"
+                  : "Publish Article"}
+            </button>
+          </div>
         </div>
-        <div className="space-x-5">
-          <button
-            onClick={() => setPreviewOpen(true)}
-            className="rounded-xl border border-green-300 bg-white px-3 py-2 font-medium text-slate-700 transition hover:border-red-400 hover:text-red-600"
-          >
-            Preview
-          </button>
-          <button
-            onClick={publish}
-            className="rounded-xl bg-green-600 px-3 py-2 text-white"
-          >
-            {loading
-              ? editMode
-                ? "Updating..."
-                : "Publishing..."
-              : editMode
-                ? "Update Article"
-                : "Publish Article"}
-          </button>
-        </div>
+        <PreviewModal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          article={{
+            title,
+            excerpt,
+            cover_image: coverImage,
+            category,
+            content,
+            slug,
+          }}
+        />
       </div>
-      <PreviewModal
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        article={{
-          title,
-          excerpt,
-          cover_image: coverImage,
-          category,
-          content,
-          slug,
-        }}
-      />
     </div>
   );
 }

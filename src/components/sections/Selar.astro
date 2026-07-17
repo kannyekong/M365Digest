@@ -1,6 +1,9 @@
 ---
 const selarLink = "https://selar.co/m365bootcamp";
 import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
+import { getBootcampSettings } from "../../lib/bootcamp";
+
+const { data: settings } = await getBootcampSettings();
 ---
 
 <!-- Selar Modal --><!-- Modal -->
@@ -37,18 +40,21 @@ import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
 
       <!-- Pricing -->
       <div
-        class="mt-8 rounded-3xl bg-gradient-to-r from-primary to-indigo-600 p-6 text-center text-white shadow-xl"
+        class="mt-8 space-y-6 rounded-3xl bg-gradient-to-r from-primary to-indigo-600 p-6 text-center text-white shadow-xl"
       >
         <p class="text-sm uppercase tracking-widest opacity-80">Bootcamp Fee</p>
 
-        <h3 class="mt-2 text-4xl font-bold">$50</h3>
+        <mark
+          class="text-xl font-bold line-through bg-yellow-500 text-white rounded-full p-2"
+        >
+          ${settings.discount_price}
+        </mark>
+        <h3 class="mt-2 text-4xl font-bold">${settings.price}</h3>
       </div>
 
       <!-- Features -->
       <div class="mt-8 grid gap-4 md:grid-cols-2">
-        <div
-          class="border border-gray-200 dark:border-white rounded-2xl"
-        >
+        <div class="border border-gray-200 dark:border-white rounded-2xl">
           <a
             href="/terms"
             class="flex flex-row space-x-2 items-center p-4 dark:text-white"
@@ -57,9 +63,7 @@ import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
             <span>T&C</span>
           </a>
         </div>
-        <div
-          class="border border-gray-200 dark:border-white rounded-2xl"
-        >
+        <div class="border border-gray-200 dark:border-white rounded-2xl">
           <a
             href="/refundpolicy"
             class="flex flex-row space-x-1 items-center p-4 dark:text-white"
@@ -79,7 +83,7 @@ import { ShieldCheck, HandCoins, Handshake } from "lucide-astro";
           Proceed to register
         </a>
         <div class="flex flex-row justify-center text-xs">
-          <span>Payment secured by Selar </span>
+          <span>Payment secured by Paystack </span>
           <span class="transition group-hover:translate-x-1">
             <ShieldCheck size={15} strokeWidth={3} />
           </span>
