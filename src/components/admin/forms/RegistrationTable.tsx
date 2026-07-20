@@ -15,7 +15,7 @@ interface Props {
 
 type SortDirection = "asc" | "desc";
 
-export default function RegistrationTable({ registrations }: Props) {
+export default function RegistrationTable({ registrations, reload }: Props) {
   // Store the current search value.
   const [search, setSearch] = useState("");
 
@@ -217,8 +217,8 @@ export default function RegistrationTable({ registrations }: Props) {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Registration Table</h1>
+    <div className="p-12">
+      <h1 className="text-xl font-bold">Registration Table</h1>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
         <input
@@ -285,7 +285,7 @@ export default function RegistrationTable({ registrations }: Props) {
                 onClick={() => handleSort("created_at")}
               >
                 <div className="flex items-center gap-1">
-                  Date
+                  Date Paid
                   {getSortIcon("created_at")}
                 </div>
               </th>
@@ -322,8 +322,16 @@ export default function RegistrationTable({ registrations }: Props) {
                 </td>
 
                 <td className="px-6 py-4">
-                  <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-                    Pending
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      student.payment_status?.toLowerCase() === "paid"
+                        ? "bg-green-100 text-green-700"
+                        : student.payment_status?.toLowerCase() === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {student.payment_status}
                   </span>
                 </td>
 

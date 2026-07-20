@@ -79,6 +79,25 @@ body {
 .animate-soft-glow {
   animation: neonGlow 1.8s infinite ease-in-out;
 }
+
+@keyframes overdueGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px #fecaca,
+      0 0 5px #fecaca;
+  }
+
+  50% {
+    box-shadow:
+      0 0 10px #fca5a5,
+      0 0 20px #fca5a5;
+  }
+}
+
+.animate-overdue-glow {
+  animation: overdueGlow 1.8s infinite ease-in-out;
+}
 /* globals.css */
 
 .hide-scrollbar::-webkit-scrollbar {
@@ -87,4 +106,21 @@ body {
 
 .hide-scrollbar {
   scrollbar-width: none;
+}
+/* ==========================================================================
+   Safari <select> fix
+   Removes native WebKit styling that can cause compressed select fields.
+   ========================================================================== */
+
+/* Fix compressed select fields in Safari while preserving native arrows. */
+select:not([multiple]) {
+  min-height: 48px;
+  height: 48px;
+  padding: 0 0.5rem;
+  line-height: normal;
+  border: 1px solid #cbd5e1;
+  background-color: #fff;
+  border-radius: 12px !important;
+  font-size: 12px;
+  -webkit-border-radius: 12px !important;
 }

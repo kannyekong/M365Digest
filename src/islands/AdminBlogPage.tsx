@@ -268,7 +268,7 @@ export default function AdminBlogPage() {
     <>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Articles"
+          title="Total Articles"
           value={totalPosts}
           icon="articles"
           color="bg-pink-300"

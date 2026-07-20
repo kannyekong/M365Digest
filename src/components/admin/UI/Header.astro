@@ -1,7 +1,7 @@
 ---
 import { getGreeting } from "../../../utils/greetings.ts";
 import UserMenu from "../../../islands/UserMenu";
-import { BellDot } from "lucide-astro";
+import NotificationBell from "../../../islands/NotificationBell";
 
 const { greeting, message } = getGreeting("Akaneno");
 ---
@@ -18,7 +18,7 @@ const { greeting, message } = getGreeting("Akaneno");
 
     <div class="flex flex-row justify-between">
       <span class="p-3">
-        <BellDot size={25}/>
+        <NotificationBell client:load />
       </span>
       <UserMenu client:load />
     </div>

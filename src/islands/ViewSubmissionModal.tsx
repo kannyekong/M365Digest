@@ -174,12 +174,18 @@ export default function ViewSubmissionModal({
                         ) : key === "status" ? (
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              data[key] === "Active"
+                              data[key] === "completed"
                                 ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                : data[key] === "in_progress"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-yellow-100 text-yellow-700"
                             }`}
                           >
-                            {data[key]}
+                            {data[key] === "in_progress"
+                              ? "In Progress"
+                              : data[key] === "completed"
+                                ? "Completed"
+                                : "Pending"}
                           </span>
                         ) : key === "availability" ? (
                           <span
@@ -206,7 +212,7 @@ export default function ViewSubmissionModal({
                 </summary>
 
                 <pre className="mt-4 overflow-auto rounded-lg bg-slate-100 p-4 text-xs">
-                  {JSON.stringify(data.payload, null, 2)}
+                  {JSON.stringify(data, null, 2)}
                 </pre>
               </details>
             </div>

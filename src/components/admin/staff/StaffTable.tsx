@@ -44,7 +44,6 @@ export default function StaffTable({ staff, setStaff }: Props) {
   // Store the number of rows displayed per page.
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Delete a staff member from Supabase and local state.
   async function handleDelete(employee: any) {
     // Ask the user to confirm the deletion.
     const confirmed = window.confirm(
@@ -54,16 +53,16 @@ export default function StaffTable({ staff, setStaff }: Props) {
     // Stop execution when the user cancels the deletion.
     if (!confirmed) return;
 
-    // Delete the staff member from Supabase.
-    const { error } = await deleteStaff(employee.id);
+    // Attempt to delete the staff member from Supabase.
+    const result = await deleteStaff(employee.id);
 
     // Display the error when deletion fails.
-    if (error) {
-      toast.error(error.message);
+    if (!result.success) {
+      toast.error(result.error?.message || "Failed to delete staff.");
       return;
     }
 
-    // Display a success message after deletion.
+    // Display a success message only after confirmed deletion.
     toast.success("Staff deleted.");
 
     // Remove the deleted staff member from local state.
@@ -355,7 +354,7 @@ export default function StaffTable({ staff, setStaff }: Props) {
                         src={
                           employee.avatar_url
                             ? `${employee.avatar_url}?v=${cacheKey}`
-                            : "/images/checker.png"
+                            : "/images/user.png"
                         }
                         className="h-10 w-10 rounded-full object-cover"
                       />

@@ -14,11 +14,7 @@ export async function listStaff() {
 }
 
 export async function addStaff(payload: any) {
-  return await supabase
-    .from("staff")
-    .insert(payload)
-    .select()
-    .single();
+  return await supabase.from("staff").insert(payload).select().single();
 }
 
 export async function updateStaff(id: string, payload: any) {
@@ -30,11 +26,35 @@ export async function updateStaff(id: string, payload: any) {
     .single();
 }
 
+// This function deletes a staff member from the staff table.
 export async function deleteStaff(id: string) {
-  return await supabase
+  // Attempt to delete the staff member and count the deleted rows.
+  const { error, count } = await supabase
     .from("staff")
-    .delete()
+    .delete({ count: "exact" })
     .eq("id", id);
+
+  // Return the Supabase error when deletion fails.
+  if (error) {
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  // Return a failed result when no staff row was deleted.
+  if (count === 0) {
+    return {
+      success: false,
+      error: new Error("Staff member was not deleted."),
+    };
+  }
+
+  // Return a successful result after confirmed deletion.
+  return {
+    success: true,
+    error: null,
+  };
 }
 
 export async function generateEmployeeId() {
@@ -52,9 +72,7 @@ export async function generateEmployeeId() {
     return "CT-0001";
   }
 
-  const latest = Number(
-    data[0].employee_id.replace("CT-", "")
-  );
+  const latest = Number(data[0].employee_id.replace("CT-", ""));
 
   return `CT-${String(latest + 1).padStart(4, "0")}`;
 }
@@ -88,14 +106,10 @@ export async function getStaffSummary() {
   const total = data.length;
 
   // Calculate the number of active staff members.
-  const active = data.filter(
-    (staff) => staff.status === "Active"
-  ).length;
+  const active = data.filter((staff) => staff.status === "Active").length;
 
   // Calculate the number of inactive staff members.
-  const inactive = data.filter(
-    (staff) => staff.status === "Inactive"
-  ).length;
+  const inactive = data.filter((staff) => staff.status === "Inactive").length;
 
   // Calculate the number of staff members in Operations.
   const operations = data.filter(

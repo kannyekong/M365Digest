@@ -12,15 +12,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { deleteTask, updateTask } from "../../../lib/tasks";
 import { exportToCSV, paginateData, sortData } from "../../../lib/table";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  status: "pending" | "in_progress" | "completed";
-  priority: "low" | "medium" | "high";
-  due_date: string | null;
-}
+import ViewSubmissionModal from "../../../islands/ViewSubmissionModal";
+import type { Task } from "../../../types/task";
 
 interface Props {
   tasks: Task[];
@@ -43,10 +36,10 @@ export default function TaskTable({ tasks, reload }: Props) {
   const [priorityFilter, setPriorityFilter] = useState("All");
 
   // Store the currently selected sorting column.
-  const [sortColumn, setSortColumn] = useState("title");
+  const [sortColumn, setSortColumn] = useState("created_at");
 
   // Store the current sorting direction.
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   // Store the current pagination page.
   const [currentPage, setCurrentPage] = useState(1);
@@ -144,18 +137,20 @@ export default function TaskTable({ tasks, reload }: Props) {
   }
 
   // Handle changes to the task search field.
-  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
     // Update the search value.
-    setSearch(e.target.value);
+    setSearch(event.target.value);
 
     // Return to the first page after searching.
     setCurrentPage(1);
   }
 
   // Handle changes to the rows-per-page selector.
-  function handleRowsPerPageChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleRowsPerPageChange(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
     // Update the number of rows displayed per page.
-    setRowsPerPage(Number(e.target.value));
+    setRowsPerPage(Number(event.target.value));
 
     // Return to the first page after changing the page size.
     setCurrentPage(1);
@@ -170,6 +165,7 @@ export default function TaskTable({ tasks, reload }: Props) {
       status: task.status,
       priority: task.priority,
       due_date: task.due_date,
+      created_at: new Date(task.created_at).toLocaleDateString(),
     }));
 
     // Export the task data as a CSV file.
@@ -180,6 +176,12 @@ export default function TaskTable({ tasks, reload }: Props) {
   const processedTasks = useMemo(() => {
     // Normalize the search value for case-insensitive searching.
     const searchValue = search.toLowerCase().trim();
+
+    // Create today's date.
+    const today = new Date();
+
+    // Remove the current time from today's date.
+    today.setHours(0, 0, 0, 0);
 
     // Filter tasks based on search and selected filters.
     const filtered = tasks.filter((task) => {
@@ -197,9 +199,23 @@ export default function TaskTable({ tasks, reload }: Props) {
       const matchesSearch =
         !searchValue || searchableText.includes(searchValue);
 
-      // Check whether the task matches the status filter.
+      // Create the task due date when one exists.
+      const dueDate = task.due_date ? new Date(task.due_date) : null;
+
+      // Remove the time from the task due date.
+      dueDate?.setHours(0, 0, 0, 0);
+
+      // Determine whether the task is overdue.
+      const isOverdue =
+        task.status !== "completed" && dueDate !== null && dueDate < today;
+
+      // Handle the derived overdue status.
       const matchesStatus =
-        statusFilter === "All" || task.status === statusFilter;
+        statusFilter === "All"
+          ? true
+          : statusFilter === "overdue"
+            ? isOverdue
+            : task.status === statusFilter;
 
       // Check whether the task matches the priority filter.
       const matchesPriority =
@@ -209,7 +225,7 @@ export default function TaskTable({ tasks, reload }: Props) {
       return matchesSearch && matchesStatus && matchesPriority;
     });
 
-    // Sort the filtered tasks using the reusable table utility.
+    // Sort the filtered tasks.
     return sortData(filtered, sortColumn as keyof Task, sortDirection);
   }, [tasks, search, statusFilter, priorityFilter, sortColumn, sortDirection]);
 
@@ -234,6 +250,33 @@ export default function TaskTable({ tasks, reload }: Props) {
   // Retrieve the tasks for the current page.
   const paginatedTasks = paginateData(processedTasks, currentPage, rowsPerPage);
 
+  // Calculate the total number of overdue tasks.
+  const overdueTasks = tasks.filter((task) => {
+    // Completed tasks should never be considered overdue.
+    if (task.status === "completed") return false;
+
+    // Tasks without a due date cannot be overdue.
+    if (!task.due_date) return false;
+
+    // Create today's date.
+    const today = new Date();
+
+    // Remove the current time from today's date.
+    today.setHours(0, 0, 0, 0);
+
+    // Create the task due date.
+    const dueDate = new Date(task.due_date);
+
+    // Remove the time from the task due date.
+    dueDate.setHours(0, 0, 0, 0);
+
+    // Return true when the task due date has passed.
+    return dueDate < today;
+  });
+
+  const totalTasks =
+    pendingTasks.length + completedTasks.length + inProgressTasks.length;
+
   // Display an empty state when there are no tasks.
   if (!tasks.length) {
     return (
@@ -249,7 +292,17 @@ export default function TaskTable({ tasks, reload }: Props) {
 
   return (
     <div className="p-12">
-      <div className="grid gap-4 p-6 pb-12 sm:grid-cols-3">
+      <div className="grid gap-4 pb-12 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-pink-500 p-4 text-white shadow-lg">
+          <div className="flex items-center gap-2 text-white">
+            <Clock3 size={18} />
+
+            <span className="text-sm font-medium text-white">Total Tasks</span>
+          </div>
+
+          <p className="mt-3 text-3xl font-bold text-white">{totalTasks}</p>
+        </div>
+
         <div className="rounded-xl border border-orange-500 p-4">
           <div className="flex items-center gap-2 text-orange-500">
             <Clock3 size={18} />
@@ -285,6 +338,18 @@ export default function TaskTable({ tasks, reload }: Props) {
             {completedTasks.length}
           </p>
         </div>
+
+        <div className="rounded-xl border border-red-400 p-4">
+          <div className="flex items-center gap-2 text-red-500">
+            <Clock3 size={18} />
+
+            <span className="text-sm font-medium">Overdue</span>
+          </div>
+
+          <p className="mt-3 text-3xl font-bold text-red-500">
+            {overdueTasks.length}
+          </p>
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -299,8 +364,8 @@ export default function TaskTable({ tasks, reload }: Props) {
 
           <select
             value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
               setCurrentPage(1);
             }}
             className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-primary"
@@ -312,12 +377,14 @@ export default function TaskTable({ tasks, reload }: Props) {
             <option value="in_progress">In Progress</option>
 
             <option value="completed">Completed</option>
+
+            <option value="overdue">Overdue</option>
           </select>
 
           <select
             value={priorityFilter}
-            onChange={(e) => {
-              setPriorityFilter(e.target.value);
+            onChange={(event) => {
+              setPriorityFilter(event.target.value);
               setCurrentPage(1);
             }}
             className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-primary"
@@ -330,6 +397,7 @@ export default function TaskTable({ tasks, reload }: Props) {
 
             <option value="high">High</option>
           </select>
+
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
@@ -384,11 +452,11 @@ export default function TaskTable({ tasks, reload }: Props) {
 
               <th
                 className="cursor-pointer px-6 py-4"
-                onClick={() => handleSort("due_date")}
+                onClick={() => handleSort("created_at")}
               >
                 <div className="flex items-center gap-1">
-                  Due Date
-                  {getSortIcon("due_date")}
+                  Date Added
+                  {getSortIcon("created_at")}
                 </div>
               </th>
 
@@ -414,10 +482,10 @@ export default function TaskTable({ tasks, reload }: Props) {
                 <td className="px-6 py-4 text-xs">
                   <select
                     value={task.status}
-                    onChange={(e) =>
+                    onChange={(event) =>
                       handleStatusChange(
                         task,
-                        e.target.value as
+                        event.target.value as
                           "pending" | "in_progress" | "completed"
                       )
                     }
@@ -452,13 +520,26 @@ export default function TaskTable({ tasks, reload }: Props) {
                 </td>
 
                 <td className="px-6 py-4 text-sm text-slate-500">
-                  {task.due_date
-                    ? new Date(task.due_date).toLocaleDateString()
-                    : "No due date"}
+                  {new Date(task.created_at).toLocaleDateString()}
                 </td>
 
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
+                    <ViewSubmissionModal
+                      title="Task Details"
+                      data={task}
+                      preferredOrder={[
+                        "title",
+                        "description",
+                        "status",
+                        "priority",
+                        "due_date",
+                        "created_at",
+                      ]}
+                      hiddenFields={["id"]}
+                      showDeveloperTools={true}
+                    />
+
                     <a
                       href={`/admin/tasks/${task.id}/edit`}
                       className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
