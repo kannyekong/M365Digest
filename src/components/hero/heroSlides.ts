@@ -50,7 +50,7 @@ export const heroSlides: HeroSlide[] = [
     description:
       "Master Microsoft 365 Administration through real-world labs covering Exchange Online, SharePoint, Teams, OneDrive, Entra ID and Microsoft Copilot.",
 
-    image: "/images/bg.png",
+    image: "/images/blue.png",
 
     primaryButton: {
       text: "Enroll Today",
