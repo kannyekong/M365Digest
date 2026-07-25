@@ -45,7 +45,7 @@ export default function HeroCarousel() {
         {/* Left Content */}
         <div>
           <div className="md:min-h-[170px]">
-            <h1 className="text-4xl/tight md:text-5xl/tight xl:text-5xl/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent">
+            <h1 className="text-3xl/tight md:text-5xl/tight xl:text-5xl/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent">
               {slide.title}
             </h1>
           </div>
