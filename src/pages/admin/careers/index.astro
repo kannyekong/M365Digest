@@ -1,0 +1,27 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CareerTable from "../../../components/admin/careers/CareerTable";
+import Header from "../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Careers">
+  <Header title="Create, publish and manage job openings." />
+  <main class="space-y-8">
+    <div class="p-12">
+      <div class="pb-6">
+        <p class="text-sm font-medium text-primary">Recruitment</p>
+
+        <h1 class="mt-2 text-3xl font-semibold text-heading-1">
+          Career openings
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-heading-3">
+          Manage the opportunities displayed on the public CloudTweak careers
+          page.
+        </p>
+      </div>
+
+      <CareerTable client:load />
+    </div>
+  </main>
+</AdminLayout>

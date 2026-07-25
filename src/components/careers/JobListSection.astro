@@ -1,0 +1,30 @@
+---
+import { CheckCircle2 } from "lucide-astro";
+
+interface Props {
+  title: string;
+  items: string[];
+}
+
+const { title, items } = Astro.props;
+---
+
+<section
+  class="rounded-3xl border border-box-border bg-white/70 p-6 shadow-sm backdrop-blur-xl dark:bg-box-bg/70 sm:p-8"
+>
+  <h2 class="text-2xl font-semibold text-heading-1">
+    {title}
+  </h2>
+
+  <ul class="mt-6 space-y-4">
+    {
+      items.map((item) => (
+        <li class="flex items-start gap-3 text-sm leading-7 text-heading-3 sm:text-base">
+          <CheckCircle2 class="mt-1 h-5 w-5 shrink-0 text-primary" />
+
+          <span>{item}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

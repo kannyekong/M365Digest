@@ -1,14 +1,5 @@
 ---
-import {
-  MailOpen,
-  MailQuestionMark,
-  MessageCircle,
-  MessageCircleHeart,
-  MessageCircleQuestion,
-  MessageCircleReply,
-  PhoneCall,
-  PhoneOutgoing,
-} from "lucide-astro";
+import { MailOpen, MessageCircle, PhoneCall } from "lucide-astro";
 
 const footerLinks = {
   company: [
@@ -22,8 +13,6 @@ const footerLinks = {
   ],
 
   bootcamp: [
-    { name: "Curriculum", href: "./weekone" },
-    { name: "Pricing", class: "open-modal-btn" },
     { name: "Refund Policy", href: "/refundpolicy" },
     { name: "Terms & Conditions", href: "/terms" },
   ],
@@ -31,9 +20,9 @@ const footerLinks = {
   resources: [
     { name: "Blog", href: "/blog" },
     {
-      name: "Bootcamp Videos",
+      name: "Careers",
       target: "_blank",
-      href: "https://wedefix-my.sharepoint.com/:f:/g/personal/kanny_wedefix_onmicrosoft_com/IgB1xhp7-ddaTYdgxUhvmC6WAVgm2m966OTHZ_dvr_3hfZ4?e=lafcfG",
+      href: "https://cloudtweak.net/careers/",
     },
   ],
 
@@ -61,7 +50,7 @@ const year = new Date().getFullYear();
   >
   </div>
 
-  <div class="relative mx-auto max-w-7xl px-6 border-t border-t-[#eee] py-16">
+  <div class="relative mx-auto max-w-7xl border-t border-t-[#eee] py-16">
     <!-- Top Section -->
     <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
       <!-- Brand -->
@@ -69,14 +58,14 @@ const year = new Date().getFullYear();
         <a href="/" class="inline-flex items-center gap-3">
           <!-- Logo -->
           <img
-            src="/logos/logonew.png"
-            class="dark:hidden w-[200px] md:w-[300px] object-contain"
+            src="/logos/cloudtweaklogo.png"
+            class="dark:hidden w-[200px] md:w-[250px] object-contain"
             alt="CloudTweak"
           />
 
           <img
-            src="/logos/logonew-white.png"
-            class="hidden dark:block w-[200px] md:w-[300px] object-contain"
+            src="/logos/cloudtweakwhite.png"
+            class="hidden dark:block w-[200px] md:w-[250px] object-contain"
             alt="CloudTweak"
           />
         </a>
@@ -146,7 +135,7 @@ const year = new Date().getFullYear();
               <li>
                 <a
                   href={link.href}
-                  class={`text-gray-600 transition hover:text-primary dark:text-gray-300 ${link.class}`}
+                  class={`text-gray-600 transition hover:text-primary dark:text-gray-300`}
                 >
                   {link.name}
                 </a>
@@ -187,7 +176,7 @@ const year = new Date().getFullYear();
       class="flex flex-col items-center justify-between gap-4 text-center md:flex-row"
     >
       <p class="text-sm text-gray-500 dark:text-gray-400">
-        © {year} CloudTweak. All rights reserved.
+        © {year} CloudTweak Technologies Limited. All rights reserved.
       </p>
 
       <div class="flex flex-wrap items-center justify-center gap-6 text-sm">

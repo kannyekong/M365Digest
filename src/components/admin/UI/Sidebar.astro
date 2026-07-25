@@ -1,22 +1,28 @@
 ---
-import LogoutButton from "../../../islands/LogoutButton";
 import {
+  Construction,
+  ContactRound,
+  MessageSquareQuote,
+  UserPen,
   LayoutDashboard,
   Newspaper,
   GraduationCap,
-  Briefcase,
-  Users,
+  BriefcaseBusiness,
   MailOpen,
   Workflow,
   Settings,
-} from "lucide-react";
+  FolderOpenDot,
+  Columns2,
+} from "lucide-astro";
+import LogoutButton from "../../../islands/LogoutButton";
 
 const sections = [
   {
-    title: "Dashboard",
+    title: "Dashboard Overview",
     href: "/admin/",
     icon: LayoutDashboard,
   },
+
   {
     title: "My To-Dos",
     icon: Workflow,
@@ -31,6 +37,45 @@ const sections = [
       },
     ],
   },
+
+  {
+    title: "Manage Hero",
+    icon: Columns2,
+    links: [
+      {
+        title: "Manage banner",
+        href: "/admin/tasks/",
+      },
+      {
+        title: "Manage company values",
+        href: "/admin/tasks/add",
+      },
+      {
+        title: "Manage founders",
+        href: "/admin/tasks/add",
+      },
+      {
+        title: "Manage services",
+        href: "/admin/tasks/add",
+      },
+    ],
+  },
+
+  {
+    title: "Projects",
+    icon: Construction,
+    links: [
+      {
+        title: "Add Projects",
+        href: "/admin/tasks/",
+      },
+      {
+        title: "Manage Projects",
+        href: "/admin/tasks/add",
+      },
+    ],
+  },
+
   {
     title: "Blog articles",
     icon: Newspaper,
@@ -47,8 +92,8 @@ const sections = [
   },
 
   {
-    title: "Company info",
-    icon: Briefcase,
+    title: "Services",
+    icon: BriefcaseBusiness,
     links: [
       {
         title: " All services",
@@ -59,6 +104,13 @@ const sections = [
         title: "Add a new service",
         href: "/admin/services/new",
       },
+    ],
+  },
+
+  {
+    title: "Testimonials",
+    icon: MessageSquareQuote,
+    links: [
       {
         title: "All testimonials",
         href: "/admin/testimonials",
@@ -67,15 +119,12 @@ const sections = [
         title: "Add a new testimonial",
         href: "/admin/testimonials/new",
       },
-      {
-        title: "Document Library",
-        href: "/admin/documents",
-      },
     ],
   },
+
   {
     title: "Manage staff",
-    icon: Users,
+    icon: UserPen,
     links: [
       {
         title: "Manage Staff",
@@ -89,7 +138,7 @@ const sections = [
   },
   {
     title: "Manage students",
-    icon: Users,
+    icon: UserPen,
     links: [
       {
         title: "Manage Students",
@@ -149,18 +198,39 @@ const sections = [
   },
   {
     title: "Careers",
-    icon: Users,
+    icon: ContactRound,
     links: [
       {
-        title: "Add a Job",
-        href: "/admin/forms/registrations",
+        title: "Add a job",
+        href: "/admin/careers/new",
       },
       {
         title: "All job openings",
-        href: "/admin/students/manage/certificate",
+        href: "/admin/careers",
+      },
+
+      {
+        title: "Career applications",
+        href: "/admin/careers/applications",
       },
     ],
   },
+
+  {
+    title: "Document Library",
+    links: [
+      {
+        title: "All documents",
+        href: "/admin/documents",
+      },
+      {
+        title: "Upload a new document",
+        href: "/admin/documents/add",
+      },
+    ],
+    icon: FolderOpenDot,
+  },
+
   {
     title: "Account settings",
     icon: Settings,
@@ -173,23 +243,29 @@ const sections = [
         title: "Update profile picture",
         href: "/admin/profile/profile",
       },
+      {
+        title: "Notification settings",
+        href: "/admin/notifications/",
+      },
     ],
   },
 ];
 ---
 
-<aside class="sticky top-0 h-screen w-62 bg-[#000033] text-white flex flex-col">
+<aside class="sticky top-0 h-screen w-62 flex flex-col">
   <div class="p-6">
-    <img src="/logos/logonew-white.png" alt="logo" class="w-3/4" />
+    <img src="/logos/cloudtweaklogo.png" alt="logo" class="w-3/4" />
     <!-- <div class="my-2 border-b border-slate-50"></div> -->
   </div>
 
-  <nav class="px-4 flex-1 overflow-y-auto hide-scrollbar">
+  <nav
+    class="px-4 flex-1 overflow-y-auto border-r border-slate-100 dark:border-slate-50"
+  >
     {
       sections.map((section) =>
         section.links ? (
-          <details class="group mb-1">
-            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 hover:bg-slate-800 transition list-none">
+          <details class="group">
+            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition list-none">
               <div class="flex items-center gap-4">
                 <section.icon size={18} />
                 <span class="text-xs">{section.title}</span>
@@ -211,11 +287,11 @@ const sections = [
               </svg>
             </summary>
 
-            <div class="ml-10 mt-2 space-y-1">
+            <div class="ml-10 mt-2  border rounded-md">
               {section.links.map((link) => (
                 <a
                   href={link.href}
-                  class="block rounded-lg px-2 py-2 text-xs text-slate-200 hover:mr-1 hover:bg-slate-800 hover:text-white transition"
+                  class="block rounded-lg px-2 py-2 text-xs text-black dark:text-slate-200 hover:mr-1  hover:text-orange-500"
                 >
                   {link.title}
                 </a>
@@ -225,7 +301,7 @@ const sections = [
         ) : (
           <a
             href={section.href}
-            class="flex items-center gap-4 rounded-xl px-4 text-xs py-3 mb-2 hover:bg-slate-800 transition"
+            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <section.icon size={18} />
 
@@ -235,7 +311,7 @@ const sections = [
       )
     }
   </nav>
-  <div class="mt-auto px-4 pb-8">
+  <div class="mt-auto px-4 pb-8 text-black dark:text-white">
     <LogoutButton client:load />
   </div>
 </aside>

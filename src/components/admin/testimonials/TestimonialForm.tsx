@@ -63,12 +63,6 @@ export default function TestimonialForm({
         </a>
       </div>
       <form onSubmit={submit} className="space-y-4">
-        <a
-          className="text-sm underline text-blue-500"
-          href="https://cloudtweak.com/#testimonials"
-        >
-          See live preview{" "}
-        </a>
         <SectionCard title="What our clients say about us" subtitle="">
           <div className="space-y-5">
             <TextInput

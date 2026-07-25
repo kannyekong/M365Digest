@@ -1,0 +1,42 @@
+---
+import { BellRing, BriefcaseBusiness, Mail } from "lucide-astro";
+---
+
+<section
+  class="rounded-3xl border border-box-border bg-white/70 px-6 py-16 text-center shadow-sm backdrop-blur-xl dark:bg-box-bg/70 sm:px-10"
+>
+  <div
+    class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary"
+  >
+    <BriefcaseBusiness class="h-9 w-9" />
+  </div>
+
+  <h2 class="mt-6 text-2xl font-semibold text-heading-1">
+    We are not hiring right now
+  </h2>
+
+  <p
+    class="mx-auto mt-3 max-w-xl text-sm leading-7 text-heading-3 sm:text-base"
+  >
+    There are currently no open positions, but we are always growing. Check this
+    page again for future opportunities to join CloudTweak.
+  </p>
+
+  <div class="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+    <a
+      href="/contact"
+      class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-semibold text-white transition hover:opacity-90"
+    >
+      <Mail class="h-4 w-4" />
+      Contact us
+    </a>
+
+    <a
+      href="/"
+      class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-box-border px-5 text-sm font-semibold text-heading-1 transition hover:bg-gray-50 dark:hover:bg-gray-800"
+    >
+      <BellRing class="h-4 w-4 text-primary" />
+      Explore CloudTweak
+    </a>
+  </div>
+</section>

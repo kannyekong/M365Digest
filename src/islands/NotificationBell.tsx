@@ -2,6 +2,8 @@ import { Bell } from "lucide-react";
 import { useState } from "react";
 import NotificationDropdown from "../components/notifications/NotificationDropdown";
 import { useNotifications } from "../hooks/useNotifications";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function NotificationBell() {
   // Track whether the notification dropdown is open.
@@ -61,6 +63,18 @@ export default function NotificationBell() {
           closeDropdown={closeDropdown}
         />
       )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={6000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

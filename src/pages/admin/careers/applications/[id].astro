@@ -1,0 +1,21 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ApplicationDetails from "../../../../components/admin/careers/ApplicationDetails";
+import { getJobApplicationById } from "../../../../lib/server/jobApplication";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/careers/applications");
+}
+
+const application = await getJobApplicationById(id);
+
+if (!application) {
+  return Astro.redirect("/admin/careers/applications");
+}
+---
+
+<AdminLayout title={`${application.full_name} | Application`}>
+  <ApplicationDetails client:load application={application} />
+</AdminLayout>

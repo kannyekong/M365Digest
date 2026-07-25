@@ -1,10 +1,11 @@
 import {
   Bell,
+  FileUser,
   GraduationCap,
   Mail,
   MessageSquareText,
-  Star,
   Trash2,
+  UserStar,
 } from "lucide-react";
 import { useState } from "react";
 import type { Notification, NotificationType } from "../../types/notification";
@@ -28,13 +29,13 @@ export default function NotificationItem({
   // Return the icon associated with a notification type.
   function getNotificationIcon(type: NotificationType) {
     const iconClasses = "h-4 w-4";
-
     const icons: Record<NotificationType, React.ReactNode> = {
       registration: <GraduationCap className={iconClasses} />,
-      review: <Star className={iconClasses} />,
-      contact: <Mail className={iconClasses} />,
-      contact_form: <MessageSquareText className={iconClasses} />,
-      system: <Bell />,
+      job_application: <FileUser className={iconClasses} />,
+      review: <UserStar className={iconClasses} />,
+      quote: <Mail className={iconClasses} />,
+      contact: <MessageSquareText className={iconClasses} />,
+      system: <Bell className={iconClasses} />,
     };
 
     return icons[type];
@@ -44,10 +45,11 @@ export default function NotificationItem({
   function getNotificationIconClasses(type: NotificationType) {
     const classes: Record<NotificationType, string> = {
       registration: "bg-blue-100 text-blue-700",
+      job_application: "bg-pink-100 text-pink-700",
       review: "bg-amber-100 text-amber-700",
-      contact: "bg-emerald-100 text-emerald-700",
-      contact_form: "bg-violet-100 text-violet-700",
-      system: "bg-slate-100 text-slate-700",
+      quote: "bg-emerald-100 text-emerald-700",
+      contact: "bg-violet-100 text-violet-700",
+      system: "bg-yellow-100 text-slate-700",
     };
 
     return classes[type];
@@ -193,24 +195,5 @@ export default function NotificationItem({
         )}
       </button>
     </div>
-  );
-}
-
-// Render the system notification bell icon.
-function BellIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
   );
 }

@@ -1,5 +1,10 @@
 export type NotificationType =
-  "contact" | "review" | "registration" | "contact_form" | "system";
+  | "quote"
+  | "review"
+  | "registration"
+  | "contact"
+  | "system"
+  | "job_application";
 
 export interface Notification {
   id: string;

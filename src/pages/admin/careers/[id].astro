@@ -1,0 +1,18 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CareerForm from "../../../components/admin/careers/CareerForm";
+import Header from "../../../components/admin/UI/Header.astro";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/careers");
+}
+---
+
+<AdminLayout title="Edit Job Opening">
+  <Header title="Update an existing career opportunity." />
+  <main class="mx-auto w-full max-w-6xl">
+    <CareerForm careerId={id} client:load />
+  </main>
+</AdminLayout>

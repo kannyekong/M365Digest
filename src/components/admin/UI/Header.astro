@@ -2,18 +2,19 @@
 import { getGreeting } from "../../../utils/greetings.ts";
 import UserMenu from "../../../islands/UserMenu";
 import NotificationBell from "../../../islands/NotificationBell";
+import { Sun } from "lucide-astro";
 
 const { greeting, message } = getGreeting("Akaneno");
 ---
 
-<header class="bg-white border-b border-slate-200">
+<header class="border-b border-slate-200">
   <div class="px-10 py-6 flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold">
+      <h1 class="text-3xl font-bold dark:text-white">
         {greeting}
       </h1>
 
-      <p class="text-slate-500 mt-1 text-xs">{message}</p>
+      <p class="text-slate-500 mt-1 text-xs dark:text-white">{message}</p>
     </div>
 
     <div class="flex flex-row justify-between">

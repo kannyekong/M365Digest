@@ -1,0 +1,384 @@
+---
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  Clock3,
+  MapPin,
+  ShieldCheck,
+  WalletCards,
+} from "lucide-react";
+import ApplicationForm from "../../../components/careers/ApplicationForm";
+import { getCareerOpeningBySlug } from "../../../lib/careers";
+import Layout from "../../../layouts/Layout.astro";
+import type { CareerOpening } from "../../../types/careers";
+
+/**
+ * Formats the job deadline into a readable date.
+ */
+function formatDeadline(deadline: string | null): string | null {
+  if (!deadline) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(deadline));
+}
+
+/**
+ * Converts stored employment-type values into readable labels.
+ */
+function formatEmploymentType(employmentType: string): string {
+  const employmentTypes: Record<string, string> = {
+    full_time: "Full-time",
+    part_time: "Part-time",
+    contract: "Contract",
+    temporary: "Temporary",
+    internship: "Internship",
+    volunteer: "Volunteer",
+  };
+
+  return employmentTypes[employmentType] ?? employmentType.replaceAll("_", " ");
+}
+
+/**
+ * Converts stored workplace-type values into readable labels.
+ */
+function formatWorkplaceType(workplaceType: string): string {
+  const workplaceTypes: Record<string, string> = {
+    onsite: "On-site",
+    remote: "Remote",
+    hybrid: "Hybrid",
+  };
+
+  return workplaceTypes[workplaceType] ?? workplaceType.replaceAll("_", " ");
+}
+
+/**
+ * Formats salary values only when salary display is enabled.
+ */
+function formatSalary(opening: CareerOpening): string | null {
+  if (!opening.show_salary || (!opening.salary_min && !opening.salary_max)) {
+    return null;
+  }
+
+  const currencyFormatter = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: opening.salary_currency || "NGN",
+    maximumFractionDigits: 0,
+  });
+
+  if (opening.salary_min && opening.salary_max) {
+    return `${currencyFormatter.format(
+      opening.salary_min
+    )} – ${currencyFormatter.format(opening.salary_max)}`;
+  }
+
+  if (opening.salary_min) {
+    return `From ${currencyFormatter.format(opening.salary_min)}`;
+  }
+
+  if (opening.salary_max) {
+    return `Up to ${currencyFormatter.format(opening.salary_max)}`;
+  }
+
+  return null;
+}
+
+const { slug } = Astro.params;
+
+let careerOpening: CareerOpening | null = null;
+let loadError: string | null = null;
+
+/**
+ * Loads the selected published job opening using its URL slug.
+ */
+async function loadCareerOpening(): Promise<CareerOpening | null> {
+  if (!slug) {
+    return null;
+  }
+
+  try {
+    return await getCareerOpeningBySlug(slug);
+  } catch (error) {
+    loadError =
+      error instanceof Error
+        ? error.message
+        : "The job opening could not be loaded.";
+
+    return null;
+  }
+}
+
+careerOpening = await loadCareerOpening();
+
+if (!careerOpening) {
+  Astro.response.status = 404;
+}
+
+const deadline = careerOpening
+  ? formatDeadline(careerOpening.application_deadline)
+  : null;
+
+const salary = careerOpening ? formatSalary(careerOpening) : null;
+
+const pageTitle = careerOpening
+  ? `Apply for ${careerOpening.title}`
+  : "Job opening unavailable";
+
+const pageDescription = careerOpening
+  ? `Submit your application for the ${careerOpening.title} position at CloudTweak.`
+  : "This job opening is unavailable or no longer accepting applications.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  {
+    careerOpening ? (
+      <main class="relative overflow-hidden pb-20 pt-28 sm:pt-32">
+        <div
+          class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-gradient-to-b from-primary/10 via-primary/[0.03] to-transparent"
+          aria-hidden="true"
+        />
+
+        <div
+          class="pointer-events-none absolute -right-36 top-24 -z-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <div
+          class="pointer-events-none absolute -left-36 top-[420px] -z-10 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <a
+            href={`/careers/${careerOpening.slug}`}
+            class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 transition hover:text-primary dark:text-gray-400 dark:hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to job details
+          </a>
+
+          <header class="mt-8 max-w-4xl">
+            <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+              <BriefcaseBusiness className="h-4 w-4" />
+              Job application
+            </div>
+
+            <h1 class="mt-6 text-4xl font-bold tracking-tight text-heading sm:text-5xl lg:text-6xl">
+              Apply for{" "}
+              <span class="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
+                {careerOpening.title}
+              </span>
+            </h1>
+
+            <p class="mt-5 max-w-3xl text-base leading-8 text-gray-600 sm:text-lg dark:text-gray-400">
+              Complete the form below and submit your resume. Please ensure your
+              contact information and professional details are accurate before
+              submitting your application.
+            </p>
+          </header>
+
+          <div class="mt-12 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
+            <section class="order-2 rounded-3xl border border-box-border bg-white/75 p-5 shadow-xl shadow-black/[0.03] backdrop-blur-xl sm:p-8 dark:bg-box-bg/75 dark:shadow-black/20 lg:order-1">
+              <div class="border-b border-box-border pb-6">
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+                  Candidate information
+                </p>
+
+                <h2 class="mt-2 text-2xl font-bold text-heading sm:text-3xl">
+                  Submit your application
+                </h2>
+
+                <p class="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
+                  Fields marked with an asterisk are required. Your resume must
+                  be a PDF, DOC, or DOCX file and must not exceed 5 MB.
+                </p>
+              </div>
+
+              <div class="pt-7">
+                <ApplicationForm
+                  client:load
+                  jobOpeningId={careerOpening.id}
+                  jobTitle={careerOpening.title}
+                  jobSlug={careerOpening.slug}
+                />
+              </div>
+            </section>
+
+            <aside class="order-1 space-y-5 lg:sticky lg:top-28 lg:order-2">
+              <section class="overflow-hidden rounded-3xl border border-box-border bg-white/80 shadow-xl shadow-black/[0.03] backdrop-blur-xl dark:bg-box-bg/80 dark:shadow-black/20">
+                <div class="border-b border-box-border bg-gradient-to-br from-primary/15 via-primary/[0.06] to-emerald-400/10 p-6">
+                  <p class="text-sm font-semibold text-primary">
+                    Position summary
+                  </p>
+
+                  <h2 class="mt-2 text-2xl font-bold leading-tight text-heading">
+                    {careerOpening.title}
+                  </h2>
+
+                  {careerOpening.summary && (
+                    <p class="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
+                      {careerOpening.summary}
+                    </p>
+                  )}
+                </div>
+
+                <div class="space-y-5 p-6">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        Department
+                      </p>
+
+                      <p class="mt-1 font-medium text-heading">
+                        {careerOpening.department || "General"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        Location
+                      </p>
+
+                      <p class="mt-1 font-medium text-heading">
+                        {careerOpening.location || "Location flexible"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <BriefcaseBusiness className="h-5 w-5" />
+                    </div>
+
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        Employment
+                      </p>
+
+                      <p class="mt-1 font-medium text-heading">
+                        {formatEmploymentType(careerOpening.employment_type)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Clock3 className="h-5 w-5" />
+                    </div>
+
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        Workplace
+                      </p>
+
+                      <p class="mt-1 font-medium text-heading">
+                        {formatWorkplaceType(careerOpening.workplace_type)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {salary && (
+                    <div class="flex items-start gap-3">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <WalletCards className="h-5 w-5" />
+                      </div>
+
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                          Salary
+                        </p>
+
+                        <p class="mt-1 font-medium text-heading">{salary}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {deadline && (
+                    <div class="flex items-start gap-3">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <CalendarDays className="h-5 w-5" />
+                      </div>
+
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                          Application deadline
+                        </p>
+
+                        <p class="mt-1 font-medium text-heading">{deadline}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section class="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-6 dark:border-emerald-900/60 dark:bg-emerald-950/20">
+                <div class="flex items-start gap-3">
+                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+
+                  <div>
+                    <h2 class="font-semibold text-emerald-950 dark:text-emerald-200">
+                      Apply with confidence
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-emerald-800 dark:text-emerald-300">
+                      Your information will only be used to assess your
+                      suitability for this role and manage the recruitment
+                      process.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </main>
+    ) : (
+      <main class="flex min-h-[75vh] items-center py-28">
+        <div class="mx-auto w-full max-w-3xl px-4 text-center sm:px-6">
+          <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+            <BriefcaseBusiness className="h-9 w-9" />
+          </div>
+
+          <p class="mt-7 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+            Careers
+          </p>
+
+          <h1 class="mt-3 text-4xl font-bold text-heading sm:text-5xl">
+            This position is unavailable
+          </h1>
+
+          <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-400">
+            {loadError ??
+              "The job opening may have been removed, unpublished, or reached its application deadline."}
+          </p>
+
+          <a
+            href="/careers"
+            class="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            View available positions
+          </a>
+        </div>
+      </main>
+    )
+  }
+</Layout>

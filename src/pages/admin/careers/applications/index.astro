@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+import ApplicationTable from "../../../../components/admin/careers/ApplicationTable";
+---
+
+<AdminLayout title="Job Applications">
+  <Header
+    title="Review and manage candidates who applied for your available positions."
+  />
+  <main class="space-y-8">
+    <ApplicationTable client:load />
+  </main>
+</AdminLayout>

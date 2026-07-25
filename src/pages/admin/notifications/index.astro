@@ -1,0 +1,11 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import NotificationSettings from "../../../components/notifications/NotificationSettings";
+---
+
+<AdminLayout title="Notification Settings">
+  <Header title="Notification Settings" />
+
+  <NotificationSettings client:load />
+</AdminLayout>

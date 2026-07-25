@@ -1,0 +1,182 @@
+---
+import {
+  ArrowUpRight,
+  BriefcaseBusiness,
+  CalendarDays,
+  Clock3,
+  MapPin,
+  Star,
+  WalletCards,
+} from "lucide-astro";
+import type { CareerOpening } from "../../types/careers";
+
+interface Props {
+  careerOpening: CareerOpening;
+}
+
+const { careerOpening } = Astro.props;
+
+// Convert an underscore-separated database value into a readable label.
+function formatEnumLabel(value: string) {
+  return value
+    .split("_")
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+// Format a job deadline into a readable date.
+function formatDeadline(value: string | null) {
+  if (!value) {
+    return "No application deadline";
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+// Format a salary value using the selected currency.
+function formatSalary(value: number, currency: string) {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+// Build the public salary label when salary visibility is enabled.
+function getSalaryLabel(career: CareerOpening) {
+  if (!career.show_salary) {
+    return null;
+  }
+
+  const minimumSalary = career.salary_min;
+  const maximumSalary = career.salary_max;
+  const currency = career.salary_currency || "NGN";
+
+  if (minimumSalary !== null && maximumSalary !== null) {
+    return `${formatSalary(minimumSalary, currency)} – ${formatSalary(
+      maximumSalary,
+      currency
+    )}`;
+  }
+
+  if (minimumSalary !== null) {
+    return `From ${formatSalary(minimumSalary, currency)}`;
+  }
+
+  if (maximumSalary !== null) {
+    return `Up to ${formatSalary(maximumSalary, currency)}`;
+  }
+
+  return null;
+}
+
+const salaryLabel = getSalaryLabel(careerOpening);
+const employmentTypeLabel = formatEnumLabel(careerOpening.employment_type);
+const workplaceTypeLabel = formatEnumLabel(careerOpening.workplace_type);
+const publicCareerUrl = `/careers/${careerOpening.slug}/apply`;
+---
+
+<article
+  class:list={[
+    "group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white/70 p-6 shadow-sm backdrop-blur-xl transition duration-500 hover:-translate-y-2 hover:shadow-2xl dark:bg-box-bg/70 sm:p-7",
+    careerOpening.featured
+      ? "border-primary/40 shadow-primary/10"
+      : "border-box-border hover:border-primary/40",
+  ]}
+>
+  {
+    careerOpening.featured ? (
+      <div class="absolute right-5 top-5">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+          <Star class="h-3.5 w-3.5 fill-current" />
+          Featured
+        </span>
+      </div>
+    ) : null
+  }
+
+  <div
+    class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition duration-300 group-hover:scale-105"
+  >
+    <BriefcaseBusiness class="h-6 w-6" />
+  </div>
+
+  <div class="mt-6 pr-0 sm:pr-16">
+    <p class="text-sm font-semibold text-primary">
+      {careerOpening.department || "CloudTweak"}
+    </p>
+
+    <h2 class="mt-2 text-xl font-semibold leading-7 text-heading-1 sm:text-2xl">
+      <a href={publicCareerUrl} class="transition hover:text-primary">
+        {careerOpening.title}
+      </a>
+    </h2>
+  </div>
+
+  <div class="mt-5 flex flex-wrap gap-2">
+    <span
+      class="inline-flex items-center gap-1.5 rounded-full border border-box-border px-3 py-1.5 text-xs font-medium text-heading-3"
+    >
+      <MapPin class="h-3.5 w-3.5" />
+      {careerOpening.location || "Location flexible"}
+    </span>
+
+    <span
+      class="inline-flex items-center gap-1.5 rounded-full border border-box-border px-3 py-1.5 text-xs font-medium text-heading-3"
+    >
+      <Clock3 class="h-3.5 w-3.5" />
+      {employmentTypeLabel}
+    </span>
+
+    <span
+      class="inline-flex items-center gap-1.5 rounded-full border border-box-border px-3 py-1.5 text-xs font-medium text-heading-3"
+    >
+      <BriefcaseBusiness class="h-3.5 w-3.5" />
+      {workplaceTypeLabel}
+    </span>
+  </div>
+
+  <p class="mt-5 line-clamp-3 text-sm leading-7 text-heading-3">
+    {careerOpening.summary}
+  </p>
+
+  <div class="mt-6 space-y-3 border-t border-box-border pt-5">
+    <p class="flex items-start gap-2 text-sm text-heading-3">
+      <CalendarDays class="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+      <span>
+        Apply by
+        <span class="ml-1 font-medium text-heading-1">
+          {formatDeadline(careerOpening.application_deadline)}
+        </span>
+      </span>
+    </p>
+
+    {
+      salaryLabel ? (
+        <p class="flex items-start gap-2 text-sm text-heading-3">
+          <WalletCards class="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <span class="font-medium text-heading-1">{salaryLabel}</span>
+        </p>
+      ) : null
+    }
+  </div>
+
+  <div class="mt-auto pt-7">
+    <a
+      href={publicCareerUrl}
+      class="inline-flex items-center gap-2 text-sm font-semibold text-primary"
+    >
+      View position
+
+      <ArrowUpRight
+        class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+      />
+    </a>
+  </div>
+</article>

@@ -1,0 +1,86 @@
+---
+import { ArrowDown, BriefcaseBusiness, Sparkles } from "lucide-astro";
+
+interface Props {
+  openingCount: number;
+}
+
+const { openingCount } = Astro.props;
+
+// Return the correct position count label for the available openings.
+function getOpeningCountLabel(count: number) {
+  if (count === 0) {
+    return "No Open Positions";
+  }
+
+  if (count === 1) {
+    return "1 Open Position";
+  }
+
+  return `${count} Open Positions`;
+}
+
+const openingCountLabel = getOpeningCountLabel(openingCount);
+---
+
+<section
+  class="relative overflow-hidden border-b border-box-border bg-gradient-to-br from-primary/10 via-transparent to-emerald-500/10"
+>
+  <div
+    class="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-primary/10 blur-3xl"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl"
+  >
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28 lg:px-10">
+    <div class="mx-auto max-w-4xl text-center">
+      <div
+        class="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
+      >
+        <Sparkles class="h-4 w-4" />
+        Careers at CloudTweak
+      </div>
+
+      <h1
+        class="mt-7 text-4xl font-bold leading-tight text-heading-1 sm:text-5xl lg:text-6xl"
+      >
+        Build technology that helps
+        <span
+          class="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent"
+        >
+          businesses thrive
+        </span>
+      </h1>
+
+      <p
+        class="mx-auto mt-6 max-w-2xl text-base leading-8 text-heading-3 sm:text-lg"
+      >
+        Join a team delivering practical Microsoft 365, cloud, AI and technology
+        solutions that make work simpler, safer and more productive.
+      </p>
+
+      <div
+        class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+      >
+        <a
+          href="#open-positions"
+          class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition duration-300 hover:-translate-y-0.5 hover:opacity-90"
+        >
+          View open positions
+          <ArrowDown class="h-4 w-4" />
+        </a>
+
+        <div
+          class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-box-border bg-white/60 px-6 text-sm font-medium text-heading-1 backdrop-blur-xl dark:bg-box-bg/60"
+        >
+          <BriefcaseBusiness class="h-4 w-4 text-primary" />
+          {openingCountLabel}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

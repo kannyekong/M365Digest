@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   deleteNotification,
   getNotifications,
@@ -7,6 +7,12 @@ import {
   subscribeToNotifications,
   unsubscribeFromNotifications,
 } from "../lib/notifications";
+import { showNotificationEffects } from "../lib/notificationEffects";
+import {
+  getNotificationPreferences,
+  NOTIFICATION_PREFERENCES_EVENT,
+  type NotificationPreferences,
+} from "../lib/notificationPreferences";
 import type { Notification } from "../types/notification";
 
 export function useNotifications() {
@@ -21,6 +27,14 @@ export function useNotifications() {
 
   // Store a user-facing error message when a request fails.
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Store the administrator's current local notification preferences.
+  const notificationPreferencesRef = useRef<NotificationPreferences>(
+    getNotificationPreferences()
+  );
+
+  // Track Realtime records already handled by this hook instance.
+  const displayedNotificationIdsRef = useRef<Set<string>>(new Set());
 
   // Calculate the current unread notification count from local state.
   const unreadCount = useMemo(() => {
@@ -39,6 +53,11 @@ export function useNotifications() {
 
       // Store the returned records in local state.
       setNotifications(notificationRecords);
+
+      // Mark existing records as known so page loading does not produce alerts.
+      displayedNotificationIdsRef.current = new Set(
+        notificationRecords.map((notification) => notification.id)
+      );
     } catch (error) {
       // Log the full request error for debugging.
       console.error("Failed to load notifications:", error);
@@ -127,6 +146,9 @@ export function useNotifications() {
           (notification) => notification.id !== notificationId
         )
       );
+
+      // Remove the notification from the duplicate-protection cache.
+      displayedNotificationIdsRef.current.delete(notificationId);
     } catch (error) {
       // Log the delete error for debugging.
       console.error("Failed to delete notification:", error);
@@ -146,14 +168,66 @@ export function useNotifications() {
     [notifications]
   );
 
+  // Keep the hook synchronized with notification preference changes.
+  useEffect(() => {
+    // Refresh preferences when another browser tab changes local storage.
+    const handleStorageChange = (event: StorageEvent) => {
+      if (
+        event.key === null ||
+        event.key === "cloudtweak_notification_preferences"
+      ) {
+        notificationPreferencesRef.current = getNotificationPreferences();
+      }
+    };
+
+    // Refresh preferences when the settings component changes them.
+    const handlePreferenceChange = (event: Event) => {
+      const customEvent = event as CustomEvent<NotificationPreferences>;
+
+      notificationPreferencesRef.current = customEvent.detail;
+    };
+
+    // Subscribe to local preference changes.
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener(
+      NOTIFICATION_PREFERENCES_EVENT,
+      handlePreferenceChange
+    );
+
+    // Remove preference event listeners when the hook unmounts.
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(
+        NOTIFICATION_PREFERENCES_EVENT,
+        handlePreferenceChange
+      );
+    };
+  }, []);
+
   // Load notifications and subscribe to Supabase Realtime changes.
   useEffect(() => {
+    // Track whether this hook instance has already been cleaned up.
+    let isActive = true;
+
     // Load the existing notification records.
-    loadNotifications();
+    void loadNotifications();
 
     // Listen for inserted and updated notification records.
     const channel = subscribeToNotifications(
       (newNotification) => {
+        // Stop handling events after this hook has unmounted.
+        if (!isActive) {
+          return;
+        }
+
+        // Ignore Realtime duplicates caused by channel reconnections.
+        if (displayedNotificationIdsRef.current.has(newNotification.id)) {
+          return;
+        }
+
+        // Remember the notification before starting asynchronous effects.
+        displayedNotificationIdsRef.current.add(newNotification.id);
+
         // Add the newest notification to the beginning of the list.
         setNotifications((currentNotifications) => [
           newNotification,
@@ -161,8 +235,19 @@ export function useNotifications() {
             (notification) => notification.id !== newNotification.id
           ),
         ]);
+
+        // Run the enabled toast, sound and browser effects.
+        void showNotificationEffects(
+          newNotification,
+          notificationPreferencesRef.current
+        );
       },
       (updatedNotification) => {
+        // Stop handling events after this hook has unmounted.
+        if (!isActive) {
+          return;
+        }
+
         // Replace the existing notification with its latest database state.
         setNotifications((currentNotifications) =>
           currentNotifications.map((notification) =>
@@ -176,6 +261,7 @@ export function useNotifications() {
 
     // Remove the Realtime subscription when the hook unmounts.
     return () => {
+      isActive = false;
       void unsubscribeFromNotifications(channel);
     };
   }, [loadNotifications]);

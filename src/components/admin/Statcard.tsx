@@ -1,9 +1,26 @@
-import { FileText, CheckCircle, FileClock, Eye } from "lucide-react";
+import {
+  FileText,
+  CheckCircle,
+  FileClock,
+  Eye,
+  Archive,
+  FilePenLine,
+  BriefcaseBusiness,
+  Rocket,
+} from "lucide-react";
 
 interface Props {
   title: string;
   value: number | string;
-  icon: "articles" | "published" | "drafts" | "views";
+  icon:
+    | "articles"
+    | "published"
+    | "drafts"
+    | "views"
+    | "openings"
+    | "published"
+    | "drafts"
+    | "closed";
   color?: string;
 }
 
@@ -32,6 +49,10 @@ export default function StatCard({
           {icon === "drafts" && <FileClock className="w-4 h-4" />}
 
           {icon === "views" && <Eye className="w-4 h-4" />}
+
+          {icon === "openings" && <BriefcaseBusiness className="w-4 h-4" />}
+
+          {icon === "closed" && <Archive className="w-4 h-4" />}
         </div>
       </div>
     </div>

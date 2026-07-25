@@ -1,0 +1,118 @@
+---
+import "../../styles/global.css";
+import Layout from "../../layouts/Layout.astro";
+import CareerCard from "../../components/careers/CareerCard.astro";
+import CareerEmptyState from "../../components/careers/CareerEmptyState.astro";
+import CareerHero from "../../components/careers/CareerHero.astro";
+import { getPublishedCareerOpenings } from "../../lib/careers";
+import type { CareerOpening } from "../../types/careers";
+
+let careerOpenings: CareerOpening[] = [];
+let careersError = "";
+
+try {
+  // Retrieve only published career openings whose deadlines have not expired.
+  careerOpenings = await getPublishedCareerOpenings();
+} catch (error) {
+  // Log the complete Supabase error for server-side debugging.
+  console.error("Failed to load public career openings:", error);
+
+  // Store a safe error message for the public page.
+  careersError = "We could not load the available positions at the moment.";
+}
+
+const pageTitle = "Careers at CloudTweak";
+const pageDescription =
+  "Explore career opportunities at CloudTweak and join a team delivering Microsoft 365, cloud, AI and technology solutions.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <main>
+    <CareerHero openingCount={careerOpenings.length} />
+
+    <section id="open-positions" class="scroll-mt-24 py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <div
+          class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div>
+            <p
+              class="text-sm font-semibold uppercase tracking-wider text-primary"
+            >
+              Join our team
+            </p>
+
+            <h2 class="mt-3 text-3xl font-semibold text-heading-1 sm:text-4xl">
+              Open positions
+            </h2>
+
+            <p
+              class="mt-3 max-w-2xl text-sm leading-7 text-heading-3 sm:text-base"
+            >
+              Explore our current opportunities and find a role where your
+              skills, curiosity and ideas can make an impact.
+            </p>
+          </div>
+
+          {
+            careerOpenings.length > 0 ? (
+              <p class="rounded-full border border-box-border px-4 py-2 text-sm font-medium text-heading-3">
+                {careerOpenings.length === 1
+                  ? "1 opportunity available"
+                  : `${careerOpenings.length} opportunities available`}
+              </p>
+            ) : null
+          }
+        </div>
+
+        {
+          careersError ? (
+            <div class="rounded-3xl border border-red-200 bg-red-50 px-6 py-12 text-center dark:border-red-500/30 dark:bg-red-500/10">
+              <h2 class="text-xl font-semibold text-red-700 dark:text-red-300">
+                Positions could not be loaded
+              </h2>
+
+              <p class="mx-auto mt-3 max-w-lg text-sm leading-7 text-red-600 dark:text-red-300">
+                {careersError} Please refresh the page or check again shortly.
+              </p>
+            </div>
+          ) : careerOpenings.length > 0 ? (
+            <div class="grid grid-cols-1 gap-7 md:grid-cols-2 xl:grid-cols-3">
+              {careerOpenings.map((careerOpening) => (
+                <CareerCard careerOpening={careerOpening} />
+              ))}
+            </div>
+          ) : (
+            <CareerEmptyState />
+          )
+        }
+      </div>
+    </section>
+
+    <section class="pb-16 sm:pb-20 lg:pb-24">
+      <div class="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <div
+          class="overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-emerald-500/10 p-7 text-center sm:p-12"
+        >
+          <h2 class="text-2xl font-semibold text-heading-1 sm:text-3xl">
+            Do not see the right opportunity?
+          </h2>
+
+          <p
+            class="mx-auto mt-3 max-w-2xl text-sm leading-7 text-heading-3 sm:text-base"
+          >
+            New opportunities are added as CloudTweak grows. Visit again soon or
+            contact us to learn more about our work and future openings.
+          </p>
+
+          <a
+            href="#tally-open=VL4vdg&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave"
+            class="mt-7 inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary px-6 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Get in touch
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

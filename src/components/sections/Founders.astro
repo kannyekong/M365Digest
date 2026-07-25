@@ -1,0 +1,171 @@
+---
+import { ArrowUpRight, Mail } from "lucide-react";
+import Container from "../shared/Container.astro";
+import { supabase } from "../../lib/superbase";
+
+/* Retrieves every staff member assigned to the Operations department. */
+const { data: leadershipData, error } = await supabase
+  .from("staff")
+  .select(
+    `
+      id,
+      first_name,
+      last_name,
+      position,
+      avatar_url,
+      email,
+      department
+    `
+  )
+  .ilike("department", "operations");
+
+/* Converts position values to lowercase so leadership matching is consistent. */
+const normalizePosition = (position: string | null) =>
+  position?.trim().toLowerCase() ?? "";
+
+/* Determines whether a staff member holds the CEO position. */
+const isCEO = (position: string | null) => {
+  const normalizedPosition = normalizePosition(position);
+
+  return (
+    normalizedPosition === "ceo" ||
+    normalizedPosition === "chief executive officer"
+  );
+};
+
+/* Sorts the Operations team so the CEO always appears before every other leader. */
+const sortedLeadership = [...(leadershipData ?? [])].sort((a, b) => {
+  const aIsCEO = isCEO(a.position);
+  const bIsCEO = isCEO(b.position);
+
+  if (aIsCEO && !bIsCEO) return -1;
+  if (!aIsCEO && bIsCEO) return 1;
+
+  return (a.first_name, a.last_name ?? "").localeCompare(
+    b.first_name,
+    b.last_name ?? ""
+  );
+});
+
+/* Separates the CEO from the remaining members for the featured card layout. */
+const ceo = sortedLeadership.find((member) => isCEO(member.position));
+
+/* Keeps the remaining Operations staff in the supporting leadership cards. */
+const otherLeaders = sortedLeadership.filter(
+  (member) => !isCEO(member.position)
+);
+---
+
+<section
+  class="relative overflow-hidden mt-12 "
+  aria-labelledby="leadership-heading"
+>
+  <Container>
+    <div
+      class="relative overflow-hidden rounded-3xl border border-box-border bg-gradient-to-br from-primary/10 via-box-bg/70 to-pink-500/10 p-6 backdrop-blur-xl sm:p-8 lg:p-12"
+    >
+      <div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
+        <div>
+          <p
+            class="text-sm font-semibold uppercase tracking-[0.18em] text-primary"
+          >
+            Meet the leadership
+          </p>
+
+          <h2
+            id="leadership-heading"
+            class="mt-4 text-3xl font-bold tracking-tight text-heading sm:text-4xl"
+          >
+            The people driving CloudTweak forward.
+          </h2>
+
+          <p class="mt-5 text-base leading-8 text-text-muted">
+            CloudTweak is led by a passionate team of technology professionals
+            committed to helping businesses modernize, innovate, and grow
+            through cloud solutions, software development, and strategic IT
+            consulting.
+          </p>
+
+          <p class="mt-4 text-base leading-8 text-text-muted">
+            Combining deep technical expertise with a customer-first mindset,
+            our leadership delivers practical, secure, and scalable solutions
+            while empowering the next generation of IT professionals through
+            hands-on training and continuous innovation.
+          </p>
+        </div>
+
+        {
+          error ? (
+            <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-sm text-red-500">
+              We could not load the leadership team at this time.
+            </div>
+          ) : (
+            <div class="grid gap-5 md:grid-cols-2">
+              {ceo && (
+                <article class="group relative overflow-hidden p-5 transition-all duration-500 hover:-translate-y-1 md:row-span-2">
+                  <div class="relative min-h-[360px] overflow-hidden rounded-2xl sm:min-h-[420px]">
+                    <img
+                      src={ceo.avatar_url || "/images/founders/placeholder.jpg"}
+                      alt={`${ceo.first_name + " " + ceo.last_name}, ${ceo.position}`}
+                      width="720"
+                      height="880"
+                      loading="lazy"
+                      class="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-105"
+                    />
+
+                    <span class="absolute left-4 top-4 rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                      Executive leadership
+                    </span>
+
+                    <div class="absolute inset-x-0 bottom-0 p-5">
+                      <h3 class="text-2xl font-bold text-white">
+                        {ceo.first_name + " " + ceo.last_name}
+                      </h3>
+
+                      <p class="mt-1 text-sm font-semibold text-white/80">
+                        {ceo.position}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-3" />
+                </article>
+              )}
+
+              {otherLeaders.map((member) => (
+                <article class="group relative overflow-hidden rounded-3xl border border-box-border shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
+                  <div class="relative h-[280px] overflow-hidden">
+                    <img
+                      src={
+                        member.avatar_url || "/images/founders/placeholder.jpg"
+                      }
+                      alt={`${member.first_name} ${member.last_name}, ${member.position}`}
+                      width="600"
+                      height="700"
+                      loading="lazy"
+                      class="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-105"
+                    />
+
+                    <span class="absolute left-4 top-4 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                      Leadership
+                    </span>
+
+                    <div class="absolute inset-x-0 bottom-0 p-5">
+                      <h3 class="text-xl font-bold text-white">
+                        {member.first_name} {member.last_name}
+                      </h3>
+
+                      <p class="mt-1 text-sm font-medium text-white/80">
+                        {member.position}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </Container>
+</section>
