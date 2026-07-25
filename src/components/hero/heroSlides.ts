@@ -42,33 +42,10 @@ export const heroSlides: HeroSlide[] = [
   },
 
   {
-    id: 2,
-
-    title:
-      "Accelerate your career with practical, hands-on training and get a recognized certificate.",
-
-    description:
-      "Master Microsoft 365 Administration through real-world labs covering Exchange Online, SharePoint, Teams, OneDrive, Entra ID and Microsoft Copilot.",
-
-    image: "/images/bg.png",
-
-    primaryButton: {
-      text: "Enroll Today",
-      href: "/bootcamp",
-      color: "bg-pink-600",
-    },
-
-    secondaryButton: {
-      text: "View Curriculum",
-      href: "/bootcamp",
-      color: "bg-primary",
-    },
-  },
-
-  {
     id: 3,
 
-    title: "Reliable IT consulting, enterprise support and training you can depend on.",
+    title:
+      "Reliable IT consulting, enterprise support and training you can depend on.",
 
     description:
       "Whether you need cloud migration, networking, Microsoft 365 administration or ongoing IT support, CloudTweak is your trusted technology partner.",
