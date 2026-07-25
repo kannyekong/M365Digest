@@ -44,12 +44,12 @@ export default function HeroCarousel() {
       <div className="grid items-center gap-12 lg:grid-cols-2 md:mt-12">
         {/* Left Content */}
         <div>
-          <div className="min-h-[170px]">
+          <div className="md:min-h-[170px]">
             <h1 className="text-4xl/tight md:text-5xl/tight xl:text-5xl/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent">
               {slide.title}
             </h1>
           </div>
-          <div className="min-h-[150px]">
+          <div className="md:min-h-[150px]">
             <p className="mt-2 text-lg leading-8 dark:text-white">
               {slide.description}
             </p>
@@ -58,14 +58,14 @@ export default function HeroCarousel() {
           <div className="mt-4 flex flex-wrap gap-4">
             <a
               href={slide.primaryButton.href}
-              className={`${slide.primaryButton.color} rounded-xl px-3 py-3 font-semibold text-white transition`}
+              className={`${slide.primaryButton.color} rounded-full px-3 py-3 font-semibold text-white transition`}
             >
               {slide.primaryButton.text}
             </a>
 
             <a
               href={slide.secondaryButton.href}
-              className={`${slide.secondaryButton.color} rounded-xl px-3 py-3 font-semibold text-white transition`}
+              className={`${slide.secondaryButton.color} rounded-full px-3 py-3 font-semibold text-white transition`}
             >
               {slide.secondaryButton.text}
             </a>

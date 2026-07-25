@@ -30,7 +30,7 @@ export const heroSlides: HeroSlide[] = [
 
     primaryButton: {
       text: "Request a quote",
-      href: "/bootcamp",
+      href: "#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1",
       color: "bg-pink-600",
     },
 
