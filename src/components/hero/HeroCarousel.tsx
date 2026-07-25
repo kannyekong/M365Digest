@@ -41,7 +41,7 @@ export default function HeroCarousel() {
       {/* Background Blur */}
       <div className="absolute left-24 top-20 h-40 w-40 rounded-full bg-pink-500/30 blur-3xl" />
 
-      <div className="grid items-center gap-12 lg:grid-cols-2 mt-12">
+      <div className="grid items-center gap-12 lg:grid-cols-2 md:mt-12">
         {/* Left Content */}
         <div>
           <div className="min-h-[170px]">
