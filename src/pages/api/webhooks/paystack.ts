@@ -4,6 +4,24 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const prerender = false;
 
+/**
+ * Confirm that the Paystack webhook route is deployed.
+ */
+export const GET: APIRoute = async () => {
+  return new Response(
+    JSON.stringify({
+      success: true,
+      message: "Paystack webhook endpoint is active.",
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 interface PaystackChargeData {
   id: number;
   status: string;
