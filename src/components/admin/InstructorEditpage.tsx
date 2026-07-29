@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import InstructorForm from "./InstructorForm";
-import type { BootcampInstructor } from "../../lib/academy_instructors";
+import type { AcademyInstructor } from "../../types/academy";
 import { getInstructorById } from "../../lib/academy_instructors";
 import { updateInstructor } from "../../lib/academy_instructors";
 
@@ -13,7 +13,7 @@ export default function InstructorEditPage({ instructorId }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [instructor, setInstructor] = useState<BootcampInstructor | null>(null);
+  const [instructor, setInstructor] = useState<AcademyInstructor | null>(null);
 
   useEffect(() => {
     loadInstructor();
@@ -35,7 +35,7 @@ export default function InstructorEditPage({ instructorId }: Props) {
     setLoading(false);
   }
 
-  async function save(values: Partial<BootcampInstructor>) {
+  async function save(values: Partial<AcademyInstructor>) {
     setSaving(true);
 
     const { error } = await updateInstructor(instructorId, values);

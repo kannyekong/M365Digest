@@ -1,14 +1,14 @@
-import type { BootcampInstructor } from "../../lib/academy_instructors";
 import { Pencil, Trash2, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { deleteCoverImage } from "../../lib/storage";
+import type { AcademyInstructor } from "../../types/academy";
 
 import {
   deleteInstructor,
   listInstructors,
 } from "../../lib/academy_instructors";
 
-async function handleDelete(instructor: BootcampInstructor) {
+async function handleDelete(instructor: AcademyInstructor) {
   const confirmed = window.confirm(
     `Are you sure you want to permanently delete "${instructor.full_name}"?\n\nThis action cannot be undone.`
   );
@@ -33,7 +33,7 @@ async function handleDelete(instructor: BootcampInstructor) {
 }
 
 interface Props {
-  instructors: BootcampInstructor[];
+  instructors: AcademyInstructor[];
   reload: () => void;
 }
 

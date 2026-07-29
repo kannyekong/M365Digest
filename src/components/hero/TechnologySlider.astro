@@ -1,0 +1,83 @@
+---
+const technologies = [
+  {
+    name: "Power Automate",
+    logo: "/images/tech/automatelogo.png",
+  },
+  {
+    name: "Power Apps",
+    logo: "/images/tech/powerapps.png",
+  },
+  {
+    name: "Copilot",
+    logo: "/images/tech/copilot.jpg",
+  },
+  {
+    name: "Make",
+    logo: "/images/tech/m365.jpg",
+  },
+  {
+    name: "n8n",
+    logo: "/images/tech/n8n.png",
+  },
+  {
+    name: "Zapier",
+    logo: "/images/tech/zap.png",
+  },
+
+  {
+    name: "Make",
+    logo: "/images/tech/makelogo.png",
+  },
+];
+---
+
+<section class="py-8 overflow-hidden border-box-border mt-4">
+  <div class="text-center mb-10">
+    <p
+      class="uppercase tracking-[0.3em] text-xs font-semibold text-gray-500 dark:text-gray-400"
+    >
+      Our Technology Ecosystem
+    </p>
+  </div>
+
+  <div class="relative">
+    <!-- Fade Left -->
+
+    <div class="slider-track">
+      {
+        [...technologies, ...technologies].map((tech) => (
+          <div class="mx-14 flex flex-col items-center justify-center shrink-0 opacity-70 hover:opacity-100 transition duration-300">
+            <img
+              src={tech.logo}
+              alt={tech.name}
+              class="h-14 w-auto object-contain transition duration-500"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .slider-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 45s linear infinite;
+  }
+
+  .slider-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>
