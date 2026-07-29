@@ -3,11 +3,15 @@ import { getAllPosts } from "../lib/blog";
 import { getDashboardAnalytics } from "../lib/blog";
 import {
   Award,
+  BadgeDollarSign,
   Briefcase,
   CirclePlus,
   Cog,
+  ContactRound,
+  FolderOpenDot,
   PencilIcon,
   Podium,
+  ScanEye,
   StarPlus,
   Trophy,
   Users,
@@ -18,6 +22,7 @@ import { getDashboardStats } from "../lib/getDashboardStats";
 import TaskWidget from "../components/admin/tasks/TaskWidget";
 import { getTaskCounts } from "../lib/tasks";
 import { getStaffSummary } from "../lib/staff";
+import RevenueCard from "../components/admin/RevenueCard";
 
 const dashboard = await getDashboardStats();
 
@@ -126,7 +131,7 @@ export default function AdminDashboard() {
   }
   return (
     <>
-      <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-5 xl:grid-cols-5">
         <SingleStatCard
           title="Articles"
           value1={totalPosts}
@@ -176,7 +181,7 @@ export default function AdminDashboard() {
         />
 
         <SingleStatCard
-          title="Engagements"
+          title="Insights"
           value1={dashboard.totalEngagement}
           subtitle="Interactions"
           value2={dashboard.contacts}
@@ -186,9 +191,20 @@ export default function AdminDashboard() {
           value4={dashboard.registrations}
           subtitleFour="Registrations"
           value5={dashboard.quotes}
-          subtitleFive="/admin/forms/contact"
+          subtitleFive="/admin/insights"
           icon="engagements"
           color="blue"
+        />
+
+        <RevenueCard
+          totalRevenue={12400000}
+          monthlyRevenue={2850000}
+          // todayRevenue={450000}
+          outstandingRevenue={3100000}
+          percentageChange={18.4}
+          // currency="NGN"
+          manageHref="/admin/finance"
+          // lastUpdated="Last updated 5 minutes ago"
         />
       </div>
 
@@ -201,10 +217,10 @@ export default function AdminDashboard() {
               <mark className="mb-2 text-xs p-1 rounded-r-full bg-orange-700 text-white">
                 Quick Actions
               </mark>
-              <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-4 xl:grid-cols-4">
                 <a
                   href="/admin/blog/new"
-                  className="flex flex-col items-center rounded-r-2xl border border-orange-700 p-6 shadow-sm bg-white hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-r-2xl border border-orange-700 p-6 shadow-sm bg-white hover:shadow-lg transition"
                 >
                   <p className="text-center text-xs">Create new article</p>
 
@@ -216,7 +232,7 @@ export default function AdminDashboard() {
 
                 <a
                   href="/admin/blog/articles"
-                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-blue-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-2xl bg-blue-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-center text-xs">Manage articles</p>
 
@@ -225,7 +241,7 @@ export default function AdminDashboard() {
 
                 <a
                   href="/admin/bootcamp/bootcamp"
-                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-green-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-2xl bg-green-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-center text-xs">Manage Bootcamp</p>
 
@@ -234,7 +250,7 @@ export default function AdminDashboard() {
 
                 <a
                   href="/admin/profile/profile"
-                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-yellow-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-2xl bg-yellow-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-xs text-center">Manage Settings</p>
 
@@ -243,7 +259,7 @@ export default function AdminDashboard() {
 
                 <a
                   href="/admin/services"
-                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-purple-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-2xl bg-purple-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-xs text-center">Manage Services</p>
 
@@ -252,11 +268,29 @@ export default function AdminDashboard() {
 
                 <a
                   href="/admin/bootcamp/instructors"
-                  className="flex flex-col items-center rounded-2xl border border-slate-200 bg-pink-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                  className="flex flex-col items-center rounded-2xl bg-cyan-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-xs text-center">Manage Instructors</p>
 
-                  <Users size={40} className="text-pink-700" />
+                  <Users size={40} className="text-cyan-700" />
+                </a>
+
+                <a
+                  href="/admin/careers/applications"
+                  className="flex flex-col items-center rounded-2xl bg-orange-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <p className="text-xs text-center">Manage Careers</p>
+
+                  <ContactRound size={40} className="text-orange-700" />
+                </a>
+
+                <a
+                  href="/admin/"
+                  className="flex flex-col items-center rounded-2xl bg-pink-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <p className="text-xs text-center">Manage Revenue</p>
+
+                  <BadgeDollarSign size={40} className="text-pink-700" />
                 </a>
               </div>
             </div>
@@ -317,14 +351,19 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-pink-500 p-5 text-white shadow-lg">
-            <p className="text-sm opacity-80">Total Views</p>
+          <div className="rounded-2xl p-5 text-black border-4 border-blue-600 shadow-lg">
+            <div className="flex flex-row gap-2">
+              <ScanEye className="text-blue-500" />
+              <p className="text-sm opacity-80 font-bold text-blue-500">
+                TOTAL VIEWS
+              </p>
+            </div>
 
-            <h2 className="mt-2 text-5xl font-bold">
+            <h2 className="mt-2 text-5xl font-bold text-blue-500">
               {totalViews.toLocaleString()}
             </h2>
 
-            <p className="mt-2 text-sm opacity-80">
+            <p className="mt-2 text-sm opacity-80 text-blue-500">
               Across all published articles
             </p>
           </div>

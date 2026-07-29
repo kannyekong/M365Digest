@@ -1,0 +1,127 @@
+<div
+  class="site-preloader fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-all duration-500 dark:bg-[#020617]"
+  aria-label="Loading website"
+  aria-live="polite"
+  role="status"
+>
+  <div class="flex w-full max-w-md flex-col items-center px-8">
+    <div class="logo-wrapper">
+      <img
+        src="/logos/cloudtweaklogo.png"
+        alt="CloudTweak"
+        class="preloader-logo h-auto w-full max-w-[320px]"
+      />
+    </div>
+
+    <div
+      class="mt-10 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800"
+    >
+      <div class="progress-bar h-full rounded-full"></div>
+    </div>
+
+    <p
+      class="mt-4 text-sm tracking-[0.25em] text-slate-500 dark:text-slate-400"
+    >
+      LOADING
+    </p>
+  </div>
+</div>
+
+<style>
+  /* Keeps the preloader hidden after it has completed. */
+  :global(html.site-loaded .site-preloader) {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(1.02);
+  }
+
+  /* Adds a subtle floating motion to the logo. */
+  .logo-wrapper {
+    animation: logo-float 2s ease-in-out infinite;
+  }
+
+  /* Adds a restrained pulse and glow without changing the logo artwork. */
+  .preloader-logo {
+    animation: logo-pulse 1.8s ease-in-out infinite;
+  }
+
+  /* Animates continuously until the page has completely loaded. */
+  .progress-bar {
+    width: 40%;
+    background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #ec4899 100%);
+    animation: loading-progress 1.2s ease-in-out infinite;
+  }
+
+  /* Moves the logo gently upward and downward. */
+  @keyframes logo-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Creates a subtle breathing effect around the original logo. */
+  @keyframes logo-pulse {
+    0%,
+    100% {
+      opacity: 0.88;
+      filter: drop-shadow(0 0 8px rgb(37 99 235 / 20%));
+      transform: scale(0.98);
+    }
+
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 14px rgb(37 99 235 / 35%))
+        drop-shadow(0 0 20px rgb(236 72 153 / 18%));
+      transform: scale(1);
+    }
+  }
+
+  /* Slides the progress indicator across the loading track. */
+  @keyframes loading-progress {
+    0% {
+      transform: translateX(-120%);
+    }
+
+    100% {
+      transform: translateX(350%);
+    }
+  }
+
+  /* Reduces animation for visitors who prefer limited motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .logo-wrapper,
+    .preloader-logo,
+    .progress-bar {
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  // Hides the preloader after all page resources have finished loading.
+  function hideSitePreloader() {
+    document.documentElement.classList.add("site-loaded");
+  }
+
+  // Resets the preloader when Astro begins loading another page.
+  function showSitePreloader() {
+    document.documentElement.classList.remove("site-loaded");
+  }
+
+  // Immediately hides the loader when the browser has already completed loading.
+  if (document.readyState === "complete") {
+    hideSitePreloader();
+  } else {
+    window.addEventListener("load", hideSitePreloader, { once: true });
+  }
+
+  // Supports navigation when Astro View Transitions are enabled.
+  document.addEventListener("astro:before-preparation", showSitePreloader);
+  document.addEventListener("astro:page-load", hideSitePreloader);
+</script>

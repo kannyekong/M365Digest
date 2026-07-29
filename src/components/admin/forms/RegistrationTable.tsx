@@ -200,7 +200,7 @@ export default function RegistrationTable({ registrations, reload }: Props) {
   // Display the empty state when no registrations exist.
   if (!registrations.length) {
     return (
-      <div className="p-12">
+      <div className="p-5">
         <h1 className="text-xl font-bold">Registration Table</h1>
 
         <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
@@ -217,7 +217,7 @@ export default function RegistrationTable({ registrations, reload }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       <h1 className="text-xl font-bold">Registration Table</h1>
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">

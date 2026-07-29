@@ -1,68 +1,178 @@
 ---
-import { Eye, Rocket, Lightbulb } from "lucide-astro";
+import { Eye, Lightbulb, Rocket } from "lucide-astro";
+
+/**
+ * Stores the content, images, icons, colours, and overlay styles
+ * used to generate the Vision, Mission, and Purpose cards.
+ */
+const values = [
+  {
+    label: "Our Vision",
+    heading: "Shaping the Future of Cloud Excellence",
+    description:
+      "To become a trusted global destination for cloud technology knowledge, empowering businesses and IT professionals with practical insights, innovative solutions, and expert guidance across the Microsoft ecosystem.",
+    image: "/images/obiora.png",
+    imageAlt:
+      "Global cloud infrastructure representing CloudTweak's future vision",
+    icon: Eye,
+    iconBackground: "from-blue-500 to-indigo-600",
+    labelColor: "text-blue-300",
+    overlay: "from-slate-950/95 via-slate-900/75 to-blue-950/55",
+    glow: "bg-blue-500/25",
+  },
+  {
+    label: "Our Mission",
+    heading: "Simplifying Cloud Transformation",
+    description:
+      "To simplify complex cloud technologies through high-quality tutorials, real-world solutions, and actionable best practices that enable organizations to deploy, secure, and optimize Microsoft 365 with confidence.",
+    image: "/images/checker.png",
+    imageAlt: "Technology professionals collaborating on cloud solutions",
+    icon: Rocket,
+    iconBackground: "from-emerald-500 to-cyan-500",
+    labelColor: "text-emerald-300",
+    overlay: "from-slate-950/95 via-slate-900/75 to-emerald-950/55",
+    glow: "bg-emerald-500/25",
+  },
+  {
+    label: "Our Purpose",
+    heading: "Technology That Creates Meaningful Impact",
+    description:
+      "CloudTweak exists to bridge the gap between technical complexity and practical implementation. We provide reliable resources that solve real-world challenges, encourage continuous learning, and help organizations maximize the value of modern cloud technologies.",
+    image: "/images/ayo.png",
+    imageAlt: "Digital innovation representing CloudTweak's purpose",
+    icon: Lightbulb,
+    iconBackground: "from-violet-500 to-fuchsia-500",
+    labelColor: "text-violet-300",
+    overlay: "from-slate-950/95 via-slate-900/75 to-violet-950/55",
+    glow: "bg-violet-500/25",
+  },
+];
 ---
 
-<section class="py-24">
+<section
+  class="relative isolate overflow-hidden py-20 sm:py-24 lg:py-28"
+  aria-labelledby="vision-mission-purpose-heading"
+>
+  <div
+    class="pointer-events-none absolute left-0 top-1/4 -z-10 h-72 w-72 rounded-full bg-primary/10 blur-[120px]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="pointer-events-none absolute bottom-0 right-0 -z-10 h-96 w-96 rounded-full bg-emerald-500/10 blur-[140px]"
+    aria-hidden="true"
+  >
+  </div>
+
   <div class="mx-auto max-w-full px-6">
-    <div class="grid gap-8 md:grid-cols-3">
-      <!-- Vision -->
-      <div
-        class="group rounded-3xl bg-gradient-to-br from-primary to-emerald-500 shadow-lg shadow-primary/30 p-10 text-white shadow-xl transition duration-500 hover:-translate-y-3 hover:shadow-2xl"
+    <div class="mx-auto mb-12 max-w-3xl text-center lg:mb-16">
+      <h1
+        id="vision-mission-purpose-heading"
+        class="text-3xl font-bold tracking-tight text-heading-1 sm:text-4xl lg:text-5xl"
       >
-        <div
-          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15"
-        >
-          <Eye size={34} />
-        </div>
+        We are building technology solutions with a clear direction
+      </h1>
 
-        <h3 class="mb-5 text-2xl font-bold">Our Vision</h3>
-
-        <p class="leading-8 text-white/90">
-          To become a trusted global destination for cloud technology knowledge,
-          empowering businesses and IT professionals with practical insights,
-          innovative solutions, and expert guidance across the Microsoft
-          ecosystem.
-        </p>
-      </div>
-
-      <!-- Mission -->
-      <div
-        class="group rounded-3xl border-3 border-dashed border-orange-700 bg-white p-10 shadow-xl transition duration-500 hover:-translate-y-3 hover:shadow-2xl dark:bg-box-bg"
+      <p
+        class="mt-5 text-base leading-8 text-gray-600 dark:text-gray-400 sm:text-lg"
       >
-        <div
-          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-700 text-white"
-        >
-          <Rocket size={34} />
-        </div>
+        Our vision, mission, and purpose guide how we simplify technology,
+        support organizations, and create meaningful learning experiences.
+      </p>
+    </div>
 
-        <h3 class="mb-5 text-2xl font-bold dark:text-white">Our Mission</h3>
+    <div class="grid gap-8 lg:grid-cols-3">
+      {
+        values.map(
+          ({
+            label,
+            heading,
+            description,
+            image,
+            imageAlt,
+            icon: Icon,
+            iconBackground,
+            labelColor,
+            overlay,
+            glow,
+          }) => (
+            <article class="group relative min-h-[500px] overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl sm:min-h-[520px]">
+              <img
+                src={image}
+                alt={imageAlt}
+                width="1200"
+                height="1600"
+                loading="lazy"
+                decoding="async"
+                class="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+              />
 
-        <p class="leading-8 text-gray-600 dark:text-gray-400">
-          To simplify complex cloud technologies through high-quality tutorials,
-          real-world solutions, and actionable best practices that enable
-          organizations to deploy, secure, and optimize Microsoft 365 with
-          confidence.
-        </p>
-      </div>
+              <div
+                class:list={["absolute inset-0 bg-gradient-to-br", overlay]}
+                aria-hidden="true"
+              />
 
-      <!-- Purpose -->
-      <div
-        class="group rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-rose-800 p-10 text-white shadow-xl transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
-      >
-        <div
-          class="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15"
-        >
-          <Lightbulb size={34} />
-        </div>
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20"
+                aria-hidden="true"
+              />
 
-        <h3 class="mb-5 text-2xl font-bold text-white">Our Purpose</h3>
-        <p class="leading-8 text-white/90">
-          CloudTweak exists to bridge the gap between technical complexity and
-          practical implementation. We provide reliable resources that solve
-          real-world challenges, encourage continuous learning, and help
-          organizations maximize the value of modern cloud technologies.
-        </p>
-      </div>
+              <div
+                class:list={[
+                  "absolute -right-20 -top-20 h-52 w-52 rounded-full opacity-50 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-80",
+                  glow,
+                ]}
+                aria-hidden="true"
+              />
+
+              <div
+                class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                aria-hidden="true"
+              />
+
+              <div class="relative z-10 flex min-h-[500px] flex-col justify-between p-8 sm:min-h-[520px] sm:p-10">
+                <div class="flex items-start justify-between gap-4">
+                  <div
+                    class:list={[
+                      "flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg ring-1 ring-white/25 backdrop-blur-md transition-transform duration-500 group-hover:rotate-3 group-hover:scale-105",
+                      iconBackground,
+                    ]}
+                  >
+                    <Icon size={30} strokeWidth={1.8} />
+                  </div>
+
+                  <div class="h-2.5 w-2.5 rounded-full bg-white/70 shadow-[0_0_18px_rgba(255,255,255,0.75)]" />
+                </div>
+
+                <div class="mt-16">
+                  <span
+                    class:list={[
+                      "text-xs font-bold uppercase tracking-[0.25em]",
+                      labelColor,
+                    ]}
+                  >
+                    {label}
+                  </span>
+
+                  <h3 class="mt-4 text-2xl font-bold leading-tight text-white sm:text-3xl">
+                    {heading}
+                  </h3>
+
+                  <p class="mt-5 text-base leading-8 text-white/80">
+                    {description}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="pointer-events-none absolute inset-0 z-20 rounded-3xl ring-1 ring-inset ring-white/10 transition duration-500 group-hover:ring-white/25"
+                aria-hidden="true"
+              />
+            </article>
+          )
+        )
+      }
     </div>
   </div>
 </section>

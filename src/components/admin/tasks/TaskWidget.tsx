@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Clock3, Eye, Plus, X } from "lucide-react";
+import {
+  AlertCircle,
+  Eye,
+  Plus,
+  X,
+  SlidersHorizontal,
+  CheckCircle2,
+} from "lucide-react";
 import { listMyTasks } from "../../../lib/tasks";
 import type { Task } from "../../../types/task";
+import { getProjectOptions } from "../../../lib/server/projects";
 
 export default function TaskWidget() {
   // Store the tasks loaded from Supabase.
@@ -12,6 +20,22 @@ export default function TaskWidget() {
 
   // Track whether the overdue tasks modal is open.
   const [showOverdueModal, setShowOverdueModal] = useState(false);
+
+  // Track whether the project filter popover is currently open.
+  const [showProjectFilter, setShowProjectFilter] = useState(false);
+
+  // Store all available projects for filtering.
+  const [projects, setProjects] = useState<
+    {
+      id: string;
+      name: string;
+      project_code: string;
+      project_type: "internal" | "client";
+    }[]
+  >([]);
+
+  // Track the selected project filter.
+  const [projectFilter, setProjectFilter] = useState("All");
 
   // Load the logged-in user's tasks from Supabase.
   async function loadTasks() {
@@ -87,14 +111,28 @@ export default function TaskWidget() {
     });
   }
 
-  // Load the user's tasks once when the component first mounts.
   useEffect(() => {
-    // Call the task loading function.
-    loadTasks();
+    async function loadWidgetData() {
+      await loadTasks();
+
+      const projectOptions = await getProjectOptions();
+
+      setProjects(projectOptions);
+    }
+
+    loadWidgetData();
   }, []);
 
   // Calculate all overdue tasks.
   const overdueTasks = tasks.filter(isTaskOverdue);
+
+  // Filter tasks using the selected project.
+  const filteredTasks =
+    projectFilter === "All"
+      ? tasks
+      : projectFilter === "none"
+        ? tasks.filter((task) => !task.project_id)
+        : tasks.filter((task) => task.project_id === projectFilter);
 
   // Display a loading card while the tasks are being retrieved.
   if (loading) {
@@ -125,6 +163,170 @@ export default function TaskWidget() {
                   Overdue: {overdueTasks.length}
                 </button>
               )}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowProjectFilter((current) => !current)}
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-lg border transition ${
+                    projectFilter === "All"
+                      ? "border-blue-200 text-blue-500 hover:border-primary hover:text-primary"
+                      : "border-primary bg-primary/10 text-primary"
+                  }`}
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                </button>
+
+                {showProjectFilter && (
+                  <div className="absolute -right-12 top-10 z-50 w-72 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+                    <div>
+                      <div className="mb-3 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            Filter by project
+                          </h3>
+
+                          <p className="mt-1 text-[11px] text-slate-500">
+                            Show tasks from a specific project.
+                          </p>
+                        </div>
+
+                        {projectFilter !== "All" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setProjectFilter("All");
+                              setShowProjectFilter(false);
+                            }}
+                            className="text-[11px] font-medium text-primary hover:underline"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-72 space-y-1 overflow-y-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProjectFilter("All");
+                            setShowProjectFilter(false);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${
+                            projectFilter === "All"
+                              ? "bg-primary/10 font-semibold text-primary"
+                              : "text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <span>All Projects</span>
+
+                          {projectFilter === "All" && (
+                            <CheckCircle2 className="h-4 w-4" />
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProjectFilter("none");
+                            setShowProjectFilter(false);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${
+                            projectFilter === "none"
+                              ? "bg-primary/10 font-semibold text-primary"
+                              : "text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <span>No Project</span>
+
+                          {projectFilter === "none" && (
+                            <CheckCircle2 className="h-4 w-4" />
+                          )}
+                        </button>
+
+                        <div className="pt-3">
+                          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                            Internal Projects
+                          </p>
+
+                          {projects
+                            .filter(
+                              (project) => project.project_type === "internal"
+                            )
+                            .map((project) => (
+                              <button
+                                key={project.id}
+                                type="button"
+                                onClick={() => {
+                                  setProjectFilter(project.id);
+                                  setShowProjectFilter(false);
+                                }}
+                                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${
+                                  projectFilter === project.id
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                }`}
+                              >
+                                <span className="min-w-0">
+                                  <span className="block truncate font-medium">
+                                    {project.name}
+                                  </span>
+
+                                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                                    {project.project_code}
+                                  </span>
+                                </span>
+
+                                {projectFilter === project.id && (
+                                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                )}
+                              </button>
+                            ))}
+                        </div>
+
+                        <div className="pt-3">
+                          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                            Client Projects
+                          </p>
+
+                          {projects
+                            .filter(
+                              (project) => project.project_type === "client"
+                            )
+                            .map((project) => (
+                              <button
+                                key={project.id}
+                                type="button"
+                                onClick={() => {
+                                  setProjectFilter(project.id);
+                                  setShowProjectFilter(false);
+                                }}
+                                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${
+                                  projectFilter === project.id
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-slate-700 hover:bg-slate-50"
+                                }`}
+                              >
+                                <span className="min-w-0">
+                                  <span className="block truncate font-medium">
+                                    {project.name}
+                                  </span>
+
+                                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                                    {project.project_code}
+                                  </span>
+                                </span>
+
+                                {projectFilter === project.id && (
+                                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                )}
+                              </button>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <p className="mt-1 text-xs text-slate-500">
@@ -158,14 +360,18 @@ export default function TaskWidget() {
             </div>
           ) : (
             <div className="divide-y divide-slate-200">
-              {tasks.slice(0, 2).map((task) => (
+              {filteredTasks.slice(0, 2).map((task) => (
                 <div
                   key={task.id}
                   className="flex items-center justify-between gap-5 p-5"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-xs font-bold text-slate-900">
-                      {task.title}
+                      Project:{" "}
+                      <span className="font-light">{task.project?.name}</span>
+                    </p>
+                    <p className="truncate text-xs font-bold text-slate-900">
+                      Description: <span className="font-light">{task.title}</span>
                     </p>
 
                     <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">

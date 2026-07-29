@@ -204,7 +204,7 @@ export default function StaffTable({ staff, setStaff }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       <div className="mb-10 flex items-center justify-between">
         <h1 className="text-xl font-bold">Manage Staff</h1>
 

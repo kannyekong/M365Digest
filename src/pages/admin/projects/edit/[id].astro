@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import EditProjectForm from "../../../../components/admin/projects/EditProjectForm";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/projects");
+}
+---
+
+<AdminLayout title="Edit Project | CloudTweak">
+  <EditProjectForm projectId={id} client:load />
+</AdminLayout>

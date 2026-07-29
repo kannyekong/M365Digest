@@ -1,14 +1,11 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import "../../styles/global.css";
+import AuthLayout from "../../layouts/AuthLayout.astro";
 import LoginForm from "../../islands/LoginForm";
 ---
 
-<Layout title="Admin Login">
-
-    <section class="min-h-screen flex items-center justify-center">
-
-        <LoginForm client:load />
-
-    </section>
-
-</Layout>
+<section class="min-h-screen flex items-center justify-center">
+  <AuthLayout title="login page">
+    <LoginForm client:load />
+  </AuthLayout>
+</section>

@@ -1,0 +1,148 @@
+---
+import "../../../styles/global.css";
+import { ArrowLeft, GraduationCap } from "lucide-astro";
+import Layout from "../../../layouts/Layout.astro";
+import AcademyRegistrationForm from "../../../components/academy/registration/AcademyRegistrationForm";
+import Container from "../../../components/shared/Container.astro";
+import {
+  getAcademyProgramBySlug,
+  getPublishedAcademyPrograms,
+} from "../../../lib/academy";
+import type { AcademyProgram } from "../../../types/academy";
+
+/**
+ * Generate one registration route for every published Academy program.
+ */
+export async function getStaticPaths() {
+  // Retrieve all programs that are publicly available.
+  const programs = await getPublishedAcademyPrograms();
+
+  // Generate /academy/[slug]/register for each program.
+  return (programs ?? []).map((program) => ({
+    params: {
+      slug: program.slug,
+    },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// Redirect when the dynamic route does not contain a valid slug.
+if (!slug) {
+  return Astro.redirect("/academy");
+}
+
+// Retrieve the selected Academy program.
+const program: AcademyProgram | null = await getAcademyProgramBySlug(
+  slug
+).catch(() => null);
+
+// Redirect when the program does not exist or is unavailable.
+if (!program || program.status !== "published") {
+  return Astro.redirect("/academy");
+}
+
+/**
+ * Format the program duration for the form summary.
+ */
+function formatProgramDuration(programRecord: AcademyProgram) {
+  // Return a neutral fallback when duration is incomplete.
+  if (!programRecord.duration_value || !programRecord.duration_unit) {
+    return null;
+  }
+
+  // Use a singular unit when the value equals one.
+  const durationUnit =
+    programRecord.duration_value === 1
+      ? programRecord.duration_unit.replace(/s$/, "")
+      : programRecord.duration_unit;
+
+  return `${programRecord.duration_value} ${durationUnit}`;
+}
+
+// Use the discounted amount when a valid discount exists.
+const payableAmount =
+  program.discount_price !== null && program.discount_price < program.price
+    ? program.discount_price
+    : program.price;
+
+// Choose the best available image for the registration summary.
+const programImage =
+  program.thumbnail_image_url ??
+  program.hero_image_url ??
+  program.banner_image_url ??
+  null;
+
+const pageTitle = `Register for ${program.title}`;
+
+const pageDescription =
+  program.short_description ||
+  `Complete your registration for ${program.title} at CloudTweak Academy.`;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <main>
+    <section
+      class="relative overflow-hidden border-b border-box-border bg-body py-10 sm:py-14"
+    >
+      <div
+        class="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          class="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl"
+        >
+        </div>
+
+        <div
+          class="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl"
+        >
+        </div>
+      </div>
+
+      <Container>
+        <div class="relative">
+          <a
+            href={`/academy/${program.slug}`}
+            class="inline-flex items-center gap-2 text-sm font-semibold text-heading-3 transition hover:text-primary"
+          >
+            <ArrowLeft size={17} />
+
+            Back to program details
+          </a>
+
+          <div class="mt-8 max-w-3xl">
+            <h1
+              class="mt-5 text-3xl font-bold tracking-tight text-heading-1 sm:text-4xl lg:text-5xl"
+            >
+              Complete your registration
+            </h1>
+
+            <p class="mt-4 text-base leading-8 text-heading-3">
+              Register for {program.title}, then continue to Paystack to
+              complete your payment securely.
+            </p>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section class="py-10 sm:py-14 lg:py-16">
+      <Container>
+        <AcademyRegistrationForm
+          client:load
+          programId={program.id}
+          programSlug={program.slug}
+          programTitle={program.title}
+          programImage={programImage}
+          amount={payableAmount}
+          currency={program.currency || "NGN"}
+          duration={formatProgramDuration(program)}
+          startDate={program.start_date}
+          certificateEnabled={program.certificate_enabled}
+          registrationOpen={program.registration_open}
+        />
+      </Container>
+    </section>
+  </main>
+</Layout>

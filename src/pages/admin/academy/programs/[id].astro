@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import AcademyProgramForm from "../../../../components/admin/academy/AcademyProgramForm";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/academy/programs");
+}
+---
+
+<AdminLayout title="Edit Academy Program">
+  <main class="p-6 lg:p-10">
+    <AcademyProgramForm client:load mode="edit" programId={id} />
+  </main>
+</AdminLayout>

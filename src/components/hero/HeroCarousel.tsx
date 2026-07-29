@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Rocket, Signpost, Telescope } from "lucide-react";
 import { heroSlides } from "./heroSlides";
 
 export default function HeroCarousel() {
@@ -50,23 +50,25 @@ export default function HeroCarousel() {
             </h1>
           </div>
           <div className="md:min-h-[150px]">
-            <p className="mt-2 text-lg leading-8 dark:text-white">
+            <p className="mt-2 text-sm md:text-md leading-8 dark:text-white">
               {slide.description}
             </p>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4">
             <a
               href={slide.primaryButton.href}
-              className={`${slide.primaryButton.color} rounded-full px-3 py-3 font-semibold text-white transition`}
+              className={`inline-flex gap-2 ${slide.primaryButton.color} rounded-full px-5 py-3 font-semibold text-white transition`}
             >
+              <Rocket />
               {slide.primaryButton.text}
             </a>
 
             <a
               href={slide.secondaryButton.href}
-              className={`${slide.secondaryButton.color} rounded-full px-3 py-3 font-semibold text-white transition`}
+              className={`inline-flex gap-2 ${slide.secondaryButton.color} rounded-full px-5 py-3 font-semibold text-white transition`}
             >
+              <Telescope />
               {slide.secondaryButton.text}
             </a>
           </div>
@@ -74,7 +76,7 @@ export default function HeroCarousel() {
 
         {/* Right Image */}
         <div className="relative flex justify-center">
-          <img src={slide.image} alt={slide.title} className="object-fit" />
+          <img src={slide.image} alt={slide.title} className="object-cover" />
         </div>
       </div>
 

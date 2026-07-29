@@ -224,7 +224,7 @@ export default function ReviewTable({ reviews, setReviews }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       <ContextualTip
         id="contact-view-submission"
         title="View full submission"

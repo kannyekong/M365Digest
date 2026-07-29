@@ -174,7 +174,7 @@ export default function QuoteTable({ quotes, setQuote }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       {" "}
       <ContextualTip
         id="quote-view-submission"

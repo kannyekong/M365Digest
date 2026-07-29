@@ -2,7 +2,7 @@
 import Container from "../shared/Container.astro";
 import Title from "../shared/Title.astro";
 import { ChevronLeft, ChevronRight, Linkedin, BadgeCheck, Github, Mail, PhoneCall } from "lucide-astro";
-import { listActiveInstructors } from "../../lib/bootcamp_instructors";
+import { listActiveInstructors } from "../../lib/academy_instructors";
 
 const instructors = await listActiveInstructors();
 ---

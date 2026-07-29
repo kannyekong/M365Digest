@@ -22,7 +22,7 @@ export default function StaffManagement() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center">
         Loading staff...
       </div>
     );

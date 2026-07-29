@@ -37,7 +37,17 @@ export async function listMyTasks() {
   // Query the tasks table and return the newest tasks first.
   const { data, error } = await supabase
     .from("tasks")
-    .select("*")
+    .select(
+      `
+  *,
+  project:projects (
+  id,
+  project_code,
+  name,
+  project_type
+)
+`
+    )
     .order("created_at", { ascending: false });
 
   // Return the tasks or an empty array when no tasks are found.
@@ -51,6 +61,8 @@ export async function listMyTasks() {
 export async function addTask(payload: {
   // Define the task title.
   title: string;
+
+  project_id?: string;
 
   // Define the optional task description.
   description?: string;
@@ -83,6 +95,9 @@ export async function addTask(payload: {
       // Automatically assign the task to the logged-in staff member.
       staff_id: staff.id,
 
+      // Connect the task to the selected project or leave it unassigned.
+      project_id: payload.project_id || null,
+
       // Save the task title.
       title: payload.title,
 
@@ -97,10 +112,23 @@ export async function addTask(payload: {
 
       // Save the due date or null when not provided.
       due_date: payload.due_date ?? null,
+
+      // Record the completion time only when the task is created as completed.
+      completed_at:
+        payload.status === "completed" ? new Date().toISOString() : null,
     })
 
-    // Return the newly created task from Supabase.
-    .select()
+    // Return the newly created task together with its project details.
+    .select(
+      `
+    *,
+    project:projects (
+      id,
+      project_code,
+      name
+    )
+  `
+    )
 
     // Ensure exactly one task is returned.
     .single();
@@ -110,7 +138,7 @@ export async function addTask(payload: {
     data,
     error,
   };
-}
+} ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Update an existing task belonging to the logged-in staff member.
 export async function updateTask(
@@ -119,6 +147,7 @@ export async function updateTask(
 
   // Define the fields that can be updated.
   payload: {
+    project_id?: string | null;
     // Allow the task title to be updated.
     title?: string;
 
@@ -160,10 +189,7 @@ export async function updateTask(
 // Delete a task using its unique task ID.
 export async function deleteTask(id: string) {
   // Delete the selected task from the tasks table.
-  const { error } = await supabase
-    .from("tasks")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("tasks").delete().eq("id", id);
 
   // Return any error generated during deletion.
   return {
@@ -217,9 +243,7 @@ export async function getTask(id: string) {
 // Retrieve the total number of tasks grouped by their current status.
 export async function getTaskCounts() {
   // Retrieve all task statuses from the tasks table.
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("status");
+  const { data, error } = await supabase.from("tasks").select("status");
 
   // Return the database error when the query fails.
   if (error) {
@@ -230,9 +254,7 @@ export async function getTaskCounts() {
   }
 
   // Count all pending tasks.
-  const pending = data.filter(
-    (task) => task.status === "pending"
-  ).length;
+  const pending = data.filter((task) => task.status === "pending").length;
 
   // Count all in-progress tasks.
   const in_progress = data.filter(
@@ -240,9 +262,7 @@ export async function getTaskCounts() {
   ).length;
 
   // Count all completed tasks.
-  const completed = data.filter(
-    (task) => task.status === "completed"
-  ).length;
+  const completed = data.filter((task) => task.status === "completed").length;
 
   // Return the task counts grouped by status.
   return {

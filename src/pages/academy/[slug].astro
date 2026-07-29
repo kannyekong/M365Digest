@@ -1,0 +1,1045 @@
+---
+import "../../styles/global.css";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Award,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Crown,
+  GraduationCap,
+  Laptop,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  Users,
+} from "lucide-astro";
+import Layout from "../../layouts/Layout.astro";
+import Container from "../../components/shared/Container.astro";
+import {
+  getAcademyModuleLessons,
+  getAcademyProgramBySlug,
+  getAcademyProgramModules,
+  getPublishedAcademyPrograms,
+} from "../../lib/academy";
+import { getAcademyProgramInstructors } from "../../lib/academy_program_instructors";
+import type { AcademyLesson, AcademyProgram } from "../../types/academy";
+
+export async function getStaticPaths() {
+  // Retrieve every published Academy program for static route generation.
+  const programs = await getPublishedAcademyPrograms();
+
+  // Create one dynamic route for each published program slug.
+  return (programs ?? []).map((program) => ({
+    params: {
+      slug: program.slug,
+    },
+  }));
+}
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect("/academy");
+}
+
+// Retrieve the selected published Academy program.
+const program = await getAcademyProgramBySlug(slug).catch(() => null);
+
+if (!program) {
+  return Astro.redirect("/academy");
+}
+
+// Retrieve the program curriculum and instructor assignments in parallel.
+const [moduleRecords, instructorAssignments] = await Promise.all([
+  getAcademyProgramModules(program.id),
+  getAcademyProgramInstructors(program.id),
+]);
+
+// Sort curriculum modules by display order and module number.
+const modules = [...(moduleRecords ?? [])].sort((firstModule, secondModule) => {
+  if (firstModule.display_order !== secondModule.display_order) {
+    return firstModule.display_order - secondModule.display_order;
+  }
+
+  return firstModule.module_number - secondModule.module_number;
+});
+
+// Retrieve lessons belonging to every curriculum module.
+const moduleLessonResults = await Promise.all(
+  modules.map(async (module) => {
+    const lessons = await getAcademyModuleLessons(module.id);
+
+    return {
+      moduleId: module.id,
+      lessons: [...(lessons ?? [])].sort((firstLesson, secondLesson) => {
+        if (firstLesson.display_order !== secondLesson.display_order) {
+          return firstLesson.display_order - secondLesson.display_order;
+        }
+
+        return (
+          new Date(firstLesson.created_at).getTime() -
+          new Date(secondLesson.created_at).getTime()
+        );
+      }),
+    };
+  })
+);
+
+// Group lessons using their parent module ID.
+const lessonsByModule = moduleLessonResults.reduce<
+  Record<string, AcademyLesson[]>
+>((groups, result) => {
+  groups[result.moduleId] = result.lessons;
+  return groups;
+}, {});
+
+// Sort assigned instructors with the lead instructor first.
+const instructors = [...(instructorAssignments ?? [])].sort(
+  (firstAssignment, secondAssignment) => {
+    if (firstAssignment.is_lead !== secondAssignment.is_lead) {
+      return firstAssignment.is_lead ? -1 : 1;
+    }
+
+    return firstAssignment.display_order - secondAssignment.display_order;
+  }
+);
+
+const leadInstructor =
+  instructors.find((assignment) => assignment.is_lead) ??
+  instructors[0] ??
+  null;
+
+const totalLessons = Object.values(lessonsByModule).reduce(
+  (total, lessons) => total + lessons.length,
+  0
+);
+
+const heroImage =
+  program.hero_image_url ??
+  program.banner_image_url ??
+  program.thumbnail_image_url ??
+  null;
+
+const learningOutcomes = program.learning_outcomes ?? [];
+const prerequisites = program.prerequisites ?? [];
+const targetAudience = program.target_audience ?? [];
+const toolsCovered = program.tools_covered ?? [];
+
+/**
+ * Convert an underscore-separated database value into a readable label.
+ */
+function formatEnumLabel(value: string) {
+  return value
+    .split("_")
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}
+
+/**
+ * Format the program duration.
+ */
+function formatProgramDuration(programRecord: AcademyProgram) {
+  if (!programRecord.duration_value || !programRecord.duration_unit) {
+    return "Flexible duration";
+  }
+
+  const durationUnit =
+    programRecord.duration_value === 1
+      ? programRecord.duration_unit.replace(/s$/, "")
+      : programRecord.duration_unit;
+
+  return `${programRecord.duration_value} ${durationUnit}`;
+}
+
+/**
+ * Format a program date for public display.
+ */
+function formatProgramDate(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+/**
+ * Format the program fee using its configured currency.
+ */
+function formatProgramPrice(programRecord: AcademyProgram) {
+  if (!programRecord.show_price) {
+    return "Contact us";
+  }
+
+  const amount =
+    programRecord.discount_price !== null
+      ? programRecord.discount_price
+      : programRecord.price;
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: programRecord.currency || "NGN",
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${programRecord.currency || "NGN"} ${amount.toLocaleString(
+      "en-US"
+    )}`;
+  }
+}
+
+/**
+ * Format the original fee when a valid discount is configured.
+ */
+function formatOriginalPrice(programRecord: AcademyProgram) {
+  if (
+    !programRecord.show_price ||
+    programRecord.discount_price === null ||
+    programRecord.discount_price >= programRecord.price
+  ) {
+    return null;
+  }
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: programRecord.currency || "NGN",
+      maximumFractionDigits: 0,
+    }).format(programRecord.price);
+  } catch {
+    return `${programRecord.currency || "NGN"} ${programRecord.price.toLocaleString(
+      "en-US"
+    )}`;
+  }
+}
+
+/**
+ * Calculate the discount percentage when a valid discount exists.
+ */
+function calculateDiscountPercentage(programRecord: AcademyProgram) {
+  if (
+    programRecord.discount_price === null ||
+    programRecord.price <= 0 ||
+    programRecord.discount_price >= programRecord.price
+  ) {
+    return null;
+  }
+
+  return Math.round(
+    ((programRecord.price - programRecord.discount_price) /
+      programRecord.price) *
+      100
+  );
+}
+
+/**
+ * Format the lesson type for public display.
+ */
+function formatLessonType(lesson: AcademyLesson) {
+  return formatEnumLabel(lesson.lesson_type);
+}
+
+const formattedPrice = formatProgramPrice(program);
+const formattedOriginalPrice = formatOriginalPrice(program);
+const discountPercentage = calculateDiscountPercentage(program);
+const formattedStartDate = formatProgramDate(program.start_date);
+const formattedEndDate = formatProgramDate(program.end_date);
+const formattedRegistrationDeadline = formatProgramDate(
+  program.registration_deadline
+);
+
+const pageTitle = program.seo_title || program.title;
+const pageDescription =
+  program.seo_description ||
+  program.short_description ||
+  `Explore ${program.title} at CloudTweak Academy.`;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <main>
+    <section
+      class="relative overflow-hidden border-b border-box-border bg-body py-10 sm:py-14 lg:py-20"
+    >
+      <div
+        class="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          class="absolute -left-24 top-12 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl"
+        >
+        </div>
+
+        <div
+          class="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl"
+        >
+        </div>
+      </div>
+
+      <Container>
+        <a
+          href="/academy"
+          class="relative inline-flex items-center gap-2 text-sm font-semibold text-heading-3 transition hover:text-primary"
+        >
+          <ArrowLeft size={17} />
+          Back to Academy
+        </a>
+
+        <div
+          class="relative mt-8 grid gap-10 lg:grid-cols-2 lg:items-center"
+        >
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+              >
+                {program.category?.name ?? "Academy Program"}
+              </span>
+
+              {
+                program.featured ? (
+                  <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+                    <Sparkles size={13} />
+                    Featured
+                  </span>
+                ) : null
+              }
+
+              <span
+                class:list={[
+                  "rounded-full px-3 py-1.5 text-xs font-semibold text-white",
+                  program.registration_open ? "bg-emerald-600" : "bg-red-600",
+                ]}
+              >
+                {
+                  program.registration_open
+                    ? "Registration Open"
+                    : "Registration Closed"
+                }
+              </span>
+            </div>
+
+            <h1
+              class="mt-6 text-4xl font-bold tracking-tight text-heading-1 sm:text-5xl lg:text-6xl"
+            >
+              {program.title}
+            </h1>
+
+            {
+              program.short_description ? (
+                <p class="mt-6 max-w-3xl text-base leading-8 text-heading-3 sm:text-lg">
+                  {program.short_description}
+                </p>
+              ) : null
+            }
+
+            <div class="mt-7 flex flex-wrap gap-3">
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-box-border bg-box-bg px-4 py-2 text-sm font-medium text-heading-3"
+              >
+                <Clock3 size={16} class="text-primary" />
+                {formatProgramDuration(program)}
+              </span>
+
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-box-border bg-box-bg px-4 py-2 text-sm font-medium text-heading-3"
+              >
+                <Laptop size={16} class="text-primary" />
+                {formatEnumLabel(program.delivery_mode)}
+              </span>
+
+              {
+                program.location ? (
+                  <span class="inline-flex items-center gap-2 rounded-full border border-box-border bg-box-bg px-4 py-2 text-sm font-medium text-heading-3">
+                    <MapPin size={16} class="text-primary" />
+                    {program.location}
+                  </span>
+                ) : null
+              }
+
+              {
+                program.certificate_enabled ? (
+                  <span class="inline-flex items-center gap-2 rounded-full border border-box-border bg-box-bg px-4 py-2 text-sm font-medium text-heading-3">
+                    <Award size={16} class="text-primary" />
+                    Certificate included
+                  </span>
+                ) : null
+              }
+            </div>
+
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a
+                href={`/academy/${program.slug}/register`}
+                aria-disabled={!program.registration_open}
+                class:list={[
+                  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition",
+                  program.registration_open
+                    ? "bg-primary hover:opacity-90"
+                    : "pointer-events-none cursor-not-allowed bg-slate-400 opacity-70",
+                ]}
+              >
+                {
+                  program.registration_open
+                    ? "Register for this program"
+                    : "Registration is closed"
+                }
+                <ArrowRight size={17} />
+              </a>
+
+              {
+                modules.length > 0 ? (
+                  <a
+                    href="#curriculum"
+                    class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-box-border bg-box-bg px-6 text-sm font-semibold text-heading-1 transition hover:border-primary hover:text-primary"
+                  >
+                    <BookOpen size={17} />
+                    Explore curriculum
+                  </a>
+                ) : null
+              }
+            </div>
+
+            {
+              leadInstructor?.instructor ? (
+                <div class="mt-8 flex items-center gap-4">
+                  {leadInstructor.instructor.image_url ? (
+                    <img
+                      src={leadInstructor.instructor.image_url}
+                      alt={leadInstructor.instructor.full_name}
+                      width="56"
+                      height="56"
+                      class="h-14 w-14 rounded-2xl object-cover"
+                    />
+                  ) : (
+                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <UserRound size={24} />
+                    </div>
+                  )}
+
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                      Lead instructor
+                    </p>
+
+                    <p class="mt-1 font-semibold text-heading-1">
+                      {leadInstructor.instructor.full_name}
+                    </p>
+
+                    <p class="text-sm text-heading-3">
+                      {leadInstructor.instructor.title}
+                    </p>
+                  </div>
+                </div>
+              ) : null
+            }
+          </div>
+
+          <div>
+            <div
+              class="overflow-hidden"
+            >
+              {
+                heroImage ? (
+                  <img
+                    src={heroImage}
+                    alt={`${program.title} hero`}
+                    width="1200"
+                    height="900"
+                    class="aspect-[6/3] w-full rounded-[1.4rem] object-fit"
+                  />
+                ) : (
+                  <div class="flex aspect-[4/3] w-full items-center justify-center rounded-[1.4rem] bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30">
+                    <GraduationCap size={72} class="text-primary/60" />
+                  </div>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section class="border-b border-box-border bg-box-bg/40 py-8">
+      <Container>
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article
+            class="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-500/20 dark:bg-blue-500/10"
+          >
+            <CalendarDays size={21} class="text-blue-600 dark:text-blue-300" />
+
+            <p
+              class="mt-4 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300"
+            >
+              Start date
+            </p>
+
+            <p class="mt-2 font-bold text-heading-1">
+              {formattedStartDate ?? "Coming soon"}
+            </p>
+          </article>
+
+          <article
+            class="rounded-2xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-500/20 dark:bg-purple-500/10"
+          >
+            <Clock3 size={21} class="text-purple-600 dark:text-purple-300" />
+
+            <p
+              class="mt-4 text-xs font-semibold uppercase tracking-wide text-purple-600 dark:text-purple-300"
+            >
+              Duration
+            </p>
+
+            <p class="mt-2 font-bold text-heading-1">
+              {formatProgramDuration(program)}
+            </p>
+          </article>
+
+          <article
+            class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10"
+          >
+            <Users size={21} class="text-emerald-600 dark:text-emerald-300" />
+
+            <p
+              class="mt-4 text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-300"
+            >
+              Capacity
+            </p>
+
+            <p class="mt-2 font-bold text-heading-1">
+              {
+                program.maximum_students
+                  ? `${program.maximum_students} students`
+                  : "Open capacity"
+              }
+            </p>
+          </article>
+
+          <article
+            class="rounded-2xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-500/20 dark:bg-orange-500/10"
+          >
+            <ShieldCheck
+              size={21}
+              class="text-orange-600 dark:text-orange-300"
+            />
+
+            <p
+              class="mt-4 text-xs font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-300"
+            >
+              Registration deadline
+            </p>
+
+            <p class="mt-2 font-bold text-heading-1">
+              {formattedRegistrationDeadline ?? "Not specified"}
+            </p>
+          </article>
+        </div>
+      </Container>
+    </section>
+
+    <section class="py-14 sm:py-18">
+      <Container>
+        <div
+          class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start"
+        >
+          <div class="space-y-12">
+            {
+              program.description ? (
+                <section>
+                  <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                    Program overview
+                  </p>
+
+                  <h2 class="mt-3 text-3xl font-bold tracking-tight text-heading-1">
+                    About this program
+                  </h2>
+
+                  <div class="mt-5 whitespace-pre-line text-base leading-8 text-heading-3">
+                    {program.description}
+                  </div>
+                </section>
+              ) : null
+            }
+
+            {
+              learningOutcomes.length > 0 ? (
+                <section>
+                  <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                    Learning outcomes
+                  </p>
+
+                  <h2 class="mt-3 text-3xl font-bold tracking-tight text-heading-1">
+                    What you will be able to do
+                  </h2>
+
+                  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                    {learningOutcomes.map((outcome) => (
+                      <article class="flex gap-3 rounded-2xl border border-box-border bg-box-bg p-5">
+                        <CheckCircle2
+                          size={20}
+                          class="mt-0.5 shrink-0 text-emerald-500"
+                        />
+
+                        <p class="text-sm leading-6 text-heading-3">
+                          {outcome}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null
+            }
+
+            {
+              toolsCovered.length > 0 ? (
+                <section>
+                  <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                    Tools and technologies
+                  </p>
+
+                  <h2 class="mt-3 text-3xl font-bold tracking-tight text-heading-1">
+                    Platforms covered
+                  </h2>
+
+                  <div class="mt-6 flex flex-wrap gap-3">
+                    {toolsCovered.map((tool) => (
+                      <span class="rounded-full border border-box-border bg-box-bg px-4 py-2.5 text-sm font-semibold text-heading-1">
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null
+            }
+
+            {
+              modules.length > 0 ? (
+                <section id="curriculum" class="scroll-mt-24">
+                  <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                    Curriculum
+                  </p>
+
+                  <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h2 class="text-3xl font-bold tracking-tight text-heading-1">
+                        What you will learn
+                      </h2>
+
+                      <p class="mt-3 max-w-2xl text-sm leading-7 text-heading-3">
+                        {modules.length}
+                        {modules.length === 1 ? " module" : " modules"}
+                        {" · "}
+                        {totalLessons}
+                        {totalLessons === 1 ? " lesson" : " lessons"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="mt-7 space-y-4">
+                    {modules.map((module, moduleIndex) => {
+                      const lessons = lessonsByModule[module.id] ?? [];
+
+                      return (
+                        <details
+                          class="group overflow-hidden rounded-2xl border border-box-border bg-box-bg"
+                          open={moduleIndex === 0}
+                        >
+                          <summary class="flex cursor-pointer list-none items-start justify-between gap-4 p-5 sm:p-6">
+                            <div>
+                              <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                                  Module {module.module_number}
+                                </span>
+
+                                {module.duration ? (
+                                  <span class="rounded-full bg-body px-2.5 py-1 text-xs font-semibold text-heading-3">
+                                    {module.duration}
+                                  </span>
+                                ) : null}
+
+                                {module.is_preview ? (
+                                  <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                    Preview
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <h3 class="mt-2 text-lg font-bold text-heading-1">
+                                {module.title}
+                              </h3>
+
+                              {module.description ? (
+                                <p class="mt-2 text-sm leading-6 text-heading-3">
+                                  {module.description}
+                                </p>
+                              ) : null}
+                            </div>
+
+                            <span class="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+                              {lessons.length}
+                              {lessons.length === 1 ? " lesson" : " lessons"}
+                            </span>
+                          </summary>
+
+                          <div class="border-t border-box-border px-5 py-4 sm:px-6">
+                            {lessons.length > 0 ? (
+                              <div class="divide-y divide-box-border">
+                                {lessons.map((lesson) => (
+                                  <article class="flex flex-col gap-2 py-4 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                      <div class="flex flex-wrap items-center gap-2">
+                                        <h4 class="font-semibold text-heading-1">
+                                          {lesson.title}
+                                        </h4>
+
+                                        <span class="rounded-full bg-body px-2.5 py-1 text-xs font-medium text-heading-3">
+                                          {formatLessonType(lesson)}
+                                        </span>
+                                      </div>
+
+                                      {lesson.description ? (
+                                        <p class="mt-2 text-sm leading-6 text-heading-3">
+                                          {lesson.description}
+                                        </p>
+                                      ) : null}
+                                    </div>
+
+                                    {lesson.duration ? (
+                                      <span class="shrink-0 text-xs font-semibold text-heading-3">
+                                        {lesson.duration}
+                                      </span>
+                                    ) : null}
+                                  </article>
+                                ))}
+                              </div>
+                            ) : (
+                              <p class="py-4 text-sm text-heading-3">
+                                Lesson details will be published soon.
+                              </p>
+                            )}
+                          </div>
+                        </details>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null
+            }
+
+            {
+              instructors.length > 0 ? (
+                <section>
+                  <p class="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+                    Your instructors
+                  </p>
+
+                  <h2 class="mt-3 text-3xl font-bold tracking-tight text-heading-1">
+                    Learn from experienced professionals
+                  </h2>
+
+                  <div class="mt-7 grid gap-6 md:grid-cols-2">
+                    {instructors.map((assignment) => {
+                      const instructor = assignment.instructor;
+
+                      if (!instructor) {
+                        return null;
+                      }
+
+                      return (
+                        <article class="rounded-3xl border border-box-border bg-box-bg p-6">
+                          <div class="flex items-start gap-4">
+                            {instructor.image_url ? (
+                              <img
+                                src={instructor.image_url}
+                                alt={instructor.full_name}
+                                width="80"
+                                height="80"
+                                class="h-20 w-20 shrink-0 rounded-2xl object-cover"
+                              />
+                            ) : (
+                              <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <UserRound size={30} />
+                              </div>
+                            )}
+
+                            <div>
+                              <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="text-lg font-bold text-heading-1">
+                                  {instructor.full_name}
+                                </h3>
+
+                                {assignment.is_lead ? (
+                                  <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+                                    <Crown size={12} />
+                                    Lead
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <p class="mt-1 text-sm font-medium text-primary">
+                                {instructor.title}
+                              </p>
+                            </div>
+                          </div>
+
+                          {instructor.bio ? (
+                            <p class="mt-5 line-clamp-4 text-sm leading-7 text-heading-3">
+                              {instructor.bio}
+                            </p>
+                          ) : null}
+
+                          {instructor.skills?.length ? (
+                            <div class="mt-5 flex flex-wrap gap-2">
+                              {instructor.skills.slice(0, 5).map((skill) => (
+                                <span class="rounded-full bg-body px-2.5 py-1 text-xs font-medium text-heading-3">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null
+            }
+
+            {
+              targetAudience.length > 0 || prerequisites.length > 0 ? (
+                <section class="grid gap-6 md:grid-cols-2">
+                  {targetAudience.length > 0 ? (
+                    <article class="rounded-3xl border border-box-border bg-box-bg p-6">
+                      <Users size={24} class="text-primary" />
+
+                      <h2 class="mt-4 text-xl font-bold text-heading-1">
+                        Who this program is for
+                      </h2>
+
+                      <ul class="mt-5 space-y-3">
+                        {targetAudience.map((audience) => (
+                          <li class="flex gap-3 text-sm leading-6 text-heading-3">
+                            <CheckCircle2
+                              size={17}
+                              class="mt-1 shrink-0 text-emerald-500"
+                            />
+                            {audience}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ) : null}
+
+                  {prerequisites.length > 0 ? (
+                    <article class="rounded-3xl border border-box-border bg-box-bg p-6">
+                      <ShieldCheck size={24} class="text-primary" />
+
+                      <h2 class="mt-4 text-xl font-bold text-heading-1">
+                        Prerequisites
+                      </h2>
+
+                      <ul class="mt-5 space-y-3">
+                        {prerequisites.map((prerequisite) => (
+                          <li class="flex gap-3 text-sm leading-6 text-heading-3">
+                            <CheckCircle2
+                              size={17}
+                              class="mt-1 shrink-0 text-emerald-500"
+                            />
+                            {prerequisite}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ) : null}
+                </section>
+              ) : null
+            }
+          </div>
+
+          <aside class="lg:sticky lg:top-24">
+            <div
+              class="rounded-3xl border border-box-border bg-box-bg p-6 shadow-xl"
+            >
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.14em] text-heading-3"
+              >
+                Program fee
+              </p>
+
+              <div class="mt-2 flex flex-wrap items-end gap-3">
+                <p class="text-3xl font-extrabold text-heading-1">
+                  {formattedPrice}
+                </p>
+
+                {
+                  formattedOriginalPrice ? (
+                    <span class="pb-1 text-sm font-semibold text-heading-3 line-through">
+                      {formattedOriginalPrice}
+                    </span>
+                  ) : null
+                }
+              </div>
+
+              {
+                discountPercentage ? (
+                  <span class="mt-3 inline-flex rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                    Save {discountPercentage}%
+                  </span>
+                ) : null
+              }
+
+              <div class="mt-6 space-y-4 border-y border-box-border py-6">
+                <div class="flex items-start justify-between gap-4">
+                  <span class="text-sm text-heading-3"> Delivery </span>
+
+                  <span class="text-right text-sm font-semibold text-heading-1">
+                    {formatEnumLabel(program.delivery_mode)}
+                  </span>
+                </div>
+
+                <div class="flex items-start justify-between gap-4">
+                  <span class="text-sm text-heading-3"> Duration </span>
+
+                  <span class="text-right text-sm font-semibold text-heading-1">
+                    {formatProgramDuration(program)}
+                  </span>
+                </div>
+
+                {
+                  program.session_schedule ? (
+                    <div class="flex items-start justify-between gap-4">
+                      <span class="text-sm text-heading-3">Schedule</span>
+
+                      <span class="max-w-[190px] text-right text-sm font-semibold text-heading-1">
+                        {program.session_schedule}
+                      </span>
+                    </div>
+                  ) : null
+                }
+
+                {
+                  formattedStartDate ? (
+                    <div class="flex items-start justify-between gap-4">
+                      <span class="text-sm text-heading-3">Starts</span>
+
+                      <span class="text-right text-sm font-semibold text-heading-1">
+                        {formattedStartDate}
+                      </span>
+                    </div>
+                  ) : null
+                }
+
+                {
+                  formattedEndDate ? (
+                    <div class="flex items-start justify-between gap-4">
+                      <span class="text-sm text-heading-3">Ends</span>
+
+                      <span class="text-right text-sm font-semibold text-heading-1">
+                        {formattedEndDate}
+                      </span>
+                    </div>
+                  ) : null
+                }
+
+                {
+                  program.certificate_enabled ? (
+                    <div class="flex items-start justify-between gap-4">
+                      <span class="text-sm text-heading-3">Certificate</span>
+
+                      <span class="text-right text-sm font-semibold text-heading-1">
+                        Included
+                      </span>
+                    </div>
+                  ) : null
+                }
+              </div>
+
+              <a
+                href={`/academy/${program.slug}/register`}
+                aria-disabled={!program.registration_open}
+                class:list={[
+                  "mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white transition",
+                  program.registration_open
+                    ? "bg-primary hover:opacity-90"
+                    : "pointer-events-none cursor-not-allowed bg-slate-400 opacity-70",
+                ]}
+              >
+                {
+                  program.registration_open
+                    ? "Register now"
+                    : "Registration closed"
+                }
+                <ArrowRight size={17} />
+              </a>
+
+              {
+                formattedRegistrationDeadline ? (
+                  <p class="mt-4 text-center text-xs leading-5 text-heading-3">
+                    Registration deadline: {formattedRegistrationDeadline}
+                  </p>
+                ) : null
+              }
+            </div>
+          </aside>
+        </div>
+      </Container>
+    </section>
+
+    <section class="border-t border-box-border bg-box-bg/40 py-14">
+      <Container>
+        <div
+          class="flex flex-col gap-6 rounded-3xl bg-primary px-6 py-10 text-white sm:px-10 lg:flex-row lg:items-center lg:justify-between"
+        >
+          <div>
+            <p
+              class="text-sm font-semibold uppercase tracking-[0.16em] text-white/75"
+            >
+              Ready to get started?
+            </p>
+
+            <h2 class="mt-3 text-3xl font-bold">
+              Take the next step with {program.title}
+            </h2>
+
+            <p class="mt-3 max-w-2xl text-sm leading-7 text-white/80">
+              Join a practical learning experience designed to help you build
+              useful, job-ready technical skills.
+            </p>
+          </div>
+
+          <a
+            href={`/academy/${program.slug}/register`}
+            aria-disabled={!program.registration_open}
+            class:list={[
+              "inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition",
+              program.registration_open
+                ? "bg-white text-primary hover:bg-white/90"
+                : "pointer-events-none cursor-not-allowed bg-white/50 text-white/80",
+            ]}
+          >
+            {
+              program.registration_open
+                ? "Register for this program"
+                : "Registration is closed"
+            }
+            <ArrowRight size={17} />
+          </a>
+        </div>
+      </Container>
+    </section>
+  </main>
+</Layout>

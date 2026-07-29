@@ -1,44 +1,133 @@
 ---
+import { ChevronDown } from "lucide-astro";
 import BtnLink from "../shared/BtnLink.astro";
 import Container from "../shared/Container.astro";
-import Navitem from "../shared/Navitem.astro";
 
-const navItems = [
+interface NavigationChild {
+  href: string;
+  text: string;
+  description?: string;
+}
+
+interface NavigationItem {
+  href?: string;
+  text: string;
+  children?: NavigationChild[];
+}
+
+const navItems: NavigationItem[] = [
   {
     href: "/",
     text: "Home",
   },
-
   {
-    href: "/solutions",
     text: "Solutions",
+    children: [
+      {
+        href: "/solutions",
+        text: "All Solutions",
+        description: "Explore every CloudTweak solution.",
+      },
+      {
+        href: "/solutions/microsoft-365",
+        text: "Microsoft 365",
+        description: "Administration, migration and support.",
+      },
+      {
+        href: "/solutions/power-platform",
+        text: "Power Platform",
+        description: "Power Apps, Automate and Power BI.",
+      },
+      {
+        href: "/solutions/it-support",
+        text: "IT Support",
+        description: "Technical support and managed services.",
+      },
+    ],
   },
   {
-    href: "/bootcamp",
-    text: "Bootcamp",
+    text: "Academy",
+    children: [
+      {
+        href: "/academy",
+        text: "All Programs",
+        description: "Explore every Academy training program.",
+      },
+      {
+        href: "/academy#all-programs",
+        text: "Featured Training",
+        description: "Discover our highlighted programmes.",
+      },
+      {
+        href: "/certificate-verification",
+        text: "Verify Certificate",
+        description: "Confirm a CloudTweak certificate.",
+      },
+    ],
+  },
+  {
+    text: "Resources",
+    children: [
+      {
+        href: "/careers",
+        text: "Careers",
+        description: "Explore open positions.",
+      },
+      {
+        href: "/blog",
+        text: "Blog",
+        description: "Read our quality articles.",
+      },
+    ],
   },
   {
     href: "#tally-open=VL4vdg&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave",
     text: "Contact Us",
   },
 ];
+
+const currentPath = Astro.url.pathname;
+
+/**
+ * Determine whether a normal navigation link is active.
+ */
+function isLinkActive(href?: string) {
+  if (!href || href.startsWith("#")) {
+    return false;
+  }
+
+  if (href === "/") {
+    return currentPath === "/";
+  }
+
+  return currentPath.startsWith(href.split("#")[0]);
+}
+
+/**
+ * Determine whether a parent navigation item contains an active child.
+ */
+function hasActiveChild(item: NavigationItem) {
+  return item.children?.some((child) => isLinkActive(child.href)) ?? false;
+}
 ---
 
-<header class="sticky inset-x-0 top-0 z-50 bg-white pb-8 dark:bg-[#030712]">
+<header class="sticky inset-x-0 top-0 z-[999] bg-white pb-8 dark:bg-[#030712]">
   <Container>
-    <nav class="w-full flex items-center justify-between gap-5 top-5 relative">
-      <!-- logo -->
+    <nav
+      class="relative top-5 z-[1000] flex w-full items-center justify-between gap-5"
+      aria-label="Primary navigation"
+    >
       <a href="/" class="flex items-center gap-3">
         <div>
           <img
             src="/logos/cloudtweaklogo.png"
-            class="dark:hidden w-[180px] md:w-[280px] object-contain"
+            class="w-[180px] object-contain dark:hidden md:w-[280px]"
             alt="CloudTweak"
           />
 
           <img
             src="/logos/cloudtweakwhite.png"
-            class="hidden dark:block w-[180px] md:w-[280px] object-contain"
+            class="hidden w-[180px] object-contain dark:block md:w-[280px]"
             alt="CloudTweak"
           />
         </div>
@@ -47,38 +136,118 @@ const navItems = [
       <div
         data-nav-overlay
         aria-hidden="true"
-        class="fixed hidden inset-0 lg:!hidden bg-box-bg bg-opacity-50 backdrop-filter backdrop-blur-xl"
+        class="fixed inset-0 hidden bg-box-bg bg-opacity-50 backdrop-blur-xl lg:!hidden"
       >
       </div>
+
       <div
         data-navbar
-        class="flex h-0 overflow-hidden lg:!h-auto lg:scale-y-100 duration-300 ease-linear flex-col gap-y-6 gap-x-4 lg:flex-row w-full lg:justify-between lg:items-center absolute lg:relative top-full lg:top-0 bg-body lg:bg-transparent border-x border-x-box-border lg:border-x-0"
+        class="absolute top-full flex h-0 w-full flex-col gap-x-4 gap-y-6 overflow-hidden border-x border-x-box-border bg-body duration-300 ease-linear lg:relative lg:top-0 lg:!h-auto lg:scale-y-100 lg:flex-row lg:items-center lg:justify-between lg:overflow-visible lg:border-x-0 lg:bg-transparent"
       >
         <ul
-          class="border-t border-box-border lg:border-t-0 px-6 lg:px-0 pt-6 lg:pt-0 flex flex-col lg:flex-row gap-y-4 gap-x-10 text-lg text-heading-2 w-full lg:justify-center lg:items-center"
+          class="flex w-full flex-col gap-x-8 gap-y-2 border-t border-box-border px-6 pt-6 text-base text-heading-2 lg:flex-row lg:items-center lg:justify-center lg:border-t-0 lg:px-0 lg:pt-0"
         >
           {
-            navItems.map((item) => {
-              return <Navitem {...item} />;
+            navItems.map((item, itemIndex) => {
+              const parentActive =
+                isLinkActive(item.href) || hasActiveChild(item);
+
+              if (!item.children?.length) {
+                return (
+                  <li>
+                    <a
+                      href={item.href}
+                      class:list={[
+                        "relative flex min-h-11 items-center rounded-xl px-3 py-2 font-medium transition",
+                        parentActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-heading-2 hover:bg-box-bg hover:text-primary",
+                      ]}
+                    >
+                      {item.text}
+                    </a>
+                  </li>
+                );
+              }
+
+              return (
+                <li
+                  class="group relative lg:pb-3 lg:-mb-3"
+                  data-public-nav-parent
+                >
+                  <button
+                    type="button"
+                    data-public-submenu-trigger
+                    aria-expanded="false"
+                    aria-controls={`public-submenu-${itemIndex}`}
+                    class:list={[
+                      "flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 font-medium transition lg:w-auto",
+                      parentActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-heading-2 hover:bg-box-bg hover:text-primary",
+                    ]}
+                  >
+                    <span>{item.text}</span>
+
+                    <ChevronDown
+                      size={16}
+                      data-public-submenu-icon
+                      class="shrink-0 transition-transform duration-200"
+                    />
+                  </button>
+
+                  <div
+                    id={`public-submenu-${itemIndex}`}
+                    data-public-submenu
+                    class="hidden w-full lg:absolute lg:left-1/2 lg:top-full lg:z-[1001] lg:w-80 lg:-translate-x-1/2 lg:pt-3"
+                  >
+                    <div class="space-y-1 border-l border-box-border bg-white pl-4 shadow-2xl dark:bg-[#030712] lg:rounded-2xl lg:border lg:border-box-border lg:p-2">
+                      {item.children.map((child) => (
+                        <a
+                          href={child.href}
+                          class:list={[
+                            "block rounded-xl px-4 py-3 transition",
+                            isLinkActive(child.href)
+                              ? "bg-primary/10 text-primary"
+                              : "text-heading-2 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800",
+                          ]}
+                        >
+                          <span class="block text-sm font-semibold">
+                            {child.text}
+                          </span>
+
+                          {child.description ? (
+                            <span class="mt-1 block text-xs leading-5 text-heading-3">
+                              {child.description}
+                            </span>
+                          ) : null}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+              );
             })
           }
         </ul>
 
         <div
-          class="lg:min-w-max flex items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0"
+          class="flex w-full items-center border-b border-box-bg px-6 pb-6 sm:w-max lg:min-w-max lg:border-0 lg:px-0 lg:pb-0"
         >
           <BtnLink
             text="Ask AI Assistant"
-            className="flex rounded-full justify-center w-full sm:w-max"
+            className="flex w-full justify-center rounded-full sm:w-max"
             variant="primary"
           />
         </div>
       </div>
 
-      <div class="min-w-max flex items-center gap-x-3">
+      <div class="flex min-w-max items-center gap-x-3">
         <button
+          type="button"
           data-switch-theme
-          class="outline-none flex relative text-heading-2 rounded-full p-2 lg:p-3 border border-box-border"
+          aria-label="Switch theme"
+          class="relative flex rounded-full border border-box-border p-2 text-heading-2 outline-none lg:p-3"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -86,52 +255,191 @@ const navItems = [
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6 dark:flex hidden"
+            class="hidden h-6 w-6 dark:flex"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-            ></path>
+            >
+            </path>
           </svg>
+
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="w-6 h-6 dark:hidden"
+            class="h-6 w-6 dark:hidden"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-            ></path>
+            >
+            </path>
           </svg>
 
-          <span class="sr-only">switch theme</span>
+          <span class="sr-only">Switch theme</span>
         </button>
 
         <button
+          type="button"
           data-toggle-nav
           data-open-nav="false"
-          class="lg:hidden lg:invisible outline-none w-7 h-auto flex flex-col relative"
+          aria-label="Toggle navigation"
+          class="relative flex h-auto w-7 flex-col outline-none lg:invisible lg:hidden"
         >
           <span
             id="line1"
-            class="w-6 h-0.5 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
-          ></span>
+            class="h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
+          >
+          </span>
+
           <span
             id="line2"
-            class="w-6 origin-center mt-1 h-0.5 rounded-ful bg-heading-2 transition-all duration-300 ease-linear"
-          ></span>
+            class="mt-1 h-0.5 w-6 origin-center rounded-full bg-heading-2 transition-all duration-300 ease-linear"
+          >
+          </span>
+
           <span
             id="line3"
-            class="w-6 mt-1 h-0.5 rounded-ful bg-heading-2 transition-all duration-300 ease-linear"
-          ></span>
-          <span class="sr-only">togglenav</span>
+            class="mt-1 h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
+          >
+          </span>
+
+          <span class="sr-only">Toggle navigation</span>
         </button>
       </div>
     </nav>
   </Container>
 </header>
+
+<script>
+  /**
+   * Initialize expandable public navigation submenus.
+   */
+  function initializePublicSubmenus() {
+    const navigationParents = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-public-nav-parent]")
+    );
+
+    /**
+     * Close one navigation submenu.
+     */
+    function closeSubmenu(parent: HTMLElement) {
+      const trigger = parent.querySelector<HTMLButtonElement>(
+        "[data-public-submenu-trigger]"
+      );
+
+      const submenu = parent.querySelector<HTMLElement>(
+        "[data-public-submenu]"
+      );
+
+      const icon = parent.querySelector<HTMLElement>(
+        "[data-public-submenu-icon]"
+      );
+
+      trigger?.setAttribute("aria-expanded", "false");
+      submenu?.classList.add("hidden");
+      icon?.classList.remove("rotate-180");
+    }
+
+    /**
+     * Open one navigation submenu and close every other submenu.
+     */
+    function openSubmenu(parent: HTMLElement) {
+      navigationParents.forEach((navigationParent) => {
+        if (navigationParent !== parent) {
+          closeSubmenu(navigationParent);
+        }
+      });
+
+      const trigger = parent.querySelector<HTMLButtonElement>(
+        "[data-public-submenu-trigger]"
+      );
+
+      const submenu = parent.querySelector<HTMLElement>(
+        "[data-public-submenu]"
+      );
+
+      const icon = parent.querySelector<HTMLElement>(
+        "[data-public-submenu-icon]"
+      );
+
+      trigger?.setAttribute("aria-expanded", "true");
+      submenu?.classList.remove("hidden");
+      icon?.classList.add("rotate-180");
+    }
+
+    navigationParents.forEach((parent) => {
+      const trigger = parent.querySelector<HTMLButtonElement>(
+        "[data-public-submenu-trigger]"
+      );
+
+      const submenu = parent.querySelector<HTMLElement>(
+        "[data-public-submenu]"
+      );
+
+      if (!trigger || !submenu) {
+        return;
+      }
+
+      trigger.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        const isOpen = trigger.getAttribute("aria-expanded") === "true";
+
+        if (isOpen) {
+          closeSubmenu(parent);
+          return;
+        }
+
+        openSubmenu(parent);
+      });
+
+      parent.addEventListener("mouseenter", () => {
+        if (window.innerWidth >= 1024) {
+          openSubmenu(parent);
+        }
+      });
+
+      parent.addEventListener("mouseleave", () => {
+        if (window.innerWidth >= 1024) {
+          closeSubmenu(parent);
+        }
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      navigationParents.forEach((parent) => {
+        if (!parent.contains(target)) {
+          closeSubmenu(parent);
+        }
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      navigationParents.forEach((parent) => {
+        closeSubmenu(parent);
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initializePublicSubmenus);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializePublicSubmenus, {
+      once: true,
+    });
+  } else {
+    initializePublicSubmenus();
+  }
+</script>

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import InstructorForm from "./InstructorForm";
-import type { BootcampInstructor } from "../../lib/bootcamp_instructors";
-import { getInstructorById } from "../../lib/bootcamp_instructors";
-import { updateInstructor } from "../../lib/bootcamp_instructors";
+import type { BootcampInstructor } from "../../lib/academy_instructors";
+import { getInstructorById } from "../../lib/academy_instructors";
+import { updateInstructor } from "../../lib/academy_instructors";
 
 interface Props {
   instructorId: string;

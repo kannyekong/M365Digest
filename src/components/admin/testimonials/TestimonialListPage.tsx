@@ -56,7 +56,7 @@ export default function TestimonialListPage() {
   }
 
   return (
-    <div className="space-y-8 p-12">
+    <div className="space-y-8 p-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">All Testimonials</h1>

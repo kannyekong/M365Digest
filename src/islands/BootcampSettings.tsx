@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import CoverImageUploader from "../blog/ImageUploader";
 import { getBootcampSettings, updateBootcampSettings } from "../lib/bootcamp";
 import { Typewriter } from "react-simple-typewriter";
-import { ArrowLeftCircle } from "lucide-react";
+import ImageUploader from "../blog/ImageUploader";
 
 export default function BootcampSettings() {
   const [loading, setLoading] = useState(true);
@@ -49,7 +48,7 @@ export default function BootcampSettings() {
   }
 
   return (
-    <div className="space-y-8 p-12">
+    <div className="space-y-8 p-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">
@@ -286,7 +285,8 @@ export default function BootcampSettings() {
               <span className="font-light text-xs">
                 (This appears by the hero heading on the public page.)
               </span>
-              <CoverImageUploader
+              <ImageUploader
+                bucket="bootcamp_images"
                 value={settings.hero_image ?? ""}
                 onChange={(url) =>
                   setSettings({

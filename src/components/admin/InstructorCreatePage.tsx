@@ -1,8 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { BootcampInstructor } from "../../lib/bootcamp_instructors";
+import type { BootcampInstructor } from "../../lib/academy_instructors";
 import InstructorForm from "./InstructorForm";
-import { createInstructor } from "../../lib/bootcamp_instructors";
+import { createInstructor } from "../../lib/academy_instructors";
 
 export default function InstructorCreatePage() {
   const [saving, setSaving] = useState(false);

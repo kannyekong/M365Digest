@@ -150,10 +150,10 @@ export default function StaffForm({ mode = "create" }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-10">
+    <div className="mx-auto max-w-full p-5">
       <div className="flex flex-row justify-between">
         <div className="mb-10">
-          <h1>{mode === "edit" ? "Edit Staff" : "Add Staff"}</h1>
+          <h1 className="font-bold text-2xl">{mode === "edit" ? "Edit Staff" : "Add Staff"}</h1>
           <p className="mt-2 text-slate-500">Create a new employee profile.</p>
         </div>
         <a href="/admin/staff">

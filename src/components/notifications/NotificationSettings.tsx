@@ -100,8 +100,8 @@ export default function NotificationSettings() {
   };
 
   return (
-    <div className="p-12">
-      <section className="rounded-3xl border border-box-border bg-white/70 p-6 shadow-sm backdrop-blur-xl dark:bg-box-bg/70">
+    <div className="w-[min(26rem,calc(100vw-2rem))]">
+      <section className="rounded-3xl border border-box-border bg-white/95 p-6 shadow-2xl backdrop-blur-xl dark:bg-box-bg/95">
         <div className="mb-6 flex items-start gap-3 pb-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
             <BellRing className="h-5 w-5 text-primary" />

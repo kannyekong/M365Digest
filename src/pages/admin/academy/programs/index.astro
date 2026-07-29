@@ -1,0 +1,26 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import AcademyProgramsTable from "../../../../components/admin/academy/AcademyProgramsTable";
+import { Plus } from "lucide-astro";
+---
+
+<AdminLayout title="Academy Programs">
+  <main class="space-y-8 p-5 lg:p-5">
+    <header
+      class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div>
+        <p <h1 class="mt-2 text-xl font-bold text-slate-950">
+          Academy Programs
+        </p>
+
+        <p class="mt-2 max-w-2xl text-xs leading-6 text-slate-500">
+          Create, publish and manage bootcamps, workshops, masterclasses and
+          other CloudTweak training programs.
+        </p>
+      </div>
+    </header>
+
+    <AcademyProgramsTable client:load />
+  </main>
+</AdminLayout>

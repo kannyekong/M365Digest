@@ -1,4 +1,11 @@
-import { BookOpen, Users, Workflow, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Users,
+  Workflow,
+  Sparkles,
+  BadgeDollarSign,
+  ArrowUpRight,
+} from "lucide-react";
 
 interface Props {
   title: string;
@@ -12,7 +19,7 @@ interface Props {
   subtitleThree: string;
   subtitleFour: string;
   subtitleFive: string;
-  icon: "articles" | "tasks" | "drafts" | "engagements";
+  icon: "articles" | "tasks" | "drafts" | "engagements" | "revenue";
   color?: string;
 }
 
@@ -50,6 +57,9 @@ export default function SingleStatCard({
           {icon === "articles" && <BookOpen className="h-4 w-4 text-white" />}
           {icon === "drafts" && <Users className="h-4 w-4 text-white" />}
           {icon === "tasks" && <Workflow className="h-4 w-4 text-white" />}
+          {icon === "revenue" && (
+            <BadgeDollarSign className="h-4 w-4 text-white" />
+          )}
           {icon === "engagements" && (
             <Sparkles className="h-4 w-4 text-white" />
           )}
@@ -79,9 +89,10 @@ export default function SingleStatCard({
         <div className="flex gap-1 text-xs">
           <a
             href={subtitleFive}
-            className={`text-black border border-${color}-500 pr-1 pl-1 rounded-full`}
+            className="inline-flex items-center gap-1 rounded-full border border-blue-500 px-1 font-medium text-slate-900 transition hover:bg-blue-500 hover:text-white"
           >
             Manage
+            <ArrowUpRight className="h-3 w-3" />
           </a>
         </div>
       </div>

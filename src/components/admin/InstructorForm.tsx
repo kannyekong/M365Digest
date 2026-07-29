@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BootcampInstructor } from "../../lib/bootcamp_instructors";
+import type { BootcampInstructor } from "../../lib/academy_instructors";
 import InstructorSkillsInput from "./InstructorSkillsInput";
 import SectionCard from "../ui/SectionCard";
 import TextInput from "../ui/TextInput";

@@ -1,0 +1,32 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AcademyCategoriesManager from "../../../components/admin/academy/AcademyCategoriesManager";
+---
+
+<AdminLayout title="Academy Categories">
+  <main class="space-y-8 p-6 lg:p-10">
+    <header
+      class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div>
+        <h1 class="mt-2 text-xl font-bold text-slate-950">
+          Academy Categories
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Create and manage the categories used to group related Academy
+          programs.
+        </p>
+      </div>
+
+      <a
+        href="/admin/academy/programs"
+        class="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      >
+        View Programs
+      </a>
+    </header>
+
+    <AcademyCategoriesManager client:load />
+  </main>
+</AdminLayout>

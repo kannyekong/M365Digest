@@ -8,11 +8,14 @@ import {
   Newspaper,
   GraduationCap,
   BriefcaseBusiness,
-  MailOpen,
   Workflow,
   Settings,
   FolderOpenDot,
   Columns2,
+  BadgeDollarSign,
+  Sparkles,
+  GalleryHorizontalEnd,
+LibraryBig,
 } from "lucide-astro";
 import LogoutButton from "../../../islands/LogoutButton";
 
@@ -24,11 +27,11 @@ const sections = [
   },
 
   {
-    title: "My To-Dos",
+    title: "My Tasks",
     icon: Workflow,
     links: [
       {
-        title: "Manage to-do",
+        title: "Manage tasks",
         href: "/admin/tasks/",
       },
       {
@@ -39,8 +42,8 @@ const sections = [
   },
 
   {
-    title: "Manage Hero",
-    icon: Columns2,
+    title: "Hero",
+    icon: GalleryHorizontalEnd,
     links: [
       {
         title: "Manage banner",
@@ -67,11 +70,11 @@ const sections = [
     links: [
       {
         title: "Add Projects",
-        href: "/admin/tasks/",
+        href: "/admin/projects/new",
       },
       {
         title: "Manage Projects",
-        href: "/admin/tasks/add",
+        href: "/admin/projects/",
       },
     ],
   },
@@ -123,7 +126,7 @@ const sections = [
   },
 
   {
-    title: "Manage staff",
+    title: "Staff",
     icon: UserPen,
     links: [
       {
@@ -137,7 +140,7 @@ const sections = [
     ],
   },
   {
-    title: "Manage students",
+    title: "Students",
     icon: UserPen,
     links: [
       {
@@ -152,32 +155,40 @@ const sections = [
   },
 
   {
-    title: "Bootcamp settings",
+    title: "Academy",
     icon: GraduationCap,
     links: [
       {
-        title: "Bootcamp overview",
+        title: "Programs",
+        href: "/admin/academy/programs",
+      },
+      {
+        title: "Registrations",
         href: "/admin/bootcamp/bootcamp",
       },
       {
-        title: "Add bootcamp",
-        href: "/admin/bootcamp/bootcamp",
-      },
-      {
-        title: "All instructors",
+        title: "Certificates",
         href: "/admin/bootcamp/instructors",
       },
       {
-        title: "Add a new instructor",
+        title: "Categories",
+        href: "/admin/academy/categories",
+      },
+      {
+        title: "Templates",
         href: "/admin/bootcamp/instructors/new",
       },
     ],
   },
 
   {
-    title: "Form submissions",
-    icon: MailOpen,
+    title: "Insights",
+    icon: Sparkles,
     links: [
+      {
+        title: "Overview",
+        href: "/admin/insights",
+      },
       {
         title: "Contact",
         href: "/admin/forms/contact",
@@ -217,18 +228,33 @@ const sections = [
   },
 
   {
-    title: "Document Library",
+    title: "Library",
     links: [
       {
-        title: "All documents",
+        title: "Document library",
         href: "/admin/documents",
       },
       {
-        title: "Upload a new document",
+        title: "Image library",
         href: "/admin/documents/add",
       },
     ],
-    icon: FolderOpenDot,
+    icon: LibraryBig,
+  },
+
+  {
+    title: "Revenue",
+    links: [
+      {
+        title: "Overview",
+        href: "/admin/documents",
+      },
+      {
+        title: "Manage other features",
+        href: "/admin/documents/add",
+      },
+    ],
+    icon: BadgeDollarSign,
   },
 
   {
@@ -252,13 +278,24 @@ const sections = [
 ];
 ---
 
-<aside class="sticky top-0 h-screen w-62 flex flex-col">
-  <div class="p-6 border-b border-slate-100 border-r">
-    <img src="/logos/cloudtweaklogo.png" alt="logo" class="w-full" />
-  </div>
+<aside class="sticky top-0 h-screen w-62 flex flex-col dark:bg-black">
+  <a href="/admin" class="p-6 border-b border-slate-100 border-r dark:border-slate-100">
+    <img
+      src="/logos/cloudtweaklogo.png"
+      alt="logo"
+      class="dark:hidden w-3/4 object-contain"
+      alt="CloudTweak"
+    />
+
+    <img
+      src="/logos/cloudtweakwhite.png"
+      class="hidden dark:block w-3/4 object-contain"
+      alt="CloudTweak"
+    />
+  </a>
 
   <nav
-    class="px-4 flex-1 overflow-y-auto border-r border-slate-100 dark:border-slate-50"
+    class="px-4 flex-1 overflow-y-auto border-r border-slate-100 dark:border-none"
   >
     {
       sections.map((section) =>
@@ -300,7 +337,7 @@ const sections = [
         ) : (
           <a
             href={section.href}
-            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 mt-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <section.icon size={18} />
 
@@ -310,7 +347,7 @@ const sections = [
       )
     }
   </nav>
-  <div class="mt-auto px-4 pb-8 text-black dark:text-white">
+  <div class="mt-auto px-4 pb-8 text-red-500">
     <LogoutButton client:load />
   </div>
 </aside>

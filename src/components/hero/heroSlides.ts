@@ -54,7 +54,7 @@ export const heroSlides: HeroSlide[] = [
 
     primaryButton: {
       text: "Enroll Today",
-      href: "/bootcamp",
+      href: "/academy",
       color: "bg-pink-600",
     },
 

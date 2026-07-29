@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ArrowUp,
+  Badge,
   CheckCircle2,
   Clock3,
   Download,
@@ -8,12 +9,14 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { deleteTask, updateTask } from "../../../lib/tasks";
 import { exportToCSV, paginateData, sortData } from "../../../lib/table";
 import ViewSubmissionModal from "../../../islands/ViewSubmissionModal";
 import type { Task } from "../../../types/task";
+import { getProjectOptions } from "../../../lib/server/projects";
+import type { ProjectOption } from "../../../types/project";
 
 interface Props {
   tasks: Task[];
@@ -35,6 +38,12 @@ export default function TaskTable({ tasks, reload }: Props) {
   // Store the selected task priority filter.
   const [priorityFilter, setPriorityFilter] = useState("All");
 
+  // Store the selected project filter.
+  const [projectFilter, setProjectFilter] = useState("All");
+
+  // Store all available projects.
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+
   // Store the currently selected sorting column.
   const [sortColumn, setSortColumn] = useState("created_at");
 
@@ -46,6 +55,17 @@ export default function TaskTable({ tasks, reload }: Props) {
 
   // Store the number of rows displayed per page.
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Load all available projects for the filter dropdown.
+  useEffect(() => {
+    async function loadProjects() {
+      const data = await getProjectOptions();
+
+      setProjects(data);
+    }
+
+    loadProjects();
+  }, []);
 
   // Delete a task after confirming the user's action.
   async function handleDelete(task: Task) {
@@ -221,13 +241,53 @@ export default function TaskTable({ tasks, reload }: Props) {
       const matchesPriority =
         priorityFilter === "All" || task.priority === priorityFilter;
 
+      // Check whether the task matches the selected project.
+      const matchesProject =
+        projectFilter === "All"
+          ? true
+          : projectFilter === "none"
+            ? !task.project_id
+            : task.project_id === projectFilter;
+
       // Return tasks matching all active filters.
-      return matchesSearch && matchesStatus && matchesPriority;
+      return (
+        matchesSearch && matchesStatus && matchesPriority && matchesProject
+      );
     });
 
     // Sort the filtered tasks.
+    // Sort project names separately because project is a nested task property.
+    if (sortColumn === "project") {
+      return [...filtered].sort((firstTask, secondTask) => {
+        // Use an empty string when a task is not assigned to a project.
+        const firstProjectName = firstTask.project?.name ?? "";
+        const secondProjectName = secondTask.project?.name ?? "";
+
+        // Compare the project names without case sensitivity.
+        const comparison = firstProjectName.localeCompare(
+          secondProjectName,
+          undefined,
+          {
+            sensitivity: "base",
+          }
+        );
+
+        // Apply the selected sorting direction.
+        return sortDirection === "asc" ? comparison : -comparison;
+      });
+    }
+
+    // Sort normal top-level task properties using the existing table helper.
     return sortData(filtered, sortColumn as keyof Task, sortDirection);
-  }, [tasks, search, statusFilter, priorityFilter, sortColumn, sortDirection]);
+  }, [
+    tasks,
+    search,
+    statusFilter,
+    priorityFilter,
+    sortColumn,
+    sortDirection,
+    projectFilter,
+  ]);
 
   // Calculate the total number of pending tasks.
   const pendingTasks = tasks.filter((task) => task.status === "pending");
@@ -291,7 +351,7 @@ export default function TaskTable({ tasks, reload }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       <div className="grid gap-4 pb-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-pink-500 p-4 text-white shadow-lg">
           <div className="flex items-center gap-2 text-white">
@@ -382,6 +442,39 @@ export default function TaskTable({ tasks, reload }: Props) {
           </select>
 
           <select
+            value={projectFilter}
+            onChange={(event) => {
+              setProjectFilter(event.target.value);
+              setCurrentPage(1);
+            }}
+            className="rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-primary"
+          >
+            <option value="All">All Projects</option>
+
+            <option value="none">No Project</option>
+
+            <optgroup label="Internal Projects">
+              {projects
+                .filter((project) => project.project_type === "internal")
+                .map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.project_code} — {project.name}
+                  </option>
+                ))}
+            </optgroup>
+
+            <optgroup label="Client Projects">
+              {projects
+                .filter((project) => project.project_type === "client")
+                .map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.project_code} — {project.name}
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+
+          <select
             value={priorityFilter}
             onChange={(event) => {
               setPriorityFilter(event.target.value);
@@ -439,7 +532,12 @@ export default function TaskTable({ tasks, reload }: Props) {
                   {getSortIcon("status")}
                 </div>
               </th>
-
+              <th
+                className="cursor-pointer px-6 py-4"
+                onClick={() => handleSort("project")}
+              >
+                Project type
+              </th>
               <th
                 className="cursor-pointer px-6 py-4"
                 onClick={() => handleSort("priority")}
@@ -505,6 +603,29 @@ export default function TaskTable({ tasks, reload }: Props) {
                   </select>
                 </td>
 
+                <td className="max-w-sm px-6 py-4">
+                  {task.project &&
+                    (() => {
+                      const projectType = (
+                        task.project as unknown as {
+                          project_type: "internal" | "client";
+                        }
+                      ).project_type;
+
+                      return (
+                        <span
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                            projectType === "internal"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}
+                        >
+                          {projectType === "internal" ? "Internal" : "Client"}
+                        </span>
+                      );
+                    })()}
+                </td>
+
                 <td className="px-6 py-4">
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
@@ -527,16 +648,38 @@ export default function TaskTable({ tasks, reload }: Props) {
                   <div className="flex items-center gap-2">
                     <ViewSubmissionModal
                       title="Task Details"
-                      data={task}
+                      data={{
+                        ...task,
+                        project_id: task.project?.id ?? null,
+                        project_name: task.project?.name ?? "No Project",
+                        project_code:
+                          task.project?.project_code ?? "Not available",
+                        project_type:
+                          (
+                            task.project as unknown as {
+                              project_type?: "internal" | "client";
+                            }
+                          )?.project_type ?? "Not available",
+                      }}
                       preferredOrder={[
                         "title",
                         "description",
+                        "project_name",
+                        "project_code",
+                        "project_type",
                         "status",
                         "priority",
                         "due_date",
                         "created_at",
                       ]}
-                      hiddenFields={["id"]}
+                      hiddenFields={[
+                        "id",
+                        "staff_id",
+                        "project",
+                        "project_id",
+                        "completed_at",
+                        "updated_at",
+                      ]}
                       showDeveloperTools={true}
                     />
 

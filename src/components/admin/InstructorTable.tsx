@@ -1,4 +1,4 @@
-import type { BootcampInstructor } from "../../lib/bootcamp_instructors";
+import type { BootcampInstructor } from "../../lib/academy_instructors";
 import { Pencil, Trash2, User } from "lucide-react";
 import toast from "react-hot-toast";
 import { deleteCoverImage } from "../../lib/storage";
@@ -6,7 +6,7 @@ import { deleteCoverImage } from "../../lib/storage";
 import {
   deleteInstructor,
   listInstructors,
-} from "../../lib/bootcamp_instructors";
+} from "../../lib/academy_instructors";
 
 async function handleDelete(instructor: BootcampInstructor) {
   const confirmed = window.confirm(

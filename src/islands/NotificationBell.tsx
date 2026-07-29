@@ -36,7 +36,7 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={toggleDropdown}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 dark:bg-slate-100"
         aria-label="Notifications"
       >
         <Bell size={21} className="text-slate-600" />

@@ -8,7 +8,7 @@ const { title } = Astro.props;
 import Sidebar from "../components/admin/UI/Sidebar.astro";
 import AuthCheck from "../islands/AuthCheck";
 import ToastProvider from "../islands/ToastProvider";
-import Header from "../components/admin/UI/Header.astro";
+import Preloader from "../components/shared/Preloader.astro";
 ---
 
 <html lang="en">
@@ -50,17 +50,16 @@ import Header from "../components/admin/UI/Header.astro";
 
   <body>
     <AuthCheck client:load />
+    <Preloader />
 
     <div class="flex w-full">
       <div class="flex">
         <Sidebar />
       </div>
 
-      <div class="flex min-w-0 flex-1 flex-col">
-        <main class="flex-1 py-6">
-          <slot />
-        </main>
-      </div>
+      <main class="flex-1">
+        <slot />
+      </main>
     </div>
 
     <ToastProvider client:load />

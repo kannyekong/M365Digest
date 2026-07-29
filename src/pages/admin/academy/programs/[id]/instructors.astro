@@ -1,0 +1,17 @@
+---
+import AdminLayout from "../../../../../layouts/AdminLayout.astro";
+import ProgramInstructorManager from "../../../../../components/admin/academy/instructors/ProgramInstructorManager";
+
+const { id } = Astro.params;
+
+// Redirect back to the programs page when the dynamic route has no program ID.
+if (!id) {
+  return Astro.redirect("/admin/academy/programs");
+}
+---
+
+<AdminLayout title="Program Instructors">
+  <main class="p-6 lg:p-10">
+    <ProgramInstructorManager client:load programId={id} />
+  </main>
+</AdminLayout>

@@ -205,23 +205,23 @@ const {
     // Add click event to each button
     openButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
+        modal?.classList.remove("hidden");
+        modal?.classList.add("flex");
 
         document.body.classList.add("overflow-hidden");
       });
     });
 
     function closeModal() {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
+      modal?.classList.add("hidden");
+      modal?.classList.remove("flex");
 
       document.body.classList.remove("overflow-hidden");
     }
 
-    closeBtn.addEventListener("click", closeModal);
+    closeBtn?.addEventListener("click", closeModal);
 
-    modal.addEventListener("click", (e) => {
+    modal?.addEventListener("click", (e) => {
       if (e.target === modal) {
         closeModal();
       }

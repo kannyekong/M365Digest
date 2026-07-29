@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { addTask, getTask, updateTask } from "../../../lib/tasks";
+import { getProjectOptions } from "../../../lib/server/projects";
 
 interface Props {
   mode?: "create" | "edit";
@@ -9,12 +10,22 @@ interface Props {
 export default function TaskForm({ mode = "create" }: Props) {
   // Store all values entered into the task form.
   const [form, setForm] = useState({
+    project_id: "",
     title: "",
     description: "",
     status: "pending" as "pending" | "in_progress" | "completed",
     priority: "medium" as "low" | "medium" | "high",
     due_date: "",
   });
+
+  // Store all projects that can be assigned to a task.
+  const [projects, setProjects] = useState<
+    {
+      id: string;
+      project_code: string;
+      name: string;
+    }[]
+  >([]);
 
   // Track whether the task is currently being saved.
   const [saving, setSaving] = useState(false);
@@ -50,6 +61,7 @@ export default function TaskForm({ mode = "create" }: Props) {
 
     // Populate the form with the existing task data.
     setForm({
+      project_id: data.project_id ?? "",
       title: data.title ?? "",
       description: data.description ?? "",
       status: data.status ?? "pending",
@@ -58,8 +70,17 @@ export default function TaskForm({ mode = "create" }: Props) {
     });
   }
 
+  // Load all available projects.
+  async function loadProjects() {
+    const projects = await getProjectOptions();
+
+    setProjects(projects);
+  }
+
   // Load the existing task when the component opens in edit mode.
   useEffect(() => {
+    loadProjects();
+
     if (mode === "edit") {
       loadTask();
     }
@@ -90,6 +111,7 @@ export default function TaskForm({ mode = "create" }: Props) {
     // Update the existing task when the form is in edit mode.
     if (mode === "edit" && id) {
       const result = await updateTask(id, {
+        project_id: form.project_id,
         title: form.title,
         description: form.description,
         status: form.status,
@@ -104,6 +126,7 @@ export default function TaskForm({ mode = "create" }: Props) {
     } else {
       // Create a new task when the form is in create mode.
       const result = await addTask({
+        project_id: form.project_id,
         title: form.title,
         description: form.description,
         status: form.status,
@@ -145,7 +168,7 @@ export default function TaskForm({ mode = "create" }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 p-12">
+    <form onSubmit={handleSubmit} className="space-y-8 p-5">
       <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-slate-900">
@@ -178,6 +201,31 @@ export default function TaskForm({ mode = "create" }: Props) {
               placeholder="e.g. Review staff onboarding process"
               className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="project_id"
+              className="mb-2 block text-sm font-medium text-slate-700"
+            >
+              Project
+            </label>
+
+            <select
+              id="project_id"
+              name="project_id"
+              value={form.project_id}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+            >
+              <option value="">No Project</option>
+
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.project_code} — {project.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

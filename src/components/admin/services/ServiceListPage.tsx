@@ -47,23 +47,23 @@ export default function ServiceListPage() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
+      <div className="rounded-2xl bg-white p-5 text-center shadow-sm">
         Loading services...
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-12">
+    <div className="space-y-8 p-5">
       {/* Header */}
 
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-bold">All Services</h3>
 
-          <p className="mt-2 text-slate-500 text-sm">
+          {/* <p className="mt-2 text-slate-500 text-sm">
             Manage the services displayed on the CloudTweak website.
-          </p>
+          </p> */}
         </div>
 
         <a

@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../../../layouts/AdminLayout.astro";
+import AcademyCurriculumBuilder from "../../../../../components/admin/academy/curriculum/AcademyCurriculumBuilder";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/academy/programs");
+}
+---
+
+<AdminLayout title="Academy Curriculum">
+  <main class="p-6 lg:p-10">
+    <AcademyCurriculumBuilder client:load programId={id} />
+  </main>
+</AdminLayout>

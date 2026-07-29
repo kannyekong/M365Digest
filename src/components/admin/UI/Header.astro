@@ -2,26 +2,35 @@
 import { getGreeting } from "../../../utils/greetings.ts";
 import UserMenu from "../../../islands/UserMenu";
 import NotificationBell from "../../../islands/NotificationBell";
-import { Sun } from "lucide-astro";
+import NotificationSettingsPopover from "../NotificationSettingsPopover";
+import DashboardStatusPanel from "../../../islands/DashboardStatusPanel";
 
 const { greeting, message } = getGreeting("Akaneno");
 ---
 
-<header class="border-b border-slate-200">
-  <div class="px-10 py-6 flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold dark:text-white">
-        {greeting}
-      </h1>
+<div class="top-0">
+  <header
+    class="border-b border-slate-200 dark:bg-black dark:border-l dark:border-slate-100"
+  >
+    <div class="px-5 py-6 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold dark:text-white">
+          {greeting}
+        </h1>
 
-      <p class="text-slate-500 mt-1 text-xs dark:text-white">{message}</p>
-    </div>
+        <DashboardStatusPanel monthlyRevenue={12400000} client:load />
+      </div>
 
-    <div class="flex flex-row justify-between">
-      <span class="p-3">
-        <NotificationBell client:load />
-      </span>
-      <UserMenu client:load />
+      <div class="flex flex-row justify-between">
+        <span class="pt-2 pb-2">
+          <!-- <AdminThemeToggle client:load /> -->
+          <NotificationSettingsPopover client:load />
+        </span>
+        <span class="p-3">
+          <NotificationBell client:load />
+        </span>
+        <UserMenu client:load />
+      </div>
     </div>
-  </div>
-</header>
+  </header>
+</div>

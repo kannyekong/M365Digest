@@ -1,26 +1,44 @@
-// This interface describes the complete task structure used across the dashboard.
-export interface Task {
-  // Unique task identifier.
+/* Represents the statuses currently used by the Tasks module. */
+export type TaskStatus = "pending" | "in_progress" | "completed";
+
+/* Represents the available task priority levels. */
+export type TaskPriority = "low" | "medium" | "high" | "critical";
+
+/* Represents the project information returned with a task. */
+export interface TaskProject {
   id: string;
+  project_code: string;
+  name: string;
+}
 
-  // Task title displayed to the user.
+/* Represents the fields used when calculating project progress. */
+export interface TaskSummary {
+  id: string;
+  status: TaskStatus;
+}
+
+/* Represents a complete task from the tasks table. */
+export interface Task {
+  id: string;
+  staff_id: string;
+  project_id: string | null;
   title: string;
-
-  // Optional task description.
   description: string | null;
-
-  // Current task status.
-  status: "pending" | "in_progress" | "completed";
-
-  // Current task priority.
-  priority: "low" | "medium" | "high";
-
-  // Optional task due date.
+  status: TaskStatus;
+  priority: TaskPriority;
   due_date: string | null;
-
-  // Date and time the task was created.
+  completed_at: string | null;
   created_at: string;
+  updated_at: string;
+  project?: TaskProject | null;
+}
 
-  // Optional completion date.
-  completed_at?: string | null;
+/* Represents values submitted by the create and edit task forms. */
+export interface TaskInput {
+  project_id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  due_date: string;
 }

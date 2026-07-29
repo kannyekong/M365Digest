@@ -184,7 +184,7 @@ export default function ContactTable({ contacts, setContacts }: Props) {
   }
 
   return (
-    <div className="p-12">
+    <div className="p-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">People who contacted us</h1>
