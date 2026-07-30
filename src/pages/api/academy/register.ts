@@ -107,19 +107,22 @@ function generatePaymentReference(programCode?: string | null) {
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // Check which required server variables Astro loaded without exposing their values.
+    console.log("Academy registration environment:", {
+      hasSupabaseUrl: Boolean(import.meta.env.SUPABASE_URL),
+      hasSupabaseServiceRoleKey: Boolean(
+        import.meta.env.SUPABASE_SERVICE_ROLE_KEY
+      ),
+      hasPaystackSecretKey: Boolean(import.meta.env.PAYSTACK_SECRET_KEY),
+    });
     // Read required server-only environment variables.
     const supabaseUrl = import.meta.env.SUPABASE_URL;
     const supabaseServiceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
     const paystackSecretKey = import.meta.env.PAYSTACK_SECRET_KEY;
-    const publicSiteUrl = import.meta.env.PUBLIC_SITE_URL;
+    const origin = new URL(request.url).origin;
 
     // Stop when the server configuration is incomplete.
-    if (
-      !supabaseUrl ||
-      !supabaseServiceRoleKey ||
-      !paystackSecretKey ||
-      !publicSiteUrl
-    ) {
+    if (!supabaseUrl || !supabaseServiceRoleKey || !paystackSecretKey) {
       console.error(
         "Academy registration environment variables are incomplete."
       );
@@ -374,7 +377,7 @@ export const POST: APIRoute = async ({ request }) => {
           amount: String(amountInSubunit),
           currency,
           reference: paymentReference,
-          callback_url: `${publicSiteUrl}/academy/payment/callback`,
+          callback_url: `${origin}/academy/payment/callback`,
           metadata: JSON.stringify({
             registration_id: registrationId,
             program_id: program.id,

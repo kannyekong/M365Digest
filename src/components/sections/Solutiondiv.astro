@@ -4,12 +4,17 @@ import {
   Cloud,
   LifeBuoy,
   ArrowRightLeft,
-  GraduationCap,
   Network,
   Globe,
   Users,
   Rocket,
   SquareArrowOutDownRight,
+  ArrowRight,
+  BrainCircuit,
+  Bot,
+  Workflow,
+  ShieldCheck,
+  GraduationCap,
 } from "lucide-astro";
 
 import { listServices } from "../../lib/services";
@@ -133,3 +138,174 @@ const serviceIcons = {
     })
   }
 </div>
+
+<section class="relative overflow-hidden py-24">
+  <!-- Background -->
+  <div class="absolute inset-0 -z-10">
+    <div
+      class="absolute left-0 top-0 h-96 w-96 rounded-full bg-primary/10 blur-[140px]"
+    >
+    </div>
+    <div
+      class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-[140px]"
+    >
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-6">
+    <!-- Header -->
+
+    <div class="max-w-full text-center">
+      <span
+        class="inline-flex rounded-full mb-5 border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary backdrop-blur-xl"
+      >
+        About Us
+      </span>
+      <Title
+        class="mt-6 text-4xl font-bold tracking-tight text-heading-1 lg:text-5xl"
+      >
+        We help Organizations Unlock the Full Potential of <span
+          class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
+          >AI, Automation & Cloud Technologies.</span
+        >
+      </Title>
+    </div>
+
+    <div class="mt-20 grid gap-14 lg:grid-cols-2">
+      <!-- Left -->
+
+      <div>
+        <h3 class="text-2xl font-bold text-heading-1">
+          Technology should empower people—not complicate their work.
+        </h3>
+
+        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
+          Businesses today have access to powerful cloud platforms, artificial
+          intelligence, workflow automation, and low-code technologies, but many
+          continue to rely on manual processes that slow productivity and limit
+          innovation.
+        </p>
+
+        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
+          CloudTweak partners with organizations to integrate Microsoft 365,
+          intelligent automation, AI, cybersecurity, and cloud services into
+          their everyday operations. Our goal is simple: eliminate repetitive
+          work, simplify complex processes, and help teams accomplish more with
+          technology that works intelligently behind the scenes.
+        </p>
+
+        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
+          Whether you're modernizing your workplace, automating business
+          processes, migrating to the cloud, or developing technical talent
+          through our CloudTweak Academy, we provide practical solutions that
+          deliver measurable business outcomes.
+        </p>
+
+        <a
+          href="/solutions"
+          class="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+        >
+          Explore Our Solutions
+
+          <ArrowRight size={18} />
+        </a>
+      </div>
+
+      <!-- Right -->
+
+      <div class="grid gap-5">
+        <div
+          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <BrainCircuit size={30} />
+            </div>
+
+            <div>
+              <h4 class="font-bold text-xl text-heading-1">
+                Artificial Intelligence
+              </h4>
+
+              <p class="mt-2 text-gray-600 dark:text-gray-400">
+                Secure AI adoption that empowers employees and transforms
+                decision-making.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500"
+            >
+              <Workflow size={30} />
+            </div>
+
+            <div>
+              <h4 class="font-bold text-xl text-heading-1">
+                Intelligent Automation
+              </h4>
+
+              <p class="mt-2 text-gray-600 dark:text-gray-400">
+                Build automated workflows using n8n, Make, Zapier, Power
+                Automate, and AI agents.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500"
+            >
+              <Cloud size={30} />
+            </div>
+
+            <div>
+              <h4 class="font-bold text-xl text-heading-1">
+                Cloud Transformation
+              </h4>
+
+              <p class="mt-2 text-gray-600 dark:text-gray-400">
+                Microsoft 365 consulting, migrations, cloud optimization, and
+                modern workplace solutions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-500"
+            >
+              <ShieldCheck size={30} />
+            </div>
+
+            <div>
+              <h4 class="font-bold text-xl text-heading-1">
+                Learning and Development
+              </h4>
+
+              <p class="mt-2 text-gray-600 dark:text-gray-400">
+                Secure cloud adoption backed by technical support,
+                cybersecurity, and practical Cloud solution trainings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

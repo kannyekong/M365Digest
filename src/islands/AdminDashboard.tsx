@@ -9,6 +9,7 @@ import {
   Cog,
   ContactRound,
   FolderOpenDot,
+  GraduationCap,
   PencilIcon,
   Podium,
   ScanEye,
@@ -285,12 +286,12 @@ export default function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/"
+                  href="/admin/academy"
                   className="flex flex-col items-center rounded-2xl bg-pink-50 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
-                  <p className="text-xs text-center">Manage Revenue</p>
+                  <p className="text-xs text-center">Manage Academy</p>
 
-                  <BadgeDollarSign size={40} className="text-pink-700" />
+                  <GraduationCap size={40} className="text-pink-700" />
                 </a>
               </div>
             </div>

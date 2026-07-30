@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AcademyDashboard from "../../../components/academy/dashboard/AcademyDashboard";
+---
+
+<AdminLayout title="Academy Dashboard">
+  <main class="p-6 lg:p-10">
+    <AcademyDashboard client:load />
+  </main>
+</AdminLayout>

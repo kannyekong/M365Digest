@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import AcademyRegistrationsTable from "../../../../components/academy/registration/AcademyRegistrationsTable";
+---
+
+<AdminLayout title="Academy Registrations">
+  <main class="p-5">
+    <AcademyRegistrationsTable client:load />
+  </main>
+</AdminLayout>
