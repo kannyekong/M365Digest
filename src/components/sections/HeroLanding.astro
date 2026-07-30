@@ -4,114 +4,48 @@ import HeroCarousel from "../hero/HeroCarousel";
 import Paragraph from "../shared/Paragraph.astro";
 import BtnLinkStart from "../shared/BtnLinkStart.astro";
 import TypewriterText from "@astroanimate/core/TypewriterText";
+import { Rocket, Telescope } from "lucide-react";
 ---
 
-<section class="relative pt-6 lg:pt-6">
+<section class="relative pt-3">
   <Container>
-    <Container
-      className={"flex flex-col lg:flex-row gap-10 lg:gap-12 md:hidden"}
-    >
-      <div class="absolute w-full lg:w-1/2 inset-y-0 lg:right-0">
-        <span
-          class="absolute -left-6 md:left-[-48] top-24 lg:top-24 w-90 h-90 rotate-0 blur-xs rounded-full bg-orange-50 opacity-60 lg:opacity-95 lg:block hidden"
-          ><img src="./images/teamss.png" alt="teams logo" /></span
-        >
-        <span
-          class="absolute right-4 bottom-12 w-24 h-24 rounded-3xl bg-blue-500 blur-xl opacity-80"
-        ></span>
-      </div>
-
+    <div class="md:hidden">
       <div
-        class="relative flex flex-col text-left lg:py-7 xl:py-8
-        items-start lg:max-w-none max-w-3xl mx-auto lg:mx-0 lg:flex-1 lg:w-1/2"
+        class="relative flex flex-col text-left
+        items-start max-w-full"
       >
         <h1
-          class="text-[40px]/tight md:text-5xl/tight tracking-tight xl:text-[3.4rem]/tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
+          class="text-4xl tracking-tight font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
         >
-          Your Trusted Technology Partner for Every Stage of Growth.<br /> We offer
-          business solutions with:
-          <span class="inline-block
-      min-w-[12ch]
-      whitespace-nowrap">
-            <TypewriterText
-              texts={[
-                "Zapier",
-                "n8n",
-                "Power Automate",
-                "Make",
-                "Claude",
-                "Teams",
-              ]}
-              enhance
-            />
-          </span>
+          Modernizing Businesses with Intelligent Cloud Solutions.
         </h1>
       </div>
-
       <Paragraph className="mt-5">
-        <span> test </span>
+        <span class="text-xs">
+          Empower your business with AI-driven automation powered by Claude,
+          n8n, Make, Zapier, and Microsoft Power Platform. We build intelligent
+          workflows that save time, reduce operational costs, and scale with
+          your organization.
+        </span>
       </Paragraph>
-      <div
-        class="mt-5 w-full flex flex-row max-w-full mx-auto lg:mx-0 space-x-4"
-      >
-        <div class="lg:min-w-max flex lg:items-center sm:w-max w-full">
-          <BtnLinkStart
-            text="Explore Learning"
-            href="/weekone"
-            className="flex justify-center w-full sm:w-max"
-            variant="primary"
-          />
-        </div>
-        <div
-          class="lg:min-w-max flex lg:items-center sm:w-max w-full lg:pb-0 border-b border-box-bg lg:border-0 lg:px-0"
+      <div class="mt-5 w-full flex flex-row max-w-full mx-auto space-x-4">
+        <a
+          href="#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"
+          class={`inline-flex items-center justify-center gap-2 rounded-full px-2 py-2 font-semibold text-white transition bg-pink-500`}
         >
-          <button
-            class="open-modal-btn bg-primary text-white text-sm py-3 px-2 w-full
-            md:text-md
-            md:px-6
-            md:py-3
-            rounded-full
-            outline-none
-            relative
-            overflow-hidden
-            duration-300
-            ease-linear
-            z-0
-            after:absolute
-            after:inset-x-0
-            after:aspect-square
-            after:scale-0
-            after:opacity-70
-            after:origin-center
-            after:duration-300
-            after:ease-linear
-            after:rounded-full
-            after:top-0
-            after:left-0
-            after:bg-[#172554]
-            after:z-[-1]
-            hover:text-white
-            hover:after:opacity-100
-            shadow-orange-500
-            animate-soft-glow
-            hover:after:scale-[2.5]"
-          >
-          </button>
-        </div>
-      </div>
-    </Container>
+          <Rocket size={18} />
+          <span>Request a Quote</span>
+        </a>
 
-    <div
-      class="flex flex-1 lg:w-1/2 lg:h-auto relative lg:max-w-none lg:mx-0 mx-auto max-w-3xl"
-    >
-      <img
-        src="/images/heronew.png"
-        alt="Hero image"
-        width="2350"
-        height="2359"
-        class="lg:absolute lg:w-full lg:h-full object-cover lg:max-h-none max-h-96"
-      />
+        <a
+          href="/solutions"
+          class={`inline-flex items-center justify-center gap-2 rounded-full px-2 py-3 font-semibold text-white transition bg-blue-500`}
+        >
+          <Telescope size={18} />
+          <span>Explore our solutions</span>
+        </a>
+      </div>
     </div>
   </Container>
-  <HeroCarousel client:load />
 </section>
+<HeroCarousel client:load />
