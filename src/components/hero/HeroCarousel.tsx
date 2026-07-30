@@ -42,7 +42,7 @@ export default function HeroCarousel() {
   const slide = heroSlides[currentSlide];
 
   return (
-    <section className="relative isolate overflow-hidden">
+    <section className="relative isolate overflow-hidden hidden md:block">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-4 top-20 -z-10 h-40 w-40 rounded-full bg-pink-500/30 blur-3xl sm:left-24"
