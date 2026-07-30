@@ -1,5 +1,6 @@
 ---
 import { Eye, Lightbulb, Rocket } from "lucide-astro";
+import Title from "../shared/Title.astro";
 
 /**
  * Stores the content, images, icons, colours, and overlay styles
@@ -67,12 +68,14 @@ const values = [
 
   <div class="mx-auto max-w-full px-6">
     <div class="mx-auto mb-12 max-w-3xl text-center lg:mb-16">
-      <h1
-        id="vision-mission-purpose-heading"
+      <Title
         class="text-3xl font-bold tracking-tight text-heading-1 sm:text-4xl lg:text-5xl"
       >
-        We are building technology solutions with a clear direction
-      </h1>
+        We are building technology solutions with a <span
+          class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
+          >clear direction</span
+        >
+      </Title>
 
       <p
         class="mt-5 text-base leading-8 text-gray-600 dark:text-gray-400 sm:text-lg"

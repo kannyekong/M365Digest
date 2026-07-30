@@ -64,19 +64,19 @@ export default function HeroCarousel() {
 
           <div className="mt-6 flex min-h-[112px] flex-wrap content-start gap-4 sm:min-h-[52px]">
             <a
-              href={slide.primaryButton.href}
-              className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white transition ${slide.primaryButton.color}`}
+              href="#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white transition bg-pink-500`}
             >
               <Rocket size={20} />
-              <span>{slide.primaryButton.text}</span>
+              <span>Request a Quote</span>
             </a>
 
             <a
-              href={slide.secondaryButton.href}
-              className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white transition ${slide.secondaryButton.color}`}
+              href="/solutions"
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-3 font-semibold text-white transition bg-blue-500`}
             >
               <Telescope size={20} />
-              <span>{slide.secondaryButton.text}</span>
+              <span>Explore our solutions</span>
             </a>
           </div>
         </div>
@@ -86,11 +86,9 @@ export default function HeroCarousel() {
             key={slide.id}
             src={slide.image}
             alt={slide.title}
-            width={900}
-            height={700}
             loading={currentSlide === 0 ? "eager" : "lazy"}
             decoding="async"
-            className="h-full w-full object-contain object-center"
+            className="h-full w-full object-contain rounded-full"
           />
         </div>
       </div>
@@ -100,7 +98,7 @@ export default function HeroCarousel() {
           type="button"
           onClick={previousSlide}
           aria-label="Previous slide"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-box-border bg-white/80 transition hover:bg-primary hover:text-white dark:bg-box-bg"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-box-border bg-white/80 transition hover:bg-primary hover:text-white dark:bg-box-bg dark:text-white"
         >
           <ChevronLeft size={18} />
         </button>
@@ -126,7 +124,7 @@ export default function HeroCarousel() {
           type="button"
           onClick={nextSlide}
           aria-label="Next slide"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-box-border bg-white/80 transition hover:bg-primary hover:text-white dark:bg-box-bg"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-box-border bg-white/80 transition hover:bg-primary hover:text-white dark:bg-box-bg dark:text-white"
         >
           <ChevronRight size={18} />
         </button>

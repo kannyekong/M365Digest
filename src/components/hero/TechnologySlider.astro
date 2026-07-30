@@ -29,6 +29,11 @@ const technologies = [
     name: "Make",
     logo: "/images/tech/makelogo.png",
   },
+
+   {
+    name: "Claude",
+    logo: "/images/tech/claude.png",
+  },
 ];
 ---
 
@@ -51,7 +56,7 @@ const technologies = [
             <img
               src={tech.logo}
               alt={tech.name}
-              class="h-14 w-auto object-contain transition duration-500"
+              class="h-14 w-auto object-contain transition duration-500 dark:grayscale"
             />
           </div>
         ))

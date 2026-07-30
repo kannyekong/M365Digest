@@ -131,3 +131,34 @@ select#selectTask {
   padding: 4px 28px 4px 10px;
   height: 15px;
 }
+
+/**
+ * Gives the hero blob a gentle floating motion without changing its dimensions.
+ */
+.hero-blob {
+  animation: hero-blob-float 7s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/**
+ * Moves the complete blob vertically while keeping the clipped image stable.
+ */
+@keyframes hero-blob-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}
+
+/**
+ * Respects visitors who have disabled motion animations.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob {
+    animation: none;
+  }
+}
