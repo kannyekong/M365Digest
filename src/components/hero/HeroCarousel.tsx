@@ -62,12 +62,12 @@ export default function HeroCarousel() {
             </p>
           </div>
 
-          <div className="mt-6 flex min-h-[112px] flex-wrap content-start gap-4 sm:min-h-[52px]">
+          <div className="mt-2 md:mt-6 flex min-h-[112px] flex-wrap content-start gap-4 sm:min-h-[52px]">
             <a
               href="#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"
-              className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-white transition bg-pink-500`}
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-2 md:px-5 py-1 md:py-3 font-semibold text-white transition bg-pink-500`}
             >
-              <Rocket size={20} />
+              <Rocket size={18} />
               <span>Request a Quote</span>
             </a>
 
@@ -75,7 +75,7 @@ export default function HeroCarousel() {
               href="/solutions"
               className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-3 font-semibold text-white transition bg-blue-500`}
             >
-              <Telescope size={20} />
+              <Telescope size={18} />
               <span>Explore our solutions</span>
             </a>
           </div>
