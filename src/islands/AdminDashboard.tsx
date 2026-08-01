@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { getAllPosts } from "../lib/blog";
 import { getDashboardAnalytics } from "../lib/blog";
 import {
-  Award,
-  BadgeDollarSign,
   Briefcase,
   CirclePlus,
   Cog,
@@ -23,9 +21,18 @@ import { getDashboardStats } from "../lib/getDashboardStats";
 import TaskWidget from "../components/admin/tasks/TaskWidget";
 import { getTaskCounts } from "../lib/tasks";
 import { getStaffSummary } from "../lib/staff";
-import RevenueCard from "../components/admin/RevenueCard";
+import RevenueCard from "../components/admin/finance/RevenueCard";
 
 const dashboard = await getDashboardStats();
+
+/**
+ * Company financial summary returned by the finance API.
+ */
+interface FinancialSummary {
+  totalRevenue: number | number;
+  growthPercentage: number;
+  currency: string;
+}
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -65,6 +72,21 @@ export default function AdminDashboard() {
 
   const totalStatCount =
     taskCounts.pending + taskCounts.completed + taskCounts.in_progress;
+
+  const [summary, setSummary] = useState<FinancialSummary | null>(null);
+
+  useEffect(() => {
+    async function loadSummary() {
+      const response = await fetch("/api/admin/finance/summary");
+      const result = await response.json();
+
+      if (result.success) {
+        setSummary(result.summary);
+      }
+    }
+
+    void loadSummary();
+  }, []);
 
   async function loadDashboard() {
     const [{ data: posts }, { data: analytics }] = await Promise.all([
@@ -198,14 +220,10 @@ export default function AdminDashboard() {
         />
 
         <RevenueCard
-          totalRevenue={12400000}
-          monthlyRevenue={2850000}
-          // todayRevenue={450000}
-          outstandingRevenue={3100000}
-          percentageChange={18.4}
-          // currency="NGN"
+          totalRevenue={summary?.totalRevenue ?? 0}
+          percentageChange={summary?.growthPercentage}
+          currency={summary?.currency}
           manageHref="/admin/finance"
-          // lastUpdated="Last updated 5 minutes ago"
         />
       </div>
 

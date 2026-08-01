@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  AlertCircle,
-  Eye,
-  Plus,
-  X,
-  SlidersHorizontal,
-  CheckCircle2,
-} from "lucide-react";
+import { AlertCircle, Eye, Plus, X, Funnel, CheckCircle2 } from "lucide-react";
 import { listMyTasks } from "../../../lib/tasks";
 import type { Task } from "../../../types/task";
 import { getProjectOptions } from "../../../lib/server/projects";
@@ -173,7 +166,7 @@ export default function TaskWidget() {
                       : "border-primary bg-primary/10 text-primary"
                   }`}
                 >
-                  <SlidersHorizontal className="h-4 w-4" />
+                  <Funnel className="h-4 w-4" />
                 </button>
 
                 {showProjectFilter && (
@@ -371,7 +364,8 @@ export default function TaskWidget() {
                       <span className="font-light">{task.project?.name}</span>
                     </p>
                     <p className="truncate text-xs font-bold text-slate-900">
-                      Description: <span className="font-light">{task.title}</span>
+                      Description:{" "}
+                      <span className="font-light">{task.title}</span>
                     </p>
 
                     <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">

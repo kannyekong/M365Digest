@@ -407,7 +407,7 @@ export default function AcademyDashboard() {
         label: "Active Instructors",
         value: dashboardData.activeInstructors.toLocaleString(),
         description: "Available Academy instructors",
-        href: "/admin/academy/instructors",
+        href: "/admin/bootcamp/instructors",
         icon: UserRoundCheck,
         color:"green-100"
       },

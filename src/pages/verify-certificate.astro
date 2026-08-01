@@ -1,0 +1,18 @@
+---
+import "../styles/global.css";
+
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/shared/Container.astro";
+import CertificateVerification from "../components/academy/certificates/CertificateVerification";
+---
+
+<Layout
+  title="Verify Certificate | CloudTweak Academy"
+  description="Verify the authenticity and current status of a CloudTweak Academy certificate."
+>
+  <main class="min-h-screen py-16 md:py-24">
+    <Container>
+      <CertificateVerification client:load />
+    </Container>
+  </main>
+</Layout>

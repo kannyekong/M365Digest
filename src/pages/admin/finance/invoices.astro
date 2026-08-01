@@ -1,0 +1,14 @@
+---
+import InvoiceDashboard from "../../../components/admin/finance/invoices/InvoiceDashboard";
+import Header from "../../../components/admin/UI/Header.astro";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Revenue Management Page">
+  <Header description="Invoice page" />
+  <main class="min-h-screen p-5">
+    <div class="mx-auto w-full max-w-[1600px]">
+      <InvoiceDashboard client:only="react" />
+    </div>
+  </main>
+</AdminLayout>

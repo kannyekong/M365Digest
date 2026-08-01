@@ -1,0 +1,10 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import AcademyCertificateTemplatesTable from "../../../../components/academy/certificate-templates/AcademyCertificateTemplatesTable";
+---
+
+<AdminLayout title="Certificate Templates">
+  <main class="p-6 lg:p-10">
+    <AcademyCertificateTemplatesTable client:load />
+  </main>
+</AdminLayout>
