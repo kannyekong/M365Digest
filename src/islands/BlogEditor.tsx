@@ -158,7 +158,7 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
   }
 
   return (
-    <div>
+    <div className="p-5">
       <div className="flex flex-row justify-between">
         <div className="mb-10">
           <h1 className="text-xl font-bold">New article</h1>
@@ -168,7 +168,7 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
           <ArrowLeftCircle size={50} className="text-orange-500" />
         </a>
       </div>
-      <div className="rounded-2xl bg-white p-8 shadow-sm">
+      <div>
         <div className="space-y-6">
           {/* Image Uploader Field */}
           <div>

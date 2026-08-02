@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { Database, Json } from "../../../types/supabase";
 
 export const prerender = false;
 
@@ -43,6 +44,11 @@ interface PaystackChargeData {
         program_slug?: string;
         program_title?: string;
         student_name?: string;
+
+        payment_type?: string;
+        invoice_id?: string;
+        invoice_number?: string;
+        payment_attempt_id?: string;
       }
     | string
     | null;
@@ -114,7 +120,7 @@ function verifyPaystackSignature(
 }
 
 /**
- * Process Paystack webhook events for Academy payments.
+ * Process Paystack webhook events for Academy and Invoice payments.
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -227,12 +233,256 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Create a trusted server-side Supabase client.
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
+    const supabase = createClient<Database>(
+      supabaseUrl,
+      supabaseServiceRoleKey,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
+    );
+
+    /**
+     * Confirm whether one successful charge belongs to the Invoice workflow.
+     */
+    async function isInvoicePayment(
+      paymentTransaction: PaystackChargeData,
+      metadata: Record<string, unknown>
+    ) {
+      // Prefer the explicit payment type supplied during initialization.
+      if (metadata.payment_type === "invoice") {
+        return true;
+      }
+
+      // Fall back to the stored payment-attempt reference.
+      const { data: paymentAttempt, error: paymentAttemptError } =
+        await supabase
+          .from("invoice_payment_attempts")
+          .select("id")
+          .eq("reference", paymentTransaction.reference)
+          .maybeSingle();
+
+      if (paymentAttemptError) {
+        throw paymentAttemptError;
+      }
+
+      return Boolean(paymentAttempt);
+    }
+
+    /**
+     * Process one verified Invoice payment atomically.
+     */
+    async function processInvoicePayment(
+      paymentTransaction: PaystackChargeData
+    ) {
+      // Convert Paystack's subunit amount into the currency's major unit.
+      const amountPaid = Number(paymentTransaction.amount) / 100;
+
+      if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
+        throw new Error("The Invoice payment amount is invalid.");
+      }
+
+      const { data: updatedInvoice, error: invoicePaymentError } =
+        await supabase.rpc("process_invoice_payment_success", {
+          p_reference: paymentTransaction.reference,
+          p_amount: amountPaid,
+          p_currency: paymentTransaction.currency,
+          p_paystack_transaction_id: paymentTransaction.id,
+          p_paid_at: paymentTransaction.paid_at ?? new Date().toISOString(),
+          p_channel: paymentTransaction.channel ?? "",
+          p_gateway_response: paymentTransaction.gateway_response ?? "",
+          p_raw_response: paymentTransaction as unknown as Json,
+        });
+
+      if (invoicePaymentError) {
+        throw invoicePaymentError;
+      }
+
+      return updatedInvoice;
+    }
+
+    // Confirm that the event itself reports a successful charge.
+    if (transaction.status !== "success") {
+      console.warn("charge.success event contained a non-success status:", {
+        reference: transaction.reference,
+        status: transaction.status,
+      });
+
+      return jsonResponse(
+        {
+          received: true,
+          processed: false,
+          reference: transaction.reference,
+          message: "The transaction status was not successful.",
+        },
+        409
+      );
+    }
+
+    // Normalize metadata once so it can route the payment workflow.
+    const paystackMetadata = parsePaystackMetadata(transaction.metadata);
+
+    let belongsToInvoiceWorkflow = false;
+
+    // Detect Invoice payments from metadata or the stored attempt reference.
+    try {
+      belongsToInvoiceWorkflow = await isInvoicePayment(
+        transaction,
+        paystackMetadata
+      );
+    } catch (error) {
+      console.error(
+        "Paystack webhook Invoice payment detection failed:",
+        error
+      );
+
+      return jsonResponse(
+        {
+          received: true,
+          processed: false,
+          reference: transaction.reference,
+          message: "The Invoice payment workflow could not be identified.",
+        },
+        500
+      );
+    }
+
+    // Route Invoice payments before attempting the Academy lookup.
+    if (belongsToInvoiceWorkflow) {
+      const metadataInvoiceId =
+        typeof paystackMetadata.invoice_id === "string"
+          ? paystackMetadata.invoice_id
+          : null;
+
+      const metadataPaymentAttemptId =
+        typeof paystackMetadata.payment_attempt_id === "string"
+          ? paystackMetadata.payment_attempt_id
+          : null;
+
+      // Validate any supplied Invoice metadata against the stored payment attempt.
+      const { data: paymentAttempt, error: paymentAttemptError } =
+        await supabase
+          .from("invoice_payment_attempts")
+          .select(
+            `
+            id,
+            invoice_id,
+            reference,
+            amount,
+            currency,
+            status
+            `
+          )
+          .eq("reference", transaction.reference)
+          .maybeSingle();
+
+      if (paymentAttemptError) {
+        console.error(
+          "Paystack webhook Invoice payment-attempt lookup failed:",
+          paymentAttemptError
+        );
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            reference: transaction.reference,
+            message: "The Invoice payment attempt could not be loaded.",
+          },
+          500
+        );
+      }
+
+      if (!paymentAttempt) {
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            reference: transaction.reference,
+            message: "No matching Invoice payment attempt was found.",
+          },
+          404
+        );
+      }
+
+      if (
+        metadataInvoiceId &&
+        metadataInvoiceId !== paymentAttempt.invoice_id
+      ) {
+        console.error("Paystack webhook Invoice metadata mismatch:", {
+          expected: paymentAttempt.invoice_id,
+          received: metadataInvoiceId,
+          reference: transaction.reference,
+        });
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            reference: transaction.reference,
+            message: "The payment metadata does not match the Invoice.",
+          },
+          409
+        );
+      }
+
+      if (
+        metadataPaymentAttemptId &&
+        metadataPaymentAttemptId !== paymentAttempt.id
+      ) {
+        console.error("Paystack webhook payment-attempt metadata mismatch:", {
+          expected: paymentAttempt.id,
+          received: metadataPaymentAttemptId,
+          reference: transaction.reference,
+        });
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            reference: transaction.reference,
+            message:
+              "The payment metadata does not match the Invoice payment attempt.",
+          },
+          409
+        );
+      }
+
+      try {
+        const updatedInvoice = await processInvoicePayment(transaction);
+
+        return jsonResponse({
+          received: true,
+          processed: true,
+          paymentType: "invoice",
+          invoiceId: updatedInvoice?.id ?? paymentAttempt.invoice_id,
+          reference: transaction.reference,
+          paymentStatus: updatedInvoice?.status ?? "processed",
+          message: "Invoice payment confirmed successfully.",
+        });
+      } catch (error) {
+        console.error(
+          "Paystack webhook Invoice payment processing failed:",
+          error
+        );
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            paymentType: "invoice",
+            reference: transaction.reference,
+            message:
+              error instanceof Error
+                ? error.message
+                : "The Invoice payment could not be processed.",
+          },
+          500
+        );
+      }
+    }
 
     // Find the Academy registration connected to the reference.
     const { data: registration, error: registrationError } = await supabase
@@ -308,24 +558,6 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Confirm that the event itself reports a successful charge.
-    if (transaction.status !== "success") {
-      console.warn("charge.success event contained a non-success status:", {
-        reference: transaction.reference,
-        status: transaction.status,
-      });
-
-      return jsonResponse(
-        {
-          received: true,
-          processed: false,
-          reference: transaction.reference,
-          message: "The transaction status was not successful.",
-        },
-        409
-      );
-    }
-
     // Paystack reports amounts using the currency's smallest unit.
     const expectedAmountInSubunit = Math.round(
       Number(registration.amount_expected) * 100
@@ -378,8 +610,6 @@ export const POST: APIRoute = async ({ request }) => {
         409
       );
     }
-
-    const paystackMetadata = parsePaystackMetadata(transaction.metadata);
 
     const metadataRegistrationId =
       typeof paystackMetadata.registration_id === "string"
@@ -460,6 +690,23 @@ export const POST: APIRoute = async ({ request }) => {
 
     const paidAt = transaction.paid_at || new Date().toISOString();
 
+    /**
+     * Convert stored JSON metadata into a safe object before spreading it.
+     */
+    function normalizeMetadata(
+      metadata: Json | null
+    ): Record<string, Json | undefined> {
+      if (
+        metadata &&
+        typeof metadata === "object" &&
+        !Array.isArray(metadata)
+      ) {
+        return metadata;
+      }
+
+      return {};
+    }
+
     // Mark the registration as paid and confirmed.
     //
     // The payment_status condition prevents a duplicate webhook or
@@ -473,7 +720,7 @@ export const POST: APIRoute = async ({ request }) => {
         paid_at: paidAt,
         payment_provider: "paystack",
         metadata: {
-          ...(registration.metadata ?? {}),
+          ...normalizeMetadata(registration.metadata),
           paystack_transaction_id: transaction.id,
           paystack_channel: transaction.channel,
           paystack_gateway_response: transaction.gateway_response,

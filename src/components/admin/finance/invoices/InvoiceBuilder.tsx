@@ -6,10 +6,10 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
 import type {
   CreateInvoiceInput,
   CreateInvoiceItemInput,
+  Invoice,
   InvoiceDiscountType,
   InvoiceStatus,
 } from "../../../../types/invoice";
@@ -25,11 +25,14 @@ import {
   formatInvoiceCurrency,
   getDefaultInvoiceDueDate,
 } from "../../../../utils/invoice";
+import { useEffect, useMemo, useState } from "react";
 
 interface InvoiceBuilderProps {
   open: boolean;
 
   submitting: boolean;
+
+  invoice?: Invoice | null;
 
   onClose: () => void;
 
@@ -139,17 +142,63 @@ function mapBuilderItem(
 }
 
 /**
+ * Convert one existing draft invoice into builder state.
+ */
+function invoiceToBuilderState(invoice: Invoice): InvoiceBuilderState {
+  return {
+    customerName: invoice.customer_name,
+    customerCompany: invoice.customer_company ?? "",
+    customerEmail: invoice.customer_email,
+    customerPhone: invoice.customer_phone ?? "",
+    billingAddress: invoice.billing_address ?? "",
+    currency: invoice.currency,
+    issueDate: invoice.issue_date,
+    dueDate: invoice.due_date,
+    status: "draft",
+    discountType: invoice.discount_type,
+    discountValue: String(invoice.discount_value),
+    notes: invoice.notes ?? "",
+    terms: invoice.terms ?? "",
+    internalNotes: invoice.internal_notes ?? "",
+    purchaseOrderNumber: invoice.purchase_order_number ?? "",
+    items:
+      invoice.items && invoice.items.length > 0
+        ? invoice.items.map((item) => ({
+            id: item.id,
+            description: item.description,
+            quantity: String(item.quantity),
+            unitPrice: String(item.unit_price),
+            discountType: item.discount_type,
+            discountValue: String(item.discount_value),
+            taxRate: String(item.tax_rate),
+          }))
+        : createDefaultInvoiceState().items,
+  };
+}
+
+/**
  * Display the invoice creation modal and line-item builder.
  */
 export default function InvoiceBuilder({
   open,
   submitting,
+  invoice = null,
   onClose,
   onSubmit,
 }: InvoiceBuilderProps) {
   const [form, setForm] = useState<InvoiceBuilderState>(
     createDefaultInvoiceState
   );
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    setForm(
+      invoice ? invoiceToBuilderState(invoice) : createDefaultInvoiceState()
+    );
+  }, [invoice, open]);
 
   /**
    * Convert the current line items into calculation inputs.
@@ -309,7 +358,7 @@ export default function InvoiceBuilder({
               </p>
 
               <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                Create Invoice
+                {invoice ? "Edit Draft Invoice" : "Create Invoice"}
               </h2>
 
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -479,7 +528,11 @@ export default function InvoiceBuilder({
                             step="0.01"
                             value={item.quantity}
                             onChange={(event) =>
-                              updateItem(item.id, "quantity", event.target.value)
+                              updateItem(
+                                item.id,
+                                "quantity",
+                                event.target.value
+                              )
                             }
                             className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                           />
@@ -493,7 +546,11 @@ export default function InvoiceBuilder({
                             step="0.01"
                             value={item.unitPrice}
                             onChange={(event) =>
-                              updateItem(item.id, "unitPrice", event.target.value)
+                              updateItem(
+                                item.id,
+                                "unitPrice",
+                                event.target.value
+                              )
                             }
                             className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                           />
@@ -694,10 +751,7 @@ export default function InvoiceBuilder({
                 </span>
 
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  {formatInvoiceCurrency(
-                    totals.subtotalAmount,
-                    form.currency
-                  )}
+                  {formatInvoiceCurrency(totals.subtotalAmount, form.currency)}
                 </span>
               </div>
 
@@ -766,9 +820,7 @@ export default function InvoiceBuilder({
               </div>
 
               <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500 dark:text-slate-400">
-                  Tax
-                </span>
+                <span className="text-slate-500 dark:text-slate-400">Tax</span>
 
                 <span className="font-semibold text-slate-900 dark:text-white">
                   {formatInvoiceCurrency(totals.taxAmount, form.currency)}
@@ -799,7 +851,13 @@ export default function InvoiceBuilder({
                   <ReceiptText size={17} />
                 )}
 
-                {submitting ? "Creating invoice..." : "Create invoice"}
+                {submitting
+                  ? invoice
+                    ? "Saving changes..."
+                    : "Creating invoice..."
+                  : invoice
+                    ? "Save changes"
+                    : "Create invoice"}
               </button>
 
               <button

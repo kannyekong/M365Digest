@@ -1,0 +1,30 @@
+---
+import InvoicePaymentCallback from "../../../components/admin/finance/invoices/InvoicePaymentCallback";
+import "../../../styles/global.css";
+
+const reference = Astro.url.searchParams.get("reference")?.trim() ?? "";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Invoice Payment Status</title>
+  </head>
+
+  <body
+    class="min-h-screen bg-slate-50 px-4 py-12 text-slate-950 dark:bg-slate-950 dark:text-white sm:py-16"
+  >
+    {
+      reference ? (
+        <InvoicePaymentCallback reference={reference} client:only="react" />
+      ) : (
+        <main class="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h1 class="text-2xl font-bold">Payment reference missing</h1>
+        </main>
+      )
+    }
+  </body>
+</html>

@@ -322,6 +322,7 @@ export default function InvoiceTable({
                       <div className="flex items-center justify-end gap-1">
                         <button
                           type="button"
+                          title="View"
                           onClick={() => onView(invoice)}
                           disabled={busy}
                           className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
@@ -330,24 +331,25 @@ export default function InvoiceTable({
                           <Eye size={16} />
                         </button>
 
-                        {invoice.status === "draft" &&
-                          !invoice.archived_at && (
-                            <button
-                              type="button"
-                              onClick={() => onMarkSent(invoice)}
-                              disabled={busy}
-                              className="rounded-lg p-2 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
-                              aria-label={`Mark ${invoice.invoice_number} as sent`}
-                            >
-                              <Mail size={16} />
-                            </button>
-                          )}
+                        {invoice.status === "draft" && !invoice.archived_at && (
+                          <button
+                            type="button"
+                            title="Mark as sent"
+                            onClick={() => onMarkSent(invoice)}
+                            disabled={busy}
+                            className="rounded-lg p-2 text-slate-500 transition hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
+                            aria-label={`Mark ${invoice.invoice_number} as sent`}
+                          >
+                            <Mail size={16} />
+                          </button>
+                        )}
 
                         {!invoice.archived_at &&
                           invoice.amount_paid === 0 &&
                           invoice.status !== "cancelled" && (
                             <button
                               type="button"
+                              title="Cancel"
                               onClick={() => onCancel(invoice)}
                               disabled={busy}
                               className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
@@ -360,6 +362,7 @@ export default function InvoiceTable({
                         {invoice.archived_at ? (
                           <button
                             type="button"
+                            title="restore"
                             onClick={() => onRestore(invoice)}
                             disabled={busy}
                             className="rounded-lg p-2 text-slate-500 transition hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300"
@@ -378,6 +381,7 @@ export default function InvoiceTable({
                           <button
                             type="button"
                             onClick={() => onArchive(invoice)}
+                            title="Archive"
                             disabled={busy}
                             className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             aria-label={`Archive ${invoice.invoice_number}`}
@@ -396,6 +400,7 @@ export default function InvoiceTable({
                         {invoice.status === "draft" && (
                           <button
                             type="button"
+                            title="Delete"
                             onClick={() => onDeleteDraft(invoice)}
                             disabled={busy}
                             className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:text-slate-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"

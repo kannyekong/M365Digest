@@ -171,20 +171,15 @@ export function generateTemporaryInvoiceNumber() {
 }
 
 /**
- * Format one invoice value with its stored currency.
+ * Format monetary values using the ISO currency code instead of
+ * the Unicode currency symbol. This avoids missing glyph issues
+ * in PDFs and keeps all financial modules consistent.
  */
-export function formatInvoiceCurrency(value: number, currency = "NGN") {
-  try {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value.toLocaleString("en-NG", {
-      maximumFractionDigits: 2,
-    })}`;
-  }
+export function formatInvoiceCurrency(amount: number, currency = "NGN") {
+  return `${currency.toUpperCase()} ${new Intl.NumberFormat("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)}`;
 }
 
 /**

@@ -39,6 +39,9 @@ import {
 import { formatInvoiceCurrency } from "../../../../utils/invoice";
 import InvoiceBuilder from "./InvoiceBuilder";
 import InvoiceTable from "./InvoiceTable";
+import { getInvoiceById, updateDraftInvoice } from "../../../../lib/invoice";
+
+import InvoiceDetailsModal from "./InvoiceDetailsModal";
 
 interface InvoiceFilterState {
   search: string;
@@ -80,6 +83,15 @@ export default function InvoiceDashboard() {
   const [builderOpen, setBuilderOpen] = useState(false);
   const [creatingInvoice, setCreatingInvoice] = useState(false);
   const [busyInvoiceId, setBusyInvoiceId] = useState<string | null>(null);
+
+  // Store the Invoice currently shown in the details modal.
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  // Track loading of one complete Invoice record.
+  const [loadingSelectedInvoice, setLoadingSelectedInvoice] = useState(false);
+
+  // Store the draft Invoice currently being edited.
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
   /**
    * Convert local filters into the service-layer filter shape.
@@ -126,9 +138,7 @@ export default function InvoiceDashboard() {
       console.error("Failed to load invoices:", error);
 
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Invoices could not be loaded."
+        error instanceof Error ? error.message : "Invoices could not be loaded."
       );
     } finally {
       setLoading(false);
@@ -260,9 +270,7 @@ export default function InvoiceDashboard() {
    * Archive one invoice after confirmation.
    */
   async function handleArchive(invoice: Invoice) {
-    const confirmed = window.confirm(
-      `Archive ${invoice.invoice_number}?`
-    );
+    const confirmed = window.confirm(`Archive ${invoice.invoice_number}?`);
 
     if (!confirmed) {
       return;
@@ -339,12 +347,62 @@ export default function InvoiceDashboard() {
   }
 
   /**
+   * Open one draft invoice inside the Invoice builder.
+   */
+  async function handleEditInvoice(invoice: Invoice) {
+    setLoadingSelectedInvoice(true);
+
+    try {
+      const completeInvoice = await getInvoiceById(invoice.id);
+
+      // Close the details modal.
+      setSelectedInvoice(null);
+
+      // Populate the builder with the existing invoice.
+      setEditingInvoice(completeInvoice);
+
+      // Open the builder.
+      setBuilderOpen(true);
+    } catch (error) {
+      console.error("Failed to prepare invoice editing:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The invoice could not be opened for editing."
+      );
+    } finally {
+      setLoadingSelectedInvoice(false);
+    }
+  }
+  /**
    * Open the selected invoice placeholder until the details module is added.
    */
-  function handleView(invoice: Invoice) {
-    toast.info(
-      `${invoice.invoice_number} details will open here in the next phase.`
-    );
+  /**
+   * Retrieve and display one complete Invoice with its line items.
+   */
+  async function handleView(invoice: Invoice) {
+    setLoadingSelectedInvoice(true);
+
+    setSelectedInvoice(invoice);
+
+    try {
+      const completeInvoice = await getInvoiceById(invoice.id);
+
+      setSelectedInvoice(completeInvoice);
+    } catch (error) {
+      console.error("Failed to load Invoice details:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Invoice details could not be loaded."
+      );
+
+      setSelectedInvoice(null);
+    } finally {
+      setLoadingSelectedInvoice(false);
+    }
   }
 
   const firstVisibleRecord =
@@ -434,10 +492,7 @@ export default function InvoiceDashboard() {
               disabled={loading}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
             >
-              <RefreshCw
-                size={16}
-                className={loading ? "animate-spin" : ""}
-              />
+              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
               Refresh
             </button>
 
@@ -503,9 +558,7 @@ export default function InvoiceDashboard() {
               <input
                 type="search"
                 value={filters.search}
-                onChange={(event) =>
-                  updateFilter("search", event.target.value)
-                }
+                onChange={(event) => updateFilter("search", event.target.value)}
                 placeholder="Search invoice, customer, email, or PO..."
                 className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
@@ -586,7 +639,7 @@ export default function InvoiceDashboard() {
           sortDirection={sortDirection}
           busyInvoiceId={busyInvoiceId}
           onSort={handleSort}
-          onView={handleView}
+          onView={(invoice) => void handleView(invoice)}
           onMarkSent={(invoice) => void handleMarkSent(invoice)}
           onCancel={(invoice) => void handleCancel(invoice)}
           onArchive={(invoice) => void handleArchive(invoice)}
@@ -642,6 +695,19 @@ export default function InvoiceDashboard() {
         submitting={creatingInvoice}
         onClose={() => setBuilderOpen(false)}
         onSubmit={handleCreateInvoice}
+      />
+
+      <InvoiceDetailsModal
+        invoice={selectedInvoice}
+        loading={loadingSelectedInvoice}
+        busyInvoiceId={busyInvoiceId}
+        onClose={() => setSelectedInvoice(null)}
+        onEdit={(invoice) => void handleEditInvoice(invoice)}
+        onMarkSent={(invoice) => void handleMarkSent(invoice)}
+        onCancel={(invoice) => void handleCancel(invoice)}
+        onArchive={(invoice) => void handleArchive(invoice)}
+        onRestore={(invoice) => void handleRestore(invoice)}
+        onDeleteDraft={(invoice) => void handleDeleteDraft(invoice)}
       />
     </>
   );
