@@ -106,9 +106,7 @@ export default function RevenueDataTable({
             <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
               Customer
             </th>
-            <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Provider
-            </th>
+
             <th className="px-5 py-3 text-left">
               <button
                 type="button"
@@ -121,9 +119,7 @@ export default function RevenueDataTable({
             <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
               Status
             </th>
-            <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Reconciliation
-            </th>
+
             <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
               Actions
             </th>
@@ -198,21 +194,7 @@ export default function RevenueDataTable({
                         "No contact"}
                     </p>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                        <ProviderIcon size={15} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                          {formatLabel(transaction.provider)}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {formatLabel(transaction.transaction_category)}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
+
                   <td className="whitespace-nowrap px-5 py-4">
                     <p className="text-sm font-bold text-slate-950 dark:text-white">
                       {formatCurrency(transaction.amount, transaction.currency)}
@@ -236,15 +218,7 @@ export default function RevenueDataTable({
                       {formatLabel(transaction.status)}
                     </span>
                   </td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getReconciliationClasses(
-                        transaction.reconciliation_status
-                      )}`}
-                    >
-                      {formatLabel(transaction.reconciliation_status)}
-                    </span>
-                  </td>
+
                   <td className="px-5 py-4 text-right">
                     <div className="inline-flex items-center gap-1">
                       <button

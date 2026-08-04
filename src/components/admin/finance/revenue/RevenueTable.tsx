@@ -640,10 +640,7 @@ export default function RevenueTable() {
     <section className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-            Financial operations
-          </p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white sm:text-3xl">
+          <h1 className="mt-5 text-xl font-bold text-slate-950 dark:text-white">
             Revenue
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
@@ -678,7 +675,7 @@ export default function RevenueTable() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
             <Plus size={16} /> Add Revenue
           </button>

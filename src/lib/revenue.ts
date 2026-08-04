@@ -9,6 +9,86 @@ import type {
   UpdateRevenueTransactionInput,
 } from "../types/revenue";
 
+const REVENUE_TRANSACTION_TYPE = "income";
+
+const RECOGNIZED_REVENUE_STATUSES = [
+  "paid",
+  "completed",
+  "successful",
+] as const;
+
+const PENDING_REVENUE_STATUSES = [
+  "pending",
+  "processing",
+  "initialized",
+] as const;
+
+const REFUNDED_REVENUE_STATUSES = ["refunded", "partially_refunded"] as const;
+
+/**
+ * Confirms whether one transaction status represents recognized Revenue.
+ */
+function isRecognizedRevenueStatus(status: string | null | undefined) {
+  return RECOGNIZED_REVENUE_STATUSES.includes(
+    status as (typeof RECOGNIZED_REVENUE_STATUSES)[number]
+  );
+}
+
+/**
+ * Confirms whether one transaction status represents pending Revenue.
+ */
+function isPendingRevenueStatus(status: string | null | undefined) {
+  return PENDING_REVENUE_STATUSES.includes(
+    status as (typeof PENDING_REVENUE_STATUSES)[number]
+  );
+}
+
+/**
+ * Confirms whether one transaction status represents refunded Revenue.
+ */
+function isRefundedRevenueStatus(status: string | null | undefined) {
+  return REFUNDED_REVENUE_STATUSES.includes(
+    status as (typeof REFUNDED_REVENUE_STATUSES)[number]
+  );
+}
+
+/**
+ * Returns the best available date for Revenue-period calculations.
+ */
+function getRevenueRecognitionDate(transaction: {
+  paid_at?: string | null;
+  transaction_date?: string | null;
+  created_at?: string | null;
+}) {
+  return (
+    transaction.paid_at ??
+    transaction.transaction_date ??
+    transaction.created_at ??
+    null
+  );
+}
+
+/**
+ * Confirms whether a date falls within the supplied half-open period.
+ */
+function isDateWithinPeriod(
+  value: string | null,
+  periodStart: Date,
+  periodEnd: Date
+) {
+  if (!value) {
+    return false;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  return date >= periodStart && date < periodEnd;
+}
+
 /**
  * Converts PostgreSQL numeric values into safe JavaScript numbers.
  */
@@ -291,7 +371,7 @@ export async function listRevenueTransactions({
     .select("*", {
       count: "exact",
     })
-    .eq("transaction_type", "income");
+    .eq("transaction_type", REVENUE_TRANSACTION_TYPE);
 
   if (!filters.includeArchived) {
     query = query.is("archived_at", null);
@@ -381,7 +461,7 @@ export async function getRevenueTransactionById(
     .from("financial_transactions")
     .select("*")
     .eq("id", transactionId)
-    .eq("transaction_type", "income")
+    .eq("transaction_type", REVENUE_TRANSACTION_TYPE)
     .single();
 
   if (error) {
@@ -435,7 +515,7 @@ export async function createRevenueTransaction(
     .insert({
       ...normalizedValues,
 
-      transaction_type: "income",
+      transaction_type: REVENUE_TRANSACTION_TYPE,
 
       transaction_date: transactionDate,
 
@@ -541,7 +621,7 @@ export async function updateRevenueTransaction(
       ...statusUpdates,
     })
     .eq("id", transactionId)
-    .eq("transaction_type", "income")
+    .eq("transaction_type", REVENUE_TRANSACTION_TYPE)
     .select("*")
     .single();
 
@@ -599,7 +679,7 @@ export async function deleteDraftRevenueTransaction(
     .from("financial_transactions")
     .delete()
     .eq("id", transaction.id)
-    .eq("transaction_type", "income")
+    .eq("transaction_type", REVENUE_TRANSACTION_TYPE)
     .eq("status", "draft");
 
   if (error) {
@@ -617,15 +697,15 @@ export async function getRevenueStatistics(): Promise<RevenueStatistics> {
 
   const currentMonthStart = new Date(
     Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), 1)
-  ).toISOString();
+  );
 
   const nextMonthStart = new Date(
     Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth() + 1, 1)
-  ).toISOString();
+  );
 
   const previousMonthStart = new Date(
     Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth() - 1, 1)
-  ).toISOString();
+  );
 
   const { data, error } = await supabase
     .from("financial_transactions")
@@ -641,12 +721,13 @@ export async function getRevenueStatistics(): Promise<RevenueStatistics> {
       refunded_amount,
       currency,
       status,
+      transaction_date,
       paid_at,
       created_at,
       archived_at
       `
     )
-    .eq("transaction_type", "income")
+    .eq("transaction_type", REVENUE_TRANSACTION_TYPE)
     .is("archived_at", null);
 
   if (error) {
@@ -656,6 +737,12 @@ export async function getRevenueStatistics(): Promise<RevenueStatistics> {
   }
 
   const transactions = data ?? [];
+
+  if (transactions.length === 0) {
+    console.warn(
+      "Revenue statistics returned no visible rows. If financial_transactions contains paid income records, verify the table's SELECT RLS policy for the authenticated user."
+    );
+  }
 
   let currentMonthRevenue = 0;
   let previousMonthRevenue = 0;
@@ -677,26 +764,42 @@ export async function getRevenueStatistics(): Promise<RevenueStatistics> {
 
     const refundedAmount = toSafeNumber(transaction.refunded_amount);
 
-    const paidAt =
-      typeof transaction.paid_at === "string" ? transaction.paid_at : null;
+    const recognitionDate = getRevenueRecognitionDate({
+      paid_at:
+        typeof transaction.paid_at === "string" ? transaction.paid_at : null,
+
+      transaction_date:
+        typeof transaction.transaction_date === "string"
+          ? transaction.transaction_date
+          : null,
+
+      created_at:
+        typeof transaction.created_at === "string"
+          ? transaction.created_at
+          : null,
+    });
 
     if (typeof transaction.currency === "string" && transaction.currency) {
       currency = transaction.currency;
     }
 
-    if (transaction.status === "paid") {
+    if (isRecognizedRevenueStatus(transaction.status)) {
       totalRevenue += amount;
 
       paidTransactions += 1;
 
-      if (paidAt && paidAt >= currentMonthStart && paidAt < nextMonthStart) {
+      if (
+        isDateWithinPeriod(recognitionDate, currentMonthStart, nextMonthStart)
+      ) {
         currentMonthRevenue += amount;
       }
 
       if (
-        paidAt &&
-        paidAt >= previousMonthStart &&
-        paidAt < currentMonthStart
+        isDateWithinPeriod(
+          recognitionDate,
+          previousMonthStart,
+          currentMonthStart
+        )
       ) {
         previousMonthRevenue += amount;
       }
@@ -722,19 +825,13 @@ export async function getRevenueStatistics(): Promise<RevenueStatistics> {
       }
     }
 
-    if (
-      transaction.status === "pending" ||
-      transaction.status === "processing"
-    ) {
+    if (isPendingRevenueStatus(transaction.status)) {
       pendingRevenue += amount;
 
       pendingTransactions += 1;
     }
 
-    if (
-      transaction.status === "refunded" ||
-      transaction.status === "partially_refunded"
-    ) {
+    if (isRefundedRevenueStatus(transaction.status)) {
       refundedRevenue += refundedAmount > 0 ? refundedAmount : amount;
     } else if (refundedAmount > 0) {
       refundedRevenue += refundedAmount;

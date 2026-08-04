@@ -223,7 +223,7 @@ export default function AdminDashboard() {
           totalRevenue={summary?.totalRevenue ?? 0}
           percentageChange={summary?.growthPercentage}
           currency={summary?.currency}
-          manageHref="/admin/finance"
+          manageHref="/admin/finance/revenue"
         />
       </div>
 

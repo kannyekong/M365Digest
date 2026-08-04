@@ -39,7 +39,7 @@ export function RevenueMetricCard({ metric }: { metric: RevenueMetric }) {
         <Icon size={21} />
       </div>
 
-      <p className="mt-4 text-2xl font-bold text-slate-950 dark:text-white">
+      <p className="mt-4 text-xl font-bold text-slate-950 dark:text-white">
         {metric.value}
       </p>
 

@@ -1038,6 +1038,104 @@ export type Database = {
           },
         ]
       }
+      finance_budget_allocations: {
+        Row: {
+          allocated_amount: number
+          budget_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          transaction_category: string
+          updated_at: string
+        }
+        Insert: {
+          allocated_amount: number
+          budget_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          transaction_category: string
+          updated_at?: string
+        }
+        Update: {
+          allocated_amount?: number
+          budget_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          transaction_category?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_budget_allocations_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "finance_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_budgets: {
+        Row: {
+          archived_at: string | null
+          budget_type: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          department: string | null
+          description: string | null
+          end_date: string
+          id: string
+          name: string
+          project_code: string | null
+          start_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+          updated_by: string | null
+          warning_threshold: number
+        }
+        Insert: {
+          archived_at?: string | null
+          budget_type?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          department?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          name: string
+          project_code?: string | null
+          start_date: string
+          status?: string
+          total_amount: number
+          updated_at?: string
+          updated_by?: string | null
+          warning_threshold?: number
+        }
+        Update: {
+          archived_at?: string | null
+          budget_type?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          department?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          project_code?: string | null
+          start_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          warning_threshold?: number
+        }
+        Relationships: []
+      }
       financial_transactions: {
         Row: {
           amount: number
@@ -1236,7 +1334,9 @@ export type Database = {
           paid_at: string | null
           paystack_transaction_id: number | null
           raw_response: Json | null
+          receipt_id: string | null
           reference: string
+          revenue_transaction_id: string | null
           status: Database["public"]["Enums"]["invoice_payment_attempt_status"]
           updated_at: string
         }
@@ -1255,7 +1355,9 @@ export type Database = {
           paid_at?: string | null
           paystack_transaction_id?: number | null
           raw_response?: Json | null
+          receipt_id?: string | null
           reference: string
+          revenue_transaction_id?: string | null
           status?: Database["public"]["Enums"]["invoice_payment_attempt_status"]
           updated_at?: string
         }
@@ -1274,7 +1376,9 @@ export type Database = {
           paid_at?: string | null
           paystack_transaction_id?: number | null
           raw_response?: Json | null
+          receipt_id?: string | null
           reference?: string
+          revenue_transaction_id?: string | null
           status?: Database["public"]["Enums"]["invoice_payment_attempt_status"]
           updated_at?: string
         }
@@ -1284,6 +1388,20 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payment_attempts_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payment_attempts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "financial_transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -1709,6 +1827,112 @@ export type Database = {
         }
         Relationships: []
       }
+      receipts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          gateway_response: string | null
+          id: string
+          invoice_id: string
+          invoice_number: string
+          invoice_payment_attempt_id: string
+          issued_at: string
+          metadata: Json
+          notes: string | null
+          paid_at: string
+          payment_method: string | null
+          payment_provider: string
+          payment_reference: string
+          provider_transaction_id: number | null
+          receipt_number: string
+          refunded_at: string | null
+          revenue_transaction_id: string
+          status: Database["public"]["Enums"]["receipt_status"]
+          updated_at: string
+          voided_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          gateway_response?: string | null
+          id?: string
+          invoice_id: string
+          invoice_number: string
+          invoice_payment_attempt_id: string
+          issued_at?: string
+          metadata?: Json
+          notes?: string | null
+          paid_at: string
+          payment_method?: string | null
+          payment_provider?: string
+          payment_reference: string
+          provider_transaction_id?: number | null
+          receipt_number?: string
+          refunded_at?: string | null
+          revenue_transaction_id: string
+          status?: Database["public"]["Enums"]["receipt_status"]
+          updated_at?: string
+          voided_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          gateway_response?: string | null
+          id?: string
+          invoice_id?: string
+          invoice_number?: string
+          invoice_payment_attempt_id?: string
+          issued_at?: string
+          metadata?: Json
+          notes?: string | null
+          paid_at?: string
+          payment_method?: string | null
+          payment_provider?: string
+          payment_reference?: string
+          provider_transaction_id?: number | null
+          receipt_number?: string
+          refunded_at?: string | null
+          revenue_transaction_id?: string
+          status?: Database["public"]["Enums"]["receipt_status"]
+          updated_at?: string
+          voided_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_invoice_payment_attempt_id_fkey"
+            columns: ["invoice_payment_attempt_id"]
+            isOneToOne: true
+            referencedRelation: "invoice_payment_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: true
+            referencedRelation: "financial_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_submissions: {
         Row: {
           bootcamp_experience: string | null
@@ -2040,7 +2264,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      finance_budget_allocation_summary: {
+        Row: {
+          allocated_amount: number | null
+          allocation_id: string | null
+          budget_id: string | null
+          budget_name: string | null
+          budget_status: string | null
+          currency: string | null
+          end_date: string | null
+          remaining_amount: number | null
+          start_date: string | null
+          transaction_category: string | null
+          usage_percentage: number | null
+          used_amount: number | null
+          warning_threshold: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_budget_allocations_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "finance_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_invoice_with_items: {
@@ -2053,6 +2302,7 @@ export type Database = {
         Args: { project_type_value: string }
         Returns: string
       }
+      generate_receipt_number: { Args: never; Returns: string }
       get_company_financial_summary: {
         Args: never
         Returns: {
@@ -2232,6 +2482,7 @@ export type Database = {
         | "overdue"
         | "cancelled"
         | "refunded"
+      receipt_status: "issued" | "voided" | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2408,6 +2659,7 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      receipt_status: ["issued", "voided", "refunded"],
     },
   },
 } as const

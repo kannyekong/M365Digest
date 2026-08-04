@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import ExpenseDashboard from "../../../components/admin/finance/expenses/ExpenseDashboard";
+import FinanceModuleNav from "../../../components/admin/finance/FinanceModuleNav";
+---
+
+<AdminLayout title="Expenses">
+  <Header />
+
+  <main class="p-4 sm:p-6 lg:p-8">
+    <FinanceModuleNav current="expenses" />
+    <ExpenseDashboard client:only="react" />
+  </main>
+</AdminLayout>

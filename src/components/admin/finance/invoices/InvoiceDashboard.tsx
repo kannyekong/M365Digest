@@ -470,13 +470,9 @@ export default function InvoiceDashboard() {
   return (
     <>
       <section className="space-y-6">
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              Finance
-            </p>
-
-            <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">
+            <h1 className="mt-5 text-xl font-bold text-slate-950 dark:text-white">
               Invoice Management
             </h1>
 
@@ -499,7 +495,7 @@ export default function InvoiceDashboard() {
             <button
               type="button"
               onClick={() => setBuilderOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
             >
               <Plus size={17} />
               Create invoice
@@ -522,7 +518,7 @@ export default function InvoiceDashboard() {
                   <Icon size={21} />
                 </div>
 
-                <p className="mt-4 text-2xl font-bold text-slate-950 dark:text-white">
+                <p className="mt-4 text-xl font-bold text-slate-950 dark:text-white">
                   {metric.value}
                 </p>
 

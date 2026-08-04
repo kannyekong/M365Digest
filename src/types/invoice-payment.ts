@@ -24,4 +24,5 @@ export interface InvoicePaymentAttempt {
   raw_response: unknown;
   created_at: string;
   updated_at: string;
+  receipt_id: string | null;
 }
