@@ -293,13 +293,13 @@ const articleSchema = {
 
           {
             toc.length > 0 && (
-              <details class="mt-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-white lg:hidden">
-                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-white">
+              <details class="mt-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white lg:hidden">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-black">
                   Table of contents
                 </summary>
 
                 <nav
-                  class="mt-3 border-t border-slate-200 pt-3 dark:border-slate-800"
+                  class="mt-3 border-t border-slate-200 pt-3 dark:border-white"
                   aria-label="Mobile article contents"
                 >
                   <ul class="space-y-2">
@@ -307,7 +307,7 @@ const articleSchema = {
                       <li class:list={[item.level === 3 && "pl-4"]}>
                         <a
                           href={`#${item.id}`}
-                          class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-slate-300"
+                          class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-black"
                         >
                           {item.text}
                         </a>
