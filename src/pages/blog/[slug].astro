@@ -293,8 +293,8 @@ const articleSchema = {
 
           {
             toc.length > 0 && (
-              <details class="mt-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white lg:hidden">
-                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-black">
+              <details class="mt-4 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 p-3 shadow-sm dark:border-white lg:hidden">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-white">
                   Table of contents
                 </summary>
 
@@ -307,7 +307,7 @@ const articleSchema = {
                       <li class:list={[item.level === 3 && "pl-4"]}>
                         <a
                           href={`#${item.id}`}
-                          class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-black"
+                          class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-white"
                         >
                           {item.text}
                         </a>
