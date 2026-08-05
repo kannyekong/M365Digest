@@ -1,17 +1,31 @@
 ---
 import "../../styles/global.css";
+import "react-toastify/dist/ReactToastify.css";
+
 import Layout from "../../layouts/Layout.astro";
 import Container from "../../components/shared/Container.astro";
-import { getPublishedPosts, getPostBySlug } from "../../lib/blog";
+import AuthorCard from "../../components/cards/AuthorCard.astro";
 import TiptapViewer from "../../components/editor/TiptapViewer";
-import { calculateReadingTime } from "../../utils/readingTime";
-import { generateTableOfContents } from "../../utils/tableOfContents";
-import AuthorCard from "../../../src/components/cards/AuthorCard.astro";
-import { getRelatedPosts } from "../../lib/blog";
-import { Linkedin, Twitter, Facebook, Link2, Link } from "lucide-astro";
+
 import CopyLinkButton from "../../islands/CopyLinkButton";
 import ViewTracker from "../../islands/ViewTracker";
-///////
+
+import { Facebook, Linkedin, Twitter } from "lucide-astro";
+
+import { ToastContainer } from "react-toastify";
+
+import {
+  getPostBySlug,
+  getPublishedPosts,
+  getRelatedPosts,
+} from "../../lib/blog";
+
+import { calculateReadingTime } from "../../utils/readingTime";
+import { generateTableOfContents } from "../../utils/tableOfContents";
+
+/**
+ * Generate all statically rendered blog post routes.
+ */
 export async function getStaticPaths() {
   const { data: posts } = await getPublishedPosts();
 
@@ -25,6 +39,7 @@ export async function getStaticPaths() {
 }
 
 export const prerender = true;
+
 const { slug } = Astro.params;
 
 const { data: post } = await getPostBySlug(slug!);
@@ -34,33 +49,60 @@ if (!post) {
 }
 
 const readingTime = calculateReadingTime(post.content);
+
 const toc = generateTableOfContents(post.content);
+
 const { data: relatedPosts } = await getRelatedPosts(post.slug);
-const site = Astro.site?.toString() ?? "https://cloudtweak.com";
+
+const siteUrl = Astro.site?.toString() ?? "https://cloudtweak.com";
+
+const articleUrl =
+  post.canonical_url || new URL(`/blog/${post.slug}`, siteUrl).toString();
+
+const encodedArticleUrl = encodeURIComponent(articleUrl);
+
+const encodedArticleTitle = encodeURIComponent(post.title);
+
+const publishedDate = new Intl.DateTimeFormat("en-NG", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(new Date(post.created_at));
+
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
+
   headline: post.title,
+
   description: post.seo_description || post.excerpt,
+
   image: post.cover_image,
+
   datePublished: post.created_at,
+
   dateModified: post.updated_at ?? post.created_at,
+
   timeRequired: `PT${readingTime}M`,
+
   author: {
     "@type": "Person",
     name: "Akaneno Ekong",
   },
+
   publisher: {
     "@type": "Organization",
     name: "CloudTweak",
+
     logo: {
       "@type": "ImageObject",
-      url: "https://cloudtweak.com/logos/logonew.png",
+      url: new URL("/logos/logonew.png", siteUrl).toString(),
     },
   },
+
   mainEntityOfPage: {
     "@type": "WebPage",
-    "@id": post.canonical_url,
+    "@id": articleUrl,
   },
 };
 ---
@@ -68,71 +110,90 @@ const articleSchema = {
 <Layout
   title={post.seo_title || `CloudTweak | ${post.title}`}
   description={post.seo_description || post.excerpt}
-  canonical={post.canonical_url}
+  canonical={articleUrl}
   image={post.cover_image}
 >
-  <!-- This is the View Tracker component for UNIQUE post reads -->
   <ViewTracker client:load postId={post.id} />
 
+  <ToastContainer
+    client:load
+    position="top-right"
+    autoClose={3000}
+    hideProgressBar={false}
+    newestOnTop={true}
+    closeOnClick={true}
+    pauseOnHover={true}
+    draggable={true}
+    theme="colored"
+  />
+
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
-  <section class="py-6">
+
+  <main class="py-4 sm:py-6 lg:py-8">
     <Container>
-      <div class="grid gap-12 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div
+        class="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)] xl:gap-10"
+      >
         <aside class="hidden lg:block">
           {
             toc.length > 0 && (
-              <div class="sticky top-28">
-                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-                  <h2 class="mb-6 text-lg font-bold text-heading-1">
-                    Contents
-                  </h2>
+              <div class="sticky top-24">
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white dark:bg-slate-900">
+                  <h2 class="text-base font-bold text-heading-1">Contents</h2>
 
-                  <ul class="space-y-3">
-                    {toc.map((item) => (
-                      <li class:list={[item.level === 3 && "ml-5"]}>
-                        <a
-                          href={`#${item.id}`}
-                          class="text-sm text-slate-600 transition hover:text-primary dark:text-slate-300"
-                        >
-                          {item.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div class="mt-8 border-t border-orange-600 pt-6">
-                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                      Share this article
+                  <nav class="mt-4" aria-label="Article contents">
+                    <ul class="space-y-2.5">
+                      {toc.map((item) => (
+                        <li class:list={[item.level === 3 && "pl-4"]}>
+                          <a
+                            href={`#${item.id}`}
+                            class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-slate-300"
+                          >
+                            {item.text}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+
+                  <div class="mt-5 border-t border-slate-200 pt-4 dark:border-slate-700">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      Share article
                     </h3>
 
-                    <div class="flex col-4 gap-2">
+                    <div class="mt-3 flex flex-wrap gap-2">
                       <a
                         target="_blank"
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
-                        class="flex items-center gap-3 rounded-xl p-2 transition bg-blue-500 text-white  hover:bg-slate-100 dark:hover:bg-slate-800"
+                        rel="noopener noreferrer"
+                        aria-label="Share on LinkedIn"
+                        title="Share on LinkedIn"
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedArticleUrl}`}
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700"
                       >
-                        <Linkedin size={18} />
+                        <Linkedin size={17} />
                       </a>
+
                       <a
                         target="_blank"
-                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(Astro.url.href)}&text=${encodeURIComponent(post.title)}`}
-                        class="flex items-center gap-3 rounded-xl p-2 transition bg-black text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                        rel="noopener noreferrer"
+                        aria-label="Share on X"
+                        title="Share on X"
+                        href={`https://twitter.com/intent/tweet?url=${encodedArticleUrl}&text=${encodedArticleTitle}`}
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
                       >
-                        <Twitter size={18} />
+                        <Twitter size={17} />
                       </a>
+
                       <a
                         target="_blank"
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(Astro.url.href)}`}
-                        class="flex items-center gap-3 rounded-xl p-2 transition bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-200"
+                        rel="noopener noreferrer"
+                        aria-label="Share on Facebook"
+                        title="Share on Facebook"
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodedArticleUrl}`}
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 text-white transition hover:bg-blue-800"
                       >
-                        <Facebook size={18} />
+                        <Facebook size={17} />
                       </a>
-                      <CopyLinkButton
-                        client:load
-                        message="Article URL copied!"
-                        className="p-2 text-white bg-green-500 rounded-xl text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
-                      >
-                        <Link2 size={18} />
-                      </CopyLinkButton>
                     </div>
                   </div>
                 </div>
@@ -141,131 +202,190 @@ const articleSchema = {
           }
         </aside>
 
-        <!-- ========================= -->
-        <!-- ARTICLE -->
-        <!-- ========================= -->
-
         <article class="min-w-0">
-          <!-- Hero Image -->
-
-          <!-- {
-            post.cover_image && (
-              <div class="overflow-hidden rounded-3xl shadow-xl">
-                <img
-                  src={post.cover_image}
-                  alt={post.title}
-                  class="h-[420px] w-full object-cover"
-                />
-              </div>
-            )
-          } -->
-
-          <!-- Header -->
-
           <header class="mx-auto max-w-4xl">
             <h1
-              class="text-3xl font-bold leading-snug text-heading-1 md:text-5xl"
+              class="text-2xl font-bold leading-tight text-heading-1 sm:text-3xl lg:text-5xl lg:leading-[1.12]"
             >
               {post.title}
             </h1>
 
-            <p class="mt-6 text-xl leading-9 text-gray-600 dark:text-gray-400">
-              {post.excerpt}
-            </p>
+            {
+              post.excerpt && (
+                <p class="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400 sm:text-lg sm:leading-8">
+                  {post.excerpt}
+                </p>
+              )
+            }
 
             <div
-              class="mt-8 flex flex-col gap-4 text-sm text-gray-500 md:flex-row md:items-center md:justify-between"
+              class="mt-5 flex flex-col gap-4 border-y border-slate-200 py-4 dark:border-white sm:mt-6 sm:flex-row sm:items-center sm:justify-between"
             >
-              <!-- Left side -->
+              <div class="flex min-w-0 items-center gap-3">
+                <img
+                  src="/images/thumbnail.png"
+                  alt="Akaneno Ekong"
+                  width="44"
+                  height="44"
+                  loading="eager"
+                  class="h-10 w-10 shrink-0 rounded-full object-cover sm:h-11 sm:w-11"
+                />
 
-              <div class="flex items-center gap-3">
-                <span class="flex items-center gap-2">
-                  <img
-                    src="/images/thumbnail.png"
-                    class="w-12 h-12 rounded-full"
-                  />
-                </span>
-                <span class="flex items-center gap-2">
-                  📅 {new Date(post.created_at).toLocaleDateString()}
-                </span>
+                <div class="min-w-0">
+                  <p
+                    class="truncate text-sm font-semibold text-slate-900 dark:text-white"
+                  >
+                    Akaneno Ekong
+                  </p>
 
-                <span>•</span>
+                  <div
+                    class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm"
+                  >
+                    <time datetime={post.created_at}>
+                      {publishedDate}
+                    </time>
 
-                <span class="flex items-center gap-2">
-                  ⏱️ {readingTime}
-                </span>
+                    <span aria-hidden="true"> • </span>
+
+                    <span>
+                      {readingTime} min read
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Right side -->
-
-              <div class="flex col-4 gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <a
                   target="_blank"
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
-                  class="flex items-center gap-3 rounded-xl p-2 transition bg-blue-500 text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                  rel="noopener noreferrer"
+                  aria-label="Share on LinkedIn"
+                  title="Share on LinkedIn"
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedArticleUrl}`}
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700"
                 >
-                  <Linkedin size={18} />
+                  <Linkedin size={17} />
                 </a>
 
                 <a
                   target="_blank"
-                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(Astro.url.href)}&text=${encodeURIComponent(post.title)}`}
-                  class="flex items-center gap-3 rounded-xl p-2 transition bg-black text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                  rel="noopener noreferrer"
+                  aria-label="Share on X"
+                  title="Share on X"
+                  href={`https://twitter.com/intent/tweet?url=${encodedArticleUrl}&text=${encodedArticleTitle}`}
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
                 >
-                  <Twitter size={18} />
+                  <Twitter size={17} />
                 </a>
 
                 <a
                   target="_blank"
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(Astro.url.href)}`}
-                  class="flex items-center gap-3 rounded-xl p-2 transition bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-200"
+                  rel="noopener noreferrer"
+                  aria-label="Share on Facebook"
+                  title="Share on Facebook"
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodedArticleUrl}`}
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 text-white transition hover:bg-blue-800"
                 >
-                  <Facebook size={18} />
+                  <Facebook size={17} />
                 </a>
-
-                <CopyLinkButton
-                  client:load
-                  message="Article URL copied!"
-                  className="p-2 text-white bg-green-500 rounded-xl text-left transition hover:bg-green-800 dark:hover:bg-slate-800"
-                >
-                  <Link2 size={18} />
-                </CopyLinkButton>
               </div>
             </div>
           </header>
 
-          <!-- Divider -->
+          {
+            toc.length > 0 && (
+              <details class="mt-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-white lg:hidden">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-white">
+                  Table of contents
+                </summary>
 
-          <div class="my-4 h-px bg-orange-500 dark:bg-slate-800"></div>
+                <nav
+                  class="mt-3 border-t border-slate-200 pt-3 dark:border-slate-800"
+                  aria-label="Mobile article contents"
+                >
+                  <ul class="space-y-2">
+                    {toc.map((item) => (
+                      <li class:list={[item.level === 3 && "pl-4"]}>
+                        <a
+                          href={`#${item.id}`}
+                          class="block text-sm leading-5 text-slate-600 transition hover:text-primary dark:text-slate-300"
+                        >
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </details>
+            )
+          }
 
-          <!-- Body -->
+          {
+            post.cover_image && (
+              <figure class="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:mt-6">
+                <img
+                  src={post.cover_image}
+                  alt={post.title}
+                  width="1200"
+                  height="675"
+                  loading="eager"
+                  fetchpriority="high"
+                  class="aspect-[16/9] w-full object-cover"
+                />
+              </figure>
+            )
+          }
 
           <div
-            class="rounded-3xl bg-white p-10 shadow-xl dark:bg-slate-900 md:p-14"
+            class="mt-5 md:rounded-2xl md:border md:border-slate-200 bg-white md:px-4 py-5 shadow-sm dark:text-white dark:border-white dark:bg-slate-900 sm:mt-6 sm:px-3 lg:px-9 lg:py-10"
           >
             <TiptapViewer client:load content={post.content} />
-            <AuthorCard />
+
+            <div
+              class="mt-8 border-t border-slate-200 pt-6 dark:border-gray-500"
+            >
+              <AuthorCard />
+            </div>
+
             {
               relatedPosts && relatedPosts.length > 0 && (
-                <section class="mt-20">
-                  <h2 class="mb-10 text-3xl font-bold">Continue Reading</h2>
+                <section class="mt-10 sm:mt-14">
+                  <div class="flex items-end justify-between gap-4">
+                    <div>
+                      <p class="text-sm font-semibold text-primary">
+                        More insights
+                      </p>
 
-                  <div class="grid gap-8 md:grid-cols-3">
+                      <h2 class="mt-1 text-2xl font-bold text-heading-1 sm:text-3xl">
+                        Continue reading
+                      </h2>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {relatedPosts.map((article) => (
                       <a
                         href={`/blog/${article.slug}`}
-                        class="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg transition hover:-translate-y-2 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+                        class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
                       >
-                        <img
-                          src={article.cover_image}
-                          alt={article.title}
-                          class="h-52 w-full object-cover transition duration-700 group-hover:scale-105"
-                        />
+                        {article.cover_image && (
+                          <div class="overflow-hidden">
+                            <img
+                              src={article.cover_image}
+                              alt={article.title}
+                              loading="lazy"
+                              width="600"
+                              height="338"
+                              class="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-105"
+                            />
+                          </div>
+                        )}
 
-                        <div class="p-6">
-                          <h3 class="text-xl font-bold">{article.title}</h3>
+                        <div class="p-4 sm:p-5">
+                          <h3 class="line-clamp-2 text-lg font-bold leading-6 text-heading-1">
+                            {article.title}
+                          </h3>
 
-                          <p class="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                          <p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
                             {article.excerpt}
                           </p>
                         </div>
@@ -279,28 +399,5 @@ const articleSchema = {
         </article>
       </div>
     </Container>
-  </section>
-  <script>
-    const copyButtons = document.querySelectorAll(".copy-link");
-
-    copyButtons.forEach((button) => {
-      button.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(window.location.href);
-
-          // Dispatch a custom event for your reusable alert component
-          toast.success("Success");
-        } catch (err) {
-          window.dispatchEvent(
-            new CustomEvent("toast", {
-              detail: {
-                message: "Failed to copy link.",
-                type: "error",
-              },
-            })
-          );
-        }
-      });
-    });
-  </script>
+  </main>
 </Layout>
