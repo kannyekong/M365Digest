@@ -1,0 +1,17 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import BudgetDashboard from "../../../components/admin/finance/budgets/BudgetDashboard";
+import FinanceModuleNav from "../../../components/admin/finance/FinanceModuleNav";
+---
+
+<AdminLayout title="Budgets">
+  <Header description="Budgets page" />
+
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <FinanceModuleNav current="budgets" />
+      <BudgetDashboard client:only="react" />
+    </section>
+  </main>
+</AdminLayout>

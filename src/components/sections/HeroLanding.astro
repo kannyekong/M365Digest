@@ -15,9 +15,26 @@ import { Rocket, Telescope } from "lucide-react";
         items-center max-w-full"
       >
         <h1
-          class="text-5xl tracking-tight leading-12 font-bold bg-gradient-to-r from-blue-500 dark:from-pink-600 via-blue-800 to-black dark:to-white bg-clip-text text-transparent"
+          class="bg-gradient-to-r from-blue-500 via-blue-800 to-black bg-clip-text text-4xl leading-12 font-bold tracking-tight text-transparent dark:from-pink-600 dark:to-white"
         >
-          Modernizing Businesses with Intelligent Cloud Solutions.
+          Modernizing Businesses with Intelligent Cloud{" "}
+
+          <span class="inline-flex items-baseline whitespace-nowrap">
+            <TypewriterText
+              texts={["Solutions"]}
+              typeSpeed={70}
+              eraseSpeed={40}
+              pauseAfter={1800}
+              enhance
+            />
+
+            <span
+              class="typewriter-cursor ml-[1px] inline-block"
+              aria-hidden="true"
+            >
+              _
+            </span>
+          </span>
         </h1>
       </div>
       <p class="text-md text-center text-gray-500 leading-7 mt-5">
@@ -47,3 +64,27 @@ import { Rocket, Telescope } from "lucide-react";
   </Container>
 </section>
 <HeroCarousel client:load />
+
+<style>
+  .typewriter-cursor {
+    animation: typewriter-cursor-blink 1s step-end infinite;
+  }
+
+  @keyframes typewriter-cursor-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .typewriter-cursor {
+      animation: none;
+    }
+  }
+</style>

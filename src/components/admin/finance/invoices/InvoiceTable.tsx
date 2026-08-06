@@ -2,7 +2,6 @@ import {
   Archive,
   ArrowDown,
   ArrowUp,
-  CheckCircle2,
   Eye,
   LoaderCircle,
   Mail,

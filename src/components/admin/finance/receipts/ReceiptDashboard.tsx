@@ -1,6 +1,8 @@
 import {
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   LoaderCircle,
   ReceiptText,
@@ -74,9 +76,19 @@ export default function ReceiptDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
+  const [page, setPage] = useState(1);
+
+  const [pageSize, setPageSize] = useState(10);
+
+  const [total, setTotal] = useState(0);
+
+  const [totalPages, setTotalPages] = useState(1);
 
   /**
    * Load Receipt records and statistics together.
+   */
+  /**
+   * Load paginated Receipt records and statistics together.
    */
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -84,8 +96,8 @@ export default function ReceiptDashboard() {
     try {
       const [receiptResult, statisticsResult] = await Promise.all([
         listReceipts({
-          page: 1,
-          pageSize: 100,
+          page,
+          pageSize,
           filters: {
             search,
           },
@@ -94,6 +106,8 @@ export default function ReceiptDashboard() {
       ]);
 
       setReceipts(receiptResult.receipts);
+      setTotal(receiptResult.total);
+      setTotalPages(receiptResult.totalPages);
       setStatistics(statisticsResult);
     } catch (error) {
       console.error("Failed to load Receipt dashboard:", error);
@@ -106,7 +120,7 @@ export default function ReceiptDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [page, pageSize, search]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -213,7 +227,10 @@ export default function ReceiptDashboard() {
 
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setPage(1);
+                setSearch(event.target.value);
+              }}
               placeholder="Search receipt, invoice, customer or reference"
               className="w-full rounded-xl border border-slate-200 bg-transparent py-2.5 pl-10 pr-4 text-sm text-slate-950 outline-none transition focus:border-blue-500 dark:border-slate-800 dark:text-white"
             />
@@ -304,6 +321,58 @@ export default function ReceiptDashboard() {
               </tbody>
             </table>
           </div>
+        )}
+
+        {!loading && receipts.length > 0 && (
+          <footer className="flex flex-col gap-3 border-t border-slate-200 px-4 py-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Showing {total === 0 ? 0 : (page - 1) * pageSize + 1}–
+              {Math.min(page * pageSize, total)} of {total}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={pageSize}
+                onChange={(event) => {
+                  setPage(1);
+                  setPageSize(Number(event.target.value));
+                }}
+                className="rounded-lg border border-slate-200 bg-transparent px-2.5 py-2 text-sm text-slate-700 outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+              >
+                {[10, 20, 50].map((size) => (
+                  <option key={size} value={size}>
+                    {size} per page
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                title="Previous Page"
+                aria-label="Previous Page"
+                disabled={page <= 1}
+                onClick={() => setPage((currentPage) => currentPage - 1)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <span className="px-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {page} / {totalPages}
+              </span>
+
+              <button
+                type="button"
+                title="Next Page"
+                aria-label="Next Page"
+                disabled={page >= totalPages}
+                onClick={() => setPage((currentPage) => currentPage + 1)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </footer>
         )}
       </section>
 

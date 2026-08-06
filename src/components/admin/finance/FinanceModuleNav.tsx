@@ -4,6 +4,9 @@ import {
   ReceiptText,
   TrendingUp,
   WalletCards,
+  CircleDollarSign,
+  RotateCcw,
+  HandCoins,
 } from "lucide-react";
 
 interface FinanceModuleNavProps {
@@ -13,7 +16,10 @@ interface FinanceModuleNavProps {
     | "expenses"
     | "invoices"
     | "receipts"
-    | "reports";
+    | "reports"
+    | "budgets"
+    | "refund"
+    | "reconciliation";
 }
 
 const items = [
@@ -53,34 +59,46 @@ const items = [
     href: "/admin/finance/reports",
     icon: FileBarChart,
   },
+
+  {
+    key: "budgets",
+    label: "Budgets",
+    href: "/admin/finance/budgets",
+    icon: CircleDollarSign,
+  },
+
+  {
+    key: "refund",
+    label: "Refunds",
+    href: "/admin/finance/refunds",
+    icon: RotateCcw,
+  },
+  {
+    key: "reconciliation",
+    label: "Reconcile",
+    href: "/admin/finance/reconciliation",
+    icon: HandCoins,
+  },
 ] as const;
 
 /**
  * Render consistent navigation across Finance pages.
  */
-export default function FinanceModuleNav({
-  current,
-}: FinanceModuleNavProps) {
+export default function FinanceModuleNav({ current }: FinanceModuleNavProps) {
   return (
-    <nav
-      aria-label="Finance navigation"
-      className="overflow-x-auto"
-    >
-      <div className="inline-flex min-w-full gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <nav aria-label="Finance navigation" className="overflow-x-auto">
+      <div className="inline-flex min-w-full gap-1 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         {items.map((item) => {
           const Icon = item.icon;
 
-          const active =
-            item.key === current;
+          const active = item.key === current;
 
           return (
             <a
               key={item.key}
               href={item.href}
-              aria-current={
-                active ? "page" : undefined
-              }
-              className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+              aria-current={active ? "page" : undefined}
+              className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                 active
                   ? "bg-primary text-white dark:bg-white dark:text-slate-950"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"

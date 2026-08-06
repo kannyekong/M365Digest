@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import ReconciliationDashboard from "../../../components/admin/finance/reconciliation/ReconciliationDashboard";
+import FinanceModuleNav from "../../../components/admin/finance/FinanceModuleNav";
+---
+
+<AdminLayout title="Revenue Management Page">
+  <Header description="Refund page" />
+  <main class="min-h-screen p-5">
+    <div class="mx-auto w-full max-w-[1600px]">
+      <FinanceModuleNav current="reconciliation" />
+      <ReconciliationDashboard client:only="react" />
+    </div>
+  </main>
+</AdminLayout>

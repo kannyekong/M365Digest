@@ -5,6 +5,7 @@ import {
   Briefcase,
   CirclePlus,
   Cog,
+  Construction,
   ContactRound,
   FolderOpenDot,
   GraduationCap,
@@ -156,7 +157,7 @@ export default function AdminDashboard() {
     <>
       <div className="grid gap-3 md:grid-cols-5 xl:grid-cols-5">
         <SingleStatCard
-          title="Articles"
+          title="Blog"
           value1={totalPosts}
           subtitle="total articles"
           value2={publishedPosts}
@@ -259,12 +260,12 @@ export default function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/bootcamp/bootcamp"
+                  href="/admin/admin/projects"
                   className="flex flex-col items-center rounded-2xl bg-green-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
-                  <p className="text-center text-xs">Manage Bootcamp</p>
+                  <p className="text-center text-xs">Manage Projects</p>
 
-                  <Users size={40} className="text-green-700" />
+                  <Construction size={40} className="text-green-700" />
                 </a>
 
                 <a

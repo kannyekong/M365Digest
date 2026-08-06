@@ -2,6 +2,8 @@ import {
   AlertTriangle,
   Banknote,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   FileText,
   LoaderCircle,
@@ -665,22 +667,22 @@ export default function InvoiceDashboard() {
               type="button"
               onClick={() => setPage((currentPage) => currentPage - 1)}
               disabled={loading || page <= 1}
-              className="rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
+              className="rounded-xl border border-slate-200 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
             >
-              Previous
+              <ChevronLeft size={16} />
             </button>
 
             <span className="px-2 font-semibold text-slate-700 dark:text-slate-200">
-              Page {page} of {totalPages}
+              {page} / {totalPages}
             </span>
 
             <button
               type="button"
               onClick={() => setPage((currentPage) => currentPage + 1)}
               disabled={loading || page >= totalPages}
-              className="rounded-xl border border-slate-200 px-3 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
+              className="rounded-xl border border-slate-200 px-2 py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
             >
-              Next
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>

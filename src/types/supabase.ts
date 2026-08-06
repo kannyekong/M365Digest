@@ -1136,6 +1136,226 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_reconciliation_history: {
+        Row: {
+          action: string
+          amount_difference: number | null
+          dispute_reason: string | null
+          evidence_url: string | null
+          external_amount: number | null
+          external_reference: string | null
+          id: string
+          internal_amount: number
+          internal_reference: string | null
+          metadata: Json
+          new_status: string
+          notes: string | null
+          performed_at: string
+          performed_by: string | null
+          previous_status: string | null
+          provider: string | null
+          settlement_date: string | null
+          transaction_id: string
+        }
+        Insert: {
+          action: string
+          amount_difference?: number | null
+          dispute_reason?: string | null
+          evidence_url?: string | null
+          external_amount?: number | null
+          external_reference?: string | null
+          id?: string
+          internal_amount: number
+          internal_reference?: string | null
+          metadata?: Json
+          new_status: string
+          notes?: string | null
+          performed_at?: string
+          performed_by?: string | null
+          previous_status?: string | null
+          provider?: string | null
+          settlement_date?: string | null
+          transaction_id: string
+        }
+        Update: {
+          action?: string
+          amount_difference?: number | null
+          dispute_reason?: string | null
+          evidence_url?: string | null
+          external_amount?: number | null
+          external_reference?: string | null
+          id?: string
+          internal_amount?: number
+          internal_reference?: string | null
+          metadata?: Json
+          new_status?: string
+          notes?: string | null
+          performed_at?: string
+          performed_by?: string | null
+          previous_status?: string | null
+          provider?: string | null
+          settlement_date?: string | null
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_reconciliation_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_reconciliation_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_reconciliation_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_refundable_transactions"
+            referencedColumns: ["transaction_id"]
+          },
+          {
+            foreignKeyName: "finance_reconciliation_history_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "financial_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_refunds: {
+        Row: {
+          approved_amount: number | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          failed_at: string | null
+          id: string
+          internal_notes: string | null
+          invoice_id: string | null
+          metadata: Json
+          original_transaction_id: string
+          payment_method: string | null
+          processed_at: string | null
+          processed_by: string | null
+          provider: string
+          provider_payload: Json
+          provider_refund_reference: string | null
+          reason: string
+          receipt_id: string | null
+          refund_reference: string
+          refunded_amount: number
+          rejected_at: string | null
+          rejected_by: string | null
+          requested_amount: number
+          requested_at: string
+          requested_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          failed_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoice_id?: string | null
+          metadata?: Json
+          original_transaction_id: string
+          payment_method?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          provider?: string
+          provider_payload?: Json
+          provider_refund_reference?: string | null
+          reason: string
+          receipt_id?: string | null
+          refund_reference: string
+          refunded_amount?: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_amount: number
+          requested_at?: string
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string
+          failed_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoice_id?: string | null
+          metadata?: Json
+          original_transaction_id?: string
+          payment_method?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          provider?: string
+          provider_payload?: Json
+          provider_refund_reference?: string | null
+          reason?: string
+          receipt_id?: string | null
+          refund_reference?: string
+          refunded_amount?: number
+          rejected_at?: string | null
+          rejected_by?: string | null
+          requested_amount?: number
+          requested_at?: string
+          requested_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_refunds_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_refunds_original_transaction_id_fkey"
+            columns: ["original_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_reconciliation_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_refunds_original_transaction_id_fkey"
+            columns: ["original_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_refundable_transactions"
+            referencedColumns: ["transaction_id"]
+          },
+          {
+            foreignKeyName: "finance_refunds_original_transaction_id_fkey"
+            columns: ["original_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "financial_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_refunds_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_transactions: {
         Row: {
           amount: number
@@ -1150,7 +1370,9 @@ export type Database = {
           customer_name: string | null
           customer_phone: string | null
           description: string
+          dispute_reason: string | null
           exchange_rate: number
+          external_amount: number | null
           fee_amount: number
           id: string
           internal_notes: string | null
@@ -1164,8 +1386,12 @@ export type Database = {
           provider_reference: string | null
           receipt_number: string | null
           reconciled_at: string | null
+          reconciled_by: string | null
+          reconciliation_notes: string | null
+          reconciliation_reference: string | null
           reconciliation_status: string
           refunded_amount: number
+          settlement_date: string | null
           source_id: string | null
           source_table: string | null
           status: string
@@ -1189,7 +1415,9 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           description: string
+          dispute_reason?: string | null
           exchange_rate?: number
+          external_amount?: number | null
           fee_amount?: number
           id?: string
           internal_notes?: string | null
@@ -1203,8 +1431,12 @@ export type Database = {
           provider_reference?: string | null
           receipt_number?: string | null
           reconciled_at?: string | null
+          reconciled_by?: string | null
+          reconciliation_notes?: string | null
+          reconciliation_reference?: string | null
           reconciliation_status?: string
           refunded_amount?: number
+          settlement_date?: string | null
           source_id?: string | null
           source_table?: string | null
           status?: string
@@ -1228,7 +1460,9 @@ export type Database = {
           customer_name?: string | null
           customer_phone?: string | null
           description?: string
+          dispute_reason?: string | null
           exchange_rate?: number
+          external_amount?: number | null
           fee_amount?: number
           id?: string
           internal_notes?: string | null
@@ -1242,8 +1476,12 @@ export type Database = {
           provider_reference?: string | null
           receipt_number?: string | null
           reconciled_at?: string | null
+          reconciled_by?: string | null
+          reconciliation_notes?: string | null
+          reconciliation_reference?: string | null
           reconciliation_status?: string
           refunded_amount?: number
+          settlement_date?: string | null
           source_id?: string | null
           source_table?: string | null
           status?: string
@@ -1396,6 +1634,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "receipts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payment_attempts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_reconciliation_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payment_attempts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_refundable_transactions"
+            referencedColumns: ["transaction_id"]
           },
           {
             foreignKeyName: "invoice_payment_attempts_revenue_transaction_id_fkey"
@@ -1928,6 +2180,20 @@ export type Database = {
             foreignKeyName: "receipts_revenue_transaction_id_fkey"
             columns: ["revenue_transaction_id"]
             isOneToOne: true
+            referencedRelation: "finance_reconciliation_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: true
+            referencedRelation: "finance_refundable_transactions"
+            referencedColumns: ["transaction_id"]
+          },
+          {
+            foreignKeyName: "receipts_revenue_transaction_id_fkey"
+            columns: ["revenue_transaction_id"]
+            isOneToOne: true
             referencedRelation: "financial_transactions"
             referencedColumns: ["id"]
           },
@@ -2290,13 +2556,267 @@ export type Database = {
           },
         ]
       }
+      finance_reconciliation_transactions: {
+        Row: {
+          amount: number | null
+          amount_difference: number | null
+          bank_account: string | null
+          base_amount: number | null
+          base_currency: string | null
+          created_at: string | null
+          currency: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string | null
+          dispute_reason: string | null
+          exchange_rate: number | null
+          external_amount: number | null
+          fee_amount: number | null
+          id: string | null
+          internal_reference: string | null
+          invoice_number: string | null
+          paid_at: string | null
+          payment_method: string | null
+          provider: string | null
+          provider_reference: string | null
+          receipt_number: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          reconciliation_notes: string | null
+          reconciliation_reference: string | null
+          reconciliation_status: string | null
+          refunded_amount: number | null
+          settlement_date: string | null
+          source_id: string | null
+          source_table: string | null
+          status: string | null
+          tax_amount: number | null
+          transaction_category: string | null
+          transaction_date: string | null
+          transaction_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          amount_difference?: never
+          bank_account?: string | null
+          base_amount?: number | null
+          base_currency?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          dispute_reason?: string | null
+          exchange_rate?: number | null
+          external_amount?: number | null
+          fee_amount?: number | null
+          id?: string | null
+          internal_reference?: string | null
+          invoice_number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          receipt_number?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          reconciliation_notes?: string | null
+          reconciliation_reference?: string | null
+          reconciliation_status?: string | null
+          refunded_amount?: number | null
+          settlement_date?: string | null
+          source_id?: string | null
+          source_table?: string | null
+          status?: string | null
+          tax_amount?: number | null
+          transaction_category?: string | null
+          transaction_date?: string | null
+          transaction_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          amount_difference?: never
+          bank_account?: string | null
+          base_amount?: number | null
+          base_currency?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          description?: string | null
+          dispute_reason?: string | null
+          exchange_rate?: number | null
+          external_amount?: number | null
+          fee_amount?: number | null
+          id?: string | null
+          internal_reference?: string | null
+          invoice_number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          receipt_number?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          reconciliation_notes?: string | null
+          reconciliation_reference?: string | null
+          reconciliation_status?: string | null
+          refunded_amount?: number | null
+          settlement_date?: string | null
+          source_id?: string | null
+          source_table?: string | null
+          status?: string | null
+          tax_amount?: number | null
+          transaction_category?: string | null
+          transaction_date?: string | null
+          transaction_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      finance_refundable_transactions: {
+        Row: {
+          amount: number | null
+          currency: string | null
+          customer_email: string | null
+          customer_name: string | null
+          description: string | null
+          internal_reference: string | null
+          invoice_number: string | null
+          paid_at: string | null
+          payment_method: string | null
+          provider: string | null
+          provider_reference: string | null
+          receipt_number: string | null
+          refundable_amount: number | null
+          refunded_amount: number | null
+          source_id: string | null
+          source_table: string | null
+          status: string | null
+          transaction_date: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          description?: string | null
+          internal_reference?: string | null
+          invoice_number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          receipt_number?: string | null
+          refundable_amount?: never
+          refunded_amount?: number | null
+          source_id?: string | null
+          source_table?: string | null
+          status?: string | null
+          transaction_date?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          currency?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          description?: string | null
+          internal_reference?: string | null
+          invoice_number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          receipt_number?: string | null
+          refundable_amount?: never
+          refunded_amount?: number | null
+          source_id?: string | null
+          source_table?: string | null
+          status?: string | null
+          transaction_date?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       create_invoice_with_items: {
         Args: { p_invoice: Json; p_items: Json }
         Returns: string
       }
+      dispute_financial_transaction: {
+        Args: {
+          p_dispute_reason: string
+          p_evidence_url?: string
+          p_external_amount?: number
+          p_external_reference?: string
+          p_metadata?: Json
+          p_notes?: string
+          p_performed_by?: string
+          p_settlement_date?: string
+          p_transaction_id: string
+        }
+        Returns: {
+          amount: number
+          archived_at: string | null
+          bank_account: string | null
+          base_amount: number | null
+          base_currency: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string
+          dispute_reason: string | null
+          exchange_rate: number
+          external_amount: number | null
+          fee_amount: number
+          id: string
+          internal_notes: string | null
+          internal_reference: string
+          invoice_number: string | null
+          metadata: Json
+          paid_at: string | null
+          payment_method: string | null
+          provider: string
+          provider_payload: Json
+          provider_reference: string | null
+          receipt_number: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          reconciliation_notes: string | null
+          reconciliation_reference: string | null
+          reconciliation_status: string
+          refunded_amount: number
+          settlement_date: string | null
+          source_id: string | null
+          source_table: string | null
+          status: string
+          tax_amount: number
+          transaction_category: string
+          transaction_date: string
+          transaction_type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "financial_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       generate_certificate_number: { Args: never; Returns: string }
+      generate_finance_refund_reference: { Args: never; Returns: string }
       generate_invoice_number: { Args: never; Returns: string }
       generate_project_code: {
         Args: { project_type_value: string }
@@ -2375,6 +2895,116 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      process_successful_finance_refund: {
+        Args: {
+          p_processed_by?: string
+          p_provider_payload?: Json
+          p_provider_refund_reference?: string
+          p_refund_id: string
+          p_refunded_amount: number
+        }
+        Returns: {
+          approved_amount: number | null
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string
+          failed_at: string | null
+          id: string
+          internal_notes: string | null
+          invoice_id: string | null
+          metadata: Json
+          original_transaction_id: string
+          payment_method: string | null
+          processed_at: string | null
+          processed_by: string | null
+          provider: string
+          provider_payload: Json
+          provider_refund_reference: string | null
+          reason: string
+          receipt_id: string | null
+          refund_reference: string
+          refunded_amount: number
+          rejected_at: string | null
+          rejected_by: string | null
+          requested_amount: number
+          requested_at: string
+          requested_by: string | null
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "finance_refunds"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      reconcile_financial_transaction: {
+        Args: {
+          p_evidence_url?: string
+          p_external_amount: number
+          p_external_reference: string
+          p_metadata?: Json
+          p_notes?: string
+          p_performed_by?: string
+          p_settlement_date: string
+          p_transaction_id: string
+        }
+        Returns: {
+          amount: number
+          archived_at: string | null
+          bank_account: string | null
+          base_amount: number | null
+          base_currency: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string
+          dispute_reason: string | null
+          exchange_rate: number
+          external_amount: number | null
+          fee_amount: number
+          id: string
+          internal_notes: string | null
+          internal_reference: string
+          invoice_number: string | null
+          metadata: Json
+          paid_at: string | null
+          payment_method: string | null
+          provider: string
+          provider_payload: Json
+          provider_reference: string | null
+          receipt_number: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          reconciliation_notes: string | null
+          reconciliation_reference: string | null
+          reconciliation_status: string
+          refunded_amount: number
+          settlement_date: string | null
+          source_id: string | null
+          source_table: string | null
+          status: string
+          tax_amount: number
+          transaction_category: string
+          transaction_date: string
+          transaction_type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "financial_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       record_invoice_payment: {
         Args: {
           p_amount: number
@@ -2429,6 +3059,65 @@ export type Database = {
       replace_draft_invoice: {
         Args: { p_invoice: Json; p_invoice_id: string; p_items: Json }
         Returns: string
+      }
+      undo_financial_reconciliation: {
+        Args: {
+          p_metadata?: Json
+          p_notes?: string
+          p_performed_by?: string
+          p_transaction_id: string
+        }
+        Returns: {
+          amount: number
+          archived_at: string | null
+          bank_account: string | null
+          base_amount: number | null
+          base_currency: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          description: string
+          dispute_reason: string | null
+          exchange_rate: number
+          external_amount: number | null
+          fee_amount: number
+          id: string
+          internal_notes: string | null
+          internal_reference: string
+          invoice_number: string | null
+          metadata: Json
+          paid_at: string | null
+          payment_method: string | null
+          provider: string
+          provider_payload: Json
+          provider_reference: string | null
+          receipt_number: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          reconciliation_notes: string | null
+          reconciliation_reference: string | null
+          reconciliation_status: string
+          refunded_amount: number
+          settlement_date: string | null
+          source_id: string | null
+          source_table: string | null
+          status: string
+          tax_amount: number
+          transaction_category: string
+          transaction_date: string
+          transaction_type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "financial_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       who_am_i: {
         Args: never

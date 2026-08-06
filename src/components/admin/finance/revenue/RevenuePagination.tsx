@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface RevenuePaginationProps {
   page: number;
@@ -34,10 +34,9 @@ export default function RevenuePagination({
           type="button"
           disabled={page <= 1 || loading}
           onClick={() => onPageChange(Math.max(page - 1, 1))}
-          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:text-slate-200"
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:text-slate-200"
         >
-          <ArrowLeft size={15} />
-          Previous
+          <ChevronLeft size={16} />
         </button>
 
         <span className="px-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -48,10 +47,9 @@ export default function RevenuePagination({
           type="button"
           disabled={page >= totalPages || loading}
           onClick={() => onPageChange(Math.min(page + 1, totalPages))}
-          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:text-slate-200"
+          className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:text-slate-200"
         >
-          Next
-          <ArrowRight size={15} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>
