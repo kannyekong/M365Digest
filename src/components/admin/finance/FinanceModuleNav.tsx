@@ -7,6 +7,7 @@ import {
   CircleDollarSign,
   RotateCcw,
   HandCoins,
+  BanknoteCheck,
 } from "lucide-react";
 
 interface FinanceModuleNavProps {
@@ -19,7 +20,8 @@ interface FinanceModuleNavProps {
     | "reports"
     | "budgets"
     | "refund"
-    | "reconciliation";
+    | "reconciliation"
+    | "quotation";
 }
 
 const items = [
@@ -79,6 +81,12 @@ const items = [
     href: "/admin/finance/reconciliation",
     icon: HandCoins,
   },
+  {
+    key: "quotation",
+    label: "Quotations",
+    href: "/admin/finance/quotations",
+    icon: BanknoteCheck,
+  },
 ] as const;
 
 /**
@@ -98,7 +106,7 @@ export default function FinanceModuleNav({ current }: FinanceModuleNavProps) {
               key={item.key}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+              className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold transition ${
                 active
                   ? "bg-primary text-white dark:bg-white dark:text-slate-950"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"

@@ -946,6 +946,228 @@ export type Database = {
           },
         ]
       }
+      client_contacts: {
+        Row: {
+          alternative_phone: string | null
+          archived_at: string | null
+          client_id: string
+          contact_type: string
+          created_at: string
+          created_by: string | null
+          department: string | null
+          email: string | null
+          first_name: string
+          id: string
+          is_primary: boolean
+          job_title: string | null
+          last_name: string | null
+          metadata: Json
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          alternative_phone?: string | null
+          archived_at?: string | null
+          client_id: string
+          contact_type?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          is_primary?: boolean
+          job_title?: string | null
+          last_name?: string | null
+          metadata?: Json
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          alternative_phone?: string | null
+          archived_at?: string | null
+          client_id?: string
+          contact_type?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          is_primary?: boolean
+          job_title?: string | null
+          last_name?: string | null
+          metadata?: Json
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_notes: {
+        Row: {
+          archived_at: string | null
+          client_id: string
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_pinned: boolean
+          note_type: string
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          client_id: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_pinned?: boolean
+          note_type?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          client_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_pinned?: boolean
+          note_type?: string
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          account_manager_id: string | null
+          alternative_phone: string | null
+          archived_at: string | null
+          billing_address: string | null
+          city: string | null
+          client_code: string
+          client_type: string
+          company_name: string | null
+          country: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          email: string | null
+          first_name: string | null
+          id: string
+          industry: string | null
+          last_name: string | null
+          metadata: Json
+          notes: string | null
+          phone: string | null
+          postal_code: string | null
+          source: string | null
+          state: string | null
+          status: string
+          tax_identification_number: string | null
+          updated_at: string
+          updated_by: string | null
+          website: string | null
+        }
+        Insert: {
+          account_manager_id?: string | null
+          alternative_phone?: string | null
+          archived_at?: string | null
+          billing_address?: string | null
+          city?: string | null
+          client_code: string
+          client_type?: string
+          company_name?: string | null
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          industry?: string | null
+          last_name?: string | null
+          metadata?: Json
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          source?: string | null
+          state?: string | null
+          status?: string
+          tax_identification_number?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Update: {
+          account_manager_id?: string | null
+          alternative_phone?: string | null
+          archived_at?: string | null
+          billing_address?: string | null
+          city?: string | null
+          client_code?: string
+          client_type?: string
+          company_name?: string | null
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          industry?: string | null
+          last_name?: string | null
+          metadata?: Json
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          source?: string | null
+          state?: string | null
+          status?: string
+          tax_identification_number?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_account_manager_id_fkey"
+            columns: ["account_manager_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -1363,6 +1585,7 @@ export type Database = {
           bank_account: string | null
           base_amount: number | null
           base_currency: string
+          client_id: string | null
           created_at: string
           created_by: string | null
           currency: string
@@ -1408,6 +1631,7 @@ export type Database = {
           bank_account?: string | null
           base_amount?: number | null
           base_currency?: string
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -1453,6 +1677,7 @@ export type Database = {
           bank_account?: string | null
           base_amount?: number | null
           base_currency?: string
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -1492,7 +1717,15 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -1685,6 +1918,7 @@ export type Database = {
           notes: string | null
           paid_at: string | null
           payment_reference: string | null
+          project_id: string | null
           purchase_order_number: string | null
           revenue_transaction_id: string | null
           sent_at: string | null
@@ -1722,6 +1956,7 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           payment_reference?: string | null
+          project_id?: string | null
           purchase_order_number?: string | null
           revenue_transaction_id?: string | null
           sent_at?: string | null
@@ -1759,6 +1994,7 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           payment_reference?: string | null
+          project_id?: string | null
           purchase_order_number?: string | null
           revenue_transaction_id?: string | null
           sent_at?: string | null
@@ -1770,7 +2006,22 @@ export type Database = {
           updated_at?: string
           viewed_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_applications: {
         Row: {
@@ -1992,6 +2243,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          client_id: string | null
           client_name: string | null
           created_at: string
           created_by_staff_id: string
@@ -2006,6 +2258,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          client_id?: string | null
           client_name?: string | null
           created_at?: string
           created_by_staff_id: string
@@ -2020,6 +2273,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          client_id?: string | null
           client_name?: string | null
           created_at?: string
           created_by_staff_id?: string
@@ -2034,6 +2288,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "projects_created_by_staff_id_fkey"
             columns: ["created_by_staff_id"]
@@ -2769,6 +3030,7 @@ export type Database = {
           bank_account: string | null
           base_amount: number | null
           base_currency: string
+          client_id: string | null
           created_at: string
           created_by: string | null
           currency: string
@@ -2816,6 +3078,7 @@ export type Database = {
         }
       }
       generate_certificate_number: { Args: never; Returns: string }
+      generate_client_code: { Args: never; Returns: string }
       generate_finance_refund_reference: { Args: never; Returns: string }
       generate_invoice_number: { Args: never; Returns: string }
       generate_project_code: {
@@ -2877,6 +3140,7 @@ export type Database = {
           notes: string | null
           paid_at: string | null
           payment_reference: string | null
+          project_id: string | null
           purchase_order_number: string | null
           revenue_transaction_id: string | null
           sent_at: string | null
@@ -2959,6 +3223,7 @@ export type Database = {
           bank_account: string | null
           base_amount: number | null
           base_currency: string
+          client_id: string | null
           created_at: string
           created_by: string | null
           currency: string
@@ -3038,6 +3303,7 @@ export type Database = {
           notes: string | null
           paid_at: string | null
           payment_reference: string | null
+          project_id: string | null
           purchase_order_number: string | null
           revenue_transaction_id: string | null
           sent_at: string | null
@@ -3073,6 +3339,7 @@ export type Database = {
           bank_account: string | null
           base_amount: number | null
           base_currency: string
+          client_id: string | null
           created_at: string
           created_by: string | null
           currency: string

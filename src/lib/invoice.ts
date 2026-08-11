@@ -3,7 +3,6 @@ import type {
   CreateInvoiceInput,
   Invoice,
   InvoiceFilters,
-  InvoiceItem,
   InvoiceListResult,
   InvoiceSortField,
   InvoiceStatistics,
@@ -35,6 +34,7 @@ interface RecordInvoicePaymentInput {
 
 interface InvoiceDatabasePayload {
   customer_id: string | null;
+  project_id: string | null;
   customer_name: string;
   customer_company: string | null;
   customer_email: string;
@@ -115,7 +115,9 @@ function validateInvoiceInput(input: CreateInvoiceInput) {
     }
 
     if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
-      throw new Error(`Item ${index + 1} requires a quantity greater than zero.`);
+      throw new Error(
+        `Item ${index + 1} requires a quantity greater than zero.`
+      );
     }
 
     if (!Number.isFinite(item.unitPrice) || item.unitPrice < 0) {
@@ -175,6 +177,7 @@ function buildInvoicePayload(
   return {
     invoice: {
       customer_id: input.customerId ?? null,
+      project_id: input.project_id ?? null,
       customer_name: input.customerName.trim(),
       customer_company: optionalText(input.customerCompany),
       customer_email: input.customerEmail.trim().toLowerCase(),
@@ -238,11 +241,9 @@ export async function listInvoices({
   const from = (safePage - 1) * safePageSize;
   const to = from + safePageSize - 1;
 
-  let query = supabase
-    .from("invoices")
-    .select("*", {
-      count: "exact",
-    });
+  let query = supabase.from("invoices").select("*", {
+    count: "exact",
+  });
 
   const search = filters.search?.trim();
 
@@ -432,6 +433,10 @@ export async function updateInvoice(
 
   if (updates.customerId !== undefined) {
     databaseUpdates.customer_id = updates.customerId;
+  }
+
+  if (updates.project_id !== undefined) {
+    databaseUpdates.project_id = updates.project_id;
   }
 
   if (updates.customerName !== undefined) {

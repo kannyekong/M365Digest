@@ -1,0 +1,112 @@
+---
+import Container from "../shared/Container.astro";
+import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
+import Title from "../shared/Title.astro";
+import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
+---
+
+<section id="faq" class="py-10 sm:py-14 lg:py-20">
+  <Container>
+    <div
+      class="relative overflow-hidden rounded-3xl border border-box-border bg-box-bg/70 px-4 py-8 shadow-sm backdrop-blur-xl sm:px-6 md:px-8 lg:px-10 lg:py-12"
+    >
+      <div
+        class="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl"
+      >
+      </div>
+
+      <div
+        class="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-green-500/10 blur-3xl"
+      >
+      </div>
+
+      <div class="relative mx-auto max-w-3xl">
+        <div class="mb-10 text-center sm:mb-12">
+          <div
+            class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+          >
+            <HelpCircle size={22} />
+          </div>
+
+          <Title>
+            <span
+              class="bg-gradient-to-r from-indigo-600 via-primary to-green-600 bg-clip-text text-transparent"
+            >
+              Frequently Asked Questions
+            </span>
+          </Title>
+
+          <p
+            class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base dark:text-white"
+          >
+            Find quick answers to common questions about our services,
+            solutions, delivery process, and how we work with organizations.
+          </p>
+        </div>
+
+        <div
+          id="faq-container"
+          data-items-per-page={ITEMS_PER_PAGE}
+          class="space-y-3 sm:space-y-4"
+        >
+          {
+            faqs.map((faq, index) => (
+              <details
+                class="faq-item group overflow-hidden rounded-2xl border border-box-border bg-body/70 shadow-sm transition duration-300 open:border-primary/30 open:bg-box-bg"
+                data-index={index}
+              >
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 sm:px-5 sm:py-5 lg:px-6">
+                  <div class="flex min-w-0 items-start gap-3">
+                    <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <h3 class="text-left text-sm font-semibold leading-6 text-heading sm:text-base lg:text-lg dark:text-white">
+                      {faq.question}
+                    </h3>
+                  </div>
+
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-box-border bg-box-bg text-primary transition duration-300 group-open:rotate-45 group-open:border-primary/30 group-open:bg-primary/10 dark:text-white">
+                    <span class="text-xl leading-none">+</span>
+                  </div>
+                </summary>
+
+                <div class="border-t border-box-border px-4 pb-5 pt-4 sm:px-5 lg:px-6 dark:text-white">
+                  <p class="text-left text-sm leading-7 text-text-muted sm:text-base">
+                    {faq.answer}
+                  </p>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+
+        <div class="mt-10 flex items-center justify-center gap-3">
+          <button
+            id="prev-btn"
+            type="button"
+            aria-label="Previous FAQ page"
+            class="flex h-11 w-11 items-center justify-center rounded-full border border-box-border bg-body text-heading transition hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <span
+            id="page-indicator"
+            class="min-w-24 text-center text-sm font-medium text-text-muted"
+          >
+          </span>
+
+          <button
+            id="next-btn"
+            type="button"
+            aria-label="Next FAQ page"
+            class="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white transition hover:scale-105 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  </Container>
+</section>

@@ -1,6 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, CalendarDays, Loader2, Save } from "lucide-react";
 import { createProject } from "../../../lib/server/projects";
+import { listClientOptions } from "../../../lib/client";
+import type { ClientOption } from "../../../types/client";
 
 import type {
   ProjectInput,
@@ -12,20 +14,23 @@ const initialFormValues: ProjectInput = {
   name: "",
   description: "",
   project_type: "internal",
+  client_id: "",
   client_name: "",
   status: "planning",
   start_date: "",
   due_date: "",
 };
 
-/* Validates the project form before it is submitted to Supabase. */
+/**
+ * Validates the project form before it is submitted.
+ */
 const validateProject = (values: ProjectInput): string | null => {
   if (!values.name.trim()) {
     return "Enter a project name.";
   }
 
-  if (values.project_type === "client" && !values.client_name.trim()) {
-    return "Enter the client name for this project.";
+  if (values.project_type === "client" && !values.client_id) {
+    return "Select a client for this project.";
   }
 
   if (
@@ -39,14 +44,52 @@ const validateProject = (values: ProjectInput): string | null => {
   return null;
 };
 
-/* Displays the form used to create a new CloudTweak project. */
+/**
+ * Displays the form used to create a new CloudTweak project.
+ */
 export default function ProjectForm() {
   const [formValues, setFormValues] = useState<ProjectInput>(initialFormValues);
 
+  const [clients, setClients] = useState<ClientOption[]>([]);
+
+  const [loadingClients, setLoadingClients] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState("");
 
-  /* Updates a single project form field without replacing other values. */
+  /**
+   * Loads active Clients for the Client project select field.
+   */
+  useEffect(() => {
+    async function loadClients() {
+      setLoadingClients(true);
+
+      try {
+        const clientOptions = await listClientOptions();
+
+        setClients(clientOptions);
+      } catch (error) {
+        console.error("Failed to load Client options:", error);
+
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "Clients could not be loaded."
+        );
+
+        setClients([]);
+      } finally {
+        setLoadingClients(false);
+      }
+    }
+
+    void loadClients();
+  }, []);
+
+  /**
+   * Updates a single project form field without replacing other values.
+   */
   const updateField = <Key extends keyof ProjectInput>(
     field: Key,
     value: ProjectInput[Key]
@@ -57,16 +100,43 @@ export default function ProjectForm() {
     }));
   };
 
-  /* Changes the project type and clears the client when it becomes internal. */
+  /**
+   * Changes the project type and clears Client data for internal projects.
+   */
   const handleProjectTypeChange = (projectType: ProjectType) => {
     setFormValues((currentValues) => ({
       ...currentValues,
+
       project_type: projectType,
+
+      client_id: projectType === "internal" ? "" : currentValues.client_id,
+
       client_name: projectType === "internal" ? "" : currentValues.client_name,
     }));
+
+    setErrorMessage("");
   };
 
-  /* Validates and creates the project before opening its workspace. */
+  /**
+   * Updates both the Client UUID and readable Client name.
+   */
+  const handleClientChange = (clientId: string) => {
+    const selectedClient = clients.find((client) => client.id === clientId);
+
+    setFormValues((currentValues) => ({
+      ...currentValues,
+
+      client_id: clientId,
+
+      client_name: selectedClient?.display_name ?? "",
+    }));
+
+    setErrorMessage("");
+  };
+
+  /**
+   * Validates and creates the project before returning to the Projects page.
+   */
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -74,6 +144,7 @@ export default function ProjectForm() {
 
     if (validationError) {
       setErrorMessage(validationError);
+
       return;
     }
 
@@ -81,8 +152,28 @@ export default function ProjectForm() {
       setIsSubmitting(true);
       setErrorMessage("");
 
-      window.location.href = `/admin/projects/`;
+      const projectInput: ProjectInput = {
+        ...formValues,
+
+        name: formValues.name.trim(),
+
+        description: formValues.description.trim(),
+
+        client_id:
+          formValues.project_type === "client" ? formValues.client_id : "",
+
+        client_name:
+          formValues.project_type === "client"
+            ? formValues.client_name.trim()
+            : "",
+      };
+
+      await createProject(projectInput);
+
+      window.location.href = "/admin/projects/";
     } catch (error) {
+      console.error("Failed to create project:", error);
+
       setErrorMessage(
         error instanceof Error
           ? error.message
@@ -94,7 +185,7 @@ export default function ProjectForm() {
   };
 
   return (
-    <div className="mx-auto max-w-full p-10">
+    <div className="mx-auto max-w-full p-4 sm:p-6 lg:p-10">
       <div className="mb-8">
         <a
           href="/admin/projects"
@@ -120,7 +211,7 @@ export default function ProjectForm() {
         onSubmit={handleSubmit}
         className="overflow-hidden rounded-3xl border border-box-border bg-box-bg/70 shadow-sm backdrop-blur-xl"
       >
-        <div className="border-b border-box-border p-6 sm:p-8">
+        <div className="border-b border-box-border p-4 sm:p-6 lg:p-8">
           <h2 className="text-xl font-semibold text-heading">
             Project information
           </h2>
@@ -130,7 +221,7 @@ export default function ProjectForm() {
           </p>
         </div>
 
-        <div className="space-y-8 p-6 sm:p-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
           {errorMessage && (
             <div
               role="alert"
@@ -168,7 +259,7 @@ export default function ProjectForm() {
 
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <label
-                className={`cursor-pointer rounded-2xl border p-5 transition ${
+                className={`cursor-pointer rounded-2xl border p-4 transition sm:p-5 ${
                   formValues.project_type === "internal"
                     ? "border-primary bg-primary/10"
                     : "border-box-border bg-body hover:border-primary/40"
@@ -194,7 +285,7 @@ export default function ProjectForm() {
               </label>
 
               <label
-                className={`cursor-pointer rounded-2xl border p-5 transition ${
+                className={`cursor-pointer rounded-2xl border p-4 transition sm:p-5 ${
                   formValues.project_type === "client"
                     ? "border-primary bg-primary/10"
                     : "border-box-border bg-body hover:border-primary/40"
@@ -224,24 +315,49 @@ export default function ProjectForm() {
           {formValues.project_type === "client" && (
             <div>
               <label
-                htmlFor="client-name"
+                htmlFor="client-id"
                 className="text-sm font-semibold text-heading"
               >
-                Client name
+                Client
                 <span className="ml-1 text-red-500">*</span>
               </label>
 
-              <input
-                id="client-name"
-                type="text"
-                value={formValues.client_name}
-                onChange={(event) =>
-                  updateField("client_name", event.target.value)
-                }
-                placeholder="Client organization name"
-                autoComplete="organization"
-                className="mt-2 w-full rounded-xl border border-box-border bg-body px-4 py-3 text-sm text-heading outline-none transition placeholder:text-text-muted focus:border-primary focus:ring-4 focus:ring-primary/10"
-              />
+              <select
+                id="client-id"
+                value={formValues.client_id}
+                onChange={(event) => handleClientChange(event.target.value)}
+                disabled={loadingClients}
+                className="mt-2 w-full rounded-xl border border-box-border bg-body px-4 py-3 text-sm text-heading outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <option value="">
+                  {loadingClients
+                    ? "Loading Clients..."
+                    : clients.length === 0
+                      ? "No active Clients available"
+                      : "Select a Client"}
+                </option>
+
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.client_code} — {client.display_name}
+                  </option>
+                ))}
+              </select>
+
+              {!loadingClients && clients.length === 0 && (
+                <p className="mt-2 text-xs leading-5 text-text-muted">
+                  Create or activate a Client before assigning this project.
+                </p>
+              )}
+
+              {formValues.client_id && formValues.client_name && (
+                <p className="mt-2 text-xs text-text-muted">
+                  Selected Client:{" "}
+                  <span className="font-semibold text-heading">
+                    {formValues.client_name}
+                  </span>
+                </p>
+              )}
             </div>
           )}
 
@@ -283,9 +399,13 @@ export default function ProjectForm() {
                 className="mt-2 w-full rounded-xl border border-box-border bg-body px-4 py-3 text-sm text-heading outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
               >
                 <option value="planning">Planning</option>
+
                 <option value="active">Active</option>
+
                 <option value="on_hold">On hold</option>
+
                 <option value="completed">Completed</option>
+
                 <option value="archived">Archived</option>
               </select>
             </div>
@@ -339,7 +459,7 @@ export default function ProjectForm() {
           </div>
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-box-border bg-body/40 p-6 sm:flex-row sm:items-center sm:justify-end sm:p-8">
+        <div className="flex flex-col-reverse gap-3 border-t border-box-border bg-body/40 p-4 sm:flex-row sm:items-center sm:justify-end sm:p-6 lg:p-8">
           <a
             href="/admin/projects"
             className="inline-flex items-center justify-center rounded-xl border border-box-border bg-body px-5 py-3 text-sm font-semibold text-heading transition hover:border-primary/40 hover:text-primary"
@@ -349,7 +469,7 @@ export default function ProjectForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || loadingClients}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? (

@@ -5,7 +5,15 @@ import type {
   ProjectInput,
   ProjectOption,
   ProjectWithTaskStats,
+  ProjectWorkspace,
+  ProjectWorkspaceInvoice,
+  ProjectWorkspaceTask,
 } from "../../types/project";
+
+interface ResolvedProjectClient {
+  clientId: string | null;
+  clientName: string | null;
+}
 
 /* Retrieves non-archived projects for task form dropdowns and filters. */
 export const getProjectOptions = async (): Promise<ProjectOption[]> => {
@@ -28,6 +36,155 @@ export const getProjectOptions = async (): Promise<ProjectOption[]> => {
   }
 
   return (data ?? []) as ProjectOption[];
+};
+
+/* Retrieves non-archived projects linked to one Client. */
+export const getProjectsForClient = async (
+  clientId: string
+): Promise<ProjectOption[]> => {
+  if (!clientId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select(
+      `
+      id,
+      project_code,
+      name,
+      status,
+      project_type
+    `
+    )
+    .eq("client_id", clientId)
+    .neq("status", "archived")
+    .order("name", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as ProjectOption[];
+};
+
+/* Retrieves one Project workspace with its tasks, invoices and summary values. */
+export const getProjectWorkspace = async (
+  projectId: string
+): Promise<ProjectWorkspace> => {
+  const [projectResult, tasksResult, invoicesResult] = await Promise.all([
+    supabase.from("projects").select("*").eq("id", projectId).single(),
+
+    supabase
+      .from("tasks")
+      .select(
+        `
+        id,
+        title,
+        status,
+        priority,
+        due_date
+      `
+      )
+      .eq("project_id", projectId)
+      .order("created_at", {
+        ascending: false,
+      }),
+
+    supabase
+      .from("invoices")
+      .select(
+        `
+        id,
+        invoice_number,
+        status,
+        total_amount,
+        amount_paid,
+        amount_due,
+        currency,
+        issue_date,
+        due_date
+      `
+      )
+      .eq("project_id", projectId)
+      .is("archived_at", null)
+      .order("created_at", {
+        ascending: false,
+      }),
+  ]);
+
+  if (projectResult.error) {
+    throw new Error(projectResult.error.message);
+  }
+
+  if (!projectResult.data) {
+    throw new Error("The Project could not be found.");
+  }
+
+  if (tasksResult.error) {
+    throw new Error(tasksResult.error.message);
+  }
+
+  if (invoicesResult.error) {
+    throw new Error(invoicesResult.error.message);
+  }
+
+  const project = projectResult.data as Project;
+
+  const tasks = (tasksResult.data ?? []) as ProjectWorkspaceTask[];
+
+  const invoices = (invoicesResult.data ?? []) as ProjectWorkspaceInvoice[];
+
+  const totalTasks = tasks.length;
+
+  const completedTasks = tasks.filter(
+    (task) => task.status === "completed"
+  ).length;
+
+  const taskProgress =
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
+  const totalInvoiced = invoices.reduce(
+    (total, invoice) => total + Number(invoice.total_amount ?? 0),
+    0
+  );
+
+  const totalPaid = invoices.reduce(
+    (total, invoice) => total + Number(invoice.amount_paid ?? 0),
+    0
+  );
+
+  const totalOutstanding = invoices.reduce(
+    (total, invoice) => total + Number(invoice.amount_due ?? 0),
+    0
+  );
+
+  const currency =
+    invoices.find((invoice) => invoice.currency)?.currency ?? "NGN";
+
+  return {
+    project,
+
+    tasks,
+
+    invoices,
+
+    total_tasks: totalTasks,
+
+    completed_tasks: completedTasks,
+
+    task_progress: taskProgress,
+
+    total_invoiced: totalInvoiced,
+
+    total_paid: totalPaid,
+
+    total_outstanding: totalOutstanding,
+
+    currency,
+  };
 };
 
 /* Retrieves the staff member linked to the currently authenticated account. */
@@ -58,6 +215,50 @@ export const getCurrentStaff = async () => {
   return staff;
 };
 
+/* Resolves and validates the Client selected for a Project. */
+const resolveProjectClient = async (
+  values: ProjectInput
+): Promise<ResolvedProjectClient> => {
+  if (values.project_type !== "client") {
+    return {
+      clientId: null,
+      clientName: null,
+    };
+  }
+
+  const clientId = values.client_id?.trim();
+
+  if (!clientId) {
+    throw new Error("Select a Client for this project.");
+  }
+
+  const { data: client, error } = await supabase
+    .from("clients")
+    .select(
+      `
+      id,
+      display_name,
+      archived_at
+    `
+    )
+    .eq("id", clientId)
+    .is("archived_at", null)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!client) {
+    throw new Error("The selected Client could not be found.");
+  }
+
+  return {
+    clientId: client.id,
+    clientName: client.display_name,
+  };
+};
+
 /* Retrieves all projects together with their related task statuses. */
 export const getProjects = async (): Promise<ProjectWithTaskStats[]> => {
   const { data, error } = await supabase
@@ -82,6 +283,7 @@ export const getProjects = async (): Promise<ProjectWithTaskStats[]> => {
     const tasks: TaskSummary[] = Array.isArray(project.tasks)
       ? project.tasks
       : [];
+
     const totalTasks = tasks.length;
 
     const completedTasks = tasks.filter(
@@ -97,7 +299,10 @@ export const getProjects = async (): Promise<ProjectWithTaskStats[]> => {
       name: project.name,
       description: project.description,
       project_type: project.project_type,
+
+      client_id: project.client_id,
       client_name: project.client_name,
+
       status: project.status,
       start_date: project.start_date,
       due_date: project.due_date,
@@ -130,20 +335,27 @@ export const getProjectById = async (projectId: string): Promise<Project> => {
 export const createProject = async (values: ProjectInput): Promise<Project> => {
   const staff = await getCurrentStaff();
 
-  /* Removes the client name when the project is internal. */
-  const clientName =
-    values.project_type === "client" ? values.client_name.trim() || null : null;
+  const resolvedClient = await resolveProjectClient(values);
 
   const { data, error } = await supabase
     .from("projects")
     .insert({
       name: values.name.trim(),
+
       description: values.description.trim() || null,
+
       project_type: values.project_type,
-      client_name: clientName,
+
+      client_id: resolvedClient.clientId,
+
+      client_name: resolvedClient.clientName,
+
       status: values.status,
+
       start_date: values.start_date || null,
+
       due_date: values.due_date || null,
+
       created_by_staff_id: staff.id,
     })
     .select()
@@ -161,19 +373,25 @@ export const updateProject = async (
   projectId: string,
   values: ProjectInput
 ): Promise<Project> => {
-  /* Removes the client name when the project is changed to internal. */
-  const clientName =
-    values.project_type === "client" ? values.client_name.trim() || null : null;
+  const resolvedClient = await resolveProjectClient(values);
 
   const { data, error } = await supabase
     .from("projects")
     .update({
       name: values.name.trim(),
+
       description: values.description.trim() || null,
+
       project_type: values.project_type,
-      client_name: clientName,
+
+      client_id: resolvedClient.clientId,
+
+      client_name: resolvedClient.clientName,
+
       status: values.status,
+
       start_date: values.start_date || null,
+
       due_date: values.due_date || null,
     })
     .eq("id", projectId)

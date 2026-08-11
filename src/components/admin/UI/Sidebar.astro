@@ -12,16 +12,31 @@ import {
   Settings,
   BadgeDollarSign,
   Sparkles,
-  GalleryHorizontalEnd,
   LibraryBig,
 } from "lucide-astro";
 import LogoutButton from "../../../islands/LogoutButton";
+import { Users } from "lucide-react";
 
 const sections = [
   {
     title: "Dashboard Overview",
     href: "/admin/",
     icon: LayoutDashboard,
+  },
+
+  {
+    title: "Clients",
+    icon: Users,
+    links: [
+      {
+        title: "Manage Clients",
+        href: "/admin/clients/clients",
+      },
+      {
+        title: "Manage Projects",
+        href: "/admin/projects/",
+      },
+    ],
   },
 
   {
@@ -38,29 +53,6 @@ const sections = [
       },
     ],
   },
-
-  // {
-  //   title: "Hero",
-  //   icon: GalleryHorizontalEnd,
-  //   links: [
-  //     {
-  //       title: "Manage banner",
-  //       href: "/admin/tasks/",
-  //     },
-  //     {
-  //       title: "Manage company values",
-  //       href: "/admin/tasks/add",
-  //     },
-  //     {
-  //       title: "Manage founders",
-  //       href: "/admin/tasks/add",
-  //     },
-  //     {
-  //       title: "Manage services",
-  //       href: "/admin/tasks/add",
-  //     },
-  //   ],
-  // },
 
   {
     title: "Projects",
@@ -236,7 +228,7 @@ const sections = [
       },
       {
         title: "Image library",
-        href: "/admin/documents/add",
+        href: "/admin/media/images",
       },
     ],
     icon: LibraryBig,
@@ -282,6 +274,11 @@ const sections = [
       {
         title: "Reconciliation",
         href: "/admin/documents/add",
+      },
+
+      {
+        title: "Quotations",
+        href: "/admin/finance/quotations",
       },
     ],
     icon: BadgeDollarSign,
@@ -370,7 +367,7 @@ const sections = [
         ) : (
           <a
             href={section.href}
-            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 mt-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 mt-2.5 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <section.icon size={18} />
 

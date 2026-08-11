@@ -1,0 +1,16 @@
+---
+import QuotationDashboard from "../../../components/admin/finance/quotations/QuotationDashboard";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import FinanceModuleNav from "../../../components/admin/finance/FinanceModuleNav";
+---
+
+<AdminLayout title="Quotation Management Page">
+  <Header description="Create quotations and send to clients" />
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-3 lg:px-5">
+      <FinanceModuleNav current="quotation" />
+      <QuotationDashboard client:load />
+    </section>
+  </main>
+</AdminLayout>

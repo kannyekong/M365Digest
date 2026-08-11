@@ -28,21 +28,6 @@ const navItems: NavigationItem[] = [
         text: "All Solutions",
         description: "Explore every CloudTweak solution.",
       },
-      {
-        href: "/solutions/microsoft-365",
-        text: "Microsoft 365",
-        description: "Administration, migration and support.",
-      },
-      {
-        href: "/solutions/power-platform",
-        text: "Power Platform",
-        description: "Power Apps, Automate and Power BI.",
-      },
-      {
-        href: "/solutions/it-support",
-        text: "IT Support",
-        description: "Technical support and managed services.",
-      },
     ],
   },
   {
@@ -53,11 +38,6 @@ const navItems: NavigationItem[] = [
         text: "All Programs",
         description: "Explore every Academy training program.",
       },
-      // {
-      //   href: "/academy#all-programs",
-      //   text: "Featured Training",
-      //   description: "Discover our highlighted programmes.",
-      // },
       {
         href: "/verify-certificate",
         text: "Verify Certificate",
@@ -150,7 +130,7 @@ function hasActiveChild(item: NavigationItem) {
         class="absolute top-full flex h-0 w-full flex-col gap-x-4 gap-y-6 overflow-hidden border-x border-x-box-border bg-body duration-300 ease-linear lg:relative lg:top-0 lg:!h-auto lg:scale-y-100 lg:flex-row lg:items-center lg:justify-between lg:overflow-visible lg:border-x-0 lg:bg-transparent"
       >
         <ul
-          class="flex w-full flex-col gap-x-8 gap-y-2 border-t border-box-border px-6 pt-6 text-base text-heading-2 lg:flex-row lg:items-center lg:justify-center lg:border-t-0 lg:px-0 lg:pt-0"
+          class="flex w-full flex-col gap-x-2 gap-y-2 border-t border-box-border px-6 pt-6 text-base text-heading-2 lg:flex-row lg:items-center lg:justify-center lg:border-t-0 lg:px-0 lg:pt-0"
         >
           {
             navItems.map((item, itemIndex) => {

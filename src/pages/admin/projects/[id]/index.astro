@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProjectsGrid from "../../../../components/admin/projects/ProjectsGrid";
+import ProjectDetailsDashboard from "../../../../components/admin/projects/ProjectDetailsDashboard";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/projects");
+}
+---
+
+<AdminLayout title="Projects - Details | CloudTweak">
+  <ProjectDetailsDashboard client:load projectId={id} />
+</AdminLayout>

@@ -49,15 +49,22 @@ import Title from "../shared/Title.astro";
               </Title>
             </div>
             <script>
+              /* Declares the global Tally object provided by Tally's external embed script. */
+              declare const Tally: {
+                loadEmbeds: () => void;
+              };
+
               var d = document,
                 w = "https://tally.so/widgets/embed.js",
                 v = function () {
                   "undefined" != typeof Tally
                     ? Tally.loadEmbeds()
                     : d
-                        .querySelectorAll("iframe[data-tally-src]:not([src])")
+                        .querySelectorAll<HTMLIFrameElement>(
+                          "iframe[data-tally-src]:not([src])"
+                        )
                         .forEach(function (e) {
-                          e.src = e.dataset.tallySrc;
+                          e.src = e.dataset.tallySrc ?? "";
                         });
                 };
               if ("undefined" != typeof Tally) v();

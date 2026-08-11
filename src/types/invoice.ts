@@ -15,11 +15,7 @@ export type InvoiceStatus =
  * Delivery state of one invoice.
  */
 export type InvoiceDeliveryStatus =
-  | "not_sent"
-  | "queued"
-  | "sent"
-  | "delivered"
-  | "failed";
+  "not_sent" | "queued" | "sent" | "delivered" | "failed";
 
 /**
  * Supported invoice discount modes.
@@ -79,6 +75,8 @@ export interface InvoiceItem {
  */
 export interface Invoice {
   id: string;
+
+  project_id: string | null;
 
   invoice_number: string;
 
@@ -198,6 +196,8 @@ export interface CreateInvoiceItemInput {
  */
 export interface CreateInvoiceInput {
   customerId?: string | null;
+
+  project_id: string | null;
 
   customerName: string;
 

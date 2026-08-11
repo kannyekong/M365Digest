@@ -47,7 +47,7 @@ export default function ProjectStatusBadge({
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${style.className}`}
+      className={`inline-flex rounded-full border px-3 text-xs font-semibold ${style.className}`}
     >
       {style.label}
     </span>

@@ -25,7 +25,13 @@ import {
   formatInvoiceCurrency,
   getDefaultInvoiceDueDate,
 } from "../../../../utils/invoice";
+import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { listClientOptions } from "../../../../lib/client";
+import type { ClientOption } from "../../../../types/client";
+import { toast } from "react-toastify";
+import { getProjectsForClient } from "../../../../lib/server/projects";
+import type { ProjectOption } from "../../../../types/project";
 
 interface InvoiceBuilderProps {
   open: boolean;
@@ -40,6 +46,8 @@ interface InvoiceBuilderProps {
 }
 
 interface InvoiceBuilderState {
+  customerId: string;
+  projectId: string;
   customerName: string;
 
   customerCompany: string;
@@ -94,6 +102,8 @@ function createDefaultInvoiceState(): InvoiceBuilderState {
   const issueDate = new Date().toISOString().slice(0, 10);
 
   return {
+    customerId: "",
+    projectId: "",
     customerName: "",
     customerCompany: "",
     customerEmail: "",
@@ -147,8 +157,10 @@ function mapBuilderItem(
 function invoiceToBuilderState(invoice: Invoice): InvoiceBuilderState {
   return {
     customerName: invoice.customer_name,
+    projectId: invoice.project_id ?? "",
     customerCompany: invoice.customer_company ?? "",
     customerEmail: invoice.customer_email,
+    customerId: invoice.customer_id ?? "",
     customerPhone: invoice.customer_phone ?? "",
     billingAddress: invoice.billing_address ?? "",
     currency: invoice.currency,
@@ -189,17 +201,69 @@ export default function InvoiceBuilder({
   const [form, setForm] = useState<InvoiceBuilderState>(
     createDefaultInvoiceState
   );
+  const [clients, setClients] = useState<ClientOption[]>([]);
+
+  const [loadingClients, setLoadingClients] = useState(false);
+
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+
+  const [loadingProjects, setLoadingProjects] = useState(false);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
+    async function loadClients() {
+      setLoadingClients(true);
+
+      try {
+        const options = await listClientOptions();
+
+        setClients(options);
+      } finally {
+        setLoadingClients(false);
+      }
+    }
+
+    void loadClients();
+
     setForm(
       invoice ? invoiceToBuilderState(invoice) : createDefaultInvoiceState()
     );
   }, [invoice, open]);
 
+  /* Loads projects for an existing draft invoice when the builder opens. */
+  useEffect(() => {
+    if (!open || !invoice?.customer_id) {
+      return;
+    }
+
+    void loadProjectsForClient(invoice.customer_id);
+  }, [invoice?.customer_id, open]);
+
+  /* Loads projects belonging to the currently selected Client. */
+  async function loadProjectsForClient(clientId: string) {
+    if (!clientId) {
+      setProjects([]);
+      updateField("projectId", "");
+      return;
+    }
+
+    setLoadingProjects(true);
+
+    try {
+      const projectOptions = await getProjectsForClient(clientId);
+
+      setProjects(projectOptions);
+    } catch (error) {
+      console.error("Failed to load Client projects:", error);
+
+      setProjects([]);
+    } finally {
+      setLoadingProjects(false);
+    }
+  }
   /**
    * Convert the current line items into calculation inputs.
    */
@@ -289,6 +353,50 @@ export default function InvoiceBuilder({
     });
   }
 
+  function handleClientChange(event: ChangeEvent<HTMLSelectElement>) {
+    const clientId = event.target.value;
+
+    const selectedClient = clients.find((client) => client.id === clientId);
+
+    if (!selectedClient) {
+      setForm((currentForm) => ({
+        ...currentForm,
+
+        customerId: "",
+        projectId: "",
+        customerName: "",
+        customerCompany: "",
+        customerEmail: "",
+        customerPhone: "",
+        billingAddress: "",
+      }));
+
+      setProjects([]);
+
+      return;
+    }
+
+    setForm((currentForm) => ({
+      ...currentForm,
+
+      customerId: selectedClient.id,
+
+      projectId: "",
+
+      customerName: selectedClient.display_name,
+
+      customerCompany: selectedClient.company_name ?? "",
+
+      customerEmail: selectedClient.email ?? "",
+
+      customerPhone: selectedClient.phone ?? "",
+
+      billingAddress: selectedClient.billing_address ?? "",
+    }));
+
+    void loadProjectsForClient(selectedClient.id);
+  }
+
   /**
    * Close the builder and reset its state.
    */
@@ -306,33 +414,52 @@ export default function InvoiceBuilder({
    */
   async function handleSubmit() {
     if (!form.customerName.trim()) {
-      throw new Error("Customer name is required.");
+      toast.error("Customer name is required.");
     }
 
     if (!form.customerEmail.trim()) {
-      throw new Error("Customer email is required.");
+      toast.error("Customer email is required.");
     }
 
     if (calculatedItems.some((item) => !item.description)) {
-      throw new Error("Every invoice item requires a description.");
+      toast.error("Every invoice item requires a description.");
     }
 
     await onSubmit({
+      customerId: form.customerId || null,
+
+      project_id: form.projectId || null,
+
       customerName: form.customerName.trim(),
+
       customerCompany: form.customerCompany.trim() || null,
+
       customerEmail: form.customerEmail.trim(),
+
       customerPhone: form.customerPhone.trim() || null,
+
       billingAddress: form.billingAddress.trim() || null,
+
       currency: form.currency.trim().toUpperCase(),
+
       issueDate: form.issueDate,
+
       dueDate: form.dueDate,
+
       status: form.status,
+
       discountType: form.discountType,
+
       discountValue: Number(form.discountValue),
+
       notes: form.notes.trim() || null,
+
       terms: form.terms.trim() || null,
+
       internalNotes: form.internalNotes.trim() || null,
+
       purchaseOrderNumber: form.purchaseOrderNumber.trim() || null,
+
       items: calculatedItems,
     });
 
@@ -380,12 +507,81 @@ export default function InvoiceBuilder({
 
         <div className="grid gap-6 p-5 sm:p-7 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-              <h3 className="font-semibold text-slate-950 dark:text-white">
-                Customer details
-              </h3>
+            <section className="rounded-2xl border border-slate-200 p-4 dark:border-slate-800 sm:p-5">
+              <div>
+                <h3 className="font-semibold text-slate-950 dark:text-white">
+                  Customer details
+                </h3>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                  Select an existing Client to automatically populate their
+                  billing information.
+                </p>
+              </div>
+
+              <div className="mt-5">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Client
+                  <select
+                    value={form.customerId}
+                    onChange={handleClientChange}
+                    disabled={loadingClients}
+                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                  >
+                    <option value="">
+                      {loadingClients
+                        ? "Loading Clients..."
+                        : clients.length === 0
+                          ? "No active Clients available"
+                          : "Select a Client"}
+                    </option>
+
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.client_code} — {client.display_name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  Selecting a Client automatically fills the customer
+                  information below. You can still edit any field before
+                  creating the invoice.
+                </p>
+              </div>
+
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Project
+                <select
+                  value={form.projectId}
+                  onChange={(event) =>
+                    updateField("projectId", event.target.value)
+                  }
+                  disabled={!form.customerId || loadingProjects}
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                >
+                  <option value="">
+                    {!form.customerId
+                      ? "Select a Client first"
+                      : loadingProjects
+                        ? "Loading projects..."
+                        : projects.length === 0
+                          ? "No projects available for this Client"
+                          : "Select a Project"}
+                  </option>
+
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.project_code} — {project.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="my-5 border-t border-slate-200 dark:border-slate-800" />
+
+              <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
                   Customer name
                   <input

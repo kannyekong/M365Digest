@@ -15,6 +15,7 @@ import {
   Workflow,
   ShieldCheck,
   GraduationCap,
+  Computer,
 } from "lucide-astro";
 
 import { listServices } from "../../lib/services";
@@ -139,7 +140,7 @@ const serviceIcons = {
   }
 </div>
 
-<section class="relative overflow-hidden py-24">
+<section class="relative overflow-hidden py-24" id="about">
   <!-- Background -->
   <div class="absolute inset-0 -z-10">
     <div
@@ -219,7 +220,7 @@ const serviceIcons = {
         >
           <div class="flex items-center gap-5">
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+              class="flex h-14 w-14 items-center justify-center text-primary"
             >
               <BrainCircuit size={30} />
             </div>
@@ -230,8 +231,9 @@ const serviceIcons = {
               </h4>
 
               <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Secure AI adoption that empowers employees and transforms
-                decision-making.
+                Securely integrate AI attendants and chatbots to your existing
+                company site to handle offline client requests and generate
+                marketing leads.
               </p>
             </div>
           </div>
@@ -242,7 +244,7 @@ const serviceIcons = {
         >
           <div class="flex items-center gap-5">
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500"
+              class="flex h-14 w-14 items-center justify-center text-emerald-500"
             >
               <Workflow size={30} />
             </div>
@@ -253,8 +255,9 @@ const serviceIcons = {
               </h4>
 
               <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Build automated workflows using n8n, Make, Zapier, Power
-                Automate, and AI agents.
+                Safely deploy automated AI solutions like n8n, Make, Zapier,
+                Power Automate, and AI agents into your organization
+                infrastructure to meet your requirements.
               </p>
             </div>
           </div>
@@ -265,19 +268,20 @@ const serviceIcons = {
         >
           <div class="flex items-center gap-5">
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-500"
+              class="flex h-14 w-14 items-center justify-center text-cyan-500"
             >
-              <Cloud size={30} />
+              <Computer size={30} />
             </div>
 
             <div>
               <h4 class="font-bold text-xl text-heading-1">
-                Cloud Transformation
+                Web apps and software development
               </h4>
 
               <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Microsoft 365 consulting, migrations, cloud optimization, and
-                modern workplace solutions.
+                We build and deploy intelligent web, mobile, and desktop
+                solutions that help organizations apply AI to real-world
+                business challenges.
               </p>
             </div>
           </div>
@@ -288,7 +292,7 @@ const serviceIcons = {
         >
           <div class="flex items-center gap-5">
             <div
-              class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-500"
+              class="flex h-14 w-14 items-center justify-center text-violet-500"
             >
               <ShieldCheck size={30} />
             </div>

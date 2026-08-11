@@ -7,7 +7,6 @@ import {
   Cog,
   Construction,
   ContactRound,
-  FolderOpenDot,
   GraduationCap,
   PencilIcon,
   Podium,
@@ -159,7 +158,7 @@ export default function AdminDashboard() {
         <SingleStatCard
           title="Blog"
           value1={totalPosts}
-          subtitle="total articles"
+          subtitle="Total articles"
           value2={publishedPosts}
           subtitleTwo="Published"
           value3={draftPosts}
@@ -189,9 +188,9 @@ export default function AdminDashboard() {
         />
 
         <SingleStatCard
-          title="To-Dos"
+          title="Tasks"
           value1={totalStatCount}
-          subtitle="Tasks"
+          subtitle="Total tasks"
           value2={taskCounts.completed}
           subtitleTwo="Completed"
           value3={taskCounts.pending}
@@ -201,7 +200,7 @@ export default function AdminDashboard() {
           value5={0}
           subtitleFive="/admin/tasks"
           icon="tasks"
-          color="orange"
+          color="red"
         />
 
         <SingleStatCard
@@ -260,7 +259,7 @@ export default function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/admin/projects"
+                  href="/admin/projects"
                   className="flex flex-col items-center rounded-2xl bg-green-100 p-6 shadow-sm hover:border-blue-500 hover:shadow-lg transition"
                 >
                   <p className="text-center text-xs">Manage Projects</p>

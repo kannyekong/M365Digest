@@ -64,7 +64,7 @@ export default function RevenueCard({
           </h2>
         </div>
 
-        <div className="mt-2 flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-lg">
+        <div className="mt-2 flex h-7 w-7 items-center justify-center rounded-xl bg-white shadow-lg">
           <BadgeDollarSign className="h-4 w-4 text-blue-500" />
         </div>
       </div>

@@ -73,14 +73,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   return (
-    <article className="group flex h-full flex-col rounded-3xl border border-box-border bg-box-bg/70 p-6 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
+    <article className="group flex h-full flex-col rounded-2xl border border-box-border bg-box-bg/70 p-4 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
             {project.project_code}
           </p>
 
-          <h2 className="mt-3 text-xl font-bold text-heading">
+          <h2 className="mt-3 text-md font-bold text-heading">
             {project.name}
           </h2>
         </div>
@@ -88,11 +88,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <ProjectStatusBadge status={project.status} />
       </div>
 
-      <p className="mt-4 min-h-14 line-clamp-2 text-sm leading-7 text-text-muted">
+      <p className="mt-2 min-h-14 line-clamp-2 text-xs leading-7 text-text-muted">
         {project.description || "No project description has been added."}
       </p>
 
-      <div className="mt-5 flex items-center gap-2 text-sm text-text-muted">
+      <div className="mt-3 flex items-center gap-2 text-xs text-text-muted">
         <Building2 className="h-4 w-4 text-primary" />
 
         <span>
@@ -102,9 +102,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </span>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-heading">Progress</span>
+          <span className="font-medium text-sm">Progress</span>
 
           <span className="font-semibold text-primary">
             {project.progress}%
@@ -122,40 +122,32 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-box-border bg-body/60 p-3">
-          <div className="flex items-center gap-2 text-text-muted">
+        <div className="rounded-2xl border border-box-border bg-body/60 p-2">
+          <div className="flex items-center gap-2 text-text-muted space-y-1">
             <ListTodo className="h-4 w-4 text-primary" />
-
-            <span className="text-xs font-medium">Tasks</span>
+            <span className="text-xs font-medium">
+              Tasks: {project.total_tasks}
+            </span>
           </div>
-
-          <p className="mt-2 text-lg font-bold text-heading">
-            {project.total_tasks}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-box-border bg-body/60 p-3">
           <div className="flex items-center gap-2 text-text-muted">
             <CheckCircle2 className="h-4 w-4 text-primary" />
-
-            <span className="text-xs font-medium">Completed</span>
+            <span className="text-xs font-medium">
+              Completed: {project.completed_tasks}
+            </span>
           </div>
+        </div>
 
-          <p className="mt-2 text-lg font-bold text-heading">
-            {project.completed_tasks}
-          </p>
+        <div className="rounded-2xl border border-box-border bg-body/60 p-2">
+          <CalendarDays className="h-4 w-4 text-primary" />
+          <span className="text-xs">
+            Due: {formatProjectDate(project.due_date)}
+          </span>
         </div>
       </div>
 
-      <div className="mt-5 flex items-center gap-2 text-sm text-text-muted">
-        <CalendarDays className="h-4 w-4 text-primary" />
-
-        <span>Due {formatProjectDate(project.due_date)}</span>
-      </div>
-
-      <div className="mt-auto flex items-center justify-between gap-3 pt-6">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
         <a
-          href={`/admin/projects/edit/${project.id}`}
+          href={`/admin/projects/${project.id}`}
           className="inline-flex items-center gap-2 text-sm font-semibold text-heading transition hover:text-primary"
         >
           Open project

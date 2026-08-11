@@ -1,0 +1,11 @@
+---
+import QuotationDocument from "../../../../../components/admin/finance/quotations/QuotationDocument";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/admin/finance/quotations");
+}
+---
+
+<QuotationDocument client:load quotationId={id} />

@@ -3,9 +3,52 @@ export type ProjectStatus =
 
 export type ProjectType = "internal" | "client";
 
+export interface ProjectWorkspaceTask {
+  id: string;
+  title: string;
+  status: string;
+  priority: string | null;
+  due_date: string | null;
+}
+
+export interface ProjectWorkspaceInvoice {
+  id: string;
+  invoice_number: string;
+  status: string;
+  total_amount: number;
+  amount_paid: number;
+  amount_due: number;
+  currency: string;
+  issue_date: string;
+  due_date: string;
+}
+
+export interface ProjectWorkspace {
+  project: Project;
+
+  tasks: ProjectWorkspaceTask[];
+
+  invoices: ProjectWorkspaceInvoice[];
+
+  total_tasks: number;
+
+  completed_tasks: number;
+
+  task_progress: number;
+
+  total_invoiced: number;
+
+  total_paid: number;
+
+  total_outstanding: number;
+
+  currency: string;
+}
+
 /* Represents one project stored in the projects table. */
 export interface Project {
   id: string;
+  client_id: string | null;
   project_code: string;
   name: string;
   description: string | null;
@@ -34,6 +77,7 @@ export interface ProjectInput {
   name: string;
   description: string;
   project_type: ProjectType;
+  client_id: string;
   client_name: string;
   status: ProjectStatus;
   start_date: string;
