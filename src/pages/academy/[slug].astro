@@ -28,6 +28,8 @@ import {
 import { getAcademyProgramInstructors } from "../../lib/academy_program_instructors";
 import type { AcademyLesson, AcademyProgram } from "../../types/academy";
 
+export const prerender = true;
+
 export async function getStaticPaths() {
   // Retrieve every published Academy program for static route generation.
   const programs = await getPublishedAcademyPrograms();
@@ -300,9 +302,7 @@ const pageDescription =
           Back to Academy
         </a>
 
-        <div
-          class="relative mt-8 grid gap-10 lg:grid-cols-2 lg:items-center"
-        >
+        <div class="relative mt-8 grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
             <div class="flex flex-wrap items-center gap-2">
               <span
@@ -450,9 +450,7 @@ const pageDescription =
           </div>
 
           <div>
-            <div
-              class="overflow-hidden"
-            >
+            <div class="overflow-hidden">
               {
                 heroImage ? (
                   <img
