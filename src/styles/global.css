@@ -15,6 +15,10 @@
 }
 
 :root {
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+}
+
+:root {
   --color-bg: 255 255 255;
   --color-box: 255 255 255;
   --box-border: 229 231 235;
@@ -40,6 +44,16 @@ html {
 
 body {
   background-color: rgb(var(--color-bg));
+  font-family: var(--font-display);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+p {
   font-family: "Montserrat", sans-serif;
 }
 
@@ -135,30 +149,3 @@ select#selectTask {
 /**
  * Gives the hero blob a gentle floating motion without changing its dimensions.
  */
-.hero-blob {
-  animation: hero-blob-float 7s ease-in-out infinite;
-  transform-origin: center;
-}
-
-/**
- * Moves the complete blob vertically while keeping the clipped image stable.
- */
-@keyframes hero-blob-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-12px) rotate(1deg);
-  }
-}
-
-/**
- * Respects visitors who have disabled motion animations.
- */
-@media (prefers-reduced-motion: reduce) {
-  .hero-blob {
-    animation: none;
-  }
-}
