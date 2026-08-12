@@ -365,7 +365,7 @@ export default function TaskWidget() {
                     </p>
                     <p className="truncate text-xs font-bold text-slate-900">
                       Description:{" "}
-                      <span className="font-light">{task.title}</span>
+                      <span className="font-light truncate">{task.title}</span>
                     </p>
 
                     <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
@@ -397,7 +397,7 @@ export default function TaskWidget() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs ${
+                    className={`inline-flex rounded-full px-3 py-0.5 text-xs ${
                       task.status === "completed"
                         ? "bg-green-500 text-white"
                         : task.status === "in_progress"

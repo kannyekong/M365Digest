@@ -171,14 +171,18 @@ export default function ContactTable({ contacts, setContacts }: Props) {
   // Display an empty state when there are no contacts.
   if (!contacts.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-        <h3 className="text-lg font-semibold text-slate-800">
-          No contact submissions yet
-        </h3>
+      <div className="p-5">
+        <h1 className="text-3xl font-bold">Contact Table</h1>
 
-        <p className="mt-2 text-sm text-slate-500">
-          Contact form submissions will appear here.
-        </p>
+        <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <h3 className="text-lg font-semibold text-slate-800">
+            No Contact Submission yet
+          </h3>
+
+          <p className="mt-2 text-sm text-slate-500">
+            Contact submissions will appear here.
+          </p>
+        </div>
       </div>
     );
   }

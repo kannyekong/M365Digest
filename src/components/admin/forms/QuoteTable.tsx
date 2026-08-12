@@ -161,14 +161,18 @@ export default function QuoteTable({ quotes, setQuote }: Props) {
   // Display an empty state when there are no quotes.
   if (!quotes.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-        {" "}
-        <h3 className="text-lg font-semibold text-slate-800">
-          No quote requests yet{" "}
-        </h3>
-        <p className="mt-2 text-sm text-slate-500">
-          Quote requests will appear here.
-        </p>
+      <div className="p-5">
+        <h1 className="text-3xl font-bold">Quotes Table</h1>
+
+        <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <h3 className="text-lg font-semibold text-slate-800">
+            No quotes yet
+          </h3>
+
+          <p className="mt-2 text-sm text-slate-500">
+            Customer quotes will appear here.
+          </p>
+        </div>
       </div>
     );
   }

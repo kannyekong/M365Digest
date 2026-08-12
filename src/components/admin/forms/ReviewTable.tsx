@@ -1,5 +1,12 @@
 import ViewSubmissionModal from "../../../islands/ViewSubmissionModal";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Download, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Download,
+  Trash2,
+} from "lucide-react";
 import { deleteReview } from "../../../lib/review";
 import toast from "react-hot-toast";
 import ContextualTip from "../ContextualTip";
@@ -207,7 +214,7 @@ export default function ReviewTable({ reviews, setReviews }: Props) {
   // Display the empty state when no reviews exist.
   if (!reviews.length) {
     return (
-      <div>
+      <div className="p-5">
         <h1 className="text-3xl font-bold">Reviews Table</h1>
 
         <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
