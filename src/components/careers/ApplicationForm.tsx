@@ -1019,11 +1019,10 @@ export default function ApplicationForm({
 
           <label className="block">
             <span className="text-sm font-semibold text-heading">
-              LinkedIn profile <span className="text-red-500">*</span>
+              LinkedIn profile URL<span className="text-red-500">*</span>
             </span>
 
             <div className="relative">
-              <p>LINKEDIN</p>
               <input
                 id="linkedinUrl"
                 name="linkedinUrl"
@@ -1033,7 +1032,7 @@ export default function ApplicationForm({
                 value={values.linkedinUrl}
                 onChange={handleFieldChange}
                 aria-invalid={Boolean(errors.linkedinUrl)}
-                className={`${inputClassName} pl-11 ${
+                className={`${inputClassName} ${
                   errors.linkedinUrl ? errorInputClassName : ""
                 }`}
                 placeholder="https://www.linkedin.com/in/..."

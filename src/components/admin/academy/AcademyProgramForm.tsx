@@ -360,7 +360,7 @@ export default function AcademyProgramForm({
 
       toast.success(`${createdProgram.title} has been created.`);
 
-      window.location.href = `/admin/academy/programs/${createdProgram.id}`;
+      window.location.href = `/admin/academy/programs/${createdProgram.id}/edit`;
     } catch (error) {
       console.error("Failed to save Academy program:", error);
       toast.error("The Academy program could not be saved.");
@@ -429,12 +429,44 @@ export default function AcademyProgramForm({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
-          <p className="text-slate-500">Program status</p>
+        <div className="flex flex-wrap items-center gap-3">
+          {isEditMode && programId && (
+            <>
+              <a
+                href={`/admin/academy/programs/${programId}/instructors`}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-primary hover:text-primary"
+              >
+                Manage Instructors
+              </a>
 
-          <p className="mt-1 font-semibold capitalize text-slate-950">
-            {form.status}
-          </p>
+              <a
+                href={`/admin/academy/programs/${programId}/curriculum`}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-primary hover:text-primary"
+              >
+                Manage Curriculum
+              </a>
+            </>
+          )}
+
+          <div
+            className={`rounded-2xl border px-4 py-1 text-xs ${
+              form.status === "published"
+                ? "border-green-600 bg-green-600 text-white"
+                : form.status === "draft"
+                  ? "border-yellow-400 bg-yellow-400 text-black"
+                  : "border-slate-300 bg-slate-600 text-white"
+            }`}
+          >
+            <p
+              className={
+                form.status === "draft" ? "text-black/70" : "text-white"
+              }
+            >
+              Program status:
+            </p>
+
+            <p className="mt-1 font-semibold capitalize">{form.status}</p>
+          </div>
         </div>
       </div>
 
