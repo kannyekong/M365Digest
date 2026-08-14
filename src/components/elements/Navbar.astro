@@ -127,7 +127,7 @@ function hasActiveChild(item: NavigationItem) {
 
       <div
         data-navbar
-        class="absolute top-full flex h-0 w-full flex-col gap-x-4 gap-y-6 overflow-hidden border-x border-x-box-border bg-body duration-300 ease-linear lg:relative lg:top-0 lg:!h-auto lg:scale-y-100 lg:flex-row lg:items-center lg:justify-between lg:overflow-visible lg:border-x-0 lg:bg-transparent"
+        class="absolute top-full flex h-0 max-h-[calc(100vh-6rem)] w-full flex-col gap-x-4 gap-y-6 overflow-hidden border-x border-x-box-border bg-body duration-300 ease-linear lg:relative lg:top-0 lg:!h-auto lg:max-h-none lg:scale-y-100 lg:flex-row lg:items-center lg:justify-between lg:overflow-visible lg:border-x-0 lg:bg-transparent"
       >
         <ul
           class="flex w-full flex-col gap-x-2 gap-y-2 border-t border-box-border px-6 pt-6 text-base text-heading-2 lg:flex-row lg:items-center lg:justify-center lg:border-t-0 lg:px-0 lg:pt-0"
@@ -186,7 +186,7 @@ function hasActiveChild(item: NavigationItem) {
                     data-public-submenu
                     class="hidden w-full lg:absolute lg:left-1/2 lg:top-full lg:z-[1001] lg:w-80 lg:-translate-x-1/2 lg:pt-3"
                   >
-                    <div class="space-y-1 border-l border-box-border bg-white pl-4 shadow-2xl dark:bg-[#030712] lg:rounded-2xl lg:border lg:border-box-border lg:p-2">
+                    <div class="space-y-1 border-l border-box-border bg-white pl-4 shadow-2xl dark:bg-[#000033] rounded-2xl lg:border lg:border-box-border lg:p-2">
                       {item.children.map((child) => (
                         <a
                           href={child.href}
