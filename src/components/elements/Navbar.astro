@@ -311,6 +311,34 @@ function hasActiveChild(item: NavigationItem) {
     );
 
     /**
+     * Recalculate the open mobile navbar height after submenu content changes.
+     */
+    function updateMobileNavbarHeight() {
+      if (window.innerWidth >= 1024) {
+        return;
+      }
+
+      const navbar = document.querySelector<HTMLElement>("[data-navbar]");
+
+      const toggleButton =
+        document.querySelector<HTMLButtonElement>("[data-toggle-nav]");
+
+      const navIsOpen = toggleButton?.getAttribute("data-open-nav") === "true";
+
+      if (!navbar || !navIsOpen) {
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        navbar.style.height = `${navbar.scrollHeight}px`;
+
+        navbar.style.maxHeight = "calc(100vh - 6rem)";
+
+        navbar.style.overflowY = "auto";
+      });
+    }
+
+    /**
      * Close one navigation submenu.
      */
     function closeSubmenu(parent: HTMLElement) {
@@ -329,6 +357,9 @@ function hasActiveChild(item: NavigationItem) {
       trigger?.setAttribute("aria-expanded", "false");
       submenu?.classList.add("hidden");
       icon?.classList.remove("rotate-180");
+
+      /* Shrink the mobile navbar after the submenu closes. */
+      updateMobileNavbarHeight();
     }
 
     /**
@@ -356,6 +387,9 @@ function hasActiveChild(item: NavigationItem) {
       trigger?.setAttribute("aria-expanded", "true");
       submenu?.classList.remove("hidden");
       icon?.classList.add("rotate-180");
+
+      /* Expand the mobile navbar to accommodate the opened submenu. */
+      updateMobileNavbarHeight();
     }
 
     navigationParents.forEach((parent) => {
