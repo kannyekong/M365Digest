@@ -4,6 +4,7 @@ export type NotificationType =
   | "registration"
   | "contact"
   | "system"
+  | "academy_payment"
   | "job_application";
 
 export interface Notification {

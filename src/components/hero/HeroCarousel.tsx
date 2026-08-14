@@ -48,7 +48,7 @@ export default function HeroCarousel() {
         className="pointer-events-none absolute left-4 top-20 -z-10 h-40 w-40 rounded-full bg-pink-500/30 blur-3xl sm:left-24"
       />
 
-      <div className="grid items-center gap-10 md:mt-12 lg:grid-cols-2 lg:gap-12">
+      <div className="grid items-center md:mt-12 px-6 lg:grid-cols-2 lg:gap-6">
         <div className="flex min-w-0 flex-col">
           <div className="flex min-h-[126px] items-start sm:min-h-[140px] md:min-h-[170px]">
             <h1 className="break-words bg-gradient-to-r from-blue-500 via-blue-800 to-black bg-clip-text text-3xl font-bold leading-tight text-transparent dark:from-pink-600 dark:to-white sm:text-4xl md:text-5xl">

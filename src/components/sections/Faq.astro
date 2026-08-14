@@ -2,7 +2,7 @@
 import Container from "../shared/Container.astro";
 import { ITEMS_PER_PAGE, faqs } from "../../utils/accordiondata";
 import Title from "../shared/Title.astro";
-import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
+import { ChevronLeft, ChevronRight, Headset, HelpCircle } from "lucide-astro";
 ---
 
 <section id="faq" class="py-10 sm:py-14 lg:py-20">
@@ -25,7 +25,7 @@ import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
           <div
             class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"
           >
-            <HelpCircle size={22} />
+            <Headset size={22} />
           </div>
 
           <Title>
@@ -37,7 +37,7 @@ import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
           </Title>
 
           <p
-            class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base dark:text-white"
+            class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-muted dark:text-white"
           >
             Find quick answers to common questions about our services,
             solutions, delivery process, and how we work with organizations.
@@ -61,7 +61,7 @@ import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
                       {String(index + 1).padStart(2, "0")}
                     </span>
 
-                    <h3 class="text-left text-sm font-semibold leading-6 text-heading sm:text-base lg:text-lg dark:text-white">
+                    <h3 class="text-left text-sm font-semibold leading-6 text-heading lg:text-lg dark:text-white">
                       {faq.question}
                     </h3>
                   </div>
@@ -72,7 +72,7 @@ import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
                 </summary>
 
                 <div class="border-t border-box-border px-4 pb-5 pt-4 sm:px-5 lg:px-6 dark:text-white">
-                  <p class="text-left text-sm leading-7 text-text-muted sm:text-base">
+                  <p class="text-left text-sm leading-7 text-text-muted">
                     {faq.answer}
                   </p>
                 </div>
@@ -86,7 +86,7 @@ import { ChevronLeft, ChevronRight, HelpCircle } from "lucide-astro";
             id="prev-btn"
             type="button"
             aria-label="Previous FAQ page"
-            class="flex h-11 w-11 items-center justify-center rounded-full border border-box-border bg-body text-heading transition hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            class="flex h-11 w-11 items-center justify-center rounded-full border border-box-border bg-body text-heading transition hover:border-primary/40 hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 dark:border-white dark:text-white"
           >
             <ChevronLeft size={20} />
           </button>

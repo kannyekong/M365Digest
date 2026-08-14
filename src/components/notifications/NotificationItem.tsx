@@ -2,6 +2,7 @@ import {
   Bell,
   FileUser,
   GraduationCap,
+  HandCoins,
   Mail,
   MessageSquareText,
   Trash2,
@@ -30,6 +31,7 @@ export default function NotificationItem({
   function getNotificationIcon(type: NotificationType) {
     const iconClasses = "h-4 w-4";
     const icons: Record<NotificationType, React.ReactNode> = {
+      academy_payment: <HandCoins className={iconClasses} />,
       registration: <GraduationCap className={iconClasses} />,
       job_application: <FileUser className={iconClasses} />,
       review: <UserStar className={iconClasses} />,
@@ -44,6 +46,7 @@ export default function NotificationItem({
   // Return the icon container styling associated with a notification type.
   function getNotificationIconClasses(type: NotificationType) {
     const classes: Record<NotificationType, string> = {
+      academy_payment: "bg-blue-100 text-blue-700",
       registration: "bg-blue-100 text-blue-700",
       job_application: "bg-pink-100 text-pink-700",
       review: "bg-amber-100 text-amber-700",
