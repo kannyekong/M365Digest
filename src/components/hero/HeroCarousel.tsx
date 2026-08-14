@@ -73,7 +73,7 @@ export default function HeroCarousel() {
 
             <a
               href="/solutions"
-              className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-3 font-semibold text-white transition bg-blue-500`}
+              className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-3 font-semibold text-white transition bg-[#1d4ed8]`}
             >
               <Telescope size={18} />
               <span>Explore our solutions</span>

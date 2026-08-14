@@ -521,14 +521,50 @@ export default function AcademyRegistrationsTable() {
     );
   }
 
+  /* Determines whether a registration can move from its current status to the requested status. */
+  /* Defines the actions that can be performed on an Academy registration. */
+  type RegistrationAction = "confirm" | "enroll" | "complete" | "cancel";
+
+  /* Determines whether the requested action is valid for the current registration status. */
+  function isRegistrationActionAllowed(
+    registrationStatus: AcademyRegistrationRecord["registration_status"],
+    action: RegistrationAction
+  ) {
+    const allowedActions: Record<
+      AcademyRegistrationRecord["registration_status"],
+      RegistrationAction[]
+    > = {
+      pending: ["confirm", "cancel"],
+      confirmed: ["enroll", "cancel"],
+      enrolled: ["complete", "cancel"],
+      completed: [],
+      cancelled: [],
+    };
+
+    return allowedActions[registrationStatus].includes(action);
+  }
+
   /**
    * Run a status update action and refresh the selected registration.
    */
+  /* Executes a valid Academy registration lifecycle action. */
+  /* Executes an Academy registration lifecycle action. */
   async function handleRegistrationAction(
     registration: AcademyRegistrationRecord,
-    action: "confirm" | "enroll" | "complete" | "cancel"
+    action: RegistrationAction
   ) {
     if (updatingRegistrationId) {
+      return;
+    }
+
+    /* Prevent invalid lifecycle transitions before sending a database request. */
+    if (
+      !isRegistrationActionAllowed(registration.registration_status, action)
+    ) {
+      toast.error(
+        `This registration cannot be ${action}ed while it is ${registration.registration_status}.`
+      );
+
       return;
     }
 
@@ -537,6 +573,7 @@ export default function AcademyRegistrationsTable() {
     try {
       let updatedRegistration: AcademyRegistrationRecord;
 
+      /* Execute the appropriate registration lifecycle operation. */
       switch (action) {
         case "confirm":
           updatedRegistration = await confirmAcademyRegistration(
@@ -563,11 +600,17 @@ export default function AcademyRegistrationsTable() {
           break;
       }
 
+      /* Replace the registration locally so both the table and modal receive the new status. */
       replaceRegistration(updatedRegistration);
 
-      toast.success(
-        `${registration.first_name}'s registration has been ${action}ed.`
-      );
+      const successMessages = {
+        confirm: `${registration.first_name}'s registration has been confirmed.`,
+        enroll: `${registration.first_name} has been enrolled.`,
+        complete: `${registration.first_name}'s registration has been completed.`,
+        cancel: `${registration.first_name}'s registration has been cancelled.`,
+      };
+
+      toast.success(successMessages[action]);
     } catch (error) {
       console.error(`Failed to ${action} Academy registration:`, error);
 
@@ -576,7 +619,6 @@ export default function AcademyRegistrationsTable() {
       setUpdatingRegistrationId(null);
     }
   }
-
   /**
    * Update the payment status from the registration details modal.
    */
@@ -720,6 +762,20 @@ export default function AcademyRegistrationsTable() {
 
   const lastVisibleRecord = Math.min(page * PAGE_SIZE, total);
 
+  /* Determines which registration lifecycle actions are currently allowed. */
+  const registrationStatus = selectedRegistration?.registration_status;
+
+  const canConfirm = registrationStatus === "pending";
+
+  const canEnroll = registrationStatus === "confirmed";
+
+  const canComplete = registrationStatus === "enrolled";
+
+  const canCancel =
+    registrationStatus === "pending" ||
+    registrationStatus === "confirmed" ||
+    registrationStatus === "enrolled";
+
   return (
     <div className="mx-auto max-w-7xl">
       <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -777,58 +833,6 @@ export default function AcademyRegistrationsTable() {
           </button>
         </div>
       </header>
-
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <Users className="h-5 w-5 text-primary" />
-
-          <p className="mt-4 text-2xl font-bold text-slate-950">
-            {total.toLocaleString()}
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">Matching registrations</p>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <UserCheck className="h-5 w-5 text-blue-600" />
-
-          <p className="mt-4 text-2xl font-bold text-slate-950">
-            {
-              registrations.filter(
-                (registration) =>
-                  registration.registration_status === "confirmed" ||
-                  registration.registration_status === "enrolled"
-              ).length
-            }
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">Confirmed on this page</p>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <CircleDollarSign className="h-5 w-5 text-emerald-600" />
-
-          <p className="mt-4 text-2xl font-bold text-slate-950">
-            {
-              registrations.filter(
-                (registration) => registration.payment_status === "paid"
-              ).length
-            }
-          </p>
-
-          <p className="mt-1 text-sm text-slate-500">Paid on this page</p>
-        </article>
-
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <CalendarDays className="h-5 w-5 text-purple-600" />
-
-          <p className="mt-4 text-2xl font-bold text-slate-950">{page}</p>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Current page of {totalPages}
-          </p>
-        </article>
-      </section>
 
       <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -1482,13 +1486,13 @@ export default function AcademyRegistrationsTable() {
                       );
                     }}
                     disabled={
-                      updatingRegistrationId === selectedRegistration.id ||
-                      selectedRegistration.registration_status === "confirmed"
+                      !canConfirm ||
+                      updatingRegistrationId === selectedRegistration.id
                     }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <CheckCircle2 className="h-4 w-4" />
-                    Confirm
+                    Confirmed
                   </button>
 
                   <button
@@ -1500,8 +1504,8 @@ export default function AcademyRegistrationsTable() {
                       );
                     }}
                     disabled={
-                      updatingRegistrationId === selectedRegistration.id ||
-                      selectedRegistration.registration_status === "enrolled"
+                      !canEnroll ||
+                      updatingRegistrationId === selectedRegistration.id
                     }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-purple-200 bg-purple-50 px-4 text-sm font-semibold text-purple-700 transition hover:bg-purple-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -1518,8 +1522,8 @@ export default function AcademyRegistrationsTable() {
                       );
                     }}
                     disabled={
-                      updatingRegistrationId === selectedRegistration.id ||
-                      selectedRegistration.registration_status === "completed"
+                      !canComplete ||
+                      updatingRegistrationId === selectedRegistration.id
                     }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -1536,8 +1540,8 @@ export default function AcademyRegistrationsTable() {
                       );
                     }}
                     disabled={
-                      updatingRegistrationId === selectedRegistration.id ||
-                      selectedRegistration.registration_status === "cancelled"
+                      !canCancel ||
+                      updatingRegistrationId === selectedRegistration.id
                     }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -1556,25 +1560,6 @@ export default function AcademyRegistrationsTable() {
             </div>
 
             <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-5 sm:flex-row sm:justify-between">
-              <button
-                type="button"
-                onClick={() => {
-                  void handleDeleteRegistration(selectedRegistration);
-                }}
-                disabled={
-                  selectedRegistration.payment_status === "paid" ||
-                  deletingRegistrationId === selectedRegistration.id
-                }
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {deletingRegistrationId === selectedRegistration.id ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-                Delete test registration
-              </button>
-
               <button
                 type="button"
                 onClick={() => {

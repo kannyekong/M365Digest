@@ -199,7 +199,7 @@ export default function InsightsDashboard() {
           title="Registrations"
           count={insights.counts.registrations}
           type="registrations"
-          href="/admin/forms/registrations"
+          href="/admin/academy/registrations"
           description="Bootcamp registrations"
         />
 
@@ -207,7 +207,7 @@ export default function InsightsDashboard() {
           title="Reviews"
           count={insights.counts.reviews}
           type="reviews"
-          href="/admin/forms/reviews"
+          href="/admin/forms/review"
           description="Customer reviews submitted"
         />
 
