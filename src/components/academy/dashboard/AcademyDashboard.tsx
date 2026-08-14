@@ -167,13 +167,9 @@ function MetricCard({ metric }: { metric: DashboardMetric }) {
 
       <p className="mt-2 text-2xl font-bold text-slate-950">{metric.value}</p>
 
-      <p className="text-sm font-semibold text-slate-700">
-        {metric.label}
-      </p>
+      <p className="text-sm font-semibold text-slate-700">{metric.label}</p>
 
-      <p className="text-xs leading-5 text-slate-500">
-        {metric.description}
-      </p>
+      <p className="text-xs leading-5 text-slate-500">{metric.description}</p>
     </a>
   );
 }
@@ -409,7 +405,7 @@ export default function AcademyDashboard() {
         description: "Available Academy instructors",
         href: "/admin/bootcamp/instructors",
         icon: UserRoundCheck,
-        color:"green-100"
+        color: "green-100",
       },
       {
         label: "Certificates Issued",
@@ -417,7 +413,7 @@ export default function AcademyDashboard() {
         description: "Generated Academy certificates",
         href: "/admin/academy/certificates",
         icon: Award,
-        color:"purple-100"
+        color: "purple-100",
       },
     ];
   }, [dashboardData]);
@@ -496,85 +492,6 @@ export default function AcademyDashboard() {
         {metrics.map((metric) => (
           <MetricCard key={metric.label} metric={metric} />
         ))}
-      </section>
-
-      <section className="mt-8 grid gap-6 xl:grid-cols-2">
-        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-slate-950">
-                Recent Payments
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Latest confirmed Academy transactions.
-              </p>
-            </div>
-
-            <a
-              href="/admin/academy/payments"
-              className="text-sm font-semibold text-primary"
-            >
-              View all
-            </a>
-          </div>
-
-          <div className="mt-5">
-            {dashboardData.recentPayments.length > 0 ? (
-              dashboardData.recentPayments.map((payment) => (
-                <RecentPaymentRow key={payment.id} payment={payment} />
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-                <CircleDollarSign className="mx-auto h-7 w-7 text-slate-400" />
-
-                <p className="mt-3 font-semibold text-slate-700">
-                  No payments yet
-                </p>
-              </div>
-            )}
-          </div>
-        </article>
-
-        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-slate-950">
-                Recent Registrations
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Latest learners across all programs.
-              </p>
-            </div>
-
-            <a
-              href="/admin/academy/registrations"
-              className="text-sm font-semibold text-primary"
-            >
-              View all
-            </a>
-          </div>
-
-          <div className="mt-5">
-            {dashboardData.recentRegistrations.length > 0 ? (
-              dashboardData.recentRegistrations.map((registration) => (
-                <RecentRegistrationRow
-                  key={registration.id}
-                  registration={registration}
-                />
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
-                <Users className="mx-auto h-7 w-7 text-slate-400" />
-
-                <p className="mt-3 font-semibold text-slate-700">
-                  No registrations yet
-                </p>
-              </div>
-            )}
-          </div>
-        </article>
       </section>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
@@ -664,6 +581,85 @@ export default function AcademyDashboard() {
 
                 <p className="mt-1 text-sm text-emerald-600">
                   No published program requires attention.
+                </p>
+              </div>
+            )}
+          </div>
+        </article>
+      </section>
+
+      <section className="mt-8 grid gap-6 xl:grid-cols-2">
+        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-950">
+                Recent Payments
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Latest confirmed Academy transactions.
+              </p>
+            </div>
+
+            <a
+              href="/admin/academy/payments"
+              className="text-sm font-semibold text-primary"
+            >
+              View all
+            </a>
+          </div>
+
+          <div className="mt-5">
+            {dashboardData.recentPayments.length > 0 ? (
+              dashboardData.recentPayments.map((payment) => (
+                <RecentPaymentRow key={payment.id} payment={payment} />
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+                <CircleDollarSign className="mx-auto h-7 w-7 text-slate-400" />
+
+                <p className="mt-3 font-semibold text-slate-700">
+                  No payments yet
+                </p>
+              </div>
+            )}
+          </div>
+        </article>
+
+        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-950">
+                Recent Registrations
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Latest learners across all programs.
+              </p>
+            </div>
+
+            <a
+              href="/admin/academy/registrations"
+              className="text-sm font-semibold text-primary"
+            >
+              View all
+            </a>
+          </div>
+
+          <div className="mt-5">
+            {dashboardData.recentRegistrations.length > 0 ? (
+              dashboardData.recentRegistrations.map((registration) => (
+                <RecentRegistrationRow
+                  key={registration.id}
+                  registration={registration}
+                />
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+                <Users className="mx-auto h-7 w-7 text-slate-400" />
+
+                <p className="mt-3 font-semibold text-slate-700">
+                  No registrations yet
                 </p>
               </div>
             )}

@@ -360,7 +360,7 @@ export default function AcademyProgramForm({
 
       toast.success(`${createdProgram.title} has been created.`);
 
-      window.location.href = `/admin/academy/programs/${createdProgram.id}/edit`;
+      window.location.href = `/admin/academy/programs/${createdProgram.id}`;
     } catch (error) {
       console.error("Failed to save Academy program:", error);
       toast.error("The Academy program could not be saved.");
