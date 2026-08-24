@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "../../../../types/supabase";
+import type { Database } from "../../../types/supabase";
 
 export const prerender = false;
 
@@ -13,19 +13,13 @@ interface UpdateReceiptStatusBody {
 /**
  * Return a JSON response with the supplied status code.
  */
-function jsonResponse(
-  body: Record<string, unknown>,
-  status = 200
-) {
-  return new Response(
-    JSON.stringify(body),
-    {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 }
 
 /**
@@ -33,12 +27,9 @@ function jsonResponse(
  */
 export const PATCH: APIRoute = async ({ request }) => {
   try {
-    const authorizationHeader =
-      request.headers.get("authorization");
+    const authorizationHeader = request.headers.get("authorization");
 
-    if (
-      !authorizationHeader?.startsWith("Bearer ")
-    ) {
+    if (!authorizationHeader?.startsWith("Bearer ")) {
       return jsonResponse(
         {
           success: false,
@@ -48,8 +39,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       );
     }
 
-    const body =
-      (await request.json()) as UpdateReceiptStatusBody;
+    const body = (await request.json()) as UpdateReceiptStatusBody;
 
     if (!body.receiptId) {
       return jsonResponse(
@@ -63,9 +53,7 @@ export const PATCH: APIRoute = async ({ request }) => {
 
     if (
       !body.status ||
-      !["issued", "voided", "refunded"].includes(
-        body.status
-      )
+      !["issued", "voided", "refunded"].includes(body.status)
     ) {
       return jsonResponse(
         {
@@ -76,58 +64,37 @@ export const PATCH: APIRoute = async ({ request }) => {
       );
     }
 
-    const supabaseUrl =
-      import.meta.env.SUPABASE_URL;
+    const supabaseUrl = import.meta.env.SUPABASE_URL;
 
-    const anonKey =
-      import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
-    const serviceRoleKey =
-      import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    const serviceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (
-      !supabaseUrl ||
-      !anonKey ||
-      !serviceRoleKey
-    ) {
-      throw new Error(
-        "Receipt status environment variables are incomplete."
-      );
+    if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+      throw new Error("Receipt status environment variables are incomplete.");
     }
 
-    const userSupabase = createClient<Database>(
-      supabaseUrl,
-      anonKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
+    const userSupabase = createClient<Database>(supabaseUrl, anonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      global: {
+        headers: {
+          Authorization: authorizationHeader,
         },
-        global: {
-          headers: {
-            Authorization: authorizationHeader,
-          },
-        },
-      }
-    );
+      },
+    });
 
-    const adminSupabase = createClient<Database>(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        },
-      }
-    );
+    const adminSupabase = createClient<Database>(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
 
-    const {
-      data: financeAccess,
-      error: financeAccessError,
-    } = await userSupabase.rpc(
-      "is_finance_staff"
-    );
+    const { data: financeAccess, error: financeAccessError } =
+      await userSupabase.rpc("is_finance_staff");
 
     if (financeAccessError) {
       throw financeAccessError;
@@ -137,41 +104,25 @@ export const PATCH: APIRoute = async ({ request }) => {
       return jsonResponse(
         {
           success: false,
-          message:
-            "You are not authorized to update Receipt status.",
+          message: "You are not authorized to update Receipt status.",
         },
         403
       );
     }
 
-    const {
-      data: existingReceipt,
-      error: existingReceiptError,
-    } = await adminSupabase
-      .from("receipts")
-      .select(
-        "id,status,voided_at,refunded_at"
-      )
-      .eq("id", body.receiptId)
-      .single();
+    const { data: existingReceipt, error: existingReceiptError } =
+      await adminSupabase
+        .from("receipts")
+        .select("id,status,voided_at,refunded_at")
+        .eq("id", body.receiptId)
+        .single();
 
-    if (
-      existingReceiptError ||
-      !existingReceipt
-    ) {
-      throw (
-        existingReceiptError ??
-        new Error("Receipt not found.")
-      );
+    if (existingReceiptError || !existingReceipt) {
+      throw existingReceiptError ?? new Error("Receipt not found.");
     }
 
-    if (
-      existingReceipt.status ===
-      body.status
-    ) {
-      const {
-        data: unchangedReceipt,
-      } = await adminSupabase
+    if (existingReceipt.status === body.status) {
+      const { data: unchangedReceipt } = await adminSupabase
         .from("receipts")
         .select("*")
         .eq("id", body.receiptId)
@@ -180,18 +131,15 @@ export const PATCH: APIRoute = async ({ request }) => {
       return jsonResponse({
         success: true,
         receipt: unchangedReceipt,
-        message:
-          "Receipt status is already up to date.",
+        message: "Receipt status is already up to date.",
       });
     }
 
-    const now =
-      new Date().toISOString();
+    const now = new Date().toISOString();
 
     const statusUpdates = {
       status: body.status,
-      notes:
-        body.notes?.trim() || null,
+      notes: body.notes?.trim() || null,
       voided_at:
         body.status === "voided"
           ? now
@@ -207,10 +155,7 @@ export const PATCH: APIRoute = async ({ request }) => {
       updated_at: now,
     };
 
-    const {
-      data: updatedReceipt,
-      error: updateError,
-    } = await adminSupabase
+    const { data: updatedReceipt, error: updateError } = await adminSupabase
       .from("receipts")
       .update(statusUpdates)
       .eq("id", body.receiptId)
@@ -224,14 +169,10 @@ export const PATCH: APIRoute = async ({ request }) => {
     return jsonResponse({
       success: true,
       receipt: updatedReceipt,
-      message:
-        `Receipt marked as ${body.status}.`,
+      message: `Receipt marked as ${body.status}.`,
     });
   } catch (error) {
-    console.error(
-      "Failed to update Receipt status:",
-      error
-    );
+    console.error("Failed to update Receipt status:", error);
 
     return jsonResponse(
       {

@@ -302,6 +302,8 @@ export const POST: APIRoute = async ({ request }) => {
       registration_status: "pending",
       payment_status: "processing",
       payment_reference: paymentReference,
+      payment_reconciliation_status: "pending",
+      payment_difference: 0,
       payment_provider: "paystack",
       amount_expected: amountExpected,
       currency,

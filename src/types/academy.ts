@@ -27,6 +27,12 @@ export type AcademyCertificateStatus =
   "not_eligible" | "eligible" | "generated" | "revoked";
 
 /**
+ * Academy payment reconciliation status.
+ */
+export type AcademyPaymentReconciliationStatus =
+  "pending" | "matched" | "underpaid" | "overpaid" | "resolved";
+
+/**
  * Academy category.
  */
 export interface AcademyCategory {
@@ -340,6 +346,10 @@ export interface AcademyRegistration {
   updated_at: string;
 
   program?: AcademyProgram;
+
+  payment_reconciliation_status: AcademyPaymentReconciliationStatus;
+
+  payment_difference: number;
 }
 
 /**

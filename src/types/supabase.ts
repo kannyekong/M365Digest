@@ -548,7 +548,9 @@ export type Database = {
           learning_goal: string | null
           metadata: Json
           paid_at: string | null
+          payment_difference: number
           payment_provider: string | null
+          payment_reconciliation_status: string
           payment_reference: string | null
           payment_status: Database["public"]["Enums"]["academy_payment_status"]
           phone: string | null
@@ -580,7 +582,9 @@ export type Database = {
           learning_goal?: string | null
           metadata?: Json
           paid_at?: string | null
+          payment_difference?: number
           payment_provider?: string | null
+          payment_reconciliation_status?: string
           payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["academy_payment_status"]
           phone?: string | null
@@ -612,7 +616,9 @@ export type Database = {
           learning_goal?: string | null
           metadata?: Json
           paid_at?: string | null
+          payment_difference?: number
           payment_provider?: string | null
+          payment_reconciliation_status?: string
           payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["academy_payment_status"]
           phone?: string | null
@@ -677,6 +683,7 @@ export type Database = {
           featured_image: string | null
           featured_image_alt: string | null
           id: string
+          likes_count: number
           meta_description: string | null
           meta_title: string | null
           published: boolean | null
@@ -702,6 +709,7 @@ export type Database = {
           featured_image?: string | null
           featured_image_alt?: string | null
           id?: string
+          likes_count?: number
           meta_description?: string | null
           meta_title?: string | null
           published?: boolean | null
@@ -727,6 +735,7 @@ export type Database = {
           featured_image?: string | null
           featured_image_alt?: string | null
           id?: string
+          likes_count?: number
           meta_description?: string | null
           meta_title?: string | null
           published?: boolean | null
@@ -1727,6 +1736,69 @@ export type Database = {
           },
         ]
       }
+      image_assets: {
+        Row: {
+          alt_text: string | null
+          archived_at: string | null
+          category: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number
+          height: number | null
+          id: string
+          metadata: Json
+          mime_type: string
+          original_file_name: string
+          storage_bucket: string
+          storage_path: string
+          title: string | null
+          updated_at: string
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size: number
+          height?: number | null
+          id?: string
+          metadata?: Json
+          mime_type: string
+          original_file_name: string
+          storage_bucket?: string
+          storage_path: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number
+          height?: number | null
+          id?: string
+          metadata?: Json
+          mime_type?: string
+          original_file_name?: string
+          storage_bucket?: string
+          storage_path?: string
+          title?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           created_at: string
@@ -2300,6 +2372,192 @@ export type Database = {
             columns: ["created_by_staff_id"]
             isOneToOne: false
             referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotation_items: {
+        Row: {
+          created_at: string
+          description: string
+          discount_amount: number
+          discount_type: string
+          discount_value: number
+          id: string
+          line_subtotal: number
+          line_total: number
+          quantity: number
+          quotation_id: string
+          sort_order: number
+          tax_amount: number
+          tax_rate: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          discount_amount?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          line_subtotal?: number
+          line_total?: number
+          quantity?: number
+          quotation_id: string
+          sort_order?: number
+          tax_amount?: number
+          tax_rate?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          discount_amount?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          line_subtotal?: number
+          line_total?: number
+          quantity?: number
+          quotation_id?: string
+          sort_order?: number
+          tax_amount?: number
+          tax_rate?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotations: {
+        Row: {
+          accepted_at: string | null
+          archived_at: string | null
+          billing_address: string | null
+          cancelled_at: string | null
+          converted_invoice_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_company: string | null
+          customer_email: string | null
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string | null
+          discount_amount: number
+          discount_type: string
+          discount_value: number
+          id: string
+          internal_notes: string | null
+          issue_date: string
+          notes: string | null
+          project_id: string | null
+          quotation_number: string | null
+          rejected_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          subtotal_amount: number
+          tax_amount: number
+          terms: string | null
+          total_amount: number
+          updated_at: string
+          valid_until: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          archived_at?: string | null
+          billing_address?: string | null
+          cancelled_at?: string | null
+          converted_invoice_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_company?: string | null
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          discount_amount?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          internal_notes?: string | null
+          issue_date?: string
+          notes?: string | null
+          project_id?: string | null
+          quotation_number?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          subtotal_amount?: number
+          tax_amount?: number
+          terms?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until: string
+        }
+        Update: {
+          accepted_at?: string | null
+          archived_at?: string | null
+          billing_address?: string | null
+          cancelled_at?: string | null
+          converted_invoice_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_company?: string | null
+          customer_email?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          discount_amount?: number
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          internal_notes?: string | null
+          issue_date?: string
+          notes?: string | null
+          project_id?: string | null
+          quotation_number?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          subtotal_amount?: number
+          tax_amount?: number
+          terms?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_converted_invoice_id_fkey"
+            columns: ["converted_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -3012,6 +3270,10 @@ export type Database = {
         Args: { p_invoice: Json; p_items: Json }
         Returns: string
       }
+      create_quotation_with_items: {
+        Args: { p_items: Json; p_quotation: Json }
+        Returns: string
+      }
       dispute_financial_transaction: {
         Args: {
           p_dispute_reason: string
@@ -3085,6 +3347,7 @@ export type Database = {
         Args: { project_type_value: string }
         Returns: string
       }
+      generate_quotation_number: { Args: never; Returns: string }
       generate_receipt_number: { Args: never; Returns: string }
       get_company_financial_summary: {
         Args: never
@@ -3101,7 +3364,9 @@ export type Database = {
           total_revenue: number
         }[]
       }
+      increment_blog_post_like: { Args: { p_post_id: string }; Returns: number }
       increment_post_views: { Args: { post_id: string }; Returns: undefined }
+      is_active_staff_member: { Args: never; Returns: boolean }
       is_finance_staff: { Args: never; Returns: boolean }
       process_invoice_payment_success: {
         Args: {
@@ -3324,6 +3589,10 @@ export type Database = {
       }
       replace_draft_invoice: {
         Args: { p_invoice: Json; p_invoice_id: string; p_items: Json }
+        Returns: string
+      }
+      replace_draft_quotation: {
+        Args: { p_items: Json; p_quotation: Json; p_quotation_id: string }
         Returns: string
       }
       undo_financial_reconciliation: {

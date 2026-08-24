@@ -5,9 +5,7 @@ import type { Database, Json } from "../../../types/supabase";
 
 export const prerender = false;
 
-/**
- * Confirm that the Paystack webhook route is deployed.
- */
+/* Confirms that the Paystack webhook route is deployed. */
 export const GET: APIRoute = async () => {
   return new Response(
     JSON.stringify({
@@ -59,9 +57,7 @@ interface PaystackWebhookEvent {
   data: PaystackChargeData;
 }
 
-/**
- * Return a JSON response using the supplied HTTP status.
- */
+/* Returns a JSON response using the supplied HTTP status. */
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -71,21 +67,16 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   });
 }
 
-/**
- * Normalize Paystack metadata into an object.
- */
+/* Normalizes Paystack metadata into an object. */
 function parsePaystackMetadata(metadata: PaystackChargeData["metadata"]) {
-  // Return an empty object when no metadata exists.
   if (!metadata) {
     return {};
   }
 
-  // Return metadata directly when Paystack sends an object.
   if (typeof metadata === "object") {
     return metadata;
   }
 
-  // Attempt to parse metadata sent as a JSON string.
   try {
     return JSON.parse(metadata) as Record<string, unknown>;
   } catch {
@@ -93,25 +84,30 @@ function parsePaystackMetadata(metadata: PaystackChargeData["metadata"]) {
   }
 }
 
-/**
- * Compare the received Paystack signature securely.
- */
+/* Converts stored Supabase JSON metadata into an object that can be safely extended. */
+function normalizeMetadata(
+  metadata: Json | null
+): Record<string, Json | undefined> {
+  if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
+    return metadata;
+  }
+
+  return {};
+}
+
+/* Securely compares the received Paystack webhook signature. */
 function verifyPaystackSignature(
   rawBody: string,
   receivedSignature: string,
   secretKey: string
 ) {
-  // Generate the expected HMAC SHA-512 signature.
   const expectedSignature = createHmac("sha512", secretKey)
     .update(rawBody)
     .digest("hex");
 
-  // Convert both signatures into buffers for a timing-safe comparison.
   const expectedBuffer = Buffer.from(expectedSignature, "utf8");
-
   const receivedBuffer = Buffer.from(receivedSignature, "utf8");
 
-  // timingSafeEqual requires both buffers to have equal lengths.
   if (expectedBuffer.length !== receivedBuffer.length) {
     return false;
   }
@@ -119,19 +115,16 @@ function verifyPaystackSignature(
   return timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
-/**
- * Process Paystack webhook events for Academy and Invoice payments.
- */
+/* Processes successful Paystack webhook events for Academy and Invoice payments. */
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // Read the server-only environment variables.
+    /* Read required server-only environment variables. */
     const supabaseUrl = import.meta.env.SUPABASE_URL;
 
     const supabaseServiceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
 
     const paystackSecretKey = import.meta.env.PAYSTACK_SECRET_KEY;
 
-    // Stop when the webhook environment is incomplete.
     if (!supabaseUrl || !supabaseServiceRoleKey || !paystackSecretKey) {
       console.error("Paystack webhook environment variables are incomplete.");
 
@@ -144,16 +137,14 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Read the raw request body before parsing it.
-    //
-    // The exact raw body is required for validating Paystack's
-    // x-paystack-signature header.
+    /*
+     * Read the raw body before parsing because Paystack signs
+     * the exact request body that was delivered.
+     */
     const rawBody = await request.text();
 
-    // Retrieve the signature supplied by Paystack.
     const receivedSignature = request.headers.get("x-paystack-signature");
 
-    // Reject requests that do not carry a signature.
     if (!receivedSignature) {
       console.warn("Paystack webhook received without a signature.");
 
@@ -166,7 +157,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Verify that the request genuinely came from Paystack.
+    /* Confirm that the request genuinely originated from Paystack. */
     const signatureIsValid = verifyPaystackSignature(
       rawBody,
       receivedSignature,
@@ -187,7 +178,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     let webhookEvent: PaystackWebhookEvent;
 
-    // Parse the JSON only after the signature has been validated.
+    /* Parse webhook JSON only after validating its signature. */
     try {
       webhookEvent = JSON.parse(rawBody) as PaystackWebhookEvent;
     } catch (error) {
@@ -202,10 +193,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Acknowledge events that are unrelated to successful charges.
-    //
-    // Paystack expects a successful HTTP response when the event has
-    // been received, even when the application does not use that event.
+    /*
+     * Acknowledge Paystack events that CloudTweak does not currently process.
+     */
     if (webhookEvent.event !== "charge.success") {
       return jsonResponse({
         received: true,
@@ -217,7 +207,6 @@ export const POST: APIRoute = async ({ request }) => {
 
     const transaction = webhookEvent.data;
 
-    // Stop when the successful charge does not contain a reference.
     if (!transaction.reference?.trim()) {
       console.error(
         "Paystack charge.success event has no transaction reference."
@@ -232,7 +221,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Create a trusted server-side Supabase client.
+    /* Create a trusted server-side Supabase client. */
     const supabase = createClient<Database>(
       supabaseUrl,
       supabaseServiceRoleKey,
@@ -244,19 +233,15 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
 
-    /**
-     * Confirm whether one successful charge belongs to the Invoice workflow.
-     */
+    /* Determines whether a successful Paystack transaction belongs to an Invoice. */
     async function isInvoicePayment(
       paymentTransaction: PaystackChargeData,
       metadata: Record<string, unknown>
     ) {
-      // Prefer the explicit payment type supplied during initialization.
       if (metadata.payment_type === "invoice") {
         return true;
       }
 
-      // Fall back to the stored payment-attempt reference.
       const { data: paymentAttempt, error: paymentAttemptError } =
         await supabase
           .from("invoice_payment_attempts")
@@ -271,13 +256,10 @@ export const POST: APIRoute = async ({ request }) => {
       return Boolean(paymentAttempt);
     }
 
-    /**
-     * Process one verified Invoice payment atomically.
-     */
+    /* Processes one successful Invoice payment using the existing atomic database RPC. */
     async function processInvoicePayment(
       paymentTransaction: PaystackChargeData
     ) {
-      // Convert Paystack's subunit amount into the currency's major unit.
       const amountPaid = Number(paymentTransaction.amount) / 100;
 
       if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
@@ -303,7 +285,7 @@ export const POST: APIRoute = async ({ request }) => {
       return updatedInvoice;
     }
 
-    // Confirm that the event itself reports a successful charge.
+    /* Confirm that the webhook transaction itself reports success. */
     if (transaction.status !== "success") {
       console.warn("charge.success event contained a non-success status:", {
         reference: transaction.reference,
@@ -321,12 +303,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Normalize metadata once so it can route the payment workflow.
     const paystackMetadata = parsePaystackMetadata(transaction.metadata);
 
     let belongsToInvoiceWorkflow = false;
 
-    // Detect Invoice payments from metadata or the stored attempt reference.
+    /* Determine whether this transaction belongs to the Invoice workflow. */
     try {
       belongsToInvoiceWorkflow = await isInvoicePayment(
         transaction,
@@ -349,7 +330,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Route Invoice payments before attempting the Academy lookup.
+    /*
+     * Process Invoice payments separately.
+     *
+     * This branch remains unchanged from the existing implementation.
+     */
     if (belongsToInvoiceWorkflow) {
       const metadataInvoiceId =
         typeof paystackMetadata.invoice_id === "string"
@@ -361,19 +346,18 @@ export const POST: APIRoute = async ({ request }) => {
           ? paystackMetadata.payment_attempt_id
           : null;
 
-      // Validate any supplied Invoice metadata against the stored payment attempt.
       const { data: paymentAttempt, error: paymentAttemptError } =
         await supabase
           .from("invoice_payment_attempts")
           .select(
             `
-            id,
-            invoice_id,
-            reference,
-            amount,
-            currency,
-            status
-            `
+          id,
+          invoice_id,
+          reference,
+          amount,
+          currency,
+          status
+          `
           )
           .eq("reference", transaction.reference)
           .maybeSingle();
@@ -484,7 +468,13 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    // Find the Academy registration connected to the reference.
+    /*
+     * ===============================
+     * ACADEMY PAYMENT WORKFLOW
+     * ===============================
+     */
+
+    /* Load the Academy registration associated with this payment reference. */
     const { data: registration, error: registrationError } = await supabase
       .from("academy_registrations")
       .select(
@@ -500,6 +490,8 @@ export const POST: APIRoute = async ({ request }) => {
         payment_provider,
         amount_expected,
         amount_paid,
+        payment_reconciliation_status,
+        payment_difference,
         currency,
         paid_at,
         metadata
@@ -514,7 +506,6 @@ export const POST: APIRoute = async ({ request }) => {
         registrationError
       );
 
-      // Return a server error so Paystack can retry the webhook.
       return jsonResponse(
         {
           received: true,
@@ -525,10 +516,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Acknowledge transactions that do not belong to the Academy.
-    //
-    // This allows the same Paystack account and webhook route to
-    // receive payments from other modules without corrupting data.
+    /*
+     * Acknowledge successful transactions that do not belong
+     * to an Academy registration.
+     */
     if (!registration) {
       console.warn(
         "No Academy registration matched Paystack reference:",
@@ -543,10 +534,12 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Make webhook processing idempotent.
-    //
-    // Paystack may send the same event more than once, and the
-    // callback verification route may have already updated the record.
+    /*
+     * Keep processing idempotent.
+     *
+     * Paystack can deliver the same webhook more than once and
+     * callback verification may also have completed first.
+     */
     if (registration.payment_status === "paid") {
       return jsonResponse({
         received: true,
@@ -554,44 +547,17 @@ export const POST: APIRoute = async ({ request }) => {
         alreadyProcessed: true,
         registrationId: registration.id,
         reference: transaction.reference,
+        reconciliationStatus: registration.payment_reconciliation_status,
+        paymentDifference: registration.payment_difference,
         message: "The Academy payment was already processed.",
       });
     }
 
-    // Paystack reports amounts using the currency's smallest unit.
-    const expectedAmountInSubunit = Math.round(
-      Number(registration.amount_expected) * 100
-    );
-
-    // Prevent fulfillment when the amount paid is incorrect.
-    if (
-      !Number.isFinite(expectedAmountInSubunit) ||
-      transaction.amount !== expectedAmountInSubunit
-    ) {
-      console.error("Paystack webhook amount mismatch:", {
-        registrationId: registration.id,
-        reference: transaction.reference,
-        expectedAmountInSubunit,
-        receivedAmountInSubunit: transaction.amount,
-      });
-
-      return jsonResponse(
-        {
-          received: true,
-          processed: false,
-          reference: transaction.reference,
-          message:
-            "The transaction amount does not match the expected program fee.",
-        },
-        409
-      );
-    }
-
+    /* Confirm that the Paystack currency matches the Academy registration. */
     const expectedCurrency = (registration.currency || "NGN").toUpperCase();
 
     const receivedCurrency = (transaction.currency || "").toUpperCase();
 
-    // Prevent fulfillment when the currency is incorrect.
     if (receivedCurrency !== expectedCurrency) {
       console.error("Paystack webhook currency mismatch:", {
         registrationId: registration.id,
@@ -621,7 +587,7 @@ export const POST: APIRoute = async ({ request }) => {
         ? paystackMetadata.program_id
         : null;
 
-    // Confirm that Paystack metadata identifies the same registration.
+    /* Confirm that Paystack metadata points to the same Academy registration. */
     if (metadataRegistrationId && metadataRegistrationId !== registration.id) {
       console.error("Paystack webhook registration metadata mismatch:", {
         expected: registration.id,
@@ -640,7 +606,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Confirm that Paystack metadata identifies the same program.
+    /* Confirm that Paystack metadata points to the same Academy program. */
     if (metadataProgramId && metadataProgramId !== registration.program_id) {
       console.error("Paystack webhook program metadata mismatch:", {
         expected: registration.program_id,
@@ -660,7 +626,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Confirm the customer's email when Paystack supplies one.
+    /* Confirm the customer's email address when Paystack supplies one. */
     const paystackCustomerEmail = transaction.customer?.email
       ?.trim()
       .toLowerCase();
@@ -686,36 +652,90 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const amountPaid = transaction.amount / 100;
-
-    const paidAt = transaction.paid_at || new Date().toISOString();
-
-    /**
-     * Convert stored JSON metadata into a safe object before spreading it.
+    /*
+     * Calculate the trusted Academy fee and the amount actually
+     * received from Paystack.
      */
-    function normalizeMetadata(
-      metadata: Json | null
-    ): Record<string, Json | undefined> {
-      if (
-        metadata &&
-        typeof metadata === "object" &&
-        !Array.isArray(metadata)
-      ) {
-        return metadata;
-      }
+    const amountExpected = Number(registration.amount_expected);
 
-      return {};
+    const amountPaid = Number(transaction.amount) / 100;
+
+    if (!Number.isFinite(amountExpected) || amountExpected <= 0) {
+      console.error(
+        "Academy registration has an invalid expected payment amount:",
+        {
+          registrationId: registration.id,
+          amountExpected: registration.amount_expected,
+        }
+      );
+
+      return jsonResponse(
+        {
+          received: true,
+          processed: false,
+          reference: transaction.reference,
+          message: "The expected Academy payment amount is invalid.",
+        },
+        500
+      );
     }
 
-    // Mark the registration as paid and confirmed.
-    //
-    // The payment_status condition prevents a duplicate webhook or
-    // callback request from fulfilling the same registration twice.
+    if (!Number.isFinite(amountPaid) || amountPaid <= 0) {
+      console.error(
+        "Paystack webhook returned an invalid Academy payment amount:",
+        {
+          registrationId: registration.id,
+          transactionAmount: transaction.amount,
+        }
+      );
+
+      return jsonResponse(
+        {
+          received: true,
+          processed: false,
+          reference: transaction.reference,
+          message: "The received payment amount is invalid.",
+        },
+        409
+      );
+    }
+
+    /* Calculate the amount difference using major currency units. */
+    const paymentDifference = Number((amountPaid - amountExpected).toFixed(2));
+
+    /* Classify the successful payment as matched, underpaid or overpaid. */
+    const reconciliationStatus =
+      paymentDifference === 0
+        ? "matched"
+        : paymentDifference < 0
+          ? "underpaid"
+          : "overpaid";
+
+    /*
+     * Underpaid registrations stay pending.
+     *
+     * Exact payments and overpayments can be confirmed because the
+     * expected program fee has been fully covered.
+     */
+    const registrationStatus =
+      reconciliationStatus === "underpaid" ? "pending" : "confirmed";
+
+    const paidAt = transaction.paid_at ?? new Date().toISOString();
+
+    /*
+     * Record the successful payment and its reconciliation result.
+     *
+     * payment_status represents whether Paystack successfully received
+     * the money, while payment_reconciliation_status represents whether
+     * the amount satisfies CloudTweak's expected Academy fee.
+     */
     const { data: updatedRegistration, error: updateError } = await supabase
       .from("academy_registrations")
       .update({
         payment_status: "paid",
-        registration_status: "confirmed",
+        registration_status: registrationStatus,
+        payment_reconciliation_status: reconciliationStatus,
+        payment_difference: paymentDifference,
         amount_paid: amountPaid,
         paid_at: paidAt,
         payment_provider: "paystack",
@@ -725,6 +745,8 @@ export const POST: APIRoute = async ({ request }) => {
           paystack_channel: transaction.channel,
           paystack_gateway_response: transaction.gateway_response,
           paystack_status: transaction.status,
+          reconciliation_status: reconciliationStatus,
+          payment_difference: paymentDifference,
           webhook_event: webhookEvent.event,
           webhook_confirmed_at: new Date().toISOString(),
         },
@@ -743,6 +765,8 @@ export const POST: APIRoute = async ({ request }) => {
         payment_reference,
         amount_expected,
         amount_paid,
+        payment_reconciliation_status,
+        payment_difference,
         currency,
         paid_at
         `
@@ -755,7 +779,10 @@ export const POST: APIRoute = async ({ request }) => {
         updateError
       );
 
-      // Return an error so Paystack retries delivery.
+      /*
+       * Return a server error so Paystack can retry delivery
+       * if the database update failed.
+       */
       return jsonResponse(
         {
           received: true,
@@ -767,7 +794,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Another request may have completed the update first.
+    /*
+     * Another process may have completed the registration update first.
+     */
     if (!updatedRegistration) {
       const { data: latestRegistration, error: latestRegistrationError } =
         await supabase
@@ -776,13 +805,15 @@ export const POST: APIRoute = async ({ request }) => {
             `
           id,
           payment_status,
-          registration_status
+          registration_status,
+          payment_reconciliation_status,
+          payment_difference
           `
           )
           .eq("id", registration.id)
           .single();
 
-      if (latestRegistrationError) {
+      if (latestRegistrationError || !latestRegistration) {
         console.error(
           "Latest Academy registration lookup failed:",
           latestRegistrationError
@@ -805,6 +836,8 @@ export const POST: APIRoute = async ({ request }) => {
         alreadyProcessed: latestRegistration.payment_status === "paid",
         registrationId: latestRegistration.id,
         reference: transaction.reference,
+        reconciliationStatus: latestRegistration.payment_reconciliation_status,
+        paymentDifference: latestRegistration.payment_difference,
         message:
           latestRegistration.payment_status === "paid"
             ? "The Academy payment was already processed."
@@ -812,7 +845,15 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Return quickly after successful processing.
+    /* Build an operational message describing the reconciliation result. */
+    const processingMessage =
+      reconciliationStatus === "matched"
+        ? "Academy payment confirmed and reconciled successfully."
+        : reconciliationStatus === "overpaid"
+          ? "Academy payment confirmed. An overpayment was detected for review."
+          : "Academy payment received. An underpayment was detected and the registration remains pending.";
+
+    /* Return the final trusted webhook processing result. */
     return jsonResponse({
       received: true,
       processed: true,
@@ -821,12 +862,19 @@ export const POST: APIRoute = async ({ request }) => {
       reference: updatedRegistration.payment_reference,
       paymentStatus: updatedRegistration.payment_status,
       registrationStatus: updatedRegistration.registration_status,
-      message: "Academy payment confirmed successfully.",
+      reconciliationStatus: updatedRegistration.payment_reconciliation_status,
+      paymentDifference: updatedRegistration.payment_difference,
+      amountExpected: updatedRegistration.amount_expected,
+      amountPaid: updatedRegistration.amount_paid,
+      message: processingMessage,
     });
   } catch (error) {
     console.error("Unexpected Paystack webhook error:", error);
 
-    // Returning a server error allows Paystack to retry delivery.
+    /*
+     * A 500 response allows Paystack to retry delivery
+     * when an unexpected server failure occurs.
+     */
     return jsonResponse(
       {
         received: false,
