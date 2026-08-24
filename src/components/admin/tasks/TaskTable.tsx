@@ -518,7 +518,7 @@ export default function TaskTable({ tasks, reload }: Props) {
                 onClick={() => handleSort("title")}
               >
                 <div className="flex items-center gap-1">
-                  Task
+                  Tasks
                   {getSortIcon("title")}
                 </div>
               </th>
