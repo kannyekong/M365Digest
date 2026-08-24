@@ -1,22 +1,32 @@
 import { useEffect, useState } from "react";
-import { listInstructors } from "../../lib/academy_instructors";
-import type { AcademyInstructor } from "../../types/academy";
+import { listInstructorsWithProgramCount } from "../../lib/academy_instructors";
+import type { AcademyInstructorWithProgramCount } from "../../types/academy";
 import { Plus } from "lucide-react";
 import InstructorTable from "./InstructorTable";
+import AcademyModuleNav from "./academy/AcademyModuleNav";
 
 export default function InstructorPage() {
   const [loading, setLoading] = useState(true);
 
-  const [instructors, setInstructors] = useState<AcademyInstructor[]>([]);
+  const [instructors, setInstructors] = useState<
+    AcademyInstructorWithProgramCount[]
+  >([]);
 
+  /* Loads instructors together with the number of Academy programs assigned to each instructor. */
   async function load() {
     setLoading(true);
 
-    const { data } = await listInstructors();
+    try {
+      const data = await listInstructorsWithProgramCount();
 
-    setInstructors(data ?? []);
+      setInstructors(data);
+    } catch (error) {
+      console.error("Failed to load instructors:", error);
 
-    setLoading(false);
+      setInstructors([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -44,6 +54,8 @@ export default function InstructorPage() {
           Add Instructor
         </a>
       </div>
+
+      <AcademyModuleNav current="Instructors" />
 
       {/* Table */}
 

@@ -1,9 +1,11 @@
 ---
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import AcademyRegistrationsTable from "../../../../components/academy/registration/AcademyRegistrationsTable";
+import Header from "../../../../components/admin/UI/Header.astro";
 ---
 
 <AdminLayout title="Academy Registrations">
+  <Header title="Academy Registrations" />
   <main class="p-5">
     <AcademyRegistrationsTable client:load />
   </main>

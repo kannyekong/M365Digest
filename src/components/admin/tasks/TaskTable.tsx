@@ -511,7 +511,7 @@ export default function TaskTable({ tasks, reload }: Props) {
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full">
-          <thead className="border-b bg-slate-50">
+          <thead className="border-b border-b-slate-200 bg-slate-50">
             <tr className="text-left text-sm font-semibold text-slate-700">
               <th
                 className="cursor-pointer px-6 py-4"

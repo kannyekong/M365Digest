@@ -1,5 +1,14 @@
 ---
 import { MailOpen, MessageCircle, PhoneCall } from "lucide-astro";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+  FaGithub,
+} from "react-icons/fa6";
+
+import { FaXTwitter } from "react-icons/fa6";
 
 const footerLinks = {
   company: [
@@ -78,26 +87,50 @@ const year = new Date().getFullYear();
         </p>
 
         <!-- Social Icons -->
-        <div class="mt-6 flex items-center gap-4">
+        <div class="flex items-center mt-5 gap-4">
           <a
-            href="mailto:support@cloudtweak.net"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:text-white dark:border-white"
+            href="https://facebook.com/your-page"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
           >
-            <MailOpen />
-          </a>
-          <a
-            href="tel:+2348143099128"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white dark:border-white dark:text-white"
-          >
-            <PhoneCall />
+            <FaFacebookF size={20} className="text-blue-500"/>
           </a>
 
           <a
-            href="https://wa.me/08143099128"
+            href="https://instagram.com/your-page"
             target="_blank"
-            class="flex h-10 w-10 dark:text-white dark:border-white items-center justify-center rounded-full border border-gray-200 transition hover:border-primary hover:bg-primary hover:text-white"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
           >
-            <MessageCircle />
+            <FaInstagram size={20} className="text-red-700"/>
+          </a>
+
+          <a
+            href="https://x.com/your-page"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X"
+          >
+            <FaXTwitter size={20} />
+          </a>
+
+          <a
+            href="https://linkedin.com/company/your-page"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+          >
+            <FaLinkedinIn size={20} className="text-blue-400"/>
+          </a>
+
+          <a
+            href="https://youtube.com/@your-channel"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="YouTube"
+          >
+            <FaYoutube size={20} className="text-red-500"/>
           </a>
         </div>
       </div>

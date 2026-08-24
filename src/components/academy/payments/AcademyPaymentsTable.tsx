@@ -40,6 +40,9 @@ import {
   type AcademyPaymentStatistics,
 } from "../../../lib/academyPayments";
 import type { AcademyPaymentStatus } from "../../../types/academy";
+import Header from "../../admin/UI/Header.astro";
+import FinanceModuleNav from "../../admin/finance/FinanceModuleNav";
+import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
 
 interface AcademyProgramFilterOption {
   id: string;
@@ -736,22 +739,10 @@ export default function AcademyPaymentsTable() {
   const lastVisibleRecord = Math.min(page * PAGE_SIZE, total);
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-7xl space-y-4">
       <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <a
-            href="/admin/academy"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Academy dashboard
-          </a>
-
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-            Financial Management
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-xl font-bold text-slate-950">
             Academy Payments
           </h1>
 
@@ -792,6 +783,8 @@ export default function AcademyPaymentsTable() {
           </button>
         </div>
       </header>
+
+      <AcademyModuleNav current="Payments" />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (

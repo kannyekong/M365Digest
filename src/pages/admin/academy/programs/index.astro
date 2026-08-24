@@ -2,9 +2,12 @@
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import AcademyProgramsTable from "../../../../components/admin/academy/AcademyProgramsTable";
 import { Plus } from "lucide-astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+import AcademyModuleNav from "../../../../components/admin/academy/AcademyModuleNav";
 ---
 
 <AdminLayout title="Academy Programs">
+  <Header title="Academy Programs" />
   <main class="space-y-8 p-5 lg:p-5">
     <header
       class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
@@ -20,7 +23,7 @@ import { Plus } from "lucide-astro";
         </p>
       </div>
     </header>
-
+    <AcademyModuleNav current="Programs" />
     <AcademyProgramsTable client:load />
   </main>
 </AdminLayout>

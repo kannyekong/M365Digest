@@ -11,7 +11,7 @@ export interface InsightsDateRange {
 /* Stores the count for each form module. */
 export interface InsightsCounts {
   contacts: number;
-  registrations: number;
+  academy_registrations: number;
   reviews: number;
   quotes: number;
   total: number;

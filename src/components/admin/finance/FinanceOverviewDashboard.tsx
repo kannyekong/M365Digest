@@ -17,6 +17,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Sector,
   Legend,
   Pie,
   PieChart,
@@ -62,12 +63,12 @@ const EMPTY_OVERVIEW: FinanceOverviewData = {
 
 const PIE_CHART_COLORS = [
   "#2563eb",
+  "#db2777",
   "#7c3aed",
   "#16a34a",
   "#d97706",
   "#dc2626",
   "#0891b2",
-  "#db2777",
   "#4f46e5",
 ];
 
@@ -186,7 +187,7 @@ function FinanceBreakdownList({
         </div>
       ) : (
         <div className="mt-5 space-y-4">
-          {items.slice(0, 5).map((item) => (
+          {items.slice(0, 5).map((item, index) => (
             <article key={item.label}>
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
@@ -213,9 +214,11 @@ function FinanceBreakdownList({
 
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-900">
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-all duration-500 dark:bg-blue-500"
+                  className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${Math.min(100, item.percentage)}%`,
+                    backgroundColor:
+                      PIE_CHART_COLORS[index % PIE_CHART_COLORS.length],
                   }}
                 />
               </div>

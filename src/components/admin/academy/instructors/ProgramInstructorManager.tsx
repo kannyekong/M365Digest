@@ -409,13 +409,15 @@ export default function ProgramInstructorManager({
     <div className="mx-auto max-w-6xl">
       <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <a
-            href="/admin/academy/programs"
+          <button
+            onClick={() => {
+              window.history.back();
+            }}
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to programs
-          </a>
+          </button>
 
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
             Program Instructors

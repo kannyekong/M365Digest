@@ -1,5 +1,8 @@
 import { supabase } from "./superbase";
-import type { AcademyInstructor } from "../types/academy";
+import type {
+  AcademyInstructor,
+  AcademyInstructorWithProgramCount,
+} from "../types/academy";
 
 // Lists all instructors for ADMIN view
 
@@ -57,4 +60,42 @@ export async function updateInstructor(
 
 export async function deleteInstructor(id: string) {
   return await supabase.from("academy_instructors").delete().eq("id", id);
+}
+
+export async function listInstructorsWithProgramCount() {
+  const [
+    { data: instructors, error: instructorsError },
+    { data: assignments, error: assignmentsError },
+  ] = await Promise.all([
+    supabase.from("academy_instructors").select("*").order("display_order", {
+      ascending: true,
+    }),
+
+    supabase.from("academy_program_instructors").select("instructor_id"),
+  ]);
+
+  if (instructorsError) {
+    throw instructorsError;
+  }
+
+  if (assignmentsError) {
+    throw assignmentsError;
+  }
+
+  /* Counts program assignments for every instructor without making one query per instructor. */
+  const programCountByInstructor = (assignments ?? []).reduce<
+    Record<string, number>
+  >((counts, assignment) => {
+    counts[assignment.instructor_id] =
+      (counts[assignment.instructor_id] ?? 0) + 1;
+
+    return counts;
+  }, {});
+
+  return (instructors ?? []).map(
+    (instructor): AcademyInstructorWithProgramCount => ({
+      ...(instructor as AcademyInstructor),
+      assigned_program_count: programCountByInstructor[instructor.id] ?? 0,
+    })
+  );
 }

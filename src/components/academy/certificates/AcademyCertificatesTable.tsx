@@ -44,6 +44,7 @@ import {
   type AcademyCertificateStatistics,
 } from "../../../lib/academyCertificates";
 import type { AcademyCertificateStatus } from "../../../types/academy";
+import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
 
 /**
  * Program option displayed inside certificate filters.
@@ -1542,22 +1543,10 @@ export default function AcademyCertificatesTable() {
     }
   }
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-full space-y-5">
       <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <a
-            href="/admin/academy"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Academy dashboard
-          </a>
-
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-            Credential Management
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-xl font-bold text-slate-950">
             Academy Certificates
           </h1>
 
@@ -1575,7 +1564,7 @@ export default function AcademyCertificatesTable() {
               void loadEligibleRegistrations();
             }}
             disabled={loading}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -1587,7 +1576,7 @@ export default function AcademyCertificatesTable() {
               void handleExport();
             }}
             disabled={exporting}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {exporting ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -1602,13 +1591,15 @@ export default function AcademyCertificatesTable() {
             type="button"
             onClick={openGenerationModal}
             disabled={eligibleRegistrations.length === 0}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FileBadge2 className="h-4 w-4" />
-            Generate Certificate
+            Generate Cert
           </button>
         </div>
       </header>
+
+      <AcademyModuleNav current="Certificates" />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (

@@ -12,7 +12,7 @@ export async function getDashboardStats() {
       .select("*", { count: "exact", head: true }),
 
     supabase
-      .from("bootcamp_registrations")
+      .from("academy_registrations")
       .select("*", { count: "exact", head: true }),
 
     supabase

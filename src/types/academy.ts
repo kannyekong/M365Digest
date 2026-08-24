@@ -192,6 +192,8 @@ export interface AcademyProgramInstructor {
   created_at: string;
 
   instructor?: AcademyInstructor;
+
+  program?: AcademyProgram;
 }
 
 /**
@@ -387,4 +389,8 @@ export interface AcademyCertificate {
   registration?: AcademyRegistration;
 
   template?: AcademyCertificateTemplate;
+}
+
+export interface AcademyInstructorWithProgramCount extends AcademyInstructor {
+  assigned_program_count: number;
 }

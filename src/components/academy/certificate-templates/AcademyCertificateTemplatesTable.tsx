@@ -41,6 +41,7 @@ import {
   type AcademyCertificateTemplateStatistics,
 } from "../../../lib/academyCertificateTemplates";
 import type { AcademyCertificateTemplate } from "../../../types/academy";
+import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
 
 /**
  * Filters used by the certificate-template interface.
@@ -483,14 +484,14 @@ function TemplateMetricCard({ metric }: { metric: CertificateTemplateMetric }) {
   const Icon = metric.icon;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
       <div
-        className={`flex h-11 w-11 items-center justify-center rounded-2xl ${metric.iconClasses}`}
+        className={`flex h-10 w-10 items-center justify-center rounded-2xl ${metric.iconClasses}`}
       >
-        <Icon size={21} />
+        <Icon size={18} />
       </div>
 
-      <p className="mt-4 text-2xl font-bold text-slate-950">{metric.value}</p>
+      <p className="mt-4 text-md font-bold text-slate-950">{metric.value}</p>
 
       <p className="mt-1 text-sm font-semibold text-slate-700">
         {metric.label}
@@ -1442,26 +1443,14 @@ export default function AcademyCertificateTemplatesTable() {
     }
   }
   return (
-    <div className="mx-auto max-w-full">
+    <div className="mx-auto max-w-full space-y-10">
       <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <a
-            href="/admin/academy"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Academy dashboard
-          </a>
-
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-            Certificate Design
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-xl font-bold text-slate-950">
             Certificate Templates
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-2xl text-xs leading-6 text-slate-500">
             Create reusable certificate designs, manage branding, configure
             signatories and select the default Academy template.
           </p>
@@ -1474,7 +1463,7 @@ export default function AcademyCertificateTemplatesTable() {
               void loadTemplates();
             }}
             disabled={loading}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -1486,7 +1475,7 @@ export default function AcademyCertificateTemplatesTable() {
               void handleExport();
             }}
             disabled={exporting}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {exporting ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -1500,12 +1489,14 @@ export default function AcademyCertificateTemplatesTable() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="min-h-11 items-center justify-center gap-1 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition hover:opacity-90"
+            className="min-h-11 items-center justify-center gap-1 rounded-xl bg-primary px-2 text-xs font-semibold text-white transition hover:opacity-90"
           >
             New Template
           </button>
         </div>
       </header>
+
+      <AcademyModuleNav current="Templates" />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
@@ -1785,7 +1776,7 @@ export default function AcademyCertificateTemplatesTable() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200"
                           style={{
                             backgroundColor: template.primary_color,
                           }}
@@ -1797,16 +1788,16 @@ export default function AcademyCertificateTemplatesTable() {
                               className="h-full w-full object-contain p-2"
                             />
                           ) : (
-                            <LayoutTemplate className="h-5 w-5 text-white" />
+                            <LayoutTemplate className="h-4 w-4 text-white" />
                           )}
                         </div>
 
                         <div className="min-w-0">
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-slate-900 text-sm">
                             {template.name}
                           </p>
 
-                          <p className="mt-1 max-w-[260px] truncate text-sm text-slate-500">
+                          <p className="mt-1 max-w-[260px] truncate text-xs text-slate-500">
                             {template.description ?? "No description"}
                           </p>
                         </div>

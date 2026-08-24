@@ -1,10 +1,13 @@
 ---
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import AcademyCategoriesManager from "../../../components/admin/academy/AcademyCategoriesManager";
+import Header from "../../../components/admin/UI/Header.astro";
+import AcademyModuleNav from "../../../components/admin/academy/AcademyModuleNav";
 ---
 
 <AdminLayout title="Academy Categories">
-  <main class="space-y-8 p-6 lg:p-10">
+  <Header title="Academy Categories" />
+  <main class="space-y-8 lg:p-5">
     <header
       class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
     >
@@ -26,6 +29,8 @@ import AcademyCategoriesManager from "../../../components/admin/academy/AcademyC
         View Programs
       </a>
     </header>
+
+    <AcademyModuleNav current="Categories" />
 
     <AcademyCategoriesManager client:load />
   </main>

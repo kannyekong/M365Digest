@@ -444,7 +444,7 @@ export async function getCommunicationsInsights(
       .lte("created_at", endDate),
 
     supabase
-      .from("bootcamp_registrations")
+      .from("academy_registrations")
       .select("id, first_name, last_name, email, payment_status, created_at")
       .gte("created_at", startDate)
       .lte("created_at", endDate),
@@ -510,7 +510,7 @@ export async function getCommunicationsInsights(
   return {
     counts: {
       contacts: contacts.length,
-      registrations: registrations.length,
+      academy_registrations: registrations.length,
       reviews: reviews.length,
       quotes: quotes.length,
       total,

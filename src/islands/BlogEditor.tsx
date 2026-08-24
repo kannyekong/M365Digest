@@ -146,7 +146,7 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
 
     toast.success(editMode ? "Article Updated!" : "Article Created!");
 
-    window.location.href = "/admin/blog";
+    window.location.href = "/admin/blog/articles";
   }
 
   if (loadingPost) {

@@ -22,6 +22,7 @@ import {
 
 import { calculateReadingTime } from "../../utils/readingTime";
 import { generateTableOfContents } from "../../utils/tableOfContents";
+import BlogLikeButton from "../../islands/BlogLikeButton";
 
 /**
  * Generate all statically rendered blog post routes.
@@ -339,6 +340,28 @@ const articleSchema = {
             class="mt-5 md:rounded-2xl md:border md:border-slate-200 bg-white md:px-4 py-5 md:shadow-sm dark:text-white dark:border-white dark:bg-slate-900 sm:mt-6 sm:px-3 lg:px-9 lg:py-10"
           >
             <TiptapViewer client:load content={post.content} />
+
+            <div
+              class="mt-10 border-t border-slate-200 pt-8 dark:border-gray-500"
+            >
+              <div class="text-center">
+                <p class="text-sm font-semibold text-heading-1">
+                  Enjoyed this article?
+                </p>
+
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Let us know you found it useful.
+                </p>
+
+                <div class="mt-4">
+                  <BlogLikeButton
+                    client:load
+                    postId={post.id}
+                    initialLikes={post.likes_count ?? 0}
+                  />
+                </div>
+              </div>
+            </div>
 
             <div
               class="mt-8 border-t border-slate-200 pt-6 dark:border-gray-500"

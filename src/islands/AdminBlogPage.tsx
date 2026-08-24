@@ -11,6 +11,7 @@ import {
   CirclePlus,
   Download,
   Edit,
+  Heart,
 } from "lucide-react";
 import StatCard from "../components/admin/Statcard";
 
@@ -360,10 +361,10 @@ export default function AdminBlogPage() {
         </button>
       </div>
 
-      <div className="mt-10 overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full">
           <thead>
-            <tr className="border-b bg-slate-50">
+            <tr className="border-b border-slate-200">
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort("title")}
@@ -395,6 +396,8 @@ export default function AdminBlogPage() {
                   {renderSortIcon("published")}
                 </button>
               </th>
+              <th className="px-6 py-4 text-left">Views</th>
+              <th className="px-6 py-4 text-left">Likes</th>
 
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
@@ -405,7 +408,7 @@ export default function AdminBlogPage() {
               currentPosts.map((post) => (
                 <tr
                   key={post.id}
-                  className="border-b transition hover:bg-slate-50"
+                  className="border-b border-slate-200 transition hover:bg-slate-50"
                 >
                   <td className="px-6 py-5">
                     <div>
@@ -428,16 +431,28 @@ export default function AdminBlogPage() {
                   <td className="px-6">
                     {new Date(post.created_at).toLocaleDateString()}
                   </td>
+                  <td className="px-6">{post.views}</td>
+                  <td className="px-6 py-6">
+                    <div className="inline-flex items-center gap-2">
+                      <Heart className="h-4 w-4 fill-red-500 text-red-500" />
 
-                  <td className="flex gap-2 p-6 text-right">
-                    <a
-                      href={`/admin/blog/edit?id=${post.id}`}
-                      className="p-2 hover:rounded-2xl hover:bg-blue-500"
-                    >
-                      <Edit className="text-green-500 hover:text-white" />
-                    </a>
+                      <span className="font-semibold">
+                        {post.likes_count ?? 0}
+                      </span>
+                    </div>
+                  </td>
 
-                    <DeleteButton id={post.id} onDelete={handleDelete} />
+                  <td className="px-6 py-6 text-right">
+                    <div className="inline-flex items-center gap-2">
+                      <a
+                        href={`/admin/blog/edit?id=${post.id}`}
+                        className="p-2 hover:rounded-2xl hover:bg-blue-500"
+                      >
+                        <Edit className="text-green-500 hover:text-white" />
+                      </a>
+
+                      <DeleteButton id={post.id} onDelete={handleDelete} />
+                    </div>
                   </td>
                 </tr>
               ))

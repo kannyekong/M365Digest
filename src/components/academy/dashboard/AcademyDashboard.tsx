@@ -20,6 +20,7 @@ import {
   type AcademyRecentRegistration,
   type AcademyUpcomingProgram,
 } from "../../../lib/academyDashboard";
+import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
 
 interface DashboardMetric {
   label: string;
@@ -458,14 +459,10 @@ export default function AcademyDashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-full">
+    <div className="mx-auto max-w-full space-y-4">
       <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-            CloudTweak Academy
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-xl font-bold text-slate-950">
             Academy Overview
           </h1>
 
@@ -487,6 +484,7 @@ export default function AcademyDashboard() {
           Refresh
         </button>
       </header>
+      <AcademyModuleNav current="Overview" />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (

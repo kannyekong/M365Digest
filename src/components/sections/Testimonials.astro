@@ -7,7 +7,6 @@ import { listTestimonials } from "../../lib/testimonials";
 const { data: testimonials } = await listTestimonials();
 ---
 
-
 <section class="py-12 overflow-hidden">
   <Container>
     <div class="text-center max-w-3xl mx-auto">
@@ -33,9 +32,16 @@ const { data: testimonials } = await listTestimonials();
               "{item.testimonial}"
             </p>
 
-            <div class="flex mt-6">
-              {Array.from({ length: 5 }).map(() => (
-                <Star size={16} class="fill-yellow-400 text-yellow-400" />
+            <div class="mt-6 flex">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star
+                  size={16}
+                  class={
+                    index < Number(item.rating ?? 0)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-transparent text-gray-300 dark:text-gray-600"
+                  }
+                />
               ))}
             </div>
 

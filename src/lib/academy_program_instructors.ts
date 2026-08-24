@@ -131,6 +131,33 @@ export async function removeAcademyProgramInstructor(assignmentId: string) {
   }
 }
 
+/* Retrieves every Academy program currently assigned to one instructor. */
+export async function getAcademyInstructorProgramAssignments(
+  instructorId: string
+) {
+  const { data, error } = await supabase
+    .from("academy_program_instructors")
+    .select(
+      `
+      *,
+      program:academy_programs(*)
+    `
+    )
+    .eq("instructor_id", instructorId)
+    .order("display_order", {
+      ascending: true,
+    })
+    .order("created_at", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as AcademyProgramInstructor[];
+}
+
 /**
  * Set one assigned instructor as the program lead.
  */

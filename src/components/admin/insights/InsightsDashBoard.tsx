@@ -197,7 +197,7 @@ export default function InsightsDashboard() {
 
         <DashboardCountCard
           title="Registrations"
-          count={insights.counts.registrations}
+          count={insights.counts.academy_registrations}
           type="registrations"
           href="/admin/academy/registrations"
           description="Bootcamp registrations"

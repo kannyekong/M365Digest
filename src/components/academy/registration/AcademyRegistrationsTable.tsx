@@ -37,6 +37,7 @@ import type {
   AcademyPaymentStatus,
   AcademyRegistrationStatus,
 } from "../../../types/academy";
+import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
 
 interface AcademyProgramFilterOption {
   id: string;
@@ -780,19 +781,7 @@ export default function AcademyRegistrationsTable() {
     <div className="mx-auto max-w-7xl">
       <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <a
-            href="/admin/academy"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Academy dashboard
-          </a>
-
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
-            Learner Management
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-950">
+          <h1 className="mt-2 text-xl font-bold text-slate-950">
             Academy Registrations
           </h1>
 
@@ -833,6 +822,8 @@ export default function AcademyRegistrationsTable() {
           </button>
         </div>
       </header>
+
+      <AcademyModuleNav current="Registrations" />
 
       <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">

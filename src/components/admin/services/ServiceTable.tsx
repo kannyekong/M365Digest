@@ -13,7 +13,7 @@ export default function ServiceTable({ services, onEdit, onDelete }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table className="min-w-full">
-        <thead className="border-b bg-slate-50">
+        <thead className="bg-slate-50">
           <tr className="text-left text-sm font-semibold text-slate-600">
             <th className="px-6 py-4">Order</th>
 
@@ -33,7 +33,7 @@ export default function ServiceTable({ services, onEdit, onDelete }: Props) {
           {services.map((service) => (
             <tr
               key={service.id}
-              className="border-b last:border-none hover:bg-slate-50"
+              className="border-b border-slate-100 last:border-none hover:bg-slate-50"
             >
               <td className="px-6 py-4">{service.display_order}</td>
 
