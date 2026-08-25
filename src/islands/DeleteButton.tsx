@@ -1,6 +1,6 @@
-import { Trash, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { deletePost } from "../lib/blog";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useState } from "react";
 import ConfirmModal from "./ConfirmModal";
 
@@ -43,6 +43,8 @@ export default function DeleteButton({ id, onDelete }: Props) {
         open={open}
         title="Delete Article"
         message="Are you sure you want to permanently delete this article?"
+        confirmText="Delete"
+        variant="danger"
         onCancel={() => setOpen(false)}
         onConfirm={confirmDelete}
       />
