@@ -112,15 +112,6 @@ export default function AcademyRegistrationForm({
   certificateEnabled = true,
   registrationOpen = true,
 }: AcademyRegistrationFormProps) {
-  <ToastContainer
-    position="top-center"
-    autoClose={5000}
-    newestOnTop
-    closeOnClick
-    pauseOnHover
-    draggable
-  />;
-
   // Store all learner registration values.
   const [form, setForm] = useState<RegistrationFormState>(DEFAULT_FORM_STATE);
 
@@ -306,15 +297,20 @@ export default function AcademyRegistrationForm({
             you are redirected to Paystack for secure payment.
           </p>
         </div>
-
         {!registrationOpen ? (
           <div className="mt-7 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
             Registration is currently closed for this program.
           </div>
         ) : null}
-
         {errorMessage ? toast.error(errorMessage) : null}
-
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+        />
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
           <section>
             <h2 className="text-lg font-bold text-heading-1">
