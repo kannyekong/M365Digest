@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface AcademyRegistrationFormProps {
   programId: string;
@@ -110,6 +112,15 @@ export default function AcademyRegistrationForm({
   certificateEnabled = true,
   registrationOpen = true,
 }: AcademyRegistrationFormProps) {
+  <ToastContainer
+    position="top-center"
+    autoClose={5000}
+    newestOnTop
+    closeOnClick
+    pauseOnHover
+    draggable
+  />;
+
   // Store all learner registration values.
   const [form, setForm] = useState<RegistrationFormState>(DEFAULT_FORM_STATE);
 
