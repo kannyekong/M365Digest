@@ -89,33 +89,14 @@ export const POST: APIRoute = async ({ request }) => {
     const siteUrl =
       import.meta.env.PUBLIC_SITE_URL ?? new URL(request.url).origin;
 
-    // if (
-    //   !supabaseUrl ||
-    //   !supabaseAnonKey ||
-    //   !supabaseServiceRoleKey ||
-    //   !resendApiKey
-    // ) {
-    //   throw new Error(
-    //     "Certificate email environment variables are incomplete."
-    //   );
-    // }
-
-    /* Verify all server configuration required for certificate delivery. */
-    const missingEnvironmentVariables = [
-      !supabaseUrl && "SUPABASE_URL",
-      !supabaseAnonKey && "PUBLIC_SUPABASE_ANON_KEY",
-      !supabaseServiceRoleKey && "SUPABASE_SERVICE_ROLE_KEY",
-      !resendApiKey && "RESEND_API_KEY",
-    ].filter(Boolean);
-
-    if (missingEnvironmentVariables.length > 0) {
-      console.error(
-        "Certificate email environment variables are incomplete:",
-        missingEnvironmentVariables
-      );
-
+    if (
+      !supabaseUrl ||
+      !supabaseAnonKey ||
+      !supabaseServiceRoleKey ||
+      !resendApiKey
+    ) {
       throw new Error(
-        `Missing environment variables: ${missingEnvironmentVariables.join(", ")}`
+        "Certificate email environment variables are incomplete."
       );
     }
 
@@ -299,7 +280,23 @@ export const POST: APIRoute = async ({ request }) => {
      * The version suffix lets us deliberately send another certificate
      * email later if we explicitly implement a resend workflow.
      */
-    const idempotencyKey = `academy-certificate-${certificate.id}-v1`;
+    /* Reads the previous certificate email delivery metadata. */
+    const certificateMetadata = normalizeMetadata(certificate.metadata);
+
+    const previousEmailDelivery =
+      certificateMetadata.email_delivery &&
+      typeof certificateMetadata.email_delivery === "object" &&
+      !Array.isArray(certificateMetadata.email_delivery)
+        ? (certificateMetadata.email_delivery as Record<string, Json>)
+        : {};
+
+    /* Calculates the next intentional certificate email send number. */
+    const previousSendCount = Number(previousEmailDelivery.send_count ?? 0);
+
+    const sendCount = previousSendCount + 1;
+
+    /* Generates a unique idempotency key for each intentional certificate send. */
+    const idempotencyKey = `academy-certificate-${certificate.id}-v${sendCount}`;
 
     /* Send the branded Academy certificate email through Resend. */
     const { data: emailResult, error: emailError } = await resend.emails.send(
@@ -589,12 +586,13 @@ export const POST: APIRoute = async ({ request }) => {
       .from("academy_certificates")
       .update({
         metadata: {
-          ...normalizeMetadata(certificate.metadata),
+          ...certificateMetadata,
           email_delivery: {
             status: "sent",
             recipient: recipientEmail,
             resend_email_id: emailResult?.id ?? null,
             sent_at: sentAt,
+            send_count: sendCount,
           },
         },
         updated_at: sentAt,
