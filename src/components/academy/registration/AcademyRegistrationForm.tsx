@@ -299,14 +299,7 @@ export default function AcademyRegistrationForm({
           </div>
         ) : null}
 
-        {errorMessage ? (
-          <div
-            role="alert"
-            className="mt-7 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
-          >
-            {errorMessage}
-          </div>
-        ) : null}
+        {errorMessage ? toast.error(errorMessage) : null}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
           <section>

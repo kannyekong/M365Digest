@@ -49,7 +49,8 @@ export async function sendAcademyWelcomeEmail({
   const safeLearnerName = escapeHtml(learnerName);
   const safeProgramTitle = escapeHtml(programTitle);
   const safePaymentReference = escapeHtml(paymentReference);
-
+  /* Normalize the learner's email before sending the welcome message. */
+  const recipientEmail = email.trim().toLowerCase();
   const formattedAmount = formatCurrency(amountPaid, currency);
 
   /*
@@ -61,7 +62,8 @@ export async function sendAcademyWelcomeEmail({
   const { data, error } = await resend.emails.send(
     {
       from: EMAIL_BRAND.academySender,
-      to: EMAIL_BRAND.replyTo,
+      to: [recipientEmail],
+      replyTo: EMAIL_BRAND.replyTo,
       subject: `Welcome to CloudTweak Academy — ${programTitle}`,
       html: `
   <!doctype html>
