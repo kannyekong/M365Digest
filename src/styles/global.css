@@ -149,3 +149,31 @@ select#selectTask {
 /**
  * Gives the hero blob a gentle floating motion without changing its dimensions.
  */
+
+/* Makes React Toastify status icons white. */
+.Toastify__toast-icon svg {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Makes the Toastify close icon white. */
+.Toastify__close-button {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Keeps the close icon white on hover. */
+.Toastify__close-button:hover {
+  color: #ffffff !important;
+  opacity: 0.8 !important;
+}
+
+/* Makes the Toastify progress loader white. */
+.Toastify__progress-bar {
+  background: #ffffff !important;
+}
+
+/* Makes the progress bar background track subtle on colored toasts. */
+.Toastify__progress-bar--wrp {
+  opacity: 0.35;
+}
