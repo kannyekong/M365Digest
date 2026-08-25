@@ -304,6 +304,7 @@ export default function AcademyRegistrationForm({
         {errorMessage ? toast.error(errorMessage) : null}
         <ToastContainer
           position="top-right"
+          toastClassName="!bg-red-600 !text-white !rounded-xl !shadow-lg"
           autoClose={5000}
           newestOnTop
           closeOnClick
