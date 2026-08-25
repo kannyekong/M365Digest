@@ -5,7 +5,7 @@ import type { AcademyCertificateTemplate } from "../../../../../types/academy";
 
 export const prerender = false;
 
-const CERTIFICATE_BUCKET = "academy-certificates";
+const CERTIFICATE_BUCKET = "certificates";
 
 /**
  * Return a consistent JSON response from the API endpoint.
