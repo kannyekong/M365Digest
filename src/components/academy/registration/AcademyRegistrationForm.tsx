@@ -195,6 +195,7 @@ export default function AcademyRegistrationForm({
     if (validationError) {
       setErrorMessage(validationError);
       toast.error(validationError);
+
       return;
     }
 
@@ -202,10 +203,11 @@ export default function AcademyRegistrationForm({
     setSubmitting(true);
 
     try {
-      // Submit only learner and program identifiers.
-      //
-      // The amount is deliberately excluded because the API loads the
-      // trusted amount directly from Supabase.
+      /*
+       * Submit only learner and program identifiers.
+       * The amount is deliberately excluded because the API loads the
+       * trusted amount directly from Supabase.
+       */
       const response = await fetch("/api/academy/register", {
         method: "POST",
         headers: {
@@ -229,23 +231,26 @@ export default function AcademyRegistrationForm({
       // Read the API response regardless of its HTTP status.
       const result = (await response.json()) as AcademyRegistrationApiResponse;
 
-      // Handle rejected or unsuccessful registration attempts.
+      /*
+       * Show rejected registration attempts as a toast.
+       * Do not store these as inline form errors because they may be
+       * outside the learner's viewport on smaller screens.
+       */
       if (!response.ok || !result.success) {
         const message =
           result.message || "Your registration could not be processed.";
 
-        setErrorMessage(message);
         toast.error(message);
+
         return;
       }
 
       // Stop when the API does not return a Paystack checkout URL.
       if (!result.authorizationUrl) {
-        const message =
-          "Your registration was created, but payment could not be opened.";
+        toast.error(
+          "Your registration was created, but payment could not be opened."
+        );
 
-        setErrorMessage(message);
-        toast.error(message);
         return;
       }
 
@@ -264,11 +269,9 @@ export default function AcademyRegistrationForm({
       // Log unexpected client-side errors for debugging.
       console.error("Academy registration submission failed:", error);
 
-      const message =
-        "A network error occurred. Please check your connection and try again.";
-
-      setErrorMessage(message);
-      toast.error(message);
+      toast.error(
+        "A network error occurred. Please check your connection and try again."
+      );
     } finally {
       // End the loading state when no redirect has occurred.
       setSubmitting(false);
