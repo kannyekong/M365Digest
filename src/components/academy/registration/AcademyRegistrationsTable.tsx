@@ -3,23 +3,24 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  CalendarDays,
   CheckCircle2,
   ChevronDown,
-  CircleDollarSign,
   Download,
   Eye,
   Filter,
   LoaderCircle,
   RefreshCw,
+  RotateCcw,
   Search,
   Trash2,
   UserCheck,
   Users,
   X,
 } from "lucide-react";
+import { supabase } from "../../../lib/superbase";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import PaystackRefundModal from "../../admin/finance/PaystackRefundModal";
 import {
   cancelAcademyRegistration,
   completeAcademyRegistration,
@@ -369,6 +370,19 @@ export default function AcademyRegistrationsTable() {
   // Track whether the filter panel is visible on smaller screens.
   const [filtersVisible, setFiltersVisible] = useState(false);
 
+  /* Stores the Finance transaction selected for a refund. */
+  const [refundTransaction, setRefundTransaction] = useState<{
+    id: string;
+    customerName: string;
+    description: string;
+    currency: string;
+    amount: number;
+    refundedAmount: number;
+  } | null>(null);
+
+  const [loadingRefundTransaction, setLoadingRefundTransaction] =
+    useState(false);
+
   /**
    * Convert the component filter state into the service filter shape.
    */
@@ -501,6 +515,70 @@ export default function AcademyRegistrationsTable() {
     ) : (
       <ArrowDown className="h-3.5 w-3.5 text-primary" />
     );
+  }
+
+  /* Loads the Finance transaction created from one paid Academy registration. */
+  async function handleOpenRefund(registration: AcademyRegistrationRecord) {
+    if (loadingRefundTransaction) {
+      return;
+    }
+
+    setLoadingRefundTransaction(true);
+
+    try {
+      const { data, error } = await supabase
+        .from("financial_transactions")
+        .select(
+          `
+        id,
+        description,
+        amount,
+        refunded_amount,
+        currency,
+        status,
+        provider
+        `
+        )
+        .eq("source_table", "academy_registrations")
+        .eq("source_id", registration.id)
+        .eq("provider", "paystack")
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error(
+          "No Paystack Finance transaction was found for this registration."
+        );
+      }
+
+      if (data.status !== "paid" && data.status !== "partially_refunded") {
+        throw new Error(
+          "This transaction is not currently eligible for a refund."
+        );
+      }
+
+      setRefundTransaction({
+        id: data.id,
+        customerName: `${registration.first_name} ${registration.last_name}`,
+        description: data.description,
+        currency: data.currency,
+        amount: Number(data.amount),
+        refundedAmount: Number(data.refunded_amount ?? 0),
+      });
+    } catch (error) {
+      console.error("Failed to load refundable Academy transaction:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The payment could not be prepared for refund."
+      );
+    } finally {
+      setLoadingRefundTransaction(false);
+    }
   }
 
   /**
@@ -1468,6 +1546,24 @@ export default function AcademyRegistrationsTable() {
                 </p>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {selectedRegistration.payment_status === "paid" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleOpenRefund(selectedRegistration);
+                      }}
+                      disabled={loadingRefundTransaction}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-900/60 dark:hover:bg-red-950/20"
+                    >
+                      {loadingRefundTransaction ? (
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RotateCcw className="h-4 w-4" />
+                      )}
+                      Refund Payment
+                    </button>
+                  ) : null}
+
                   <button
                     type="button"
                     onClick={() => {
@@ -1563,6 +1659,26 @@ export default function AcademyRegistrationsTable() {
             </footer>
           </div>
         </div>
+      ) : null}
+
+      {refundTransaction ? (
+        <PaystackRefundModal
+          open={true}
+          transactionId={refundTransaction.id}
+          customerName={refundTransaction.customerName}
+          description={refundTransaction.description}
+          currency={refundTransaction.currency}
+          amount={refundTransaction.amount}
+          refundedAmount={refundTransaction.refundedAmount}
+          onClose={() => {
+            setRefundTransaction(null);
+          }}
+          onRefundSubmitted={() => {
+            setRefundTransaction(null);
+
+            void loadRegistrations();
+          }}
+        />
       ) : null}
     </div>
   );

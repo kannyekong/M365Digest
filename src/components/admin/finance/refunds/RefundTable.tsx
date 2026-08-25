@@ -136,8 +136,6 @@ export default function RefundTable({
         <table className="w-full min-w-[1180px]">
           <thead className="bg-slate-50 dark:bg-slate-900/70">
             <tr className="divide-x divide-slate-200 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:divide-slate-800 dark:text-slate-400">
-              <th className="px-4 py-3">Refund</th>
-
               <th className="px-4 py-3">Original transaction</th>
 
               <th className="px-4 py-3">Customer</th>
@@ -150,9 +148,7 @@ export default function RefundTable({
 
               <th className="px-4 py-3">Status</th>
 
-              <th className="px-4 py-3">Requested</th>
-
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
 
@@ -165,22 +161,6 @@ export default function RefundTable({
                   key={refund.id}
                   className="divide-x divide-slate-200 text-sm text-slate-700 transition hover:bg-slate-50 dark:divide-slate-800 dark:text-slate-200 dark:hover:bg-slate-900/50"
                 >
-                  <td className="max-w-[220px] px-4 py-4">
-                    <p
-                      title={refund.refund_reference}
-                      className="truncate font-semibold text-slate-950 dark:text-white"
-                    >
-                      {refund.refund_reference}
-                    </p>
-
-                    <p
-                      title={refund.reason}
-                      className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400"
-                    >
-                      {refund.reason}
-                    </p>
-                  </td>
-
                   <td className="max-w-[220px] px-4 py-4">
                     <p
                       title={refund.transaction_reference ?? undefined}
@@ -251,18 +231,6 @@ export default function RefundTable({
                     >
                       {formatRefundLabel(refund.status)}
                     </span>
-                  </td>
-
-                  <td className="whitespace-nowrap px-4 py-4">
-                    <p className="font-medium text-slate-900 dark:text-white">
-                      {formatRefundDate(refund.requested_at)}
-                    </p>
-
-                    {refund.processed_at && (
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                        Processed {formatRefundDate(refund.processed_at)}
-                      </p>
-                    )}
                   </td>
 
                   <td className="px-4 py-4">

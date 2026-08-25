@@ -7,6 +7,7 @@ import {
   Dock,
   NotepadTextDashed,
   UserStar,
+  RotateCcw,
 } from "lucide-react";
 
 interface AcademyModuleNavProps {
@@ -45,6 +46,12 @@ const items = [
     label: "Payments",
     href: "/admin/academy/payments",
     icon: BadgeDollarSign,
+  },
+  {
+    key: "Refunds",
+    label: "Refunds",
+    href: "/admin/finance/refunds",
+    icon: RotateCcw,
   },
   {
     key: "Certificates",

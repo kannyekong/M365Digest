@@ -52,9 +52,25 @@ interface PaystackChargeData {
     | null;
 }
 
+interface PaystackRefundData {
+  status: string;
+  transaction_reference: string;
+  refund_reference: string | null;
+  amount: string | number;
+  currency: string;
+  processor?: string | null;
+  domain?: string | null;
+
+  customer?: {
+    first_name?: string | null;
+    last_name?: string | null;
+    email?: string | null;
+  };
+}
+
 interface PaystackWebhookEvent {
   event: string;
-  data: PaystackChargeData;
+  data: PaystackChargeData | PaystackRefundData;
 }
 
 /* Returns a JSON response using the supplied HTTP status. */
@@ -115,14 +131,23 @@ function verifyPaystackSignature(
   return timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
-/* Processes Paystack webhook events for Invoice and Academy payments. */
+/* Returns true when the Paystack event belongs to the refund lifecycle. */
+function isPaystackRefundEvent(eventName: string) {
+  return [
+    "refund.pending",
+    "refund.processing",
+    "refund.needs-attention",
+    "refund.failed",
+    "refund.processed",
+  ].includes(eventName);
+}
+
+/* Processes Paystack webhook events for Invoice, Academy and refund payments. */
 export const POST: APIRoute = async ({ request }) => {
   try {
     /* Read required server-only environment variables. */
     const supabaseUrl = import.meta.env.SUPABASE_URL;
-
     const supabaseServiceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
-
     const paystackSecretKey = import.meta.env.PAYSTACK_SECRET_KEY;
 
     if (!supabaseUrl || !supabaseServiceRoleKey || !paystackSecretKey) {
@@ -190,8 +215,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    /* Acknowledge Paystack events we do not currently process. */
-    if (webhookEvent.event !== "charge.success") {
+    /* Acknowledge events unrelated to successful charges and refunds. */
+    if (
+      webhookEvent.event !== "charge.success" &&
+      !isPaystackRefundEvent(webhookEvent.event)
+    ) {
       return jsonResponse({
         received: true,
         processed: false,
@@ -200,7 +228,399 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const transaction = webhookEvent.data;
+    /* Create a trusted server-side Supabase client. */
+    const supabase = createClient<Database>(
+      supabaseUrl,
+      supabaseServiceRoleKey,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
+    );
+
+    /*
+     * ==================================
+     * PAYSTACK REFUND WORKFLOW
+     * ==================================
+     */
+    if (isPaystackRefundEvent(webhookEvent.event)) {
+      const refundData = webhookEvent.data as PaystackRefundData;
+
+      const transactionReference = refundData.transaction_reference?.trim();
+
+      if (!transactionReference) {
+        console.error(
+          "Paystack refund webhook has no original transaction reference.",
+          {
+            event: webhookEvent.event,
+          }
+        );
+
+        return jsonResponse(
+          {
+            received: false,
+            processed: false,
+            message: "The refund event has no transaction reference.",
+          },
+          400
+        );
+      }
+
+      /* Convert Paystack's refund amount from subunits into major currency units. */
+      const refundedAmount = Number(refundData.amount) / 100;
+
+      if (!Number.isFinite(refundedAmount) || refundedAmount <= 0) {
+        console.error("Paystack refund webhook contains an invalid amount.", {
+          event: webhookEvent.event,
+          amount: refundData.amount,
+        });
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            message: "The refund amount is invalid.",
+          },
+          400
+        );
+      }
+
+      /* Load the Finance transaction belonging to the original Paystack payment. */
+      const { data: originalTransaction, error: originalTransactionError } =
+        await supabase
+          .from("financial_transactions")
+          .select(
+            `
+          id,
+          amount,
+          refunded_amount,
+          currency,
+          status,
+          provider_reference,
+          source_table,
+          source_id
+          `
+          )
+          .eq("provider_reference", transactionReference)
+          .maybeSingle();
+
+      if (originalTransactionError) {
+        console.error(
+          "Paystack refund original transaction lookup failed:",
+          originalTransactionError
+        );
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            message: "The original Finance transaction could not be loaded.",
+          },
+          500
+        );
+      }
+
+      if (!originalTransaction) {
+        console.warn(
+          "No Finance transaction matched Paystack refund:",
+          transactionReference
+        );
+
+        return jsonResponse({
+          received: true,
+          processed: false,
+          event: webhookEvent.event,
+          transactionReference,
+          message: "No matching Finance transaction was found.",
+        });
+      }
+
+      /* Load the currently active local refund for this Finance transaction. */
+      const { data: refundRecord, error: refundRecordError } = await supabase
+        .from("finance_refunds")
+        .select("*")
+        .eq("original_transaction_id", originalTransaction.id)
+        .in("status", ["requested", "approved", "processing"])
+        .order("created_at", {
+          ascending: false,
+        })
+        .limit(1)
+        .maybeSingle();
+
+      if (refundRecordError) {
+        console.error(
+          "Paystack refund record lookup failed:",
+          refundRecordError
+        );
+
+        return jsonResponse(
+          {
+            received: true,
+            processed: false,
+            transactionReference,
+            message: "The local refund record could not be loaded.",
+          },
+          500
+        );
+      }
+
+      /*
+       * A duplicate refund.processed webhook may arrive after the local
+       * refund has already moved from processing to successful.
+       */
+      let resolvedRefundRecord = refundRecord;
+
+      if (!resolvedRefundRecord) {
+        const { data: existingCompletedRefund, error: completedRefundError } =
+          await supabase
+            .from("finance_refunds")
+            .select("*")
+            .eq("original_transaction_id", originalTransaction.id)
+            .eq("refunded_amount", refundedAmount)
+            .order("created_at", {
+              ascending: false,
+            })
+            .limit(1)
+            .maybeSingle();
+
+        if (completedRefundError) {
+          throw completedRefundError;
+        }
+
+        resolvedRefundRecord = existingCompletedRefund;
+      }
+
+      if (!resolvedRefundRecord) {
+        console.warn("No local Finance refund matched Paystack event:", {
+          event: webhookEvent.event,
+          transactionReference,
+        });
+
+        return jsonResponse({
+          received: true,
+          processed: false,
+          transactionReference,
+          message: "No matching local refund request was found.",
+        });
+      }
+
+      /* Preserve Paystack's refund reference when one is supplied. */
+      const providerRefundReference =
+        refundData.refund_reference ||
+        resolvedRefundRecord.provider_refund_reference;
+
+      /*
+       * Paystack pending, processing and needs-attention events all remain
+       * locally in the processing state.
+       */
+      if (
+        webhookEvent.event === "refund.pending" ||
+        webhookEvent.event === "refund.processing" ||
+        webhookEvent.event === "refund.needs-attention"
+      ) {
+        const { error: processingUpdateError } = await supabase
+          .from("finance_refunds")
+          .update({
+            status: "processing",
+            provider_refund_reference: providerRefundReference,
+            provider_payload: refundData as unknown as Json,
+            metadata: {
+              ...normalizeMetadata(resolvedRefundRecord.metadata ?? null),
+              paystack_refund_event: webhookEvent.event,
+              paystack_refund_status: refundData.status,
+              needs_attention: webhookEvent.event === "refund.needs-attention",
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", resolvedRefundRecord.id);
+
+        if (processingUpdateError) {
+          throw processingUpdateError;
+        }
+
+        return jsonResponse({
+          received: true,
+          processed: true,
+          paymentType: "refund",
+          refundId: resolvedRefundRecord.id,
+          refundStatus: "processing",
+          event: webhookEvent.event,
+          transactionReference,
+          message:
+            webhookEvent.event === "refund.needs-attention"
+              ? "The refund requires customer bank details before Paystack can continue."
+              : "The refund is still being processed.",
+        });
+      }
+
+      /* Record a failed refund without changing the original Revenue transaction. */
+      if (webhookEvent.event === "refund.failed") {
+        const { error: failedUpdateError } = await supabase
+          .from("finance_refunds")
+          .update({
+            status: "failed",
+            failed_at: new Date().toISOString(),
+            provider_refund_reference: providerRefundReference,
+            provider_payload: refundData as unknown as Json,
+            metadata: {
+              ...normalizeMetadata(resolvedRefundRecord.metadata ?? null),
+              paystack_refund_event: webhookEvent.event,
+              paystack_refund_status: refundData.status,
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", resolvedRefundRecord.id);
+
+        if (failedUpdateError) {
+          throw failedUpdateError;
+        }
+
+        return jsonResponse({
+          received: true,
+          processed: true,
+          paymentType: "refund",
+          refundId: resolvedRefundRecord.id,
+          refundStatus: "failed",
+          transactionReference,
+          message:
+            "Paystack reported that the refund failed. Revenue was not changed.",
+        });
+      }
+
+      /*
+       * refund.processed is the authoritative confirmation that Paystack
+       * successfully processed the refund.
+       */
+      if (webhookEvent.event === "refund.processed") {
+        /*
+         * If this exact refund was already finalized, acknowledge the duplicate
+         * without applying any financial changes again.
+         */
+        if (resolvedRefundRecord.status === "successful") {
+          return jsonResponse({
+            received: true,
+            processed: true,
+            alreadyProcessed: true,
+            paymentType: "refund",
+            refundId: resolvedRefundRecord.id,
+            refundStatus: "successful",
+            transactionReference,
+            message: "The refund was already processed.",
+          });
+        }
+
+        const processedAt = new Date().toISOString();
+
+        /* Mark the local refund as successfully processed. */
+        const { error: successfulRefundError } = await supabase
+          .from("finance_refunds")
+          .update({
+            status: "successful",
+            refunded_amount: refundedAmount,
+            approved_amount: refundedAmount,
+            processed_at: processedAt,
+            provider_refund_reference: providerRefundReference,
+            provider_payload: refundData as unknown as Json,
+            metadata: {
+              ...normalizeMetadata(resolvedRefundRecord.metadata ?? null),
+              paystack_refund_event: webhookEvent.event,
+              paystack_refund_status: refundData.status,
+            },
+            updated_at: processedAt,
+          })
+          .eq("id", resolvedRefundRecord.id);
+
+        if (successfulRefundError) {
+          throw successfulRefundError;
+        }
+
+        /*
+         * Recalculate the total from all successful refunds instead of
+         * incrementing refunded_amount directly. This keeps duplicate webhook
+         * deliveries from increasing the refunded total twice.
+         */
+        const { data: successfulRefunds, error: successfulRefundsError } =
+          await supabase
+            .from("finance_refunds")
+            .select("refunded_amount")
+            .eq("original_transaction_id", originalTransaction.id)
+            .eq("status", "successful");
+
+        if (successfulRefundsError) {
+          throw successfulRefundsError;
+        }
+
+        const totalRefunded = Number(
+          (successfulRefunds ?? [])
+            .reduce(
+              (total, refund) => total + Number(refund.refunded_amount ?? 0),
+              0
+            )
+            .toFixed(2)
+        );
+
+        const originalAmount = Number(originalTransaction.amount);
+
+        /*
+         * Never allow the Finance transaction's refunded amount to exceed
+         * the original recognized Revenue amount.
+         */
+        const normalizedRefundTotal = Math.min(totalRefunded, originalAmount);
+
+        const transactionStatus =
+          normalizedRefundTotal >= originalAmount
+            ? "refunded"
+            : "partially_refunded";
+
+        /* Apply the confirmed refund to the original Finance transaction. */
+        const { error: financeTransactionUpdateError } = await supabase
+          .from("financial_transactions")
+          .update({
+            refunded_amount: normalizedRefundTotal,
+            status: transactionStatus,
+            updated_at: processedAt,
+          })
+          .eq("id", originalTransaction.id);
+
+        if (financeTransactionUpdateError) {
+          throw financeTransactionUpdateError;
+        }
+
+        return jsonResponse({
+          received: true,
+          processed: true,
+          paymentType: "refund",
+          refundId: resolvedRefundRecord.id,
+          refundStatus: "successful",
+          transactionId: originalTransaction.id,
+          transactionStatus,
+          transactionReference,
+          refundedAmount,
+          totalRefunded: normalizedRefundTotal,
+          currency: refundData.currency,
+          message:
+            transactionStatus === "refunded"
+              ? "The Paystack refund was completed and the Finance transaction is fully refunded."
+              : "The Paystack refund was completed and the Finance transaction is partially refunded.",
+        });
+      }
+
+      return jsonResponse({
+        received: true,
+        processed: false,
+        paymentType: "refund",
+        event: webhookEvent.event,
+        message: "The refund event was acknowledged.",
+      });
+    }
+
+    /*
+     * From this point onward we are processing charge.success,
+     * so the event data can safely be treated as charge data.
+     */
+    const transaction = webhookEvent.data as PaystackChargeData;
 
     if (!transaction.reference?.trim()) {
       console.error(
@@ -215,18 +635,6 @@ export const POST: APIRoute = async ({ request }) => {
         400
       );
     }
-
-    /* Create a trusted server-side Supabase client. */
-    const supabase = createClient<Database>(
-      supabaseUrl,
-      supabaseServiceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        },
-      }
-    );
 
     /* Determines whether a Paystack transaction belongs to an Invoice. */
     async function isInvoicePayment(
@@ -331,8 +739,8 @@ export const POST: APIRoute = async ({ request }) => {
       }
 
       /*
-       * Underpayments should remain unsettled.
-       * Matched and overpaid payments have fully covered the program fee.
+       * Underpayments remain unsettled while matched and overpaid payments
+       * have covered the Academy program fee.
        */
       const financeStatus =
         reconciliationStatus === "underpaid" ? "processing" : "paid";
@@ -341,8 +749,8 @@ export const POST: APIRoute = async ({ request }) => {
         reconciliationStatus === "matched" ? "reconciled" : "disputed";
 
       /*
-       * Overpayments recognize only the actual program fee as Revenue.
-       * external_amount preserves the full amount received.
+       * For an overpayment, recognize only the expected Academy fee.
+       * external_amount preserves the full amount received from Paystack.
        */
       const recognizedRevenue =
         reconciliationStatus === "overpaid" ? amountExpected : amountPaid;
@@ -407,8 +815,8 @@ export const POST: APIRoute = async ({ request }) => {
 
       if (financeTransactionError) {
         /*
-         * Another webhook may have inserted the same unique
-         * internal reference at almost the same time.
+         * Another webhook may have inserted the same unique internal
+         * reference before this request completed.
          */
         if (financeTransactionError.code === "23505") {
           const { data: existingAfterConflict, error: conflictLookupError } =
@@ -683,8 +1091,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     /*
-     * If the callback already marked this payment paid,
-     * still make sure the Finance ledger contains the transaction.
+     * If callback verification processed the registration first,
+     * still ensure that the central Finance ledger contains the payment.
      */
     if (registration.payment_status === "paid") {
       const storedAmountPaid = Number(registration.amount_paid ?? 0);
@@ -878,10 +1286,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    /* Calculate amount difference. */
+    /* Calculate the exact difference between expected and received amounts. */
     const paymentDifference = Number((amountPaid - amountExpected).toFixed(2));
 
-    /* Classify reconciliation. */
+    /* Classify the Academy payment reconciliation result. */
     const reconciliationStatus =
       paymentDifference === 0
         ? "matched"
@@ -890,15 +1298,15 @@ export const POST: APIRoute = async ({ request }) => {
           : "overpaid";
 
     /*
-     * Underpayments remain pending.
-     * Matched and overpaid registrations may be confirmed.
+     * Underpayments remain pending while matched and overpaid payments
+     * may confirm the Academy registration.
      */
     const registrationStatus =
       reconciliationStatus === "underpaid" ? "pending" : "confirmed";
 
     const paidAt = transaction.paid_at ?? new Date().toISOString();
 
-    /* Update the Academy registration with the trusted payment result. */
+    /* Update the Academy registration using the trusted Paystack result. */
     const { data: updatedRegistration, error: updateError } = await supabase
       .from("academy_registrations")
       .update({
@@ -962,8 +1370,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     /*
-     * A callback verification may have updated the row first.
-     * If so, load the latest state and still ensure Finance is populated.
+     * Callback verification may have updated the registration first.
+     * Load its current state and still ensure Finance is populated.
      */
     if (!updatedRegistration) {
       const { data: latestRegistration, error: latestRegistrationError } =
@@ -1048,7 +1456,7 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    /* Record the Academy payment in the central Finance ledger. */
+    /* Record the successfully processed Academy payment in central Finance. */
     await ensureAcademyFinanceTransaction({
       registrationId: updatedRegistration.id,
       paymentReference: transaction.reference,
@@ -1066,7 +1474,7 @@ export const POST: APIRoute = async ({ request }) => {
       providerPayload: transaction,
     });
 
-    /* Build the final webhook message. */
+    /* Build the final Academy payment result message. */
     const processingMessage =
       reconciliationStatus === "matched"
         ? "Academy payment confirmed, reconciled, and recorded in Finance."
@@ -1074,13 +1482,13 @@ export const POST: APIRoute = async ({ request }) => {
           ? "Academy payment confirmed and recorded in Finance. An overpayment was detected."
           : "Academy payment received and recorded as unresolved Finance income because an underpayment was detected.";
 
-    /* Return the final trusted result. */
+    /* Return the final trusted Academy payment result. */
     return jsonResponse({
       received: true,
       processed: true,
       registrationId: updatedRegistration.id,
       programId: updatedRegistration.program_id,
-      reference: updatedRegistration.payment_reference,
+      reference: transaction.reference,
       paymentStatus: updatedRegistration.payment_status,
       registrationStatus: updatedRegistration.registration_status,
       reconciliationStatus: updatedRegistration.payment_reconciliation_status,
