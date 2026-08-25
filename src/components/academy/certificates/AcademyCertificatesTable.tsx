@@ -835,6 +835,33 @@ export default function AcademyCertificatesTable() {
     }));
   }
 
+  /* Returns the number of successful certificate email deliveries stored in metadata. */
+  /* Returns the number of successful certificate email deliveries stored in metadata. */
+  function getCertificateEmailSendCount(certificate: AcademyCertificateRecord) {
+    const metadata = certificate.metadata;
+
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+      return 0;
+    }
+
+    const typedMetadata = metadata as Record<string, unknown>;
+    const emailDelivery = typedMetadata.email_delivery;
+
+    if (
+      !emailDelivery ||
+      typeof emailDelivery !== "object" ||
+      Array.isArray(emailDelivery)
+    ) {
+      return 0;
+    }
+
+    const typedEmailDelivery = emailDelivery as Record<string, unknown>;
+
+    const sendCount = Number(typedEmailDelivery.send_count ?? 0);
+
+    return Number.isFinite(sendCount) ? sendCount : 0;
+  }
+
   /**
    * Open the certificate-generation modal with fresh values.
    */
@@ -877,8 +904,15 @@ export default function AcademyCertificatesTable() {
       return;
     }
 
+    /* Determine whether this certificate has already been emailed successfully. */
+    const emailSendCount = getCertificateEmailSendCount(certificate);
+
+    const hasBeenEmailed = emailSendCount > 0;
+
     const confirmed = window.confirm(
-      `Send certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
+      hasBeenEmailed
+        ? `Resend certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
+        : `Send certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
     );
 
     if (!confirmed) {
@@ -922,6 +956,8 @@ export default function AcademyCertificatesTable() {
         message?: string;
         emailId?: string | null;
         recipient?: string;
+        sendCount?: number;
+        sentAt?: string;
       };
 
       // Surface any API or Resend failure to the administrator.
@@ -930,6 +966,39 @@ export default function AcademyCertificatesTable() {
           result.message || "The certificate email could not be sent."
         );
       }
+
+      /* Update local delivery metadata so the table reflects the send immediately. */
+      const currentMetadata =
+        certificate.metadata &&
+        typeof certificate.metadata === "object" &&
+        !Array.isArray(certificate.metadata)
+          ? (certificate.metadata as Record<string, unknown>)
+          : {};
+
+      const currentEmailDelivery =
+        currentMetadata.email_delivery &&
+        typeof currentMetadata.email_delivery === "object" &&
+        !Array.isArray(currentMetadata.email_delivery)
+          ? (currentMetadata.email_delivery as Record<string, unknown>)
+          : {};
+
+      const updatedCertificate: AcademyCertificateRecord = {
+        ...certificate,
+        metadata: {
+          ...currentMetadata,
+          email_delivery: {
+            ...currentEmailDelivery,
+            status: "sent",
+            recipient: result.recipient ?? null,
+            resend_email_id: result.emailId ?? null,
+            sent_at: result.sentAt ?? new Date().toISOString(),
+            send_count: result.sendCount ?? emailSendCount + 1,
+          },
+        },
+        updated_at: new Date().toISOString(),
+      };
+
+      replaceCertificate(updatedCertificate);
 
       toast.success(result.message || "Certificate sent successfully.");
     } catch (error) {

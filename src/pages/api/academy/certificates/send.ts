@@ -607,12 +607,18 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    /* Return the updated delivery information to the admin interface. */
     return jsonResponse({
       success: true,
-      message: `Certificate sent successfully to ${recipientEmail}.`,
+      message:
+        sendCount > 1
+          ? `Certificate resent successfully to ${recipientEmail}.`
+          : `Certificate sent successfully to ${recipientEmail}.`,
       certificateId: certificate.id,
       emailId: emailResult?.id ?? null,
       recipient: recipientEmail,
+      sendCount,
+      sentAt,
     });
   } catch (error) {
     console.error("Unexpected certificate email error:", error);
