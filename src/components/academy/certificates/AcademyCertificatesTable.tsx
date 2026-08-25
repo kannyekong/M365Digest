@@ -5,7 +5,7 @@ import {
   ArrowRight,
   ArrowUp,
   Award,
-  CalendarDays,
+  Mail,
   CheckCircle2,
   ChevronDown,
   Download,
@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
+import { supabase } from "../../../lib/superbase";
 import { toast } from "react-toastify";
 import {
   createAcademyCertificate,
@@ -512,6 +513,11 @@ export default function AcademyCertificatesTable() {
     []
   );
 
+  /* Tracks the certificate currently being emailed to prevent duplicate requests. */
+  const [sendingCertificateId, setSendingCertificateId] = useState<
+    string | null
+  >(null);
+
   // Store the certificate ID whose PDF is currently being generated.
   const [generatingPdfId, setGeneratingPdfId] = useState<string | null>(null);
 
@@ -848,6 +854,96 @@ export default function AcademyCertificatesTable() {
     setGenerationModalOpen(true);
   }
 
+  /* Sends an existing generated certificate to the learner by email. */
+  async function handleSendCertificateEmail(
+    certificate: AcademyCertificateRecord
+  ) {
+    // Prevent concurrent certificate email requests.
+    if (sendingCertificateId) {
+      return;
+    }
+
+    // Revoked certificates must never be distributed.
+    if (certificate.status === "revoked") {
+      toast.error("A revoked certificate cannot be emailed.");
+      return;
+    }
+
+    // Require the PDF to exist before allowing certificate delivery.
+    if (!certificate.file_url) {
+      toast.error(
+        "Generate the certificate PDF before sending it to the learner."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Send certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setSendingCertificateId(certificate.id);
+
+    try {
+      // Retrieve the current administrator session for the protected API request.
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      if (!session?.access_token) {
+        throw new Error(
+          "Your session has expired. Sign in again before sending the certificate."
+        );
+      }
+
+      // Ask the trusted server endpoint to deliver this certificate.
+      const response = await fetch("/api/academy/certificates/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          certificateId: certificate.id,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        success?: boolean;
+        message?: string;
+        emailId?: string | null;
+        recipient?: string;
+      };
+
+      // Surface any API or Resend failure to the administrator.
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "The certificate email could not be sent."
+        );
+      }
+
+      toast.success(result.message || "Certificate sent successfully.");
+    } catch (error) {
+      console.error("Failed to send certificate email:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "The certificate email could not be sent."
+      );
+    } finally {
+      setSendingCertificateId(null);
+    }
+  }
   /**
    * Close the certificate-generation modal and reset its form.
    */
@@ -1904,17 +2000,17 @@ export default function AcademyCertificatesTable() {
                     className="transition hover:bg-slate-50"
                   >
                     <td className="px-5 py-4">
-                      <p className="font-semibold text-slate-900">
+                      <p className="font-semibold text-sm text-slate-900">
                         {certificate.recipient_name}
                       </p>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500">
                         {certificate.registration?.email ?? "No learner email"}
                       </p>
                     </td>
 
                     <td className="px-5 py-4">
-                      <p className="max-w-[240px] font-medium text-slate-800">
+                      <p className="max-w-[240px] text-xs text-slate-800">
                         {certificate.program_title}
                       </p>
 
@@ -1926,7 +2022,7 @@ export default function AcademyCertificatesTable() {
                     </td>
 
                     <td className="px-5 py-4">
-                      <p className="max-w-[220px] break-all font-semibold text-slate-900">
+                      <p className="max-w-[220px] break-all text-xs font-semibold text-slate-900">
                         {certificate.certificate_number}
                       </p>
 
@@ -1972,7 +2068,7 @@ export default function AcademyCertificatesTable() {
                             generatingPdfId === certificate.id ||
                             certificate.status === "revoked"
                           }
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-blue-200 text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-blue-200 text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label={`${
                             certificate.file_url ? "Regenerate" : "Generate"
                           } PDF for ${certificate.recipient_name}`}
@@ -1988,7 +2084,7 @@ export default function AcademyCertificatesTable() {
                             href={certificate.file_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-600 transition hover:bg-slate-50 hover:text-primary"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-300 text-slate-600 transition hover:bg-slate-50 hover:text-primary"
                             aria-label={`Open certificate for ${certificate.recipient_name}`}
                           >
                             <Download className="h-4 w-4" />
@@ -1998,9 +2094,35 @@ export default function AcademyCertificatesTable() {
                         <button
                           type="button"
                           onClick={() => {
+                            void handleSendCertificateEmail(certificate);
+                          }}
+                          disabled={
+                            sendingCertificateId === certificate.id ||
+                            generatingPdfId === certificate.id ||
+                            certificate.status === "revoked" ||
+                            !certificate.file_url
+                          }
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-200 text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label={`Send certificate to ${certificate.recipient_name}`}
+                          title={
+                            certificate.file_url
+                              ? `Send certificate to ${certificate.recipient_name}`
+                              : "Generate the certificate PDF before sending"
+                          }
+                        >
+                          {sendingCertificateId === certificate.id ? (
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Mail className="h-4 w-4" />
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
                             setSelectedCertificate(certificate);
                           }}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-600 transition hover:bg-slate-50 hover:text-primary"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-300 text-slate-600 transition hover:bg-slate-50 hover:text-primary"
                           aria-label={`View certificate for ${certificate.recipient_name}`}
                         >
                           <Eye className="h-4 w-4" />
@@ -2012,7 +2134,7 @@ export default function AcademyCertificatesTable() {
                             void handleDeleteCertificate(certificate);
                           }}
                           disabled={deletingCertificateId === certificate.id}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex h-8 w-8 border border-red-300 items-center justify-center rounded-xl text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                           aria-label={`Delete certificate for ${certificate.recipient_name}`}
                         >
                           {deletingCertificateId === certificate.id ? (
@@ -3027,7 +3149,7 @@ export default function AcademyCertificatesTable() {
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                Delete test certificate
+                Delete certificate
               </button>
 
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -3040,7 +3162,7 @@ export default function AcademyCertificatesTable() {
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   <ShieldCheck className="h-4 w-4" />
-                  Test verification
+                  Verify Certificate{" "}
                 </a>
 
                 <button

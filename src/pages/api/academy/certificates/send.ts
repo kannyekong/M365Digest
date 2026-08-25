@@ -89,14 +89,33 @@ export const POST: APIRoute = async ({ request }) => {
     const siteUrl =
       import.meta.env.PUBLIC_SITE_URL ?? new URL(request.url).origin;
 
-    if (
-      !supabaseUrl ||
-      !supabaseAnonKey ||
-      !supabaseServiceRoleKey ||
-      !resendApiKey
-    ) {
+    // if (
+    //   !supabaseUrl ||
+    //   !supabaseAnonKey ||
+    //   !supabaseServiceRoleKey ||
+    //   !resendApiKey
+    // ) {
+    //   throw new Error(
+    //     "Certificate email environment variables are incomplete."
+    //   );
+    // }
+
+    /* Verify all server configuration required for certificate delivery. */
+    const missingEnvironmentVariables = [
+      !supabaseUrl && "SUPABASE_URL",
+      !supabaseAnonKey && "PUBLIC_SUPABASE_ANON_KEY",
+      !supabaseServiceRoleKey && "SUPABASE_SERVICE_ROLE_KEY",
+      !resendApiKey && "RESEND_API_KEY",
+    ].filter(Boolean);
+
+    if (missingEnvironmentVariables.length > 0) {
+      console.error(
+        "Certificate email environment variables are incomplete:",
+        missingEnvironmentVariables
+      );
+
       throw new Error(
-        "Certificate email environment variables are incomplete."
+        `Missing environment variables: ${missingEnvironmentVariables.join(", ")}`
       );
     }
 
