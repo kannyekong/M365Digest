@@ -21,6 +21,7 @@ import {
   UserCheck,
   X,
   XCircle,
+  MailCheck,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
@@ -46,6 +47,7 @@ import {
 } from "../../../lib/academyCertificates";
 import type { AcademyCertificateStatus } from "../../../types/academy";
 import AcademyModuleNav from "../../admin/academy/AcademyModuleNav";
+import ConfirmModal from "../../../islands/ConfirmModal";
 
 /**
  * Program option displayed inside certificate filters.
@@ -512,6 +514,9 @@ export default function AcademyCertificatesTable() {
   const [certificates, setCertificates] = useState<AcademyCertificateRecord[]>(
     []
   );
+
+  const [certificatePendingEmail, setCertificatePendingEmail] =
+    useState<AcademyCertificateRecord | null>(null);
 
   /* Tracks the certificate currently being emailed to prevent duplicate requests. */
   const [sendingCertificateId, setSendingCertificateId] = useState<
@@ -2163,7 +2168,7 @@ export default function AcademyCertificatesTable() {
                         <button
                           type="button"
                           onClick={() => {
-                            void handleSendCertificateEmail(certificate);
+                            setCertificatePendingEmail(certificate);
                           }}
                           disabled={
                             sendingCertificateId === certificate.id ||
@@ -2181,6 +2186,8 @@ export default function AcademyCertificatesTable() {
                         >
                           {sendingCertificateId === certificate.id ? (
                             <LoaderCircle className="h-4 w-4 animate-spin" />
+                          ) : getCertificateEmailSendCount(certificate) > 0 ? (
+                            <MailCheck className="h-4 w-4" />
                           ) : (
                             <Mail className="h-4 w-4" />
                           )}
@@ -3252,6 +3259,45 @@ export default function AcademyCertificatesTable() {
           </div>
         </div>
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(certificatePendingEmail)}
+        title={
+          certificatePendingEmail &&
+          getCertificateEmailSendCount(certificatePendingEmail) > 0
+            ? "Resend Certificate?"
+            : "Send Certificate?"
+        }
+        message={
+          certificatePendingEmail
+            ? `Send certificate ${certificatePendingEmail.certificate_number} to ${certificatePendingEmail.recipient_name}?`
+            : ""
+        }
+        confirmText={
+          certificatePendingEmail &&
+          getCertificateEmailSendCount(certificatePendingEmail) > 0
+            ? "Resend"
+            : "Send"
+        }
+        variant="primary"
+        loading={
+          certificatePendingEmail
+            ? sendingCertificateId === certificatePendingEmail.id
+            : false
+        }
+        onCancel={() => {
+          setCertificatePendingEmail(null);
+        }}
+        onConfirm={() => {
+          if (!certificatePendingEmail) {
+            return;
+          }
+
+          void handleSendCertificateEmail(certificatePendingEmail);
+
+          setCertificatePendingEmail(null);
+        }}
+      />
     </div>
   );
 }
