@@ -557,8 +557,9 @@ export const POST: APIRoute = async ({ request }) => {
         .from("academy_certificates")
         .update({
           metadata: {
-            ...normalizeMetadata(certificate.metadata),
+            ...certificateMetadata,
             email_delivery: {
+              ...previousEmailDelivery,
               status: "failed",
               recipient: recipientEmail,
               failed_at: new Date().toISOString(),
