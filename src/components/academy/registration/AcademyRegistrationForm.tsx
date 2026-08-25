@@ -303,14 +303,15 @@ export default function AcademyRegistrationForm({
         ) : null}
         {errorMessage ? toast.error(errorMessage) : null}
         <ToastContainer
-          position="top-center"
+          position="top-right"
           autoClose={5000}
           newestOnTop
           closeOnClick
           pauseOnHover
           draggable
           toastClassName={(context) => {
-            const baseClasses = "!rounded-xl !text-white !shadow-lg";
+            const baseClasses =
+              "!min-h-[88px] !px-5 !py-4 !rounded-2xl !text-white !shadow-lg !items-center";
 
             switch (context?.type) {
               case "success":
