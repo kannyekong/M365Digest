@@ -487,11 +487,11 @@ function CertificateMetricCard({ metric }: { metric: CertificateMetric }) {
   const Icon = metric.icon;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
       <div
-        className={`flex h-11 w-11 items-center justify-center rounded-2xl ${metric.iconClasses}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-xl ${metric.iconClasses}`}
       >
-        <Icon size={21} />
+        <Icon size={18} />
       </div>
 
       <p className="mt-4 text-2xl font-bold text-slate-950">{metric.value}</p>
@@ -514,6 +514,25 @@ export default function AcademyCertificatesTable() {
   const [certificates, setCertificates] = useState<AcademyCertificateRecord[]>(
     []
   );
+
+  /* Stores the certificate awaiting restoration confirmation. */
+  const [certificatePendingRestore, setCertificatePendingRestore] =
+    useState<AcademyCertificateRecord | null>(null);
+
+  /* Stores the certificate awaiting revocation confirmation. */
+  const [certificatePendingRevoke, setCertificatePendingRevoke] =
+    useState<AcademyCertificateRecord | null>(null);
+
+  /* Tracks whether a certificate restoration request is currently running. */
+  const [restoringCertificate, setRestoringCertificate] = useState(false);
+
+  /* Stores the certificate awaiting PDF generation confirmation. */
+  const [certificatePendingPdf, setCertificatePendingPdf] =
+    useState<AcademyCertificateRecord | null>(null);
+
+  /* Stores the certificate awaiting deletion confirmation. */
+  const [certificatePendingDelete, setCertificatePendingDelete] =
+    useState<AcademyCertificateRecord | null>(null);
 
   const [certificatePendingEmail, setCertificatePendingEmail] =
     useState<AcademyCertificateRecord | null>(null);
@@ -911,18 +930,6 @@ export default function AcademyCertificatesTable() {
 
     /* Determine whether this certificate has already been emailed successfully. */
     const emailSendCount = getCertificateEmailSendCount(certificate);
-
-    const hasBeenEmailed = emailSendCount > 0;
-
-    const confirmed = window.confirm(
-      hasBeenEmailed
-        ? `Resend certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
-        : `Send certificate ${certificate.certificate_number} to ${certificate.recipient_name}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
 
     setSendingCertificateId(certificate.id);
 
@@ -1416,26 +1423,11 @@ export default function AcademyCertificatesTable() {
     if (generatingPdfId) {
       return;
     }
-
     // Prevent a revoked certificate from receiving a new PDF.
     if (certificate.status === "revoked") {
       toast.error("A revoked certificate cannot be regenerated.");
-
       return;
     }
-
-    const actionLabel = certificate.file_url ? "regenerate" : "generate";
-
-    const confirmed = window.confirm(
-      `${
-        actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)
-      } the PDF for certificate ${certificate.certificate_number}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setGeneratingPdfId(certificate.id);
 
     try {
@@ -1511,14 +1503,6 @@ export default function AcademyCertificatesTable() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Revoke certificate ${selectedCertificate.certificate_number}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setUpdatingCertificateId(selectedCertificate.id);
 
     try {
@@ -1559,16 +1543,9 @@ export default function AcademyCertificatesTable() {
   /**
    * Restore a previously revoked certificate.
    */
+  /* Restores the currently selected revoked Academy certificate. */
   async function handleRestoreCertificate() {
     if (!selectedCertificate || updatingCertificateId) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Restore certificate ${selectedCertificate.certificate_number}?`
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -1589,15 +1566,16 @@ export default function AcademyCertificatesTable() {
 
         return {
           ...currentStatistics,
-
           generatedCertificates: currentStatistics.generatedCertificates + 1,
-
           revokedCertificates: Math.max(
             0,
             currentStatistics.revokedCertificates - 1
           ),
         };
       });
+
+      /* Close the confirmation modal after a successful restoration. */
+      setCertificatePendingRestore(null);
 
       toast.success("Certificate restored.");
     } catch (error) {
@@ -1616,14 +1594,6 @@ export default function AcademyCertificatesTable() {
     certificate: AcademyCertificateRecord
   ) {
     if (deletingCertificateId) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Delete certificate ${certificate.certificate_number}? Production certificates should normally be revoked instead.`
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -2136,7 +2106,7 @@ export default function AcademyCertificatesTable() {
                         <button
                           type="button"
                           onClick={() => {
-                            void handleGenerateCertificatePdf(certificate);
+                            setCertificatePendingPdf(certificate);
                           }}
                           disabled={
                             generatingPdfId === certificate.id ||
@@ -2207,7 +2177,7 @@ export default function AcademyCertificatesTable() {
                         <button
                           type="button"
                           onClick={() => {
-                            void handleDeleteCertificate(certificate);
+                            setCertificatePendingDelete(certificate);
                           }}
                           disabled={deletingCertificateId === certificate.id}
                           className="inline-flex h-8 w-8 border border-red-300 items-center justify-center rounded-xl text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -3141,7 +3111,11 @@ export default function AcademyCertificatesTable() {
                       <button
                         type="button"
                         onClick={() => {
-                          void handleRevokeCertificate();
+                          if (!selectedCertificate) {
+                            return;
+                          }
+
+                          setCertificatePendingRevoke(selectedCertificate);
                         }}
                         disabled={
                           updatingCertificateId === selectedCertificate.id
@@ -3188,7 +3162,11 @@ export default function AcademyCertificatesTable() {
                       <button
                         type="button"
                         onClick={() => {
-                          void handleRestoreCertificate();
+                          if (!selectedCertificate) {
+                            return;
+                          }
+
+                          setCertificatePendingRestore(selectedCertificate);
                         }}
                         disabled={
                           updatingCertificateId === selectedCertificate.id
@@ -3296,6 +3274,142 @@ export default function AcademyCertificatesTable() {
           void handleSendCertificateEmail(certificatePendingEmail);
 
           setCertificatePendingEmail(null);
+        }}
+      />
+
+      <ConfirmModal
+        open={Boolean(certificatePendingDelete)}
+        title="Delete Certificate?"
+        message={
+          certificatePendingDelete
+            ? `Delete certificate ${certificatePendingDelete.certificate_number}? Production certificates should normally be revoked instead.`
+            : ""
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        loading={
+          certificatePendingDelete
+            ? deletingCertificateId === certificatePendingDelete.id
+            : false
+        }
+        onCancel={() => {
+          if (deletingCertificateId) {
+            return;
+          }
+
+          setCertificatePendingDelete(null);
+        }}
+        onConfirm={() => {
+          if (!certificatePendingDelete) {
+            return;
+          }
+
+          void handleDeleteCertificate(certificatePendingDelete);
+        }}
+      />
+
+      <ConfirmModal
+        open={Boolean(certificatePendingPdf)}
+        title={
+          certificatePendingPdf?.file_url
+            ? "Regenerate Certificate PDF?"
+            : "Generate Certificate PDF?"
+        }
+        message={
+          certificatePendingPdf
+            ? certificatePendingPdf.file_url
+              ? `Regenerate the PDF for certificate ${certificatePendingPdf.certificate_number}? The existing certificate PDF will be replaced.`
+              : `Generate the PDF for certificate ${certificatePendingPdf.certificate_number}?`
+            : ""
+        }
+        confirmText={
+          certificatePendingPdf?.file_url ? "Regenerate" : "Generate"
+        }
+        cancelText="Cancel"
+        variant="primary"
+        loading={
+          certificatePendingPdf
+            ? generatingPdfId === certificatePendingPdf.id
+            : false
+        }
+        onCancel={() => {
+          if (generatingPdfId) {
+            return;
+          }
+
+          setCertificatePendingPdf(null);
+        }}
+        onConfirm={() => {
+          if (!certificatePendingPdf) {
+            return;
+          }
+
+          void handleGenerateCertificatePdf(certificatePendingPdf);
+        }}
+      />
+
+      <ConfirmModal
+        open={Boolean(certificatePendingRestore)}
+        title="Restore Certificate?"
+        message={
+          certificatePendingRestore
+            ? `Restore certificate ${certificatePendingRestore.certificate_number}? The certificate will become active again.`
+            : ""
+        }
+        confirmText="Restore"
+        cancelText="Cancel"
+        variant="primary"
+        loading={
+          certificatePendingRestore
+            ? updatingCertificateId === certificatePendingRestore.id
+            : false
+        }
+        onCancel={() => {
+          if (updatingCertificateId) {
+            return;
+          }
+
+          setCertificatePendingRestore(null);
+        }}
+        onConfirm={() => {
+          if (!certificatePendingRestore) {
+            return;
+          }
+
+          void handleRestoreCertificate();
+        }}
+      />
+
+      <ConfirmModal
+        open={Boolean(certificatePendingRevoke)}
+        title="Revoke Certificate?"
+        message={
+          certificatePendingRevoke
+            ? `Revoke certificate ${certificatePendingRevoke.certificate_number}? The certificate will no longer be considered valid until it is restored.`
+            : ""
+        }
+        confirmText="Revoke"
+        cancelText="Cancel"
+        variant="danger"
+        loading={
+          certificatePendingRevoke
+            ? updatingCertificateId === certificatePendingRevoke.id
+            : false
+        }
+        onCancel={() => {
+          if (updatingCertificateId) {
+            return;
+          }
+
+          setCertificatePendingRevoke(null);
+        }}
+        onConfirm={() => {
+          if (!certificatePendingRevoke) {
+            return;
+          }
+
+          void handleRevokeCertificate();
         }}
       />
     </div>

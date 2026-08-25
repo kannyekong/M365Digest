@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@supabase/supabase-js";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Database, Json } from "../../../types/supabase";
+import { sendAcademyWelcomeEmail } from "../../../lib/email/senders/send-academy-welcome";
 
 export const prerender = false;
 
@@ -839,6 +840,224 @@ export const POST: APIRoute = async ({ request }) => {
       return financeTransaction;
     }
 
+    /* Sends the Academy welcome email once a registration has a completed payment. */
+    async function ensureAcademyWelcomeEmail({
+      registrationId,
+      firstName,
+      lastName,
+      email,
+      programTitle,
+      amountPaid,
+      currency,
+      paymentReference,
+      reconciliationStatus,
+    }: {
+      registrationId: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      programTitle: string;
+      amountPaid: number;
+      currency: string;
+      paymentReference: string;
+      reconciliationStatus: "matched" | "underpaid" | "overpaid";
+    }) {
+      /*
+       * An underpaid registration remains pending, so the learner
+       * must not receive an email saying their registration is active.
+       */
+      if (reconciliationStatus === "underpaid") {
+        return {
+          sent: false,
+          skipped: true,
+          reason: "underpaid",
+        };
+      }
+
+      /*
+       * Load the latest registration metadata before deciding whether
+       * the welcome email has already been sent.
+       */
+      const { data: currentRegistration, error: registrationLookupError } =
+        await supabase
+          .from("academy_registrations")
+          .select("metadata")
+          .eq("id", registrationId)
+          .single();
+
+      if (registrationLookupError) {
+        console.error(
+          "Academy welcome email registration lookup failed:",
+          registrationLookupError
+        );
+
+        return {
+          sent: false,
+          skipped: false,
+          reason: "registration_lookup_failed",
+        };
+      }
+
+      const currentMetadata = normalizeMetadata(currentRegistration.metadata);
+
+      const welcomeEmailMetadata =
+        currentMetadata.welcome_email &&
+        typeof currentMetadata.welcome_email === "object" &&
+        !Array.isArray(currentMetadata.welcome_email)
+          ? currentMetadata.welcome_email
+          : null;
+
+      /*
+       * Do not send another welcome email when a previous webhook
+       * has already recorded successful delivery.
+       */
+      if (
+        welcomeEmailMetadata &&
+        "status" in welcomeEmailMetadata &&
+        welcomeEmailMetadata.status === "sent"
+      ) {
+        return {
+          sent: false,
+          skipped: true,
+          reason: "already_sent",
+        };
+      }
+
+      try {
+        /* Send the transactional Academy welcome email through Resend. */
+        const welcomeEmailResult = await sendAcademyWelcomeEmail({
+          registrationId,
+          firstName,
+          lastName,
+          email,
+          programTitle,
+          amountPaid,
+          currency,
+          paymentReference,
+        });
+
+        /*
+         * Reload metadata after sending so that we preserve any changes
+         * another payment process may have written while Resend was running.
+         */
+        const { data: latestRegistration, error: latestRegistrationError } =
+          await supabase
+            .from("academy_registrations")
+            .select("metadata")
+            .eq("id", registrationId)
+            .single();
+
+        if (latestRegistrationError) {
+          console.error(
+            "Academy welcome email metadata reload failed:",
+            latestRegistrationError
+          );
+
+          return {
+            sent: true,
+            skipped: false,
+            reason: "metadata_reload_failed",
+            emailId: welcomeEmailResult.emailId,
+          };
+        }
+
+        const latestMetadata = normalizeMetadata(latestRegistration.metadata);
+
+        /* Record successful Resend delivery in registration metadata. */
+        const { error: metadataUpdateError } = await supabase
+          .from("academy_registrations")
+          .update({
+            metadata: {
+              ...latestMetadata,
+              welcome_email: {
+                status: "sent",
+                resend_email_id: welcomeEmailResult.emailId,
+                sent_at: new Date().toISOString(),
+                payment_reference: paymentReference,
+              },
+            },
+          })
+          .eq("id", registrationId);
+
+        if (metadataUpdateError) {
+          console.error(
+            "Academy welcome email metadata update failed:",
+            metadataUpdateError
+          );
+        }
+
+        return {
+          sent: true,
+          skipped: false,
+          reason: null,
+          emailId: welcomeEmailResult.emailId,
+        };
+      } catch (error) {
+        console.error("Academy welcome email failed:", error);
+
+        /*
+         * Reload the latest metadata before recording the failure
+         * so existing payment metadata is not overwritten.
+         */
+        const { data: latestRegistration, error: latestRegistrationError } =
+          await supabase
+            .from("academy_registrations")
+            .select("metadata")
+            .eq("id", registrationId)
+            .single();
+
+        if (latestRegistrationError) {
+          console.error(
+            "Academy welcome email failure metadata lookup failed:",
+            latestRegistrationError
+          );
+
+          return {
+            sent: false,
+            skipped: false,
+            reason: "email_failed",
+          };
+        }
+
+        const latestMetadata = normalizeMetadata(latestRegistration.metadata);
+
+        /*
+         * Record the failed email attempt without changing the successful
+         * Paystack payment or Finance transaction.
+         */
+        const { error: failureUpdateError } = await supabase
+          .from("academy_registrations")
+          .update({
+            metadata: {
+              ...latestMetadata,
+              welcome_email: {
+                status: "failed",
+                failed_at: new Date().toISOString(),
+                payment_reference: paymentReference,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Unknown Academy welcome email error",
+              },
+            },
+          })
+          .eq("id", registrationId);
+
+        if (failureUpdateError) {
+          console.error(
+            "Academy welcome email failure metadata update failed:",
+            failureUpdateError
+          );
+        }
+
+        return {
+          sent: false,
+          skipped: false,
+          reason: "email_failed",
+        };
+      }
+    }
+
     /* Confirm the charge itself reports a successful Paystack state. */
     if (transaction.status !== "success") {
       console.warn("charge.success event contained a non-success status:", {
@@ -1130,6 +1349,19 @@ export const POST: APIRoute = async ({ request }) => {
           paymentDifference: storedDifference,
           providerPayload: transaction,
         });
+        /* Ensure a callback-first payment also receives its welcome email. */
+        await ensureAcademyWelcomeEmail({
+          registrationId: registration.id,
+          firstName: registration.first_name,
+          lastName: registration.last_name,
+          email: registration.email,
+          programTitle:
+            registration.program?.title ?? "CloudTweak Academy Program",
+          amountPaid: storedAmountPaid,
+          currency: registration.currency,
+          paymentReference: transaction.reference,
+          reconciliationStatus: storedReconciliationStatus,
+        });
       }
 
       return jsonResponse({
@@ -1420,6 +1652,10 @@ export const POST: APIRoute = async ({ request }) => {
           latestReconciliationStatus === "underpaid" ||
           latestReconciliationStatus === "overpaid")
       ) {
+        /* Preserve the validated reconciliation value with its exact union type. */
+        const validatedReconciliationStatus:
+          "matched" | "underpaid" | "overpaid" = latestReconciliationStatus;
+
         await ensureAcademyFinanceTransaction({
           registrationId: latestRegistration.id,
           paymentReference: transaction.reference,
@@ -1435,9 +1671,23 @@ export const POST: APIRoute = async ({ request }) => {
             latestRegistration.paid_at ??
             transaction.paid_at ??
             new Date().toISOString(),
-          reconciliationStatus: latestReconciliationStatus,
+          reconciliationStatus: validatedReconciliationStatus,
           paymentDifference: Number(latestRegistration.payment_difference ?? 0),
           providerPayload: transaction,
+        });
+
+        /* Ensure the callback-won-the-race path also receives the welcome email. */
+        await ensureAcademyWelcomeEmail({
+          registrationId: latestRegistration.id,
+          firstName: registration.first_name,
+          lastName: registration.last_name,
+          email: registration.email,
+          programTitle:
+            registration.program?.title ?? "CloudTweak Academy Program",
+          amountPaid: Number(latestRegistration.amount_paid),
+          currency: latestRegistration.currency,
+          paymentReference: transaction.reference,
+          reconciliationStatus: validatedReconciliationStatus,
         });
       }
 
@@ -1472,6 +1722,19 @@ export const POST: APIRoute = async ({ request }) => {
       reconciliationStatus,
       paymentDifference,
       providerPayload: transaction,
+    });
+
+    /* Send the welcome email after payment and Finance processing succeed. */
+    await ensureAcademyWelcomeEmail({
+      registrationId: updatedRegistration.id,
+      firstName: registration.first_name,
+      lastName: registration.last_name,
+      email: registration.email,
+      programTitle: registration.program?.title ?? "CloudTweak Academy Program",
+      amountPaid: Number(updatedRegistration.amount_paid),
+      currency: updatedRegistration.currency,
+      paymentReference: transaction.reference,
+      reconciliationStatus,
     });
 
     /* Build the final Academy payment result message. */
