@@ -7,7 +7,6 @@ import {
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 interface AcademyRegistrationFormProps {
   programId: string;
@@ -304,7 +303,7 @@ export default function AcademyRegistrationForm({
         ) : null}
         {errorMessage ? toast.error(errorMessage) : null}
         <ToastContainer
-          position="top-center"
+          position="top-right"
           autoClose={5000}
           newestOnTop
           closeOnClick
