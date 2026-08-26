@@ -125,8 +125,7 @@ export async function sendAcademyWelcomeEmail({
                     <tr>
                       <td align="left">
                         <img
-                          src=<img
-                          src="${EMAIL_BRAND.logoUrl}"
+                          src="cid:cloudtweak-logo"
                           alt="CloudTweak"
                           width="150"
                           style="
@@ -575,6 +574,14 @@ export async function sendAcademyWelcomeEmail({
         "",
         "CloudTweak Academy",
       ].join("\n"),
+
+      attachments: [
+        {
+          path: EMAIL_BRAND.logoUrl,
+          filename: "cloudtweaklogo.png",
+          contentId: "cloudtweak-logo",
+        },
+      ],
     },
     {
       idempotencyKey,
