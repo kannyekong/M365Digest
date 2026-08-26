@@ -55,7 +55,7 @@ const items = [
   },
   {
     key: "Certificates",
-    label: "Certificates",
+    label: "Issued certificates",
     href: "/admin/academy/certificates",
     icon: Award,
   },
@@ -68,7 +68,7 @@ const items = [
 
   {
     key: "Templates",
-    label: "Templates",
+    label: "Certificate templates",
     href: "/admin/academy/certificate-templates",
     icon: NotepadTextDashed,
   },
