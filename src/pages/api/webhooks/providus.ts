@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 
+export const prerender = false;
+
 interface ProvidusAccountNotification {
   accountNumber: string;
   reference: string;
@@ -25,6 +27,22 @@ function successfulResponse() {
     }
   );
 }
+
+/* Confirms that the Providus webhook endpoint is deployed and reachable. */
+export const GET: APIRoute = async () => {
+  return new Response(
+    JSON.stringify({
+      success: true,
+      message: "Providus webhook endpoint is active.",
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
 
 /* Receives real-time Providus account transaction notifications. */
 export const POST: APIRoute = async ({ request }) => {
