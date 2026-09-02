@@ -128,19 +128,7 @@ export async function sendAcademyWelcomeEmail({
                         CloudTweak Academy
                       </div>
                       </td>
-
-                      <td
-                        align="right"
-                        style="
-                          font-size:12px;
-                          font-weight:700;
-                          letter-spacing:.08em;
-                          text-transform:uppercase;
-                          color:#64748b;
-                        "
-                      >
-                        Academy
-                      </td>
+                      
                     </tr>
                   </table>
                 </td>

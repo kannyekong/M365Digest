@@ -1,37 +1,107 @@
 ---
 import { ChevronDown } from "lucide-astro";
+
 import BtnLink from "../shared/BtnLink.astro";
 import Container from "../shared/Container.astro";
+import { supabase } from "../../lib/superbase";
 
 interface NavigationChild {
   href: string;
   text: string;
-  description?: string;
+  description: string;
+  badge?: string | null;
 }
 
 interface NavigationItem {
   href?: string;
   text: string;
   children?: NavigationChild[];
+  activePaths?: string[];
 }
+
+/* Defines the service fields required by the navigation dropdown. */
+interface NavService {
+  id: string;
+  title: string;
+  button_url: string | null;
+  badge: string | null;
+  nav_short_description: string | null;
+  nav_order: number | null;
+}
+
+/* Loads active services configured to appear in the Solutions dropdown. */
+const { data: navServices, error: navServicesError } = await supabase
+  .from("services")
+  .select(
+    `
+      id,
+      title,
+      button_url,
+      nav_short_description,
+      nav_order,
+      badge
+    `
+  )
+  .eq("is_active", true)
+  .eq("display_on_nav", true)
+  .order("nav_order", {
+    ascending: true,
+    nullsFirst: false,
+  });
+
+/* Logs backend failures while allowing the rest of the navbar to render. */
+if (navServicesError) {
+  console.error(
+    "Failed to load services for the Solutions navigation:",
+    navServicesError
+  );
+}
+
+/* Converts backend service records into navigation dropdown children. */
+const solutionNavItems: NavigationChild[] = (
+  (navServices ?? []) as NavService[]
+)
+  .filter(
+    (
+      service
+    ): service is NavService & {
+      button_url: string;
+    } =>
+      typeof service.button_url === "string" &&
+      service.button_url.trim().length > 0
+  )
+  .map((service) => ({
+    href: service.button_url.trim(),
+    text: service.title,
+    description:
+      service.nav_short_description?.trim() ||
+      "Explore this CloudTweak solution.",
+    badge: service.badge?.trim() || null,
+  }));
 
 const navItems: NavigationItem[] = [
   {
     href: "/",
     text: "Home",
   },
+
   {
     text: "Solutions",
+    activePaths: ["/solutions"],
     children: [
       {
         href: "/solutions",
         text: "All Solutions",
         description: "Explore every CloudTweak solution.",
       },
+
+      ...solutionNavItems,
     ],
   },
+
   {
     text: "Academy",
+    activePaths: ["/academy", "/verify-certificate"],
     children: [
       {
         href: "/academy",
@@ -45,8 +115,10 @@ const navItems: NavigationItem[] = [
       },
     ],
   },
+
   {
     text: "Resources",
+    activePaths: ["/careers", "/blog"],
     children: [
       {
         href: "/careers",
@@ -60,11 +132,12 @@ const navItems: NavigationItem[] = [
       },
       {
         href: "#",
-        text: "Marketplace (Coming Soon)",
+        text: "TweakMart (Coming Soon)",
         description: "Small & Large scale Enterprise IT procurement",
       },
     ],
   },
+
   {
     href: "#tally-open=VL4vdg&tally-layout=modal&tally-emoji-text=👋&tally-emoji-animation=wave",
     text: "Contact Us",
@@ -73,26 +146,52 @@ const navItems: NavigationItem[] = [
 
 const currentPath = Astro.url.pathname;
 
-/**
- * Determine whether a normal navigation link is active.
- */
+/* Normalizes route paths so trailing slashes do not affect active matching. */
+function normalizePath(path: string) {
+  if (path === "/") {
+    return "/";
+  }
+
+  return path.replace(/\/+$/, "");
+}
+
+/* Determines whether a navigation link matches the current route. */
 function isLinkActive(href?: string) {
   if (!href || href.startsWith("#")) {
     return false;
   }
 
-  if (href === "/") {
-    return currentPath === "/";
+  const cleanHref = href.split("?")[0].split("#")[0];
+
+  const linkPath = normalizePath(cleanHref);
+  const activePath = normalizePath(currentPath);
+
+  if (linkPath === "/") {
+    return activePath === "/";
   }
 
-  return currentPath.startsWith(href.split("#")[0]);
+  return (
+    activePath === linkPath ||
+    activePath.startsWith(`${linkPath}/`)
+  );
 }
 
-/**
- * Determine whether a parent navigation item contains an active child.
- */
-function hasActiveChild(item: NavigationItem) {
-  return item.children?.some((child) => isLinkActive(child.href)) ?? false;
+/* Determines whether a top-level navigation item owns the current route. */
+function isParentActive(item: NavigationItem) {
+  if (item.activePaths?.length) {
+    const activePath = normalizePath(currentPath);
+
+    return item.activePaths.some((path) => {
+      const parentPath = normalizePath(path);
+
+      return (
+        activePath === parentPath ||
+        activePath.startsWith(`${parentPath}/`)
+      );
+    });
+  }
+
+  return isLinkActive(item.href);
 }
 ---
 
@@ -134,8 +233,7 @@ function hasActiveChild(item: NavigationItem) {
         >
           {
             navItems.map((item, itemIndex) => {
-              const parentActive =
-                isLinkActive(item.href) || hasActiveChild(item);
+              const parentActive = isParentActive(item);
 
               if (!item.children?.length) {
                 return (
@@ -157,7 +255,7 @@ function hasActiveChild(item: NavigationItem) {
 
               return (
                 <li
-                  class="group relative lg:pb-3 lg:-mb-3"
+                  class="group relative lg:-mb-3 lg:pb-3"
                   data-public-nav-parent
                 >
                   <button
@@ -186,7 +284,7 @@ function hasActiveChild(item: NavigationItem) {
                     data-public-submenu
                     class="hidden w-full lg:absolute lg:left-1/2 lg:top-full lg:z-[1001] lg:w-80 lg:-translate-x-1/2 lg:pt-3"
                   >
-                    <div class="space-y-1 border-l border-box-border bg-white pl-4 shadow-2xl dark:bg-[#000003] rounded-2xl lg:border lg:border-box-border lg:p-2">
+                    <div class="space-y-1 rounded-2xl border-l border-box-border bg-white pl-4 shadow-2xl dark:bg-[#000003] lg:border lg:border-box-border lg:p-2">
                       {item.children.map((child) => (
                         <a
                           href={child.href}
@@ -197,12 +295,20 @@ function hasActiveChild(item: NavigationItem) {
                               : "text-heading-2 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800",
                           ]}
                         >
-                          <span class="block text-sm font-semibold">
-                            {child.text}
-                          </span>
+                          <div class="flex items-start justify-between gap-3">
+                            <span class="min-w-0 text-sm font-semibold">
+                              {child.text}
+                            </span>
+
+                            {child.badge ? (
+                              <span class="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold leading-none text-primary">
+                                {child.badge}
+                              </span>
+                            ) : null}
+                          </div>
 
                           {child.description ? (
-                            <span class="mt-1 block text-xs leading-5 text-heading-3">
+                            <span class="mt-1 block pr-2 text-xs leading-5 text-heading-3">
                               {child.description}
                             </span>
                           ) : null}
@@ -302,28 +408,26 @@ function hasActiveChild(item: NavigationItem) {
 </header>
 
 <script>
-  /**
-   * Initialize expandable public navigation submenus.
-   */
+  /* Initializes expandable public navigation submenus. */
   function initializePublicSubmenus() {
     const navigationParents = Array.from(
       document.querySelectorAll<HTMLElement>("[data-public-nav-parent]")
     );
 
-    /**
-     * Recalculate the open mobile navbar height after submenu content changes.
-     */
+    /* Recalculates the open mobile navbar height after submenu content changes. */
     function updateMobileNavbarHeight() {
       if (window.innerWidth >= 1024) {
         return;
       }
 
-      const navbar = document.querySelector<HTMLElement>("[data-navbar]");
+      const navbar =
+        document.querySelector<HTMLElement>("[data-navbar]");
 
       const toggleButton =
         document.querySelector<HTMLButtonElement>("[data-toggle-nav]");
 
-      const navIsOpen = toggleButton?.getAttribute("data-open-nav") === "true";
+      const navIsOpen =
+        toggleButton?.getAttribute("data-open-nav") === "true";
 
       if (!navbar || !navIsOpen) {
         return;
@@ -331,16 +435,12 @@ function hasActiveChild(item: NavigationItem) {
 
       requestAnimationFrame(() => {
         navbar.style.height = `${navbar.scrollHeight}px`;
-
         navbar.style.maxHeight = "calc(100vh - 6rem)";
-
         navbar.style.overflowY = "auto";
       });
     }
 
-    /**
-     * Close one navigation submenu.
-     */
+    /* Closes one navigation submenu. */
     function closeSubmenu(parent: HTMLElement) {
       const trigger = parent.querySelector<HTMLButtonElement>(
         "[data-public-submenu-trigger]"
@@ -358,13 +458,10 @@ function hasActiveChild(item: NavigationItem) {
       submenu?.classList.add("hidden");
       icon?.classList.remove("rotate-180");
 
-      /* Shrink the mobile navbar after the submenu closes. */
       updateMobileNavbarHeight();
     }
 
-    /**
-     * Open one navigation submenu and close every other submenu.
-     */
+    /* Opens one navigation submenu and closes every other submenu. */
     function openSubmenu(parent: HTMLElement) {
       navigationParents.forEach((navigationParent) => {
         if (navigationParent !== parent) {
@@ -388,7 +485,6 @@ function hasActiveChild(item: NavigationItem) {
       submenu?.classList.remove("hidden");
       icon?.classList.add("rotate-180");
 
-      /* Expand the mobile navbar to accommodate the opened submenu. */
       updateMobileNavbarHeight();
     }
 
@@ -408,7 +504,8 @@ function hasActiveChild(item: NavigationItem) {
       trigger.addEventListener("click", (event) => {
         event.stopPropagation();
 
-        const isOpen = trigger.getAttribute("aria-expanded") === "true";
+        const isOpen =
+          trigger.getAttribute("aria-expanded") === "true";
 
         if (isOpen) {
           closeSubmenu(parent);
@@ -452,12 +549,19 @@ function hasActiveChild(item: NavigationItem) {
     });
   }
 
-  document.addEventListener("astro:page-load", initializePublicSubmenus);
+  document.addEventListener(
+    "astro:page-load",
+    initializePublicSubmenus
+  );
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializePublicSubmenus, {
-      once: true,
-    });
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializePublicSubmenus,
+      {
+        once: true,
+      }
+    );
   } else {
     initializePublicSubmenus();
   }

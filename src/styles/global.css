@@ -18,6 +18,21 @@
   --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
 }
 
+p {
+  font-family: "Montserrat", sans-serif;
+}
+
+body {
+  background-color: rgb(var(--color-bg));
+  font-family: var(--font-display);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
 :root {
   --color-bg: 255 255 255;
   --color-box: 255 255 255;
@@ -42,20 +57,7 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  background-color: rgb(var(--color-bg));
-  font-family: var(--font-display);
-}
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-}
-
-p {
-  font-family: "Montserrat", sans-serif;
-}
 
 [data-toggle-nav][data-open-nav="true"] #line1 {
   transform: translateY(0.375rem) rotate(40deg);

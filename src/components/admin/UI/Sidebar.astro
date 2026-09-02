@@ -13,8 +13,11 @@ import {
   BadgeDollarSign,
   Sparkles,
   LibraryBig,
+  Store,
 } from "lucide-astro";
+
 import LogoutButton from "../../../islands/LogoutButton";
+
 import { Users } from "lucide-react";
 
 const sections = [
@@ -23,7 +26,37 @@ const sections = [
     href: "/admin/",
     icon: LayoutDashboard,
   },
-
+  {
+    title: "TweakMart",
+    icon: Store,
+    badge: "Product",
+    links: [
+      {
+        title: "Overview",
+        href: "/admin/tweakmart",
+      },
+      {
+        title: "Products",
+        href: "/admin/tweakmart/products",
+      },
+      {
+        title: "Categories",
+        href: "/admin/tweakmart/categories",
+      },
+      {
+        title: "Brands",
+        href: "/admin/tweakmart/brands",
+      },
+      {
+        title: "Inventory",
+        href: "/admin/tweakmart/inventory",
+      },
+      {
+        title: "Featured Banners",
+        href: "/admin/tweakmart/banners",
+      },
+    ],
+  },
   {
     title: "Clients",
     icon: Users,
@@ -35,10 +68,10 @@ const sections = [
       {
         title: "Manage Projects",
         href: "/admin/projects/",
+        activeMatch: false,
       },
     ],
   },
-
   {
     title: "Tasks",
     icon: Workflow,
@@ -53,7 +86,6 @@ const sections = [
       },
     ],
   },
-
   {
     title: "Projects",
     icon: Construction,
@@ -68,9 +100,8 @@ const sections = [
       },
     ],
   },
-
   {
-    title: "Blog articles",
+    title: "Blog & Campaigns",
     icon: Newspaper,
     links: [
       {
@@ -81,25 +112,30 @@ const sections = [
         title: "Add a new article",
         href: "/admin/blog/new",
       },
+       {
+        title: "Social campaigns",
+        href: "/admin/social",
+      },
+       {
+        title: "Create campaign",
+        href: "/admin/social/create",
+      },
     ],
   },
-
   {
     title: "Services",
     icon: BriefcaseBusiness,
     links: [
       {
-        title: " All services",
+        title: "All services",
         href: "/admin/services",
       },
-
       {
         title: "Add a new service",
         href: "/admin/services/new",
       },
     ],
   },
-
   {
     title: "Testimonials",
     icon: MessageSquareQuote,
@@ -114,7 +150,6 @@ const sections = [
       },
     ],
   },
-
   {
     title: "Company Staff",
     icon: UserPen,
@@ -129,7 +164,6 @@ const sections = [
       },
     ],
   },
-
   {
     title: "Academy",
     icon: GraduationCap,
@@ -168,7 +202,6 @@ const sections = [
       },
     ],
   },
-
   {
     title: "Insights",
     icon: Sparkles,
@@ -203,16 +236,15 @@ const sections = [
         title: "All job openings",
         href: "/admin/careers",
       },
-
       {
         title: "Career applications",
         href: "/admin/careers/applications",
       },
     ],
   },
-
   {
     title: "Library",
+    icon: LibraryBig,
     links: [
       {
         title: "Document library",
@@ -223,11 +255,10 @@ const sections = [
         href: "/admin/media/images",
       },
     ],
-    icon: LibraryBig,
   },
-
   {
     title: "Finance",
+    icon: BadgeDollarSign,
     links: [
       {
         title: "Overview",
@@ -257,25 +288,20 @@ const sections = [
         title: "Budgets",
         href: "/admin/finance/budgets",
       },
-
       {
         title: "Refunds",
         href: "/admin/finance/refunds",
       },
-
       {
         title: "Reconciliation",
         href: "/admin/finance/reconciliation",
       },
-
       {
         title: "Quotations",
         href: "/admin/finance/quotations",
       },
     ],
-    icon: BadgeDollarSign,
   },
-
   {
     title: "Account settings",
     icon: Settings,
@@ -287,6 +313,7 @@ const sections = [
       {
         title: "Update profile picture",
         href: "/admin/profile/profile",
+        activeMatch: false,
       },
       {
         title: "Notification settings",
@@ -295,46 +322,102 @@ const sections = [
     ],
   },
 ];
+
+/* Normalizes routes so trailing slashes do not affect active-link detection. */
+function normalizePath(path: string) {
+  if (path === "/") {
+    return "/";
+  }
+
+  return path.replace(/\/+$/, "");
+}
+
+const currentPath = normalizePath(Astro.url.pathname);
+
+/* Determines whether a nested navigation item should be considered the canonical active route. */
+function isActiveLink(link: { href: string; activeMatch?: boolean }) {
+  if (link.activeMatch === false) {
+    return false;
+  }
+
+  return currentPath === normalizePath(link.href);
+}
+
+/* Determines whether a top-level navigation route is currently active. */
+function isActiveTopLevelLink(href?: string) {
+  if (!href) {
+    return false;
+  }
+
+  return currentPath === normalizePath(href);
+}
+
+/* Determines whether any canonical child route inside a section is active. */
+function isSectionActive(
+  links: Array<{
+    title: string;
+    href: string;
+    activeMatch?: boolean;
+  }>
+) {
+  return links.some((link) => isActiveLink(link));
+}
 ---
 
-<aside class="sticky top-0 h-screen w-62 flex flex-col dark:bg-black">
+<aside class="sticky top-0 flex h-screen w-62 flex-col dark:bg-black">
   <a
     href="/admin"
-    class="p-6 border-b border-slate-100 border-r dark:border-slate-100"
+    class="border-b border-r border-slate-100 p-6 dark:border-slate-800"
   >
     <img
       src="/logos/cloudtweaklogo.png"
-      alt="logo"
-      class="dark:hidden w-3/4 object-contain"
       alt="CloudTweak"
+      class="w-3/4 object-contain dark:hidden"
     />
 
     <img
       src="/logos/cloudtweakwhite.png"
-      class="hidden dark:block w-3/4 object-contain"
       alt="CloudTweak"
+      class="hidden w-3/4 object-contain dark:block"
     />
   </a>
 
   <nav
-    class="px-4 flex-1 overflow-y-auto border-r border-slate-100 dark:border-none"
+    class="flex-1 overflow-y-auto border-r border-slate-100 px-4 dark:border-slate-800"
   >
     {
       sections.map((section) =>
         section.links ? (
-          <details class="group">
-            <summary class="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition list-none">
-              <div class="flex items-center gap-4">
+          <details class="group" open={isSectionActive(section.links)}>
+            <summary
+              class:list={[
+                "flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2 transition",
+                isSectionActive(section.links)
+                  ? "bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+                  : "text-slate-800 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800",
+              ]}
+            >
+              <div class="flex min-w-0 items-center gap-4">
                 <section.icon size={18} />
-                <span class="text-xs">{section.title}</span>
+
+                <div class="flex min-w-0 items-center gap-2">
+                  <span class="text-xs">{section.title}</span>
+
+                  {section.badge && (
+                    <span class="inline-flex shrink-0 items-center rounded-full bg-pink-500 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                      {section.badge}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <svg
-                class="h-4 w-4 transition-transform group-open:rotate-90"
+                class="h-4 w-4 shrink-0 transition-transform group-open:rotate-90"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -345,21 +428,39 @@ const sections = [
               </svg>
             </summary>
 
-            <div class="ml-10 mt-2  border rounded-md">
-              {section.links.map((link) => (
-                <a
-                  href={link.href}
-                  class="block rounded-lg px-2 py-2 text-xs text-black dark:text-slate-200 hover:mr-1  hover:text-orange-500"
-                >
-                  {link.title}
-                </a>
-              ))}
+            <div class="ml-10 mt-2 overflow-hidden rounded-md border border-slate-200 dark:border-slate-800">
+              {section.links.map((link) => {
+                const active = isActiveLink(link);
+
+                return (
+                  <a
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    class:list={[
+                      "block px-4 py-2.5 text-xs transition",
+                      active
+                        ? "bg-sky-100 font-semibold text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+                        : "text-black hover:bg-slate-50 hover:text-orange-500 dark:text-slate-200 dark:hover:bg-slate-900",
+                    ]}
+                  >
+                    {link.title}
+                  </a>
+                );
+              })}
             </div>
           </details>
         ) : (
           <a
             href={section.href}
-            class="flex items-center gap-4 rounded-xl px-3 text-xs py-2 mt-2.5 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            aria-current={
+              isActiveTopLevelLink(section.href) ? "page" : undefined
+            }
+            class:list={[
+              "mt-2.5 flex items-center gap-4 rounded-xl px-3 py-2 text-xs transition",
+              isActiveTopLevelLink(section.href)
+                ? "bg-sky-100 font-semibold text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"
+                : "text-slate-800 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800",
+            ]}
           >
             <section.icon size={18} />
 
@@ -369,6 +470,7 @@ const sections = [
       )
     }
   </nav>
+
   <div class="mt-auto px-6 py-3 pb-8 text-red-500">
     <LogoutButton client:load />
   </div>

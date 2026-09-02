@@ -17,7 +17,7 @@ interface ImageUploaderProps {
  * Upload an image to Supabase Storage and return its public URL.
  */
 export default function ImageUploader({
-  label = "Upload image",
+  label = "Upload Cover image",
   description,
   value,
   bucket,
@@ -125,7 +125,7 @@ export default function ImageUploader({
       </div>
 
       <div
-        className={`relative overflow-hidden rounded-4xl border border-slate-200 bg-slate-50 ${previewClassName}`}
+        className={`relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 ${previewClassName}`}
       >
         {value ? (
           <img

@@ -1,0 +1,26 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+
+import TweakMartModuleNav from "../../../components/admin/tweakmart/TweakMartModuleNav";
+import TweakMartOverviewDashboard from "../../../components/admin/tweakmart/TweakMartOverviewDashboard";
+
+import { getTweakMartOverviewStats } from "../../../lib/tweakmart/dashboard";
+
+/* Loads Marketplace operational statistics on the server before rendering the dashboard. */
+const stats = await getTweakMartOverviewStats();
+---
+
+<AdminLayout title="TweakMart Marketplace">
+  <Header
+    description="TweakMart Overview - Marketplace catalogue and commerce operations"
+  />
+
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <TweakMartModuleNav current="overview" />
+
+      <TweakMartOverviewDashboard client:load stats={stats} />
+    </section>
+  </main>
+</AdminLayout>

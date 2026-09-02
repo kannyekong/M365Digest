@@ -567,12 +567,17 @@ export default function TaskTable({ tasks, reload }: Props) {
               <tr key={task.id} className="transition hover:bg-slate-50">
                 <td className="max-w-sm px-6 py-4">
                   <p className="truncate font-bold text-slate-900">
-                    {task.title}
+                    Project:{" "}
+                    <span className="font-light">{task.project?.name}</span>
+                  </p>
+                  <p className="truncate font-bold text-slate-900">
+                    Title: <span className="font-light">{task.title}</span>
                   </p>
 
                   {task.description && (
-                    <p className="mt-1 truncate text-xs text-slate-500">
-                      {task.description}
+                    <p className="truncate font-bold text-xs text-slate-500">
+                      Description:{" "}
+                      <span className="font-light">{task.description}</span>
                     </p>
                   )}
                 </td>

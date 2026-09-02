@@ -1,0 +1,37 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
+import BannerForm from "../../../../components/admin/tweakmart/banners/BannerForm";
+---
+
+<AdminLayout title="Add TweakMart Banner">
+  <Header description="TweakMart - Create a new storefront featured banner" />
+
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <TweakMartModuleNav current="banners" />
+
+      <div class="mt-8">
+        <div>
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.16em] text-primary"
+          >
+            Storefront Merchandising
+          </p>
+
+          <h1 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+            Add Featured Banner
+          </h1>
+
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Create a promotional banner for the TweakMart storefront.
+          </p>
+        </div>
+
+        <BannerForm client:load />
+      </div>
+    </section>
+  </main>
+</AdminLayout>

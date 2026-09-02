@@ -40,7 +40,7 @@ const technologies = [
 <section class="py-8 overflow-hidden border-box-border mt-4">
   <div class="text-center mb-10">
     <p
-      class="uppercase tracking-[0.3em] text-xs font-semibold text-gray-500 dark:text-gray-400"
+      class="uppercase tracking-[0.3em] text-xs font-semibold text-gray-500 dark:text-white"
     >
       Our Technology Ecosystem
     </p>
@@ -49,14 +49,14 @@ const technologies = [
   <div class="relative">
     <!-- Fade Left -->
 
-    <div class="slider-track">
+    <div class="slider-track dark:bg-white p-4">
       {
         [...technologies, ...technologies].map((tech) => (
-          <div class="mx-14 flex flex-col items-center justify-center shrink-0 opacity-70 hover:opacity-100 transition duration-300">
+          <div class="mx-14 flex flex-col items-center justify-center shrink-0 opacity-70 hover:opacity-100 transition duration-300 ">
             <img
               src={tech.logo}
               alt={tech.name}
-              class="h-14 w-auto object-contain transition duration-500 dark:grayscale"
+              class="h-14 w-auto object-contain transition duration-500"
             />
           </div>
         ))

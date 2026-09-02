@@ -1,11 +1,10 @@
 ---
-import { MailOpen, MessageCircle, PhoneCall } from "lucide-astro";
+import { ExternalLink, MailOpen, MessageCircle, PhoneCall } from "lucide-astro";
 import {
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
   FaYoutube,
-  FaGithub,
 } from "react-icons/fa6";
 
 import { FaXTwitter } from "react-icons/fa6";
@@ -25,6 +24,10 @@ const footerLinks = {
     { name: "Programmes", href: "/academy" },
     { name: "Refund Policy", href: "/refundpolicy" },
     { name: "Terms & Conditions", href: "/terms" },
+    {
+      name: "Leave Feedback",
+      href: "#tally-open=5Bp5qN&tally-align-left=1&tally-overlay=1&tally-emoji-text=👍&tally-emoji-animation=heart-beat",
+    },
   ],
 
   resources: [
@@ -36,10 +39,12 @@ const footerLinks = {
     },
   ],
 
-  socials: [
-    { name: "LinkedIn", href: "https://linkedin.com/in/akanenoekong" },
-    { name: "Twitter/X", href: "https://x.com/kannyekong" },
-    { name: "Github", href: "https://github.com/kannyekong" },
+  products: [
+    {
+      name: "TweakMart",
+      target: "_blank",
+      href: "#",
+    },
   ],
 };
 
@@ -62,7 +67,7 @@ const year = new Date().getFullYear();
 
   <div class="relative mx-auto max-w-full border-t border-t-[#eee] py-16">
     <!-- Top Section -->
-    <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
+    <div class="grid gap-6 md:grid-cols-5">
       <!-- Brand -->
       <div class="lg:col-span-2">
         <a href="/" class="inline-flex items-center gap-3">
@@ -93,8 +98,9 @@ const year = new Date().getFullYear();
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
+            class="border p-2 rounded-xl border-blue-500 dark:border-white"
           >
-            <FaFacebookF size={20} className="text-blue-500"/>
+            <FaFacebookF size={20} className="text-blue-500" />
           </a>
 
           <a
@@ -102,8 +108,9 @@ const year = new Date().getFullYear();
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
+            class="border p-2 rounded-xl border-red-500 dark:border-white"
           >
-            <FaInstagram size={20} className="text-red-700"/>
+            <FaInstagram size={20} className="text-red-500" />
           </a>
 
           <a
@@ -111,8 +118,9 @@ const year = new Date().getFullYear();
             target="_blank"
             rel="noopener noreferrer"
             aria-label="X"
+            class="border p-2 rounded-xl border-black dark:border-white"
           >
-            <FaXTwitter size={20} />
+            <FaXTwitter size={20} className="dark:text-white" />
           </a>
 
           <a
@@ -120,18 +128,27 @@ const year = new Date().getFullYear();
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
+            class="border p-2 rounded-xl border-blue-500 dark:border-white"
           >
-            <FaLinkedinIn size={20} className="text-blue-400"/>
+            <FaLinkedinIn size={20} className="text-blue-400 " />
           </a>
 
           <a
-            href="https://youtube.com/@your-channel"
+            href="https://www.youtube.com/@cloudtweaktechnologies"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="YouTube"
+            class="border p-2 rounded-xl border-red-500 dark:border-white"
           >
-            <FaYoutube size={20} className="text-red-500"/>
+            <FaYoutube size={20} className="text-red-500" />
           </a>
+        </div>
+        <div class="mt-3">
+          <a
+            href="mailto:support@cloudtweak.net"
+            class="text-sm text-primary dark:text-white"
+            >support@cloudtweak.net</a
+          >
         </div>
       </div>
 
@@ -180,6 +197,7 @@ const year = new Date().getFullYear();
       </div>
 
       <!-- Resources -->
+      <!-- Resources + Products -->
       <div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
           Resources
@@ -191,9 +209,37 @@ const year = new Date().getFullYear();
               <li>
                 <a
                   href={link.href}
+                  target={link.target}
+                  rel={
+                    link.target === "_blank" ? "noopener noreferrer" : undefined
+                  }
                   class="text-gray-600 transition hover:text-primary dark:text-gray-300"
                 >
                   {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <h3 class="mt-8 text-lg font-semibold text-gray-900 dark:text-white">
+          Products
+        </h3>
+
+        <ul class="mt-5 space-y-3">
+          {
+            footerLinks.products.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.target}
+                  rel={
+                    link.target === "_blank" ? "noopener noreferrer" : undefined
+                  }
+                  class="inline-flex items-center gap-1.5 text-gray-600 transition hover:text-primary dark:text-gray-300"
+                >
+                  {link.name}
+                  <ExternalLink class="h-3.5 w-3.5 shrink-0" />
                 </a>
               </li>
             ))

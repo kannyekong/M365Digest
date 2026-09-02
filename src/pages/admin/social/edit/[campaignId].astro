@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import SocialComposer from "../../../../components/admin/social/SocialComposer";
+
+const { campaignId } = Astro.params;
+
+if (!campaignId) {
+  return Astro.redirect("/admin/social");
+}
+---
+
+<AdminLayout title="Edit Social Campaign">
+  <div class="p-5">
+    <SocialComposer client:load mode="edit" campaignId={campaignId} />
+  </div>
+</AdminLayout>

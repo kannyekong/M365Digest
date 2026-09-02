@@ -1,0 +1,66 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
+import ProductTable from "../../../../components/admin/tweakmart/products/ProductTable";
+
+import { getTweakMartProducts } from "../../../../lib/tweakmart/products";
+
+/* Reads the current product-table page from the URL while falling back safely to the first page. */
+const requestedPage = Number(Astro.url.searchParams.get("page") ?? "1");
+
+const page =
+  Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+/* Loads the initial paginated product list on the server. */
+const productResult = await getTweakMartProducts({
+  page,
+  pageSize: 10,
+});
+---
+
+<AdminLayout title="TweakMart Products">
+  <Header description="TweakMart - Manage marketplace products" />
+
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <TweakMartModuleNav current="products" />
+
+      <div
+        class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+      >
+        <div>
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.16em] text-primary"
+          >
+            Marketplace Catalogue
+          </p>
+
+          <h1 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+            Products
+          </h1>
+
+          <p
+            class="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400"
+          >
+            Manage TweakMart products, pricing, visibility, variants and
+            inventory.
+          </p>
+        </div>
+
+        <a
+          href="/admin/tweakmart/products/new"
+          class="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:opacity-90"
+        >
+          Add Product
+        </a>
+      </div>
+
+      <ProductTable
+        client:load
+        initialProducts={productResult.products}
+        initialPagination={productResult.pagination}
+      />
+    </section>
+  </main>
+</AdminLayout>

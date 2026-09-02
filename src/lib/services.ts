@@ -5,13 +5,17 @@ import { supabase } from "./superbase";
 export interface Service {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   badge: string | null;
-  button_text: string;
-  button_url: string;
+  button_text: string | null;
+  button_url: string | null;
+  nav_short_description: string | null;
+  nav_order: number | null;
+  display_on_nav: boolean;
   highlight: boolean;
   display_order: number;
   is_active: boolean;
+  created_at?: string | null;
 }
 
 export async function listServices() {

@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import SocialComposer from "../../../components/admin/social/SocialComposer";
+import Header from "../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Social Publishing">
+  <Header title="Social Campaigns" />
+  <div class="p-5">
+    <SocialComposer client:load />
+  </div>
+</AdminLayout>

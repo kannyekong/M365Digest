@@ -88,7 +88,7 @@ export default function HeroCarousel() {
             alt={slide.title}
             loading={currentSlide === 0 ? "eager" : "lazy"}
             decoding="async"
-            className="h-full w-full object-contain rounded-full"
+            className="h-full w-full rounded-full object-contain -rotate-4 transition-transform duration-500 ease-in-out hover:rotate-0"
           />
         </div>
       </div>

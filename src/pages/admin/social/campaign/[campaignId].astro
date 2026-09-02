@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import SocialCampaignDetails from "../../../../components/admin/social/SocialCampaignDetails";
+
+const { campaignId } = Astro.params;
+
+if (!campaignId) {
+  return Astro.redirect("/admin/social");
+}
+---
+
+<AdminLayout title="Social Campaign Details">
+  <div class="p-5">
+    <SocialCampaignDetails campaignId={campaignId} client:load />
+  </div>
+</AdminLayout>
