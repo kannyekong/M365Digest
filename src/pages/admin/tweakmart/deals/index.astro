@@ -1,0 +1,48 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
+import TweakMartDealsManager from "../../../../components/admin/tweakmart/deals/TweakMartDealsManager";
+
+import {
+  getTweakMartDeals,
+  getTweakMartDealProductOptions,
+} from "../../../../lib/tweakmart/deals";
+
+/* Loads the current promotions and eligible products before hydrating the management interface. */
+const [deals, products] = await Promise.all([
+  getTweakMartDeals(),
+  getTweakMartDealProductOptions(),
+]);
+---
+
+<AdminLayout title="TweakMart Deals & Offers">
+  <Header
+    description="TweakMart - Manage marketplace deals and promotional pricing"
+  />
+
+  <main class="min-h-screen">
+    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+      <TweakMartModuleNav current="deals" />
+
+      <div class="mt-8">
+        <h1 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+          Deals & Offers
+        </h1>
+
+        <p
+          class="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400"
+        >
+          Create, schedule and manage promotional pricing for products published
+          on TweakMart.
+        </p>
+      </div>
+
+      <TweakMartDealsManager
+        client:load
+        initialDeals={deals}
+        products={products}
+      />
+    </section>
+  </main>
+</AdminLayout>

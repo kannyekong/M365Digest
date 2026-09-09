@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CategoryManager from "../../../components/admin/tweakmart/categories/CategoryManager";
+import Header from "../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../components/admin/tweakmart/TweakMartModuleNav";
+import InventoryManager from "../../../components/admin/tweakmart/inventory/InventoryManager";
+---
+
+<AdminLayout title="TweakMart Inventory">
+  <Header title="Inventory Manager" />
+  <div class="p-5 space-y-5">
+    <TweakMartModuleNav current="inventory" />
+    <InventoryManager client:load />
+  </div>
+</AdminLayout>

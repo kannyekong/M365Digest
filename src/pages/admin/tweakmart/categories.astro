@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CategoryManager from "../../../components/admin/tweakmart/categories/CategoryManager";
+import Header from "../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../components/admin/tweakmart/TweakMartModuleNav";
+---
+
+<AdminLayout title="TweakMart Categories">
+  <Header title="Category Manager" />
+  <div class="p-5 space-y-5">
+    <TweakMartModuleNav current="categories" />
+    <CategoryManager client:load />
+  </div>
+</AdminLayout>

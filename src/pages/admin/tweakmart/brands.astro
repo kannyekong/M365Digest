@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import BrandManager from "../../../components/admin/tweakmart/brands/BrandManager";
+import Header from "../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../components/admin/tweakmart/TweakMartModuleNav";
+---
+
+<AdminLayout title="TweakMart Brands">
+  <Header title="Brands Manager" />
+  <div class="p-5 space-y-5">
+    <TweakMartModuleNav current="brands" />
+    <BrandManager client:load />
+  </div>
+</AdminLayout>

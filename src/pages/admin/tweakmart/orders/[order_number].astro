@@ -1,0 +1,52 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
+import TweakMartOrderDetails from "../../../../components/admin/tweakmart/orders/TweakMartOrderDetails";
+
+import { getTweakMartAdminOrder } from "../../../../lib/tweakmart/order";
+
+const { order_number } = Astro.params;
+
+/* Rejects an invalid dynamic order route before querying TweakMart. */
+if (!order_number) {
+  return Astro.redirect("/admin/tweakmart/orders");
+}
+
+/* Loads the complete Marketplace order and its operational history. */
+const order = await getTweakMartAdminOrder(order_number);
+
+if (!order) {
+  Astro.response.status = 404;
+}
+---
+
+<AdminLayout
+  title={order
+    ? `${order.order_number} | TweakMart Orders`
+    : "Order Not Found | TweakMart"}
+>
+  <div class="space-y-6">
+    {
+      order ? (
+        <TweakMartOrderDetails order={order} />
+      ) : (
+        <section class="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <h1 class="text-lg font-bold text-slate-950 dark:text-white">
+            Order not found
+          </h1>
+
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            The requested TweakMart order could not be found.
+          </p>
+
+          <a
+            href="/admin/tweakmart/orders"
+            class="mt-5 inline-flex rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
+          >
+            Return to orders
+          </a>
+        </section>
+      )
+    }
+  </div>
+</AdminLayout>

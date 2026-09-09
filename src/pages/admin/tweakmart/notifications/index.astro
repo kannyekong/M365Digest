@@ -1,0 +1,35 @@
+---
+import { getTweakMartNotifications } from "../../../../lib/tweakmart/notifications";
+import TweakMartNotificationsManager from "../../../../components/admin/tweakmart/notifications/TweakmartNotificationManager";
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Header from "../../../../components/admin/UI/Header.astro";
+
+/*
+ * Loads notification data server-side before hydrating the management
+ * interface.
+ */
+const notifications = await getTweakMartNotifications();
+---
+
+<AdminLayout title="Tweakmart notifications">
+  <Header title="Manage TweakMart Notifications" />
+  <section class="space-y-6 p-5">
+    <div
+      class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div>
+        <h1 class="mt-1 text-2xl font-bold text-slate-950">Notifications</h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Create, schedule and manage messages displayed in the TweakMart
+          storefront notification ribbon.
+        </p>
+      </div>
+    </div>
+
+    <TweakMartNotificationsManager
+      client:load
+      initialNotifications={notifications}
+    />
+  </section>
+</AdminLayout>

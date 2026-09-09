@@ -1,15 +1,24 @@
 import {
   Boxes,
   GalleryHorizontalEnd,
+  Handshake,
   LayoutDashboard,
   Package,
+  ReceiptText,
   Tags,
   Warehouse,
 } from "lucide-react";
 
 interface TweakMartModuleNavProps {
   current:
-    "overview" | "products" | "categories" | "brands" | "inventory" | "banners";
+    | "overview"
+    | "products"
+    | "categories"
+    | "brands"
+    | "inventory"
+    | "orders"
+    | "banners"
+    | "deals";
 }
 
 const items = [
@@ -44,10 +53,22 @@ const items = [
     icon: Warehouse,
   },
   {
+    key: "orders",
+    label: "Orders",
+    href: "/admin/tweakmart/orders",
+    icon: ReceiptText,
+  },
+  {
     key: "banners",
     label: "Banners",
     href: "/admin/tweakmart/banners",
     icon: GalleryHorizontalEnd,
+  },
+  {
+    key: "deals",
+    label: "Deals & offers",
+    href: "/admin/tweakmart/deals",
+    icon: Handshake,
   },
 ] as const;
 
@@ -74,7 +95,6 @@ export default function TweakMartModuleNav({
               }`}
             >
               <Icon size={16} />
-
               {item.label}
             </a>
           );

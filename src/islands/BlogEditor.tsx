@@ -23,8 +23,36 @@ import {
   FaXTwitter,
 } from "react-icons/fa6";
 
+interface TweakMartArticleResponse {
+  success?: boolean;
+  post?: {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    content: any;
+    cover_image: string | null;
+    published: boolean;
+    category: string | null;
+    seo_title: string | null;
+    seo_description: string | null;
+    canonical_url: string | null;
+  };
+  error?: string;
+}
+
 interface BlogEditorProps {
   editMode?: boolean;
+}
+
+type BlogDestination = "cloudtweak" | "tweakmart";
+
+interface TweakMartPostResponse {
+  success?: boolean;
+  post?: {
+    id: string;
+  };
+  error?: string;
 }
 
 interface BufferChannel {
@@ -86,12 +114,11 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
   const [coverImage, setCoverImage] = useState("");
   const [published, setPublished] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
-
+  const [destination, setDestination] = useState<BlogDestination>("cloudtweak");
   const [bufferChannels, setBufferChannels] = useState<BufferChannel[]>([]);
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(false);
   const [socialCaption, setSocialCaption] = useState("");
-
   const [content, setContent] = useState({
     type: "doc",
     content: [
@@ -101,14 +128,17 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
     ],
   });
 
-  /* Loads the article data when editing an existing article. */
+  /* Loads an existing article from the publication that owns it. */
   useEffect(() => {
     if (!editMode) {
       return;
     }
 
     async function loadPost() {
-      const id = new URLSearchParams(window.location.search).get("id");
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const id = searchParams.get("id");
+      const requestedDestination = searchParams.get("destination");
 
       if (!id) {
         toast.error("No article ID found.");
@@ -116,49 +146,85 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
         return;
       }
 
+      const resolvedDestination: BlogDestination =
+        requestedDestination === "tweakmart" ? "tweakmart" : "cloudtweak";
+
       setPostId(id);
+      setDestination(resolvedDestination);
 
-      const { data, error } = await getPost(id);
+      try {
+        let data;
 
-      if (error) {
-        toast.error(error.message);
-        setLoadingPost(false);
-        return;
-      }
+        if (resolvedDestination === "tweakmart") {
+          const response = await fetch(
+            `/api/admin/tweakmart/blog/articles?id=${encodeURIComponent(id)}`
+          );
 
-      if (!data) {
-        toast.error("Article not found.");
-        setLoadingPost(false);
-        return;
-      }
+          const responseText = await response.text();
 
-      setTitle(data.title);
-      setSlug(data.slug);
-      setSlugEdited(true);
-      setExcerpt(data.excerpt ?? "");
-      setPublished(data.published ?? false);
+          let result: TweakMartArticleResponse;
 
-      setContent(
-        data.content ?? {
-          type: "doc",
-          content: [
-            {
-              type: "paragraph",
-            },
-          ],
+          try {
+            result = JSON.parse(responseText) as TweakMartArticleResponse;
+          } catch {
+            throw new Error(
+              "The TweakMart article endpoint returned an invalid response."
+            );
+          }
+
+          if (!response.ok || !result.success || !result.post) {
+            throw new Error(result.error || "TweakMart article not found.");
+          }
+
+          data = result.post;
+        } else {
+          const { data: cloudTweakPost, error } = await getPost(id);
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          if (!cloudTweakPost) {
+            throw new Error("CloudTweak article not found.");
+          }
+
+          data = cloudTweakPost;
         }
-      );
 
-      setCategory(data.category || "General");
-      setCoverImage(data.cover_image ?? "");
-      setSeoTitle(data.seo_title ?? "");
-      setSeoDescription(data.seo_description ?? "");
-      setCanonicalUrl(data.canonical_url ?? "");
+        setTitle(data.title);
+        setSlug(data.slug);
+        setSlugEdited(true);
+        setExcerpt(data.excerpt ?? "");
+        setPublished(data.published ?? false);
 
-      setLoadingPost(false);
+        setContent(
+          data.content ?? {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+              },
+            ],
+          }
+        );
+
+        setCategory(data.category || "General");
+        setCoverImage(data.cover_image ?? "");
+        setSeoTitle(data.seo_title ?? "");
+        setSeoDescription(data.seo_description ?? "");
+        setCanonicalUrl(data.canonical_url ?? "");
+      } catch (error) {
+        console.error("Unable to load article:", error);
+
+        toast.error(
+          error instanceof Error ? error.message : "Unable to load the article."
+        );
+      } finally {
+        setLoadingPost(false);
+      }
     }
 
-    loadPost();
+    void loadPost();
   }, [editMode]);
 
   /* Loads all social channels currently connected through Buffer. */
@@ -211,8 +277,12 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
       .replace(/-+/g, "-");
   }
 
-  /* Returns the public CloudTweak URL for the current article. */
+  /* Returns the public article URL for the currently selected publishing destination. */
   function getArticleUrl() {
+    if (destination === "tweakmart") {
+      return `https://mart.cloudtweak.net/blog/${slug}`;
+    }
+
     return `https://cloudtweak.net/blog/${slug}`;
   }
 
@@ -230,11 +300,17 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
       return;
     }
 
+    /* Uses destination-specific branding when generating the social caption. */
+    const brandHashtags =
+      destination === "tweakmart"
+        ? "#TweakMart #Technology"
+        : "#CloudTweak #Technology";
+
     const captionParts = [
       title.trim(),
       excerpt.trim(),
       `Read more: ${getArticleUrl()}`,
-      "#CloudTweak #Technology",
+      brandHashtags,
     ].filter(Boolean);
 
     setSocialCaption(captionParts.join("\n\n"));
@@ -325,7 +401,48 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
     return true;
   }
 
-  /* Saves the article before attempting optional Buffer distribution. */
+  /* Saves the article to TweakMart through the protected administration API. */
+  async function saveTweakMartArticle() {
+    const response = await fetch("/api/admin/tweakmart/blog/articles", {
+      method: editMode ? "PUT" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: editMode ? postId : undefined,
+        title: title.trim(),
+        slug: slug.trim(),
+        excerpt: excerpt.trim(),
+        content,
+        cover_image: coverImage.trim(),
+        published,
+        category,
+        seo_title: seoTitle.trim(),
+        seo_description: seoDescription.trim(),
+        canonical_url: canonicalUrl.trim(),
+      }),
+    });
+
+    const responseText = await response.text();
+
+    let result: TweakMartArticleResponse;
+
+    try {
+      result = JSON.parse(responseText) as TweakMartArticleResponse;
+    } catch {
+      throw new Error(
+        "The TweakMart publishing endpoint returned an invalid response."
+      );
+    }
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Unable to save the TweakMart article.");
+    }
+
+    return result.post;
+  }
+
+  /* Saves the article to its selected publication before optional social distribution. */
   async function publish() {
     if (!validateArticle()) {
       return;
@@ -334,45 +451,47 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
     setLoading(true);
 
     try {
-      let error;
-
-      if (editMode) {
-        ({ error } = await updatePost(postId, {
-          title,
-          slug,
-          excerpt,
-          content,
-          cover_image: coverImage,
-          published,
-          category,
-          seo_title: seoTitle,
-          seo_description: seoDescription,
-          canonical_url: canonicalUrl,
-        }));
+      if (destination === "tweakmart") {
+        await saveTweakMartArticle();
       } else {
-        ({ error } = await createPost({
-          title,
-          slug,
-          excerpt,
-          content,
-          cover_image: coverImage,
-          published,
-          category,
-          seo_title: seoTitle,
-          seo_description: seoDescription,
-          canonical_url: canonicalUrl,
-        }));
-      }
+        let error;
 
-      if (error) {
-        toast.error(error.message);
+        if (editMode) {
+          ({ error } = await updatePost(postId, {
+            title,
+            slug,
+            excerpt,
+            content,
+            cover_image: coverImage,
+            published,
+            category,
+            seo_title: seoTitle,
+            seo_description: seoDescription,
+            canonical_url: canonicalUrl,
+          }));
+        } else {
+          ({ error } = await createPost({
+            title,
+            slug,
+            excerpt,
+            content,
+            cover_image: coverImage,
+            published,
+            category,
+            seo_title: seoTitle,
+            seo_description: seoDescription,
+            canonical_url: canonicalUrl,
+          }));
+        }
 
-        return;
+        if (error) {
+          throw new Error(error.message);
+        }
       }
 
       /*
-       * Social distribution only runs after the article has been saved.
-       * A Buffer failure does not undo the article publication.
+       * Social distribution only runs after the article has been
+       * successfully saved in the selected publication.
        */
       if (published && selectedChannels.length > 0) {
         try {
@@ -396,7 +515,14 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
         }
       }
 
-      toast.success(editMode ? "Article Updated!" : "Article Created!");
+      const publication =
+        destination === "tweakmart" ? "TweakMart" : "CloudTweak";
+
+      toast.success(
+        editMode
+          ? `Article updated on ${publication}!`
+          : `Article created on ${publication}!`
+      );
 
       window.location.href = "/admin/blog/articles";
     } catch (error) {
@@ -429,7 +555,7 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
           <p className="mt-2 text-xs text-slate-500">
             {editMode
               ? "Update article content, SEO and publishing settings."
-              : "Create and publish a new CloudTweak article."}
+              : "Create an article and choose where it should be published."}
           </p>
         </div>
 
@@ -444,6 +570,79 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <main className="min-w-0 space-y-6">
           <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Publish to
+              </label>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setDestination("cloudtweak")}
+                  disabled={editMode}
+                  className={`rounded-xl border p-4 text-left transition ${
+                    destination === "cloudtweak"
+                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/10"
+                      : "border-slate-200 bg-white hover:border-blue-200 hover:bg-slate-50"
+                  } disabled:cursor-not-allowed disabled:opacity-70`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        CloudTweak
+                      </p>
+
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        Corporate, cloud, Microsoft 365 and technology insights.
+                      </p>
+                    </div>
+
+                    {destination === "cloudtweak" && (
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                        <Check size={14} strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDestination("tweakmart")}
+                  disabled={editMode}
+                  className={`rounded-xl border p-4 text-left transition ${
+                    destination === "tweakmart"
+                      ? "border-orange-500 bg-orange-50 ring-2 ring-orange-500/10"
+                      : "border-slate-200 bg-white hover:border-orange-200 hover:bg-slate-50"
+                  } disabled:cursor-not-allowed disabled:opacity-70`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        TweakMart
+                      </p>
+
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        Product guides, buying advice, deals and commerce
+                        insights.
+                      </p>
+                    </div>
+
+                    {destination === "tweakmart" && (
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white">
+                        <Check size={14} strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              </div>
+
+              {editMode && (
+                <p className="mt-2 text-xs text-slate-400">
+                  The publishing destination cannot be changed while editing an
+                  existing article.
+                </p>
+              )}
+            </div>
             <div>
               <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Article title
@@ -838,8 +1037,10 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
 
             <p className="mt-2 break-all text-xs leading-5 text-slate-500">
               {slug
-                ? `cloudtweak.net/blog/${slug}`
-                : "cloudtweak.net/blog/article-slug"}
+                ? getArticleUrl().replace(/^https?:\/\//, "")
+                : destination === "tweakmart"
+                  ? "mart.cloudtweak.net/blog/article-slug"
+                  : "cloudtweak.net/blog/article-slug"}
             </p>
           </section>
         </aside>

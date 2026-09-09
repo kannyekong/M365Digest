@@ -7,7 +7,7 @@ import {
   Search,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import {
   archiveImageAsset,
   copyImageAssetUrl,
@@ -374,7 +374,7 @@ export default function ImageGalleryDashboard() {
         </div>
       ) : (
         <>
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4">
             {assets.map((asset) => (
               <ImageCard
                 key={asset.id}

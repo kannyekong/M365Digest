@@ -1,214 +1,456 @@
-import { useEffect, useState } from "react";
-import { getAllPosts } from "../lib/blog";
-import DeleteButton from "./DeleteButton";
-import PublishToggle from "./PublishToggle";
+import { useEffect, useMemo, useState } from "react";
+import { deletePost, getAllPosts, togglePublished } from "../lib/blog";
+import ConfirmModal from "./ConfirmModal";
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
   ArrowUp,
   ArrowUpDown,
+  CheckCircle2,
   CirclePlus,
   Download,
   Edit,
   Heart,
+  LoaderCircle,
+  Power,
+  Trash2,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import StatCard from "../components/admin/Statcard";
 
-// Define the available sorting fields for the articles table.
+type BlogDestination = "cloudtweak" | "tweakmart";
+type SourceFilter = "all" | BlogDestination;
 type SortField = "title" | "category" | "published" | "created_at";
-
-// Define the sorting direction used by the articles table.
 type SortDirection = "asc" | "desc";
 
-// Manage the admin blog page, article filters, sorting, export and pagination.
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  category: string | null;
+  published: boolean;
+  created_at: string;
+  views: number | null;
+  likes_count: number | null;
+  destination: BlogDestination;
+}
+
+interface TweakMartArticlesResponse {
+  success?: boolean;
+  posts?: Omit<BlogPost, "destination">[];
+  error?: string;
+}
+
+interface PendingAction {
+  type: "toggle" | "delete";
+  post: BlogPost;
+}
+
+/* Returns a readable publication name for a blog destination. */
+function getDestinationLabel(destination: BlogDestination) {
+  return destination === "tweakmart" ? "TweakMart" : "CloudTweak";
+}
+
+/* Manages CloudTweak and TweakMart articles from one administration screen. */
 export default function AdminBlogPage() {
-  // Store all blog posts loaded from Supabase.
-  const [posts, setPosts] = useState<any[]>([]);
-
-  // Track whether the blog posts are still loading.
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // Store the current article search value.
   const [search, setSearch] = useState("");
-
-  // Define the number of articles displayed per page.
-  const POSTS_PER_PAGE = 10;
-
-  // Store the current pagination page.
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  // Store the selected article category filter.
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState("All");
-
-  // Store the selected article status filter.
   const [statusFilter, setStatusFilter] = useState("All");
 
-  // Store the currently selected sorting field.
   const [sortField, setSortField] = useState<SortField>("created_at");
-
-  // Store the current sorting direction.
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  // Load all articles from Supabase.
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
+    null
+  );
+
+  /* Loads CloudTweak and TweakMart articles and combines them into one list. */
   async function loadPosts() {
-    // Request all blog posts from the blog service.
-    const { data } = await getAllPosts();
+    setLoading(true);
 
-    // Store the returned articles or an empty array.
-    setPosts(data || []);
+    try {
+      const [cloudTweakResult, tweakMartResponse] = await Promise.all([
+        getAllPosts(),
+        fetch("/api/admin/tweakmart/blog/articles"),
+      ]);
 
-    // Stop displaying the loading state.
-    setLoading(false);
+      if (cloudTweakResult.error) {
+        throw new Error(cloudTweakResult.error.message);
+      }
+
+      const responseText = await tweakMartResponse.text();
+
+      let tweakMartResult: TweakMartArticlesResponse;
+
+      try {
+        tweakMartResult = JSON.parse(responseText) as TweakMartArticlesResponse;
+      } catch {
+        throw new Error(
+          "The TweakMart articles endpoint returned an invalid response."
+        );
+      }
+
+      if (!tweakMartResponse.ok || !tweakMartResult.success) {
+        throw new Error(
+          tweakMartResult.error || "Unable to load TweakMart articles."
+        );
+      }
+
+      const cloudTweakPosts = (cloudTweakResult.data ?? []).map((post) => ({
+        ...post,
+        destination: "cloudtweak" as const,
+      }));
+
+      const tweakMartPosts = (tweakMartResult.posts ?? []).map((post) => ({
+        ...post,
+        destination: "tweakmart" as const,
+      }));
+
+      setPosts([...cloudTweakPosts, ...tweakMartPosts]);
+    } catch (error) {
+      console.error("Unable to load blog articles:", error);
+
+      toast.error(
+        error instanceof Error ? error.message : "Unable to load blog articles."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Remove a deleted article from the local article list.
-  function handleDelete(id: string) {
-    // Remove the article with the matching ID from the current state.
-    setPosts((current) => current.filter((post) => post.id !== id));
+  /* Opens the confirmation modal for an article status change. */
+  function requestToggle(post: BlogPost) {
+    setPendingAction({
+      type: "toggle",
+      post,
+    });
   }
 
-  // Update the published state of an article locally.
-  function handleToggle(id: string, published: boolean) {
-    // Update only the article whose ID matches the supplied ID.
-    setPosts((current) =>
-      current.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              published,
-            }
-          : post
-      )
-    );
+  /* Opens the confirmation modal before deleting an article. */
+  function requestDelete(post: BlogPost) {
+    setPendingAction({
+      type: "delete",
+      post,
+    });
   }
 
-  // Handle sorting when a table column is clicked.
-  function handleSort(field: SortField) {
-    // Reverse the sorting direction when the same field is clicked again.
-    if (sortField === field) {
-      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+  /* Updates the selected article's status in its owning database. */
+  async function toggleArticle(post: BlogPost) {
+    if (post.destination === "cloudtweak") {
+      const { data, error } = await togglePublished(post.id, post.published);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return Boolean(data?.published);
+    }
+
+    const response = await fetch("/api/admin/tweakmart/blog/articles", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: post.id,
+        published: post.published,
+      }),
+    });
+
+    const responseText = await response.text();
+
+    let result: {
+      success?: boolean;
+      post?: {
+        published?: boolean;
+      };
+      error?: string;
+    };
+
+    try {
+      result = JSON.parse(responseText) as typeof result;
+    } catch {
+      throw new Error(
+        "The TweakMart status endpoint returned an invalid response."
+      );
+    }
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Unable to update article status.");
+    }
+
+    return Boolean(result.post?.published);
+  }
+
+  /* Deletes the selected article from its owning database. */
+  async function deleteArticle(post: BlogPost) {
+    if (post.destination === "cloudtweak") {
+      const { error } = await deletePost(post.id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
       return;
     }
 
-    // Change the active sorting field.
+    const response = await fetch("/api/admin/tweakmart/blog/articles", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: post.id,
+      }),
+    });
+
+    const responseText = await response.text();
+
+    let result: {
+      success?: boolean;
+      error?: string;
+    };
+
+    try {
+      result = JSON.parse(responseText) as typeof result;
+    } catch {
+      throw new Error(
+        "The TweakMart delete endpoint returned an invalid response."
+      );
+    }
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Unable to delete the article.");
+    }
+  }
+
+  /* Executes the critical article operation after confirmation. */
+  async function confirmPendingAction() {
+    if (!pendingAction) {
+      return;
+    }
+
+    const { post, type } = pendingAction;
+
+    setActionLoading(true);
+
+    try {
+      if (type === "toggle") {
+        const published = await toggleArticle(post);
+
+        setPosts((current) =>
+          current.map((item) =>
+            item.id === post.id && item.destination === post.destination
+              ? {
+                  ...item,
+                  published,
+                }
+              : item
+          )
+        );
+
+        toast.success(
+          published
+            ? `${getDestinationLabel(post.destination)} article published.`
+            : `${getDestinationLabel(post.destination)} article moved to draft.`
+        );
+      } else {
+        await deleteArticle(post);
+
+        setPosts((current) =>
+          current.filter(
+            (item) =>
+              !(item.id === post.id && item.destination === post.destination)
+          )
+        );
+
+        toast.success(
+          `${getDestinationLabel(post.destination)} article deleted.`
+        );
+      }
+
+      setPendingAction(null);
+    } catch (error) {
+      console.error("Article action failed:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to complete the article action."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  /* Changes the active table sorting field and direction. */
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+
+      return;
+    }
+
     setSortField(field);
-
-    // Start a new sorting field in ascending order.
     setSortDirection("asc");
-
-    // Reset pagination when the sorting field changes.
     setCurrentPage(1);
   }
 
-  // Export the currently filtered articles to a CSV file.
+  /* Exports the currently filtered article list to CSV. */
   function exportToCSV() {
-    // Define the CSV column headers.
     const headers = [
       "Title",
       "Slug",
+      "Source",
       "Category",
       "Status",
-      "Published Date",
+      "Created Date",
       "Views",
+      "Likes",
     ];
 
-    // Convert every filtered article into a CSV row.
-    const rows = filteredPosts.map((post) => [
+    const rows = sortedPosts.map((post) => [
       post.title,
       post.slug,
-      post.category,
+      getDestinationLabel(post.destination),
+      post.category ?? "General",
       post.published ? "Published" : "Draft",
       new Date(post.created_at).toLocaleDateString(),
       post.views ?? 0,
+      post.likes_count ?? 0,
     ]);
 
-    // Combine the headers and rows into CSV content.
     const csvContent = [headers, ...rows]
       .map((row) =>
         row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
 
-    // Create a downloadable CSV file from the generated content.
     const blob = new Blob([csvContent], {
       type: "text/csv;charset=utf-8;",
     });
 
-    // Create a temporary browser URL for the CSV file.
     const url = URL.createObjectURL(blob);
-
-    // Create a temporary download link.
     const link = document.createElement("a");
 
-    // Assign the generated CSV URL to the download link.
     link.href = url;
+    link.download = "blog-articles.csv";
 
-    // Define the name of the downloaded CSV file.
-    link.download = "articles.csv";
-
-    // Trigger the browser download.
     link.click();
 
-    // Release the temporary browser URL.
     URL.revokeObjectURL(url);
+
+    toast.success("Article export created.");
   }
 
-  // Load articles when the admin page first mounts.
+  /* Renders the current sorting state for a sortable table column. */
+  function renderSortIcon(field: SortField) {
+    if (sortField === field) {
+      return sortDirection === "asc" ? (
+        <ArrowUp size={14} />
+      ) : (
+        <ArrowDown size={14} />
+      );
+    }
+
+    return <ArrowUpDown size={14} />;
+  }
+
+  /* Returns compact pagination numbers around the active page. */
+  function getPaginationItems() {
+    const items: Array<number | "ellipsis"> = [];
+
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    items.push(1);
+
+    if (currentPage > 4) {
+      items.push("ellipsis");
+    }
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let page = start; page <= end; page += 1) {
+      items.push(page);
+    }
+
+    if (currentPage < totalPages - 3) {
+      items.push("ellipsis");
+    }
+
+    items.push(totalPages);
+
+    return items;
+  }
+
+  /* Loads both publications when the administration screen mounts. */
   useEffect(() => {
-    loadPosts();
+    void loadPosts();
   }, []);
 
-  // Reset the current page whenever filters or search values change.
+  /* Returns to page one whenever the visible article query changes. */
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoryFilter, statusFilter]);
+  }, [search, sourceFilter, categoryFilter, statusFilter, pageSize]);
 
-  // Display the loading state while articles are being fetched.
-  if (loading) {
-    return <div className="py-20 text-center">Loading articles...</div>;
-  }
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          posts
+            .map((post) => post.category)
+            .filter((category): category is string => Boolean(category))
+        )
+      ).sort((a, b) => a.localeCompare(b)),
+    [posts]
+  );
 
-  // Calculate the total number of articles.
   const totalPosts = posts.length;
 
-  // Calculate the total number of published articles.
   const publishedPosts = posts.filter((post) => post.published).length;
 
-  // Calculate the total number of draft articles.
   const draftPosts = posts.filter((post) => !post.published).length;
 
-  // Calculate the total article views.
   const totalViews = posts.reduce((sum, post) => sum + (post.views ?? 0), 0);
 
-  // Filter articles using the search, category and status filters.
   const filteredPosts = posts.filter((post) => {
-    // Check whether the article title or slug matches the search value.
-    const matchesSearch =
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.slug.toLowerCase().includes(search.toLowerCase());
+    const normalizedSearch = search.trim().toLowerCase();
 
-    // Check whether the article matches the selected category.
+    const matchesSearch =
+      !normalizedSearch ||
+      post.title.toLowerCase().includes(normalizedSearch) ||
+      post.slug.toLowerCase().includes(normalizedSearch);
+
+    const matchesSource =
+      sourceFilter === "all" || post.destination === sourceFilter;
+
     const matchesCategory =
       categoryFilter === "All" || post.category === categoryFilter;
 
-    // Check whether the article matches the selected status.
     const matchesStatus =
       statusFilter === "All" ||
       (statusFilter === "Published" && post.published) ||
       (statusFilter === "Draft" && !post.published);
 
-    // Return only articles that satisfy every active filter.
-    return matchesSearch && matchesCategory && matchesStatus;
+    return matchesSearch && matchesSource && matchesCategory && matchesStatus;
   });
 
-  // Sort the filtered articles according to the selected table column.
   const sortedPosts = [...filteredPosts].sort((a, b) => {
-    // Extract the values used for sorting.
     const firstValue = a[sortField];
     const secondValue = b[sortField];
 
-    // Convert boolean published values into sortable numbers.
     if (sortField === "published") {
       const firstPublished = firstValue ? 1 : 0;
       const secondPublished = secondValue ? 1 : 0;
@@ -218,51 +460,41 @@ export default function AdminBlogPage() {
         : secondPublished - firstPublished;
     }
 
-    // Convert date values into timestamps for accurate sorting.
     if (sortField === "created_at") {
-      const firstDate = new Date(firstValue).getTime();
-      const secondDate = new Date(secondValue).getTime();
+      const firstDate = new Date(String(firstValue)).getTime();
+
+      const secondDate = new Date(String(secondValue)).getTime();
 
       return sortDirection === "asc"
         ? firstDate - secondDate
         : secondDate - firstDate;
     }
 
-    // Convert text values to lowercase before comparing them.
     const firstText = String(firstValue ?? "").toLowerCase();
+
     const secondText = String(secondValue ?? "").toLowerCase();
 
-    // Sort text values according to the selected direction.
     return sortDirection === "asc"
       ? firstText.localeCompare(secondText)
       : secondText.localeCompare(firstText);
   });
 
-  // Calculate the total number of pagination pages.
-  const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
+  const totalPages = Math.ceil(sortedPosts.length / pageSize);
 
-  // Calculate the starting index for the current page.
-  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const safeCurrentPage =
+    totalPages === 0 ? 1 : Math.min(currentPage, totalPages);
 
-  // Get only the articles for the current page.
-  const currentPosts = sortedPosts.slice(
-    startIndex,
-    startIndex + POSTS_PER_PAGE
-  );
+  const startIndex = (safeCurrentPage - 1) * pageSize;
 
-  // Render the sorting icon for a table column.
-  function renderSortIcon(field: SortField) {
-    // Display the active sorting direction for the selected field.
-    if (sortField === field) {
-      return sortDirection === "asc" ? (
-        <ArrowUp size={14} />
-      ) : (
-        <ArrowDown size={14} />
-      );
-    }
+  const currentPosts = sortedPosts.slice(startIndex, startIndex + pageSize);
 
-    // Display the neutral sorting icon for inactive fields.
-    return <ArrowUpDown size={14} />;
+  if (loading) {
+    return (
+      <div className="flex min-h-64 items-center justify-center gap-3 text-sm text-slate-500">
+        <LoaderCircle size={20} className="animate-spin" />
+        Loading articles...
+      </div>
+    );
   }
 
   return (
@@ -297,222 +529,371 @@ export default function AdminBlogPage() {
         />
       </div>
 
-      <div className="mt-10 flex items-center justify-between">
+      <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">All Articles</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">
+            All Articles
+          </h2>
 
-          <p className="mt-1">Create and edit blog posts</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage CloudTweak and TweakMart editorial content.
+          </p>
         </div>
 
         <a
           href="/admin/blog/new"
-          className="flex flex-row gap-2 animate-soft-glow rounded-xl bg-blue-500 px-4 py-2 text-white shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)]"
+          className="flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-white shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)]"
         >
-          <CirclePlus />
+          <CirclePlus size={19} />
           New Article
         </a>
       </div>
 
-      <div className="mt-8 flex items-center justify-between gap-4">
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Search articles..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-70 rounded-xl border px-4"
-          />
-
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-xl border px-4 py-2"
-          >
-            <option value="All">All Categories</option>
-            <option value="General">General</option>
-            <option value="Microsoft 365">Microsoft 365</option>
-            <option value="Exchange Online">Exchange Online</option>
-            <option value="SharePoint">SharePoint</option>
-            <option value="Microsoft Teams">Microsoft Teams</option>
-            <option value="Microsoft Entra ID">Microsoft Entra ID</option>
-            <option value="Microsoft Defender">Microsoft Defender</option>
-            <option value="Microsoft Intune">Microsoft Intune</option>
-            <option value="Power Platform">Power Platform</option>
-            <option value="Copilot">Copilot</option>
-          </select>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border px-4"
-          >
-            <option value="All">All Status</option>
-            <option value="Published">Published</option>
-            <option value="Draft">Draft</option>
-          </select>
+      <div className="mt-8 space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["all", "All"],
+              ["cloudtweak", "CloudTweak"],
+              ["tweakmart", "TweakMart"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSourceFilter(value)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                sourceFilter === value
+                  ? "bg-slate-950 text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        <button
-          onClick={exportToCSV}
-          className="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm transition hover:bg-slate-100"
-        >
-          <Download size={17} />
-          Export CSV
-        </button>
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_220px_180px]">
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+            />
+
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm"
+            >
+              <option value="All">All Categories</option>
+
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm"
+            >
+              <option value="All">All Status</option>
+              <option value="Published">Published</option>
+              <option value="Draft">Draft</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            onClick={exportToCSV}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            <Download size={17} />
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-slate-200">
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("title")}
-                  className="flex items-center gap-2"
-                >
-                  Post Title
-                  {renderSortIcon("title")}
-                </button>
-              </th>
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1050px]">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-6 py-4 text-left">
+                  <button
+                    type="button"
+                    onClick={() => handleSort("title")}
+                    className="flex items-center gap-2"
+                  >
+                    Post Title
+                    {renderSortIcon("title")}
+                  </button>
+                </th>
 
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("category")}
-                  className="flex items-center gap-2"
-                >
-                  Category
-                  {renderSortIcon("category")}
-                </button>
-              </th>
+                <th className="px-6 py-4 text-left">Source</th>
 
-              <th className="px-6 py-4 text-left">Status</th>
+                <th className="px-6 py-4 text-left">Status</th>
 
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("published")}
-                  className="flex items-center gap-2"
-                >
-                  Published
-                  {renderSortIcon("published")}
-                </button>
-              </th>
-              <th className="px-6 py-4 text-left">Views</th>
-              <th className="px-6 py-4 text-left">Likes</th>
+                <th className="px-6 py-4 text-left">
+                  <button
+                    type="button"
+                    onClick={() => handleSort("created_at")}
+                    className="flex items-center gap-2"
+                  >
+                    Created
+                    {renderSortIcon("created_at")}
+                  </button>
+                </th>
 
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
+                <th className="px-6 py-4 text-left">Views</th>
 
-          <tbody>
-            {currentPosts.length > 0 ? (
-              currentPosts.map((post) => (
-                <tr
-                  key={post.id}
-                  className="border-b border-slate-200 transition hover:bg-slate-50"
-                >
-                  <td className="px-6 py-5">
-                    <div>
-                      <p className="font-semibold">{post.title}</p>
+                <th className="px-6 py-4 text-left">Likes</th>
 
-                      <p className="text-sm text-slate-500">/{post.slug}</p>
-                    </div>
-                  </td>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
 
-                  <td className="px-6">{post.category}</td>
+            <tbody>
+              {currentPosts.length > 0 ? (
+                currentPosts.map((post) => (
+                  <tr
+                    key={`${post.destination}-${post.id}`}
+                    className="border-b border-slate-200 transition last:border-b-0 hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-5">
+                      <p className="max-w-xs truncate font-semibold text-slate-900">
+                        {post.title}
+                      </p>
 
-                  <td className="px-6">
-                    <PublishToggle
-                      id={post.id}
-                      published={post.published}
-                      onToggle={handleToggle}
-                    />
-                  </td>
+                      <p className="mt-1 max-w-xs truncate text-sm text-slate-500">
+                        /{post.slug}
+                      </p>
+                      <p className="text-xs font-bold">
+                        Post category: <span className="font-light">{post.category ?? "General"}</span>
+                      </p>
+                    </td>
 
-                  <td className="px-6">
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6">{post.views}</td>
-                  <td className="px-6 py-6">
-                    <div className="inline-flex items-center gap-2">
-                      <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-
-                      <span className="font-semibold">
-                        {post.likes_count ?? 0}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-6 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <a
-                        href={`/admin/blog/edit?id=${post.id}`}
-                        className="p-2 hover:rounded-2xl hover:bg-blue-500"
+                    <td className="px-6 py-5">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          post.destination === "tweakmart"
+                            ? "bg-orange-50 text-orange-700"
+                            : "bg-blue-50 text-blue-700"
+                        }`}
                       >
-                        <Edit className="text-green-500 hover:text-white" />
-                      </a>
+                        {getDestinationLabel(post.destination)}
+                      </span>
+                    </td>
 
-                      <DeleteButton id={post.id} onDelete={handleDelete} />
-                    </div>
+                    {/* <td className="px-6 py-5 text-sm text-slate-600">
+                    </td> */}
+
+                    <td className="px-6 py-5">
+                      <button
+                        type="button"
+                        onClick={() => requestToggle(post)}
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                          post.published
+                            ? "bg-green-100 text-green-700 hover:bg-green-200"
+                            : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                        }`}
+                      >
+                        {post.published ? (
+                          <CheckCircle2 size={14} />
+                        ) : (
+                          <Power size={14} />
+                        )}
+
+                        {post.published ? "Published" : "Draft"}
+                      </button>
+                    </td>
+
+                    <td className="px-6 py-5 text-sm text-slate-600">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </td>
+
+                    <td className="px-6 py-5">{post.views ?? 0}</td>
+
+                    <td className="px-6 py-5">
+                      <div className="inline-flex items-center gap-2">
+                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+
+                        <span className="font-semibold">
+                          {post.likes_count ?? 0}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        <a
+                          href={`/admin/blog/edit?id=${post.id}&destination=${post.destination}`}
+                          title="Edit article"
+                          className="rounded-lg p-2 text-green-600 transition hover:bg-green-50"
+                        >
+                          <Edit size={19} />
+                        </a>
+
+                        <button
+                          type="button"
+                          title="Delete article"
+                          onClick={() => requestDelete(post)}
+                          className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
+                        >
+                          <Trash2 size={19} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="py-16 text-center text-slate-400">
+                    No blog posts found.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="py-16 text-center text-slate-400">
-                  No blog posts found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="flex items-center justify-between p-4">
-          <p className="text-sm text-slate-500">
-            Showing{" "}
-            <span className="font-semibold">
-              {sortedPosts.length === 0 ? 0 : startIndex + 1}
-            </span>{" "}
-            –{" "}
-            <span className="font-semibold">
-              {Math.min(startIndex + POSTS_PER_PAGE, sortedPosts.length)}
-            </span>{" "}
-            of <span className="font-semibold">{sortedPosts.length}</span>{" "}
-            articles
-          </p>
+        <div className="flex flex-col gap-4 border-t border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-4">
+            <p className="text-sm text-slate-500">
+              Showing{" "}
+              <span className="font-semibold">
+                {sortedPosts.length === 0 ? 0 : startIndex + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold">
+                {Math.min(startIndex + pageSize, sortedPosts.length)}
+              </span>{" "}
+              of <span className="font-semibold">{sortedPosts.length}</span>{" "}
+              articles
+            </p>
 
-          <div className="flex items-center gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((page) => page - 1)}
-              className="rounded-full border p-1 transition hover:bg-slate-100 disabled:opacity-40"
+            <select
+              value={pageSize}
+              onChange={(event) => setPageSize(Number(event.target.value))}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm"
             >
-              <ArrowLeft />
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled={safeCurrentPage === 1}
+              onClick={() => setCurrentPage(1)}
+              className="rounded-lg border px-3 py-2 text-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              First
             </button>
 
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(index + 1)}
-                className={`h-10 w-10 rounded-lg transition ${
-                  currentPage === index + 1
-                    ? "bg-blue-600 text-white"
-                    : "border hover:bg-slate-100"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+            <button
+              type="button"
+              disabled={safeCurrentPage === 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              className="rounded-lg border p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ArrowLeft size={18} />
+            </button>
+
+            {getPaginationItems().map((item, index) =>
+              item === "ellipsis" ? (
+                <span key={`ellipsis-${index}`} className="px-1 text-slate-400">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setCurrentPage(item)}
+                  className={`h-9 min-w-9 rounded-lg px-2 text-sm transition ${
+                    safeCurrentPage === item
+                      ? "bg-blue-600 text-white"
+                      : "border hover:bg-slate-50"
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )}
 
             <button
-              disabled={totalPages === 0 || currentPage === totalPages}
-              onClick={() => setCurrentPage((page) => page + 1)}
-              className="rounded-full border p-1 transition hover:bg-slate-100 disabled:opacity-40"
+              type="button"
+              disabled={totalPages === 0 || safeCurrentPage === totalPages}
+              onClick={() =>
+                setCurrentPage((page) => Math.min(totalPages, page + 1))
+              }
+              className="rounded-lg border p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Next page"
             >
-              <ArrowRight />
+              <ArrowRight size={18} />
+            </button>
+
+            <button
+              type="button"
+              disabled={totalPages === 0 || safeCurrentPage === totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              className="rounded-lg border px-3 py-2 text-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Last
             </button>
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={pendingAction !== null}
+        title={
+          pendingAction?.type === "delete"
+            ? "Delete article?"
+            : pendingAction?.post.published
+              ? "Move article to draft?"
+              : "Publish article?"
+        }
+        message={
+          pendingAction?.type === "delete"
+            ? `This will permanently delete "${pendingAction.post.title}" from ${getDestinationLabel(
+                pendingAction.post.destination
+              )}. This action cannot be undone.`
+            : pendingAction?.post.published
+              ? `"${pendingAction.post.title}" will no longer be visible to visitors.`
+              : `"${pendingAction?.post.title ?? ""}" will become publicly visible on ${pendingAction ? getDestinationLabel(pendingAction.post.destination) : "the selected publication"}.`
+        }
+        confirmText={
+          pendingAction?.type === "delete"
+            ? "Delete article"
+            : pendingAction?.post.published
+              ? "Move to draft"
+              : "Publish article"
+        }
+        variant={
+          pendingAction?.type === "delete"
+            ? "danger"
+            : pendingAction?.post.published
+              ? "warning"
+              : "primary"
+        }
+        loading={actionLoading}
+        onConfirm={confirmPendingAction}
+        onCancel={() => {
+          if (!actionLoading) {
+            setPendingAction(null);
+          }
+        }}
+      />
     </>
   );
 }
