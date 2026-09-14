@@ -63,7 +63,7 @@ export async function sendAcademyWelcomeEmail({
     {
       from: EMAIL_BRAND.academySender,
       to: [recipientEmail],
-      replyTo: EMAIL_BRAND.replyTo,
+      replyTo: EMAIL_BRAND.academyReplyTo,
       subject: `Welcome to CloudTweak Academy — ${programTitle}`,
       html: `
   <!doctype html>

@@ -1,0 +1,23 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import { getTweakMartReturnByNumber } from "../../../../lib/tweakmart/returns";
+import TweakMartReturnDetails from "../../../../components/admin/tweakmart/returns/TweakMartReturnDetails";
+
+const { returnNumber } = Astro.params;
+
+if (!returnNumber) {
+  return Astro.redirect("/admin/tweakmart/returns");
+}
+
+const returnRequest = await getTweakMartReturnByNumber(returnNumber);
+
+if (!returnRequest) {
+  return Astro.redirect("/admin/tweakmart/returns");
+}
+---
+
+<AdminLayout title={returnRequest.return_number}>
+  <div class="p-5">
+    <TweakMartReturnDetails returnRequest={returnRequest} client:load />
+  </div>
+</AdminLayout>

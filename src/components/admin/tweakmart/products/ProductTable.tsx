@@ -371,7 +371,7 @@ export default function ProductTable({
   );
 
   return (
-    <div className="mt-6">
+    <div className="mt-5">
       <div className="overflow-visible rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="border-b border-slate-200 p-4 dark:border-slate-800 sm:p-5">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">

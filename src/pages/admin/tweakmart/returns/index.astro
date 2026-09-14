@@ -1,0 +1,17 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import { getTweakMartReturns } from "../../../../lib/tweakmart/returns";
+import TweakMartReturnsTable from "../../../../components/admin/tweakmart/returns/TweakMartReturnsTable";
+import Header from "../../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
+
+const returns = await getTweakMartReturns();
+---
+
+<AdminLayout title="TweakMart Returns">
+  <Header title="Returns table" />
+  <div class="p-5">
+    <TweakMartModuleNav current="returns" client:load/>
+    <TweakMartReturnsTable returns={returns} client:load />
+  </div>
+</AdminLayout>

@@ -585,7 +585,7 @@ export default function InventoryManager() {
   }, [inventory, search, stockFilter, trackingFilter]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 mt-5">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
@@ -672,23 +672,19 @@ export default function InventoryManager() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative">
-                <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-
-                <select
-                  value={stockFilter}
-                  onChange={(event) =>
-                    setStockFilter(event.target.value as StockFilter)
-                  }
-                  className="h-11 min-w-40 appearance-none rounded-xl border border-slate-200 bg-white pl-9 pr-9 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
-                >
-                  <option value="all">All stock</option>
-                  <option value="in_stock">In stock</option>
-                  <option value="low_stock">Low stock</option>
-                  <option value="out_of_stock">Out of stock</option>
-                  <option value="untracked">Not tracked</option>
-                </select>
-              </div>
+              <select
+                value={stockFilter}
+                onChange={(event) =>
+                  setStockFilter(event.target.value as StockFilter)
+                }
+                className="h-11 min-w-40 appearance-none rounded-xl border border-slate-200 bg-white pl-9 pr-9 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+              >
+                <option value="all">All stock</option>
+                <option value="in_stock">In stock</option>
+                <option value="low_stock">Low stock</option>
+                <option value="out_of_stock">Out of stock</option>
+                <option value="untracked">Not tracked</option>
+              </select>
 
               <select
                 value={trackingFilter}

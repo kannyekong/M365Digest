@@ -9,7 +9,7 @@ import InventoryManager from "../../../components/admin/tweakmart/inventory/Inve
 <AdminLayout title="TweakMart Inventory">
   <Header title="Inventory Manager" />
   <div class="p-5 space-y-5">
-    <TweakMartModuleNav current="inventory" />
+    <TweakMartModuleNav current="inventory" client:load />
     <InventoryManager client:load />
   </div>
 </AdminLayout>

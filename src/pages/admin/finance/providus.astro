@@ -1,0 +1,13 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProvidusReconciliationManager from "../../../components/admin/finance/ProvidusReconciliationManager";
+import Header from "../../../components/admin/UI/Header.astro";
+export const prerender = false;
+---
+
+<AdminLayout title="Providus Reconciliation">
+  <Header title="Providus Reconciliation Manager" />
+  <div class="p-5">
+    <ProvidusReconciliationManager client:load />
+  </div>
+</AdminLayout>

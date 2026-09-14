@@ -339,7 +339,7 @@ export default function BrandManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-5">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">

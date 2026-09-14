@@ -3,6 +3,7 @@ import { getTweakMartNotifications } from "../../../../lib/tweakmart/notificatio
 import TweakMartNotificationsManager from "../../../../components/admin/tweakmart/notifications/TweakmartNotificationManager";
 import AdminLayout from "../../../../layouts/AdminLayout.astro";
 import Header from "../../../../components/admin/UI/Header.astro";
+import TweakMartModuleNav from "../../../../components/admin/tweakmart/TweakMartModuleNav";
 
 /*
  * Loads notification data server-side before hydrating the management
@@ -18,7 +19,8 @@ const notifications = await getTweakMartNotifications();
       class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
     >
       <div>
-        <h1 class="mt-1 text-2xl font-bold text-slate-950">Notifications</h1>
+        <TweakMartModuleNav current="notifications" client:load />
+        <h1 class="mt-5 text-2xl font-bold text-slate-950">Notifications</h1>
 
         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
           Create, schedule and manage messages displayed in the TweakMart

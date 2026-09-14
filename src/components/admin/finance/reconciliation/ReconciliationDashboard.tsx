@@ -483,7 +483,7 @@ export default function ReconciliationDashboard() {
       <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="mt-5 text-xl font-bold text-slate-950 dark:text-white">
-            Reconciliation
+            Academy payment reconciliation
           </h1>
 
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">

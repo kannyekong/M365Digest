@@ -23,8 +23,8 @@ const productResult = await getTweakMartProducts({
   <Header description="TweakMart - Manage marketplace products" />
 
   <main class="min-h-screen">
-    <section class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-      <TweakMartModuleNav current="products" />
+    <section class="mx-auto w-full max-w-[1600px] p-5">
+      <TweakMartModuleNav current="products" client:load/>
 
       <div
         class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
