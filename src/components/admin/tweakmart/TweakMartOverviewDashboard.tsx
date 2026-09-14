@@ -53,16 +53,16 @@ function MetricCard({
         />
       </div>
 
-      <div className="mt-3">
+      <div className="mt-1">
         <p className="text-xl font-bold text-slate-950 dark:text-white">
           {value.toLocaleString()}
         </p>
 
-        <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <p className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
           {label}
         </p>
 
-        <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400">
           {description}
         </p>
       </div>
@@ -150,7 +150,7 @@ export default function TweakMartOverviewDashboard({
                 TweakMart control centre
               </h2>
 
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-500 dark:text-slate-400">
                 Manage catalogue products, inventory, brands, categories and
                 storefront merchandising from the CloudTweak administrative
                 workspace.
@@ -173,7 +173,7 @@ export default function TweakMartOverviewDashboard({
             >
               <Package size={20} className="text-primary" />
 
-              <p className="mt-3 text-sm font-semibold text-slate-950 dark:text-white">
+              <p className="mt-3 text-xs font-semibold text-slate-950 dark:text-white">
                 Add a product
               </p>
 
@@ -188,7 +188,7 @@ export default function TweakMartOverviewDashboard({
             >
               <GalleryHorizontalEnd size={20} className="text-primary" />
 
-              <p className="mt-3 text-sm font-semibold text-slate-950 dark:text-white">
+              <p className="mt-3 text-xs font-semibold text-slate-950 dark:text-white">
                 Add featured banner
               </p>
 
@@ -203,7 +203,7 @@ export default function TweakMartOverviewDashboard({
             >
               <Warehouse size={20} className="text-primary" />
 
-              <p className="mt-3 text-sm font-semibold text-slate-950 dark:text-white">
+              <p className="mt-3 text-xs font-semibold text-slate-950 dark:text-white">
                 Manage inventory
               </p>
 

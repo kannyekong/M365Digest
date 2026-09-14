@@ -389,18 +389,22 @@ export default function TweakMartOrderDetails({
           },
           body: JSON.stringify({
             action: pendingAction,
+
             reason:
               pendingAction === "cancel"
                 ? cancelReason.trim() || undefined
                 : undefined,
+
             payment_channel:
               pendingAction === "record_pod_payment"
                 ? podPaymentChannel
                 : undefined,
+
             payment_reference:
               pendingAction === "record_pod_payment"
                 ? podPaymentReference.trim() || undefined
                 : undefined,
+
             payment_notes:
               pendingAction === "record_pod_payment"
                 ? podPaymentNotes.trim() || undefined
@@ -408,6 +412,22 @@ export default function TweakMartOrderDetails({
           }),
         }
       );
+
+      const contentType = response.headers.get("content-type");
+
+      if (!contentType?.includes("application/json")) {
+        const responseText = await response.text();
+
+        console.error(
+          "Unexpected order action response:",
+          response.status,
+          responseText
+        );
+
+        throw new Error(
+          `Order action endpoint returned ${response.status} instead of JSON.`
+        );
+      }
 
       const result = (await response.json()) as TweakMartOrderActionResponse;
 

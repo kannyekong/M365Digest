@@ -60,28 +60,6 @@ async function readActionBody(
  * Sends one TweakMart lifecycle email without allowing notification
  * failure to roll back or invalidate an already successful order action.
  */
-async function sendOrderNotification(
-  orderId: string,
-  status: TweakMartOrderEmailStatus
-) {
-  try {
-    const recipient = await getTweakMartOrderNotificationRecipient(orderId);
-
-    await sendTweakMartOrderEmail({
-      orderId,
-      orderNumber: recipient.orderNumber,
-      firstName: recipient.firstName,
-      lastName: recipient.lastName,
-      email: recipient.email,
-      status,
-    });
-  } catch (error) {
-    console.error(
-      `TweakMart ${status} notification failed for ${orderId}:`,
-      error
-    );
-  }
-}
 
 /* Processes lifecycle actions for one TweakMart order. */
 export const POST: APIRoute = async ({ params, request }) => {
@@ -296,3 +274,44 @@ export const POST: APIRoute = async ({ params, request }) => {
     );
   }
 };
+
+/* Sends an order lifecycle email without allowing email failure to break the order action. */
+async function sendOrderNotification(
+  orderId: string,
+  status: TweakMartOrderEmailStatus
+) {
+  try {
+    console.log("TweakMart notification starting:", {
+      orderId,
+      status,
+    });
+
+    const recipient = await getTweakMartOrderNotificationRecipient(orderId);
+
+    console.log("TweakMart notification recipient loaded:", {
+      orderNumber: recipient.orderNumber,
+      email: recipient.email,
+      status,
+    });
+
+    const result = await sendTweakMartOrderEmail({
+      orderId,
+      orderNumber: recipient.orderNumber,
+      firstName: recipient.firstName,
+      lastName: recipient.lastName,
+      email: recipient.email,
+      status,
+    });
+
+    console.log("TweakMart notification sent:", {
+      orderId,
+      status,
+      emailId: result.emailId,
+    });
+  } catch (error) {
+    console.error(
+      `TweakMart ${status} notification failed for ${orderId}:`,
+      error
+    );
+  }
+}
