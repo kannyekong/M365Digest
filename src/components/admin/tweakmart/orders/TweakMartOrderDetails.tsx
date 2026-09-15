@@ -418,12 +418,6 @@ export default function TweakMartOrderDetails({
       if (!contentType?.includes("application/json")) {
         const responseText = await response.text();
 
-        console.error(
-          "Unexpected order action response:",
-          response.status,
-          responseText
-        );
-
         throw new Error(
           `Order action endpoint returned ${response.status} instead of JSON.`
         );
