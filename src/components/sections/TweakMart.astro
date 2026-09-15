@@ -1,0 +1,337 @@
+---
+import {
+  ShoppingBag,
+  PackageCheck,
+  ShieldCheck,
+  ArrowRight,
+  Sparkles,
+  Headphones,
+  ShoppingCart,
+} from "lucide-astro";
+
+/* Defines the products displayed in the continuously scrolling TweakMart showcase. */
+const tweakmartProducts = [
+  {
+    image: "/images/gadgets/duo.jpg",
+    alt: "TweakMart technology product",
+  },
+  {
+    image: "/images/gadgets/dell2.jpg",
+    alt: "TweakMart technology product",
+  },
+  {
+    image: "/images/gadgets/macbook.png",
+    alt: "TweakMart technology product",
+  },
+  {
+    image: "/images/gadgets/laptop.jpg",
+    alt: "TweakMart technology product",
+  },
+  {
+    image: "/images/gadgets/35.jpg",
+    alt: "TweakMart technology product",
+  },
+];
+
+/* Duplicates the products so the marquee can loop without a visible reset. */
+const carouselProducts = [...tweakmartProducts, ...tweakmartProducts];
+---
+
+<section class="py-20 sm:py-24 lg:py-28">
+  <div class="mx-auto max-w-full px-4">
+    <!-- Section heading -->
+    <div class="mx-auto mb-14 max-w-3xl text-center lg:mb-16">
+      <span
+        class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-blue-500/20
+          bg-blue-500/10
+          px-5
+          py-2
+          text-sm
+          mb-8
+          font-medium
+          text-blue-700
+          dark:text-blue-300
+          backdrop-blur-xl"
+      >
+        <ShoppingCart size={18} />
+        Our shopping service
+      </span>
+
+      <h2
+        class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl dark:text-white"
+      >
+        Tech that works for
+        <span class="text-primary">you.</span>
+      </h2>
+
+      <!-- TweakMart product social proof -->
+      <div class="mt-6 flex justify-center">
+        <div class="flex items-center justify-center gap-4 sm:gap-5">
+          <div class="flex shrink-0 items-center -space-x-3">
+            <img
+              src="/images/gadgets/dell.jpeg"
+              alt="TweakMart product"
+              class="relative z-40 h-11 w-11 rounded-full border-[3px] border-background bg-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <img
+              src="/images/gadgets/hp.png"
+              alt="TweakMart product"
+              class="relative z-30 h-11 w-11 rounded-full border-[3px] border-background bg-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <img
+              src="/images/gadgets/apple.png"
+              alt="TweakMart product"
+              class="relative z-20 h-11 w-11 rounded-full border-[3px] border-background bg-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <img
+              src="/images/gadgets/laptop.jpg"
+              alt="TweakMart product"
+              class="relative z-20 h-11 w-11 rounded-full border-[3px] border-background bg-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+          </div>
+
+          <p
+            class="text-left text-sm leading-5 text-muted-foreground sm:text-base dark:text-white"
+          >
+            Curated tech.
+            <span class="font-semibold text-foreground">Practical choices.</span
+            >
+            <br />
+            Built around how you work.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TweakMart feature banner -->
+    <div
+      class="relative w-full min-w-0 overflow-hidden rounded-[2rem] border border-slate-300 bg-gradient-to-br from-background via-background to-primary/10 px-5 py-8 shadow-sm sm:px-8 sm:py-10 lg:px-10 lg:py-12"
+    >
+      <!-- Decorative background glow -->
+      <div
+        class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="relative grid min-w-0 grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-16"
+      >
+        <!-- Left content -->
+        <div class="min-w-0">
+          <div
+            class="mb-5 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary"
+          >
+            <ShoppingCart className="h-4 w-4" />
+
+            TweakMart
+          </div>
+
+          <h3
+            class="max-w-2xl text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl dark:text-white"
+          >
+            Discover technology
+
+            <span class="relative inline text-primary sm:inline-block">
+              made practical.
+
+              <svg
+                viewBox="0 0 220 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                class="absolute -bottom-2 left-0 hidden h-2 w-full text-primary/70 sm:block"
+              >
+                <path
+                  d="M3 8C57 3 140 2 217 7"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"></path>
+              </svg>
+            </span>
+          </h3>
+
+          <p
+            class="mt-6 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white"
+          >
+            Explore a carefully selected range of technology, accessories, and
+            productivity essentials designed to help you work smarter, stay
+            connected, and get more from your digital experience.
+          </p>
+
+          <!-- Continuously scrolling TweakMart product showcase -->
+          <div
+            class="tweakmart-product-carousel relative mt-8 w-full min-w-0 max-w-full overflow-hidden"
+            aria-label="Featured TweakMart products"
+          >
+            <!-- Creates a subtle entrance fade. -->
+            <div
+              class="pointer-events-none absolute inset-y-0 left-0 z-20 w-5 bg-gradient-to-r from-background/90 to-transparent sm:w-14"
+              aria-hidden="true"
+            >
+            </div>
+
+            <!-- Fades and partially conceals the final visible product. -->
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 z-20 w-14 bg-gradient-to-l from-background via-background/70 to-transparent sm:w-32"
+              aria-hidden="true"
+            >
+            </div>
+
+            <div
+              class="tweakmart-product-track flex w-max max-w-none items-center gap-3 py-2 sm:gap-4"
+            >
+              {
+                carouselProducts.map((product, index) => (
+                  <div
+                    class="tweakmart-product-item relative h-20 w-24 shrink-0 overflow-hidden rounded-xl border border-slate-300 bg-background/70 p-2 shadow-sm backdrop-blur-sm sm:h-28 sm:w-36 sm:rounded-2xl"
+                    aria-hidden={
+                      index >= tweakmartProducts.length ? "true" : undefined
+                    }
+                  >
+                    <img
+                      src={product.image}
+                      alt={index < tweakmartProducts.length ? product.alt : ""}
+                      class="h-full w-full object-contain transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right CTA -->
+        <div
+          class="relative flex min-w-0 w-full flex-col items-center justify-center text-center lg:items-end lg:text-right"
+        >
+          <!-- CTA glow -->
+          <div
+            class="pointer-events-none absolute h-32 w-72 rounded-full bg-primary/20 blur-3xl"
+            aria-hidden="true"
+          >
+          </div>
+
+          <p
+            class="relative mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary"
+          >
+            Find your next upgrade
+          </p>
+
+          <a
+            href="/tweakmart"
+            class="tweakmart-cta group relative inline-flex md:w-full max-w-[320px] items-center justify-between gap-3 rounded-full bg-primary p-2 pr-5 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30 sm:w-auto sm:min-w-[290px] sm:gap-5 sm:pr-7"
+          >
+            <span
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-sm sm:h-12 sm:w-12"
+            >
+              <ShoppingCart
+                className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </span>
+
+            <span
+              class="whitespace-nowrap text-sm font-bold text-white sm:text-lg"
+            >
+              Explore TweakMart
+            </span>
+          </a>
+
+          <p
+            class="relative mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground dark:text-white"
+          >
+            Smarter tech starts here
+          </p>
+
+          <div
+            class="relative mt-7 w-full max-w-xs border-t border-slate-300 pt-5 lg:ml-auto"
+          >
+            <p class="text-sm font-semibold text-foreground dark:text-white">
+              The right tools make a difference.
+            </p>
+
+            <p class="mt-1 text-xs leading-5 text-muted-foreground dark:text-white">
+              Discover practical technology selected to complement the way you
+              work, learn, create, and stay connected.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Gives the primary store CTA a subtle breathing animation. */
+  @keyframes tweakmartCtaPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.025);
+    }
+  }
+
+  /* Keeps the CTA noticeable without making the animation distracting. */
+  .tweakmart-cta {
+    animation: tweakmartCtaPulse 2.5s ease-in-out infinite;
+  }
+
+  /* Moves one complete copy of the duplicated product collection. */
+  @keyframes tweakmartProductScroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+
+    to {
+      transform: translate3d(calc(-50% - 0.375rem), 0, 0);
+    }
+  }
+
+  /* Keeps the animated track independent from the width of its parent. */
+  .tweakmart-product-track {
+    animation: tweakmartProductScroll 20s linear infinite;
+    will-change: transform;
+  }
+
+  /* Adds a subtle interaction to individual product images. */
+  .tweakmart-product-item:hover img {
+    transform: scale(1.06);
+  }
+
+  /* Slightly slows the carousel once the larger desktop cards are active. */
+  @media (min-width: 640px) {
+    .tweakmart-product-track {
+      animation-duration: 22s;
+    }
+  }
+
+  /* Disables decorative motion when reduced motion is requested. */
+  @media (prefers-reduced-motion: reduce) {
+    .tweakmart-cta,
+    .tweakmart-product-track {
+      animation: none;
+    }
+  }
+</style>

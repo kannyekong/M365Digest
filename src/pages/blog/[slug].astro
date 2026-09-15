@@ -53,6 +53,9 @@ const readingTime = calculateReadingTime(post.content);
 
 const toc = generateTableOfContents(post.content);
 
+console.log("BLOG CONTENT:", JSON.stringify(post.content, null, 2));
+console.log("GENERATED TOC:", toc);
+
 const { data: relatedPosts } = await getRelatedPosts(post.slug);
 
 const siteUrl = Astro.site?.toString() ?? "https://cloudtweak.com";
@@ -249,7 +252,7 @@ const articleSchema = {
                     <span aria-hidden="true"> • </span>
 
                     <span>
-                      {readingTime} min read
+                      {readingTime}
                     </span>
                   </div>
                 </div>

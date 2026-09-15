@@ -7,6 +7,8 @@ import {
   Network,
   Globe,
   Users,
+  Building,
+  Briefcase,
   Rocket,
   SquareArrowOutDownRight,
   ArrowRight,
@@ -16,6 +18,8 @@ import {
   ShieldCheck,
   GraduationCap,
   Computer,
+  Atom,
+  Play,
 } from "lucide-astro";
 
 import { listServices } from "../../lib/services";
@@ -28,6 +32,13 @@ const serviceIcons = {
   "Networking Solutions": Network,
   "Software Development": Globe,
 };
+
+interface Props {
+  videoUrl?: string;
+}
+
+const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
+  Astro.props;
 ---
 
 <div class="text-center px-6 md:max-w-3xl mx-auto mb-16 space-y-6">
@@ -47,8 +58,8 @@ const serviceIcons = {
           dark:text-blue-300
           backdrop-blur-xl"
   >
-    <Users size={18} />
-    What we offer
+    <Briefcase size={18} />
+    Our services
   </span>
 
   <Title className="mt-5 px-6">
@@ -59,12 +70,6 @@ const serviceIcons = {
       Scale with Technology
     </span>
   </Title>
-
-  <p class="mt-5 dark:text-white">
-    We deliver practical technology solutions that empower businesses to embrace
-    cloud transformation, strengthen security, improve collaboration, and
-    accelerate digital growth.
-  </p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 px-4 md:px-6">
@@ -141,25 +146,28 @@ const serviceIcons = {
 </div>
 
 <section class="relative overflow-hidden py-12" id="about">
-  <!-- Background -->
-  <div class="absolute inset-0 -z-10">
-    <div
-      class="absolute left-0 top-0 h-96 w-96 rounded-full bg-primary/10 blur-[140px]"
-    >
-    </div>
-    <div
-      class="absolute right-0 bottom-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-[140px]"
-    >
-    </div>
-  </div>
-
-  <div class="mx-auto max-w-7xl px-3">
+  <div class="mx-auto max-w-full px-3">
     <!-- Header -->
 
-    <div class="max-w-5xl mx-auto text-center px-6">
+    <div class="max-w-7xl mx-auto text-center px-6">
       <span
-        class="inline-flex rounded-full mb-5 border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary backdrop-blur-xl"
+        class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-blue-500/20
+          bg-blue-500/10
+          px-5
+          py-2
+          text-sm
+          mb-8
+          font-medium
+          text-blue-700
+          dark:text-blue-300
+          backdrop-blur-xl"
       >
+        <Atom size={18} />
         About Us
       </span>
       <Title
@@ -172,39 +180,90 @@ const serviceIcons = {
       </Title>
     </div>
 
-    <div class="mt-20 grid gap-14 lg:grid-cols-2">
+    <div class="mt-15 grid gap-14 lg:grid-cols-2 md:px-4">
       <!-- Left -->
 
       <div>
-        <h3 class="text-2xl font-bold text-heading-1">
-          Technology should empower people—not complicate their work.
-        </h3>
+        <div class="relative lg:sticky lg:top-28">
+          <div
+            class="absolute -inset-6 -z-10 rounded-[2.5rem] bg-primary/5 blur-3xl"
+            aria-hidden="true"
+          >
+          </div>
 
-        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
-          Businesses today have access to powerful cloud platforms, artificial
-          intelligence, workflow automation, and low-code technologies, but many
-          continue to rely on manual processes that slow productivity and limit
-          innovation.
-        </p>
+          <div
+            class="overflow-hidden rounded-3xl border border-slate-300 bg-card shadow-xl"
+          >
+            <div
+              class="flex items-center justify-between border-b border-border bg-muted/40 px-5 py-4"
+            >
+              <div class="flex items-center gap-3">
+                <div class="flex gap-1.5" aria-hidden="true">
+                  <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                  ></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                  ></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                  ></span>
+                </div>
+              </div>
 
-        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
-          CloudTweak partners with organizations to integrate Microsoft 365,
-          intelligent automation, AI, cybersecurity, and cloud services into
-          their everyday operations. Our goal is simple: eliminate repetitive
-          work, simplify complex processes, and help teams accomplish more with
-          technology that works intelligently behind the scenes.
-        </p>
+              <span
+                class="rounded-full bg-blue-700 px-3 py-1 text-xs font-medium text-white"
+              >
+                From the CEO
+              </span>
+            </div>
 
-        <p class="mt-6 leading-8 text-gray-600 dark:text-gray-400">
-          Whether you're modernizing your workplace, automating business
-          processes, migrating to the cloud, or developing technical talent
-          through our CloudTweak Academy, we provide practical solutions that
-          deliver measurable business outcomes.
-        </p>
+            <div class="relative aspect-video bg-black">
+              <iframe
+                src={videoUrl}
+                title="Inside the CloudTweak Classroom"
+                class="absolute inset-0 h-full w-full"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+            </div>
+
+            <div class="p-5 sm:p-6">
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 dark:border border-white"
+                >
+                  <Play className="h-5 w-5 fill-primary text-primary" />
+                </div>
+
+                <div>
+                  <h3 class="font-semibold text-foreground sm:text-lg dark:text-white">
+                    Reimagine how your business works with AI—automate smarter,
+                    operate faster, and achieve more.
+                  </h3>
+
+                  <p class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white">
+                    See how businesses can harness AI to streamline operations,
+                    automate everyday processes, and unlock new levels of
+                    productivity across the organization.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="mt-5 flex flex-wrap gap-x-2 md:gap-x-5 gap-y-2 border-t border-slate-300 pt-5 text-xs font-medium text-muted-foreground sm:text-sm dark:text-white"
+              >
+                <span>#Copilot</span>
+                <span>#Claude</span>
+                <span>#Open AI</span>
+                <span>#Zapier</span>
+                <span>#n8n</span>
+                <span>#Make</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <a
           href="/solutions"
-          class="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+          class="mt-10 inline-flex justify-center items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
         >
           Explore Our Solutions
 
@@ -216,7 +275,7 @@ const serviceIcons = {
 
       <div class="grid gap-5">
         <div
-          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+          class="group rounded-3xl border border-box-border bg-blue-50 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
         >
           <div class="flex items-center gap-5">
             <div
@@ -240,7 +299,7 @@ const serviceIcons = {
         </div>
 
         <div
-          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+          class="group rounded-3xl border border-box-border bg-green-50 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
         >
           <div class="flex items-center gap-5">
             <div
@@ -264,7 +323,7 @@ const serviceIcons = {
         </div>
 
         <div
-          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+          class="group rounded-3xl border border-box-border bg-cyan-50 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
         >
           <div class="flex items-center gap-5">
             <div
@@ -288,7 +347,7 @@ const serviceIcons = {
         </div>
 
         <div
-          class="group rounded-3xl border border-box-border bg-white/70 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
+          class="group rounded-3xl border border-box-border bg-violet-50 dark:bg-box-bg/70 backdrop-blur-xl p-6 transition hover:-translate-y-1 hover:border-primary/30"
         >
           <div class="flex items-center gap-5">
             <div

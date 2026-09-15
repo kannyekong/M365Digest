@@ -1,62 +1,233 @@
 ---
 import Container from "../shared/Container.astro";
-import { Quote, Star, UserCircle } from "lucide-astro";
+import {
+  BadgeCheck,
+  Quote,
+  Sparkles,
+  Star,
+  UserRound,
+} from "lucide-astro";
 import Title from "../shared/Title.astro";
 import { listTestimonials } from "../../lib/testimonials";
 
+/* Fetches approved testimonials used by the scrolling testimonial showcase. */
 const { data: testimonials } = await listTestimonials();
+
+/* Duplicates testimonials to create a seamless continuous carousel. */
+const testimonialItems = [
+  ...(testimonials ?? []),
+  ...(testimonials ?? []),
+];
 ---
 
-<section class="py-12 overflow-hidden">
+<section class="relative overflow-hidden pb-10">
+  <!-- Decorative background glows -->
+  <div
+    class="pointer-events-none absolute -left-32 top-1/3 h-80 w-80 rounded-full bg-blue-500/5 blur-[120px]"
+    aria-hidden="true"
+  ></div>
+
+  <div
+    class="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-violet-500/5 blur-[140px]"
+    aria-hidden="true"
+  ></div>
+
   <Container>
-    <div class="text-center max-w-3xl mx-auto">
-      <Title className="mt-5">
-        What our
+    <!-- Section heading -->
+    <div class="mx-auto max-w-3xl text-center">
+      <div
+        class="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-xs font-semibold text-primary"
+      >
+        <Sparkles size={15} />
+        Client Stories
+      </div>
+
+      <Title className="mt-0">
+        Trusted by those who
         <span
           class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
         >
-          Clients say
+          work with us
         </span>
       </Title>
+
+      <p
+        class="mx-auto mt-5 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base dark:text-white"
+      >
+        Real experiences from clients and professionals who have worked with
+        CloudTweak.
+      </p>
     </div>
   </Container>
 
-  <div class="relative mt-10">
-    <div class="testimonial-track">
+  <!-- Testimonial carousel -->
+  <div class="relative mt-12 sm:mt-14">
+    <!-- Left carousel fade -->
+    <div
+      class="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-background to-transparent sm:w-24 lg:w-40"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Right carousel fade -->
+    <div
+      class="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-background to-transparent sm:w-24 lg:w-40"
+      aria-hidden="true"
+    ></div>
+
+    <div class="testimonial-track flex w-max gap-5 py-4 sm:gap-6">
       {
-        [...(testimonials ?? []), ...(testimonials ?? [])].map((item) => (
-          <div class="w-[380px] shrink-0 rounded-3xl border border-box-border bg-white dark:bg-box-bg p-8 shadow-xl">
-            <Quote class="text-primary mb-5" size={34} />
+        testimonialItems.map((item, index) => (
+          <article
+            class="testimonial-card group relative flex w-[310px] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_10px_40px_-20px_rgba(15,23,42,0.25)] transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-[0_20px_55px_-25px_rgba(37,99,235,0.35)] sm:w-[390px] sm:p-8"
+            aria-hidden={
+              index >= (testimonials?.length ?? 0) ? "true" : undefined
+            }
+          >
+            <!-- Decorative corner glow -->
+            <div
+              class="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-primary/5 blur-3xl transition-all duration-700 group-hover:bg-primary/10"
+              aria-hidden="true"
+            ></div>
 
-            <p class="leading-7 text-gray-600 dark:text-gray-300">
-              "{item.testimonial}"
-            </p>
+            <!-- Top accent -->
+            <div
+              class="absolute left-8 right-8 top-0 h-[3px] rounded-b-full bg-gradient-to-r from-blue-500 via-primary to-violet-500 opacity-70"
+              aria-hidden="true"
+            ></div>
 
-            <div class="mt-6 flex">
-              {Array.from({ length: 5 }).map((_, index) => (
+            <!-- Oversized decorative quote -->
+            <Quote
+              size={110}
+              strokeWidth={1}
+              class="pointer-events-none absolute -right-4 top-7 rotate-6 text-primary/[0.045]"
+              aria-hidden="true"
+            />
+
+            <!-- Rating and quote icon -->
+            <div class="relative flex items-center justify-between">
+              <div
+                class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-500 group-hover:-rotate-3 group-hover:scale-105"
+              >
+                <Quote size={22} strokeWidth={2} />
+              </div>
+
+              <div
+                class="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5"
+              >
+                <Star
+                  size={14}
+                  class="fill-amber-400 text-amber-400"
+                />
+
+                <span class="text-xs font-bold text-amber-700">
+                  {Number(item.rating ?? 0).toFixed(1)}
+                </span>
+              </div>
+            </div>
+
+            <!-- Testimonial -->
+            <div class="relative mt-7 flex-1">
+              <p
+                class="text-[15px] font-medium leading-7 text-slate-700 sm:text-base sm:leading-8"
+              >
+                “{item.testimonial}”
+              </p>
+            </div>
+
+            <!-- Five-star display -->
+            <div class="relative mt-6 flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, starIndex) => (
                 <Star
                   size={16}
                   class={
-                    index < Number(item.rating ?? 0)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "fill-transparent text-gray-300 dark:text-gray-600"
+                    starIndex < Number(item.rating ?? 0)
+                      ? "fill-amber-400 text-amber-400"
+                      : "fill-transparent text-slate-250"
                   }
                 />
               ))}
             </div>
 
-            <div class="flex items-center gap-4 mt-8">
-              <UserCircle />
+            <!-- Client information -->
+            <div
+              class="relative mt-7 flex items-center gap-4 border-t border-slate-100 pt-6"
+            >
+              <!-- Avatar -->
+              <div class="relative shrink-0">
+                <div
+                  class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-indigo-100 text-primary ring-4 ring-white shadow-sm"
+                >
+                  <UserRound size={22} strokeWidth={1.8} />
+                </div>
 
-              <div>
-                <h4 class="font-semibold text-heading-1">{item.full_name}</h4>
-
-                <p class="text-sm text-gray-500">{item.position}</p>
+                <!-- Verified indicator -->
+                <div
+                  class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white ring-2 ring-white"
+                  title="Verified client"
+                >
+                  <BadgeCheck size={12} strokeWidth={2.5} />
+                </div>
               </div>
+
+              <!-- Name and position -->
+              <div class="min-w-0 flex-1">
+                <h4
+                  class="truncate text-sm font-bold text-slate-950 sm:text-base"
+                >
+                  {item.full_name}
+                </h4>
+
+                <p class="mt-0.5 truncate text-xs text-slate-500 sm:text-sm">
+                  {item.position}
+                </p>
+              </div>
+
+              <!-- Decorative mark -->
+              <div
+                class="hidden h-8 w-px bg-slate-200 sm:block"
+                aria-hidden="true"
+              ></div>
+
+              <span
+                class="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 sm:block"
+              >
+                Client
+              </span>
             </div>
-          </div>
+          </article>
         ))
       }
     </div>
   </div>
 </section>
+
+<style>
+  /* Moves one complete copy of the duplicated testimonials for a seamless loop. */
+  @keyframes testimonialScroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+
+    to {
+      transform: translate3d(calc(-50% - 0.75rem), 0, 0);
+    }
+  }
+
+  /* Creates the continuous testimonial carousel movement. */
+  .testimonial-track {
+    animation: testimonialScroll 45s linear infinite;
+    will-change: transform;
+  }
+
+  /* Pauses the carousel while a visitor is interacting with a testimonial. */
+  .testimonial-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* Disables decorative movement for visitors requesting reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .testimonial-track {
+      animation: none;
+    }
+  }
+</style>

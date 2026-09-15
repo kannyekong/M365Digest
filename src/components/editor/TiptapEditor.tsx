@@ -3,7 +3,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-
+import Image from "@tiptap/extension-image";
 import { common, createLowlight } from "lowlight";
 
 import Toolbar from "./Toolbar";
@@ -24,6 +24,13 @@ export default function TiptapEditor({ value, onChange }: TiptapEditorProps) {
 
       CodeBlockLowlight.configure({
         lowlight,
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: false,
+        HTMLAttributes: {
+          class: "my-8 h-auto w-full rounded-2xl object-cover shadow-md",
+        },
       }),
     ],
 

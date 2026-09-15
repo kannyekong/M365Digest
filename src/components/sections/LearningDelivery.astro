@@ -1,0 +1,442 @@
+---
+import {
+  Presentation,
+  FlaskConical,
+  BriefcaseBusiness,
+  ArrowRight,
+  BookOpen,
+  Laptop,
+  BarChart3,
+  Award,
+  GraduationCap,
+  BadgeCheck,
+  Play,
+} from "lucide-react";
+
+interface Props {
+  videoUrl?: string;
+}
+
+const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
+  Astro.props;
+---
+
+<section>
+  <div class="mx-auto max-w-full px-4">
+    <div class="mx-auto mb-14 max-w-3xl text-center lg:mb-16">
+      <span
+        class="inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-blue-500/20
+          bg-blue-500/10
+          px-5
+          py-2
+          text-sm
+          mb-8
+          font-medium
+          text-blue-700
+          dark:text-blue-300
+          backdrop-blur-xl"
+      >
+        <GraduationCap size={18} />
+        Our Academy
+      </span>
+
+      <h2
+        class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl dark:text-white"
+      >
+        Learn it. <span
+          class="bg-gradient-to-r from-indigo-600 via-primary to-emerald-500 bg-clip-text text-transparent"
+          >Build it.</span
+        > Apply it.
+      </h2>
+
+      <div class="mt-6 flex justify-center">
+        <div class="flex items-center justify-center gap-4 sm:gap-5">
+          <div class="flex shrink-0 items-center -space-x-3">
+            <img
+              src="/images/headshots/h5.jpg"
+              alt="CloudTweak Academy learner"
+              class="relative z-40 h-11 w-11 rounded-full border-[3px] border-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <img
+              src="/images/headshots/h4.jpeg"
+              alt="CloudTweak Academy learner"
+              class="relative z-30 h-11 w-11 rounded-full border-[3px] border-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <img
+              src="/images/headshots/h1.jpg"
+              alt="CloudTweak Academy learner"
+              class="relative z-20 h-11 w-11 rounded-full border-[3px] border-background object-cover shadow-sm sm:h-12 sm:w-12"
+              loading="lazy"
+            />
+
+            <div
+              class="relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-background bg-primary/10 text-xs font-bold text-primary sm:h-12 sm:w-12 sm:text-sm"
+            >
+              +2K
+            </div>
+          </div>
+
+          <p
+            class="text-left text-sm leading-5 text-muted-foreground sm:text-base dark:text-white"
+          >
+            Join
+            <span class="font-semibold text-foreground">2,000+ learners</span>
+            <br />
+            advancing their careers
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16"
+    >
+      <div>
+        <div class="relative">
+          <div class="space-y-0">
+            <!-- Instructor-Led Learning -->
+            <div class="relative flex gap-5 pb-8">
+              <div class="relative flex shrink-0 flex-col items-center">
+                <div
+                  class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-500 shadow-sm"
+                >
+                  <Presentation className="h-4 w-4 text-white" />
+                </div>
+
+                <div
+                  class="absolute left-1/2 top-10 h-[calc(100%_-_2.5rem)] w-px -translate-x-1/2 bg-gradient-to-b from-teal-500 to-blue-500"
+                  aria-hidden="true"
+                >
+                </div>
+              </div>
+
+              <div class="pb-1">
+                <div class="mb-2 flex items-center gap-3">
+                  <span
+                    class="text-xs font-semibold uppercase tracking-[0.18em] text-teal-500"
+                  >
+                    01
+                  </span>
+
+                  <span class="h-px w-6 bg-border"></span>
+                </div>
+
+                <h3 class="text-lg font-semibold text-teal-500 sm:text-xl">
+                  Instructor-Led Learning
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-muted-foreground sm:text-base dark:text-white"
+                >
+                  Learn core concepts through structured instructor-led sessions
+                  that combine technical explanations, practical demonstrations,
+                  and real-world context.
+                </p>
+              </div>
+            </div>
+
+            <!-- Guided Hands-On Labs -->
+            <div class="relative flex gap-5 pb-8">
+              <div class="relative flex shrink-0 flex-col items-center">
+                <div
+                  class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 shadow-sm"
+                >
+                  <FlaskConical className="h-4 w-4 text-white" />
+                </div>
+
+                <div
+                  class="absolute left-1/2 top-10 h-[calc(100%_-_2.5rem)] w-px -translate-x-1/2 bg-gradient-to-b from-blue-500 to-pink-500"
+                  aria-hidden="true"
+                >
+                </div>
+              </div>
+
+              <div class="pb-1">
+                <div class="mb-2 flex items-center gap-3">
+                  <span
+                    class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-500"
+                  >
+                    02
+                  </span>
+
+                  <span class="h-px w-6 bg-border"></span>
+                </div>
+
+                <h3 class="text-lg font-semibold text-blue-500 sm:text-xl">
+                  Guided Hands-On Labs
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-muted-foreground sm:text-base dark:text-white"
+                >
+                  Work directly with real tools and environments through guided
+                  exercises designed to help you configure, build, troubleshoot,
+                  and experiment as you learn.
+                </p>
+              </div>
+            </div>
+
+            <!-- Real-World Projects -->
+            <div class="relative flex gap-5 pb-8">
+              <div class="relative flex shrink-0 flex-col items-center">
+                <div
+                  class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pink-500 shadow-sm"
+                >
+                  <BriefcaseBusiness className="h-4 w-4 text-white" />
+                </div>
+
+                <div
+                  class="absolute left-1/2 top-10 h-[calc(100%_-_2.5rem)] w-px -translate-x-1/2 bg-gradient-to-b from-pink-500 to-purple-500"
+                  aria-hidden="true"
+                >
+                </div>
+              </div>
+
+              <div class="pb-1">
+                <div class="mb-2 flex items-center gap-3">
+                  <span
+                    class="text-xs font-semibold uppercase tracking-[0.18em] text-pink-500"
+                  >
+                    03
+                  </span>
+
+                  <span class="h-px w-6 bg-border"></span>
+                </div>
+
+                <h3 class="text-lg font-semibold text-pink-500 sm:text-xl">
+                  Real-World Projects
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-muted-foreground sm:text-base dark:text-white"
+                >
+                  Apply your skills to realistic business scenarios and projects
+                  built around the kinds of challenges professionals encounter
+                  in modern workplaces.
+                </p>
+              </div>
+            </div>
+
+            <!-- Assessment & Validation -->
+            <div class="relative flex gap-5">
+              <div class="relative flex shrink-0 flex-col items-center">
+                <div
+                  class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-500 shadow-sm"
+                >
+                  <GraduationCap className="h-4 w-4 text-white" />
+                </div>
+              </div>
+
+              <div>
+                <div class="mb-2 flex items-center gap-3">
+                  <span
+                    class="text-xs font-semibold uppercase tracking-[0.18em] text-purple-500"
+                  >
+                    04
+                  </span>
+
+                  <span class="h-px w-6 bg-border"></span>
+                </div>
+
+                <h3 class="text-lg font-semibold text-purple-500 sm:text-xl">
+                  Earn Your Certificate
+                </h3>
+
+                <p
+                  class="mt-2 text-sm leading-6 text-muted-foreground sm:text-base dark:text-white"
+                >
+                  Complete the program requirements and earn a CloudTweak
+                  Academy certificate that recognizes the practical skills and
+                  knowledge you have developed throughout your learning journey.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academy conversion banner -->
+        <div
+          class="relative mt-6 overflow-hidden rounded-[2rem] border border-slate-300 bg-gradient-to-br from-background via-background to-primary/10 px-6 py-6 shadow-sm:px-10"
+        >
+          <div
+            class="relative grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:gap-12"
+          >
+            <!-- Left content -->
+            <div>
+              <h3
+                class="max-w-2xl text-2xl text-center font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl dark:text-white"
+              >
+                Turn Your Skills Into
+                <span class="relative inline-block text-primary">
+                  Opportunities
+
+                  <svg
+                    viewBox="0 0 220 12"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                    class="absolute -bottom-2 left-0 h-2 w-full text-primary/70"
+                  >
+                    <path
+                      d="M3 8C57 3 140 2 217 7"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"></path>
+                  </svg>
+                </span>
+              </h3>
+            </div>
+
+            <!-- Right CTA -->
+            <div
+              class="relative flex flex-col items-center justify-center text-center lg:items-end lg:text-right"
+            >
+              <!-- CTA -->
+              <a
+                href="/academy"
+                class="academy-cta group relative inline-flex md:w-full max-w-sm items-center justify-between gap-1 rounded-full bg-primary p-2 pl-3 pr-7 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30 sm:w-auto sm:min-w-[290px]"
+              >
+                <span
+                  class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-primary shadow-sm"
+                >
+                  <ArrowRight
+                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                </span>
+
+                <span class="text-white font-bold sm:text-lg">
+                  Explore all Programs
+                </span>
+              </a>
+
+              <p
+                class="relative mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground dark:text-white"
+              >
+                Invest in your future today
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          /* Creates a soft repeating attention pulse without making the CTA distracting. */
+          @keyframes academyCtaPulse {
+            0%,
+            100% {
+              box-shadow:
+                0 10px 25px -5px rgb(var(--primary) / 0.2),
+                0 0 0 0 rgb(var(--primary) / 0.2);
+            }
+
+            50% {
+              box-shadow:
+                0 14px 30px -5px rgb(var(--primary) / 0.3),
+                0 0 0 9px rgb(var(--primary) / 0);
+            }
+          }
+
+          /* Applies the animation while still allowing the hover interaction to feel responsive. */
+          .academy-cta {
+            animation: academyCtaPulse 2.8s ease-out infinite;
+          }
+
+          /* Respects visitors who have reduced-motion enabled on their device. */
+          @media (prefers-reduced-motion: reduce) {
+            .academy-cta {
+              animation: none;
+            }
+          }
+        </style>
+      </div>
+
+      <div class="relative lg:sticky">
+        <div
+          class="absolute -inset-6 -z-10 rounded-[2.5rem] bg-primary/5 blur-3xl"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div
+          class="overflow-hidden rounded-3xl border border-slate-300 bg-card shadow-xl"
+        >
+          <div
+            class="flex items-center justify-between border-b border-border bg-muted/40 px-5 py-4"
+          >
+            <div class="flex items-center gap-3">
+              <div class="flex gap-1.5" aria-hidden="true">
+                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                ></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                ></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
+                ></span>
+              </div>
+
+              <span
+                class="hidden text-sm font-medium text-muted-foreground sm:block dark:text-white"
+              >
+                Inside the CloudTweak Classroom
+              </span>
+            </div>
+
+            <span
+              class="rounded-full bg-blue-700 px-3 py-1 text-xs font-medium text-white"
+            >
+              Hands-on Learning
+            </span>
+          </div>
+
+          <div class="relative aspect-video bg-black">
+            <iframe
+              src={videoUrl}
+              title="Inside the CloudTweak Classroom"
+              class="absolute inset-0 h-full w-full"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+
+          <div class="p-5 sm:p-6">
+            <div class="flex items-start gap-4">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 dark:border border-white"
+              >
+                <Play className="h-5 w-5 fill-primary text-primary" />
+              </div>
+
+              <div>
+                <h3 class="font-semibold text-foreground sm:text-lg dark:text-white">
+                  See how we learn at CloudTweak
+                </h3>
+
+                <p class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white">
+                  Watch a preview of our instructor-led, hands-on learning
+                  experience and discover how we turn technical concepts into
+                  practical skills.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="mt-5 flex flex-wrap gap-x-2 md:gap-x-5 gap-y-2 border-t border-slate-300 pt-5 text-xs font-medium text-muted-foreground sm:text-sm dark:text-white"
+            >
+              <span>Instructor-led</span>
+              <span>Hands-on</span>
+              <span>Project-based</span>
+              <span>Career-focused</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
