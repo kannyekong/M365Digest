@@ -58,7 +58,7 @@ console.log("GENERATED TOC:", toc);
 
 const { data: relatedPosts } = await getRelatedPosts(post.slug);
 
-const siteUrl = Astro.site?.toString() ?? "https://cloudtweak.com";
+const siteUrl = Astro.site?.toString() ?? "https://cloudtweak.net";
 
 const articleUrl =
   post.canonical_url || new URL(`/blog/${post.slug}`, siteUrl).toString();
