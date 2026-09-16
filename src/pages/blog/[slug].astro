@@ -14,11 +14,7 @@ import { Facebook, Linkedin, Twitter } from "lucide-astro";
 
 import { ToastContainer } from "react-toastify";
 
-import {
-  getPostBySlug,
-  getPublishedPosts,
-  getRelatedPosts,
-} from "../../lib/blog";
+import { getPostBySlug, getRelatedPosts } from "../../lib/blog";
 
 import { calculateReadingTime } from "../../utils/readingTime";
 import { generateTableOfContents } from "../../utils/tableOfContents";
@@ -27,23 +23,16 @@ import BlogLikeButton from "../../islands/BlogLikeButton";
 /**
  * Generate all statically rendered blog post routes.
  */
-export async function getStaticPaths() {
-  const { data: posts } = await getPublishedPosts();
-
-  return (
-    posts?.map((post) => ({
-      params: {
-        slug: post.slug,
-      },
-    })) ?? []
-  );
-}
-
-export const prerender = true;
 
 const { slug } = Astro.params;
 
-const { data: post } = await getPostBySlug(slug!);
+// Redirect when the request does not contain a valid blog slug.
+if (!slug) {
+  return Astro.redirect("/blog");
+}
+
+// Retrieve the published post at request time.
+const { data: post } = await getPostBySlug(slug);
 
 if (!post) {
   return Astro.redirect("/blog");

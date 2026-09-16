@@ -23,24 +23,11 @@ import {
   getAcademyModuleLessons,
   getAcademyProgramBySlug,
   getAcademyProgramModules,
-  getPublishedAcademyPrograms,
 } from "../../lib/academy";
 import { getAcademyProgramInstructors } from "../../lib/academy_program_instructors";
 import type { AcademyLesson, AcademyProgram } from "../../types/academy";
 
 export const prerender = true;
-
-export async function getStaticPaths() {
-  // Retrieve every published Academy program for static route generation.
-  const programs = await getPublishedAcademyPrograms();
-
-  // Create one dynamic route for each published program slug.
-  return (programs ?? []).map((program) => ({
-    params: {
-      slug: program.slug,
-    },
-  }));
-}
 
 const { slug } = Astro.params;
 

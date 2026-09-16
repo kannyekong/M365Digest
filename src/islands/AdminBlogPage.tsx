@@ -504,7 +504,7 @@ export default function AdminBlogPage() {
           title="Total Articles"
           value={totalPosts}
           icon="articles"
-          color="bg-pink-300"
+          color="bg-pink-500"
         />
 
         <StatCard

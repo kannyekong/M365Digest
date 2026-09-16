@@ -1,30 +1,17 @@
 ---
 import "../../../styles/global.css";
-import { ArrowLeft, GraduationCap } from "lucide-astro";
+
+import { ArrowLeft } from "lucide-astro";
+
 import Layout from "../../../layouts/Layout.astro";
+
 import AcademyRegistrationForm from "../../../components/academy/registration/AcademyRegistrationForm";
+
 import Container from "../../../components/shared/Container.astro";
-import {
-  getAcademyProgramBySlug,
-  getPublishedAcademyPrograms,
-} from "../../../lib/academy";
+
+import { getAcademyProgramBySlug } from "../../../lib/academy";
+
 import type { AcademyProgram } from "../../../types/academy";
-
-export const prerender = true;
-/**
- * Generate one registration route for every published Academy program.
- */
-export async function getStaticPaths() {
-  // Retrieve all programs that are publicly available.
-  const programs = await getPublishedAcademyPrograms();
-
-  // Generate /academy/[slug]/register for each program.
-  return (programs ?? []).map((program) => ({
-    params: {
-      slug: program.slug,
-    },
-  }));
-}
 
 const { slug } = Astro.params;
 
@@ -33,7 +20,7 @@ if (!slug) {
   return Astro.redirect("/academy");
 }
 
-// Retrieve the selected Academy program.
+// Retrieve the selected Academy program at request time.
 const program: AcademyProgram | null = await getAcademyProgramBySlug(
   slug
 ).catch(() => null);
@@ -42,7 +29,6 @@ const program: AcademyProgram | null = await getAcademyProgramBySlug(
 if (!program || program.status !== "published") {
   return Astro.redirect("/academy");
 }
-
 /**
  * Format the program duration for the form summary.
  */
