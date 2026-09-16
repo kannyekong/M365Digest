@@ -46,8 +46,6 @@ function formatPostDate(date: string) {
         Ideas, insights &
         <span class="text-primary">practical knowledge.</span>
       </h2>
-
-      
     </div>
 
     {
@@ -62,7 +60,12 @@ function formatPostDate(date: string) {
                 loading="lazy"
               />
 
-              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/5" />
+              <div class="absolute inset-0 bg-black/60" aria-hidden="true" />
+
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/50"
+                aria-hidden="true"
+              />
 
               <div class="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md sm:left-7 sm:top-7">
                 <Sparkles class="h-3.5 w-3.5" />
@@ -71,11 +74,11 @@ function formatPostDate(date: string) {
 
               <div class="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                 <div class="mb-4 flex flex-wrap items-center gap-3 text-xs font-medium text-white/70">
-                  <span class="rounded-full bg-white/10 px-3 py-1 backdrop-blur-md">
+                  <span class="rounded-full bg-pink-500 px-3 py-1 backdrop-blur-md">
                     Technology
                   </span>
 
-                  <span class="flex items-center gap-1.5">
+                  <span class="flex items-center gap-1.5 border rounded-full px-3 py-0.5">
                     <Clock3 class="h-3.5 w-3.5" />
                     {formatPostDate(featuredPost.created_at)}
                   </span>
@@ -96,7 +99,6 @@ function formatPostDate(date: string) {
                   class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white"
                 >
                   Read Article
-
                   <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </a>
               </div>
@@ -111,6 +113,11 @@ function formatPostDate(date: string) {
                       alt={post.title}
                       class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
+                    />
+
+                    <div
+                      class="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/10"
+                      aria-hidden="true"
                     />
 
                     <div class="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground backdrop-blur-md">
@@ -133,7 +140,6 @@ function formatPostDate(date: string) {
                       class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary"
                     >
                       Read Insight
-
                       <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                     </a>
                   </div>
@@ -171,16 +177,13 @@ function formatPostDate(date: string) {
                 class="blog-cta group inline-flex w-fit shrink-0 items-center gap-3 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
               >
                 <BookOpenText class="h-4 w-4" />
-
                 Explore All Insights
-
                 <ArrowRight class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
             </div>
           </div>
         </>
       ) : (
-        <!-- Empty state if no published posts are available -->
         <div class="rounded-[2rem] border border-slate-300 bg-muted/30 px-6 py-16 text-center">
           <Newspaper class="mx-auto h-8 w-8 text-primary" />
 
@@ -189,8 +192,8 @@ function formatPostDate(date: string) {
           </h3>
 
           <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground dark:text-white">
-            We're preparing practical insights, guides, and perspectives to
-            help you get more from modern technology.
+            We're preparing practical insights, guides, and perspectives to help
+            you get more from modern technology.
           </p>
         </div>
       )
