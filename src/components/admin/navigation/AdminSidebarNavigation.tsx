@@ -12,6 +12,7 @@ import {
   Newspaper,
   Settings,
   Sparkles,
+  Handshake,
   Store,
   UserPen,
   Users,
@@ -32,6 +33,7 @@ export type AdminNavigationIcon =
   | "insights"
   | "careers"
   | "library"
+  | "procurement"
   | "finance"
   | "settings";
 
@@ -135,6 +137,9 @@ function getNavigationIcon(icon?: AdminNavigationIcon) {
 
     case "staff":
       return UserPen;
+
+    case "procurement":
+      return Handshake;
 
     case "academy":
       return GraduationCap;

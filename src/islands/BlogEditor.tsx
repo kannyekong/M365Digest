@@ -677,23 +677,11 @@ export default function BlogEditor({ editMode = false }: BlogEditorProps) {
                 >
                   <option>General</option>
 
+                  <option>Technology</option>
+
                   <option>Microsoft 365</option>
 
-                  <option>Exchange Online</option>
-
-                  <option>SharePoint</option>
-
-                  <option>Microsoft Teams</option>
-
-                  <option>Microsoft Entra ID</option>
-
-                  <option>Microsoft Defender</option>
-
-                  <option>Microsoft Intune</option>
-
-                  <option>Power Platform</option>
-
-                  <option>Copilot</option>
+                  <option>AI Automation</option>
                 </select>
               </div>
 

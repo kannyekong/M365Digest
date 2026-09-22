@@ -1,4 +1,6 @@
 ---
+import { Picture } from "astro:assets";
+import { Image, Wallpaper } from "lucide-astro";
 import {
   Presentation,
   FlaskConical,
@@ -380,12 +382,6 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
                 <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
                 ></span>
               </div>
-
-              <span
-                class="hidden text-sm font-medium text-muted-foreground sm:block dark:text-white"
-              >
-                Inside the CloudTweak Classroom
-              </span>
             </div>
 
             <span
@@ -396,13 +392,7 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
           </div>
 
           <div class="relative aspect-video bg-black">
-            <iframe
-              src={videoUrl}
-              title="Inside the CloudTweak Classroom"
-              class="absolute inset-0 h-full w-full"
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen></iframe>
+            <img src="images/trainingbanner.png" />
           </div>
 
           <div class="p-5 sm:p-6">
@@ -410,15 +400,19 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
               <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 dark:border border-white"
               >
-                <Play className="h-5 w-5 fill-primary text-primary" />
+                <Wallpaper className="h-5 w-5 text-primary" />
               </div>
 
               <div>
-                <h3 class="font-semibold text-foreground sm:text-lg dark:text-white">
+                <h3
+                  class="font-semibold text-foreground sm:text-lg dark:text-white"
+                >
                   See how we learn at CloudTweak
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white">
+                <p
+                  class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white"
+                >
                   Watch a preview of our instructor-led, hands-on learning
                   experience and discover how we turn technical concepts into
                   practical skills.

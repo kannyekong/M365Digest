@@ -37,7 +37,7 @@ interface Props {
   videoUrl?: string;
 }
 
-const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
+const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
   Astro.props;
 ---
 
@@ -211,7 +211,7 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
               <span
                 class="rounded-full bg-blue-700 px-3 py-1 text-xs font-medium text-white"
               >
-                From the CEO
+                Insights
               </span>
             </div>
 
@@ -234,15 +234,19 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
                 </div>
 
                 <div>
-                  <h3 class="font-semibold text-foreground sm:text-lg dark:text-white">
+                  <h3
+                    class="font-semibold text-foreground sm:text-lg dark:text-white"
+                  >
                     Reimagine how your business works with AI—automate smarter,
                     operate faster, and achieve more.
                   </h3>
 
-                  <p class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white">
+                  <p
+                    class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white"
+                  >
                     See how businesses can harness AI to streamline operations,
                     automate everyday processes, and unlock new levels of
-                    productivity across the organization.
+                    productivity across your organization.
                   </p>
                 </div>
               </div>
