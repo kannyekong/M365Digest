@@ -1,10 +1,5 @@
 ---
-import {
-  Eye,
-  Globe,
-  Lightbulb,
-  Rocket,
-} from "lucide-astro";
+import { Eye, Globe, Lightbulb, Rocket } from "lucide-astro";
 
 import Title from "../shared/Title.astro";
 
@@ -27,7 +22,7 @@ const values = [
     label: "Our Mission",
     heading: "Simplifying Cloud Transformation",
     description:
-     "To help organizations work smarter by integrating AI, automation, and cloud technologies to streamline workflows, improve collaboration, and drive sustainable growth.",
+      "To help organizations work smarter by integrating AI, automation, and cloud technologies to streamline workflows, improve collaboration, and drive sustainable growth.",
     icon: Rocket,
     borderColor: "border-blue-300",
     iconBackground: "bg-blue-50",
@@ -40,7 +35,7 @@ const values = [
     label: "Our Purpose",
     heading: "Technology That Creates Meaningful Impact",
     description:
-     "To help organizations turn emerging technologies into practical business value by safely adopting AI, automating processes, and maximizing the potential of cloud solutions.",
+      "To help organizations turn emerging technologies into practical business value by safely adopting AI, automating processes, and maximizing the potential of cloud solutions.",
     icon: Lightbulb,
     borderColor: "border-purple-300",
     iconBackground: "bg-purple-50",
@@ -60,12 +55,14 @@ const values = [
   <div
     class="pointer-events-none absolute left-0 top-1/4 -z-10 h-72 w-72 rounded-full bg-blue-500/5 blur-[120px]"
     aria-hidden="true"
-  ></div>
+  >
+  </div>
 
   <div
     class="pointer-events-none absolute bottom-0 right-0 -z-10 h-96 w-96 rounded-full bg-emerald-500/5 blur-[140px]"
     aria-hidden="true"
-  ></div>
+  >
+  </div>
 
   <div class="mx-auto max-w-7xl px-6">
     <!-- Section heading -->
@@ -111,26 +108,23 @@ const values = [
                 borderColor,
               ]}
             >
-              <!-- Very subtle colored glow -->
               <div
                 class:list={[
                   "pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-0 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-100",
                   glowColor,
                 ]}
                 aria-hidden="true"
-              ></div>
+              />
 
-              <!-- Colored top accent -->
               <div
                 class:list={[
                   "absolute left-8 right-8 top-0 h-[3px] rounded-b-full opacity-70",
                   accentColor,
                 ]}
                 aria-hidden="true"
-              ></div>
+              />
 
               <div class="relative flex h-full flex-col p-7 sm:p-8 lg:p-9">
-                <!-- Icon and label -->
                 <div class="flex items-center justify-between">
                   <div
                     class:list={[
@@ -152,10 +146,9 @@ const values = [
                   </span>
                 </div>
 
-                <!-- Content -->
                 <div class="mt-10">
                   <h3
-                    class="text-2xl font-bold leading-tight text-slate-950 sm:text-[1.65rem]"
+                    class={`text-2xl font-bold leading-tight ${labelColor} sm:text-[1.65rem]`}
                   >
                     {heading}
                   </h3>
@@ -165,22 +158,16 @@ const values = [
                   </p>
                 </div>
 
-                <!-- Bottom accent -->
                 <div class="mt-auto pt-8">
                   <div class="flex items-center gap-3">
-                    <span
-                      class:list={[
-                        "h-2 w-2 rounded-full",
-                        accentColor,
-                      ]}
-                    ></span>
+                    <span class:list={["h-2 w-2 rounded-full", accentColor]} />
 
-                    <span class="h-px flex-1 bg-slate-200"></span>
+                    <span class="h-px flex-1 bg-slate-200" />
                   </div>
                 </div>
               </div>
             </article>
-          ),
+          )
         )
       }
     </div>
