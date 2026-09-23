@@ -184,7 +184,7 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
       <!-- Left -->
 
       <div>
-        <div class="relative lg:sticky lg:top-28">
+        <div class="relative lg:sticky lg:top-28" id="confetti-wrapper">
           <div
             class="absolute -inset-6 -z-10 rounded-[2.5rem] bg-primary/5 blur-3xl"
             aria-hidden="true"
@@ -202,6 +202,12 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
                 loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
+
+              <!-- Canvas confined to the same box, sits above the iframe -->
+              <canvas
+                id="confetti-canvas"
+                class="absolute inset-0 h-full w-full pointer-events-none z-10"
+              ></canvas>
             </div>
 
             <div class="p-5 sm:p-6 border-t border-slate-300">
@@ -246,7 +252,9 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
 
         <a
           href="/solutions"
-          class="mt-10 inline-flex justify-center items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+          class="mt-10 inline-flex justify-center items-center
+        gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white
+        transition hover:bg-blue-700"
         >
           Explore Our Solutions
 
@@ -354,4 +362,67 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
       </div>
     </div>
   </div>
+
+  <script>
+    import confetti from "canvas-confetti";
+
+    let confettiInterval: ReturnType<typeof setInterval> | undefined;
+
+    function initConfetti() {
+      const wrapper = document.getElementById(
+        "confetti-wrapper"
+      ) as HTMLDivElement | null;
+      const canvas = document.getElementById(
+        "confetti-canvas"
+      ) as HTMLCanvasElement | null;
+
+      if (!wrapper || !canvas) return;
+
+      // Avoid stacking multiple intervals if this script runs more than once
+      if (confettiInterval) clearInterval(confettiInterval);
+
+      const myConfetti = confetti.create(canvas, {
+        resize: true,
+        useWorker: true,
+      });
+
+      const fireGentleBurst = () => {
+        const rect = wrapper.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return; // hidden/collapsed box, skip
+
+        myConfetti({
+          particleCount: 15, // small burst, not a flood
+          spread: 55,
+          startVelocity: 25,
+          gravity: 0.9,
+          ticks: 150, // shorter lifespan so it clears before the next burst
+          origin: { x: 0.5, y: 0.5 },
+          scalar: Math.max(0.5, Math.min(0.9, rect.width / 700)),
+          zIndex: 10,
+        });
+      };
+
+      // First burst immediately, then repeat forever at a relaxed pace
+      fireGentleBurst();
+      confettiInterval = setInterval(fireGentleBurst, 3000);
+    }
+
+    function teardownConfetti() {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+        confettiInterval = undefined;
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initConfetti);
+    } else {
+      initConfetti();
+    }
+
+    // If View Transitions/ClientRouter is ever added later, these keep it
+    // from leaking intervals or double-firing across page swaps.
+    document.addEventListener("astro:before-swap", teardownConfetti);
+    document.addEventListener("astro:page-load", initConfetti);
+  </script>
 </section>
