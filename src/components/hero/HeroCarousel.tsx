@@ -35,13 +35,13 @@ export default function HeroCarousel() {
 
   return (
     <section className="relative isolate hidden overflow-hidden md:block">
-      <div className="mx-auto w-full max-w-full px-6">
-        <div className="grid min-h-[620px] items-center gap-10 lg:min-h-[680px] lg:grid-cols-2 lg:gap-14">
+      <div className="mx-auto w-full max-w-full px-6 -mt-10">
+        <div className="grid items-center md:min-h-[680px] lg:grid-cols-2 lg:gap-7">
           {/* Content */}
           <div className="flex min-w-0 flex-col">
             {/* Fixed title area prevents slide changes from changing layout height */}
             <div className="flex h-[150px] items-start overflow-hidden lg:h-[190px]">
-              <h1 className="bg-gradient-to-r from-blue-700 via-primary to-emerald-500 bg-clip-text text-4xl font-bold leading-[1.08] tracking-tight text-transparent sm:text-5xl lg:text-[3.5rem]">
+              <h1 className="bg-gradient-to-r from-blue-700 via-pink-500 to-blue-500 bg-clip-text text-4xl font-bold leading-[1.08] tracking-tight text-transparent sm:text-5xl lg:text-[3.5rem]">
                 {slide.title}
               </h1>
             </div>
@@ -57,7 +57,7 @@ export default function HeroCarousel() {
             <div className="mt-5 flex h-[58px] flex-wrap items-start gap-3">
               <a
                 href="#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-pink-500 px-5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <Rocket size={17} />
                 <span>Request a Quote</span>
@@ -65,7 +65,7 @@ export default function HeroCarousel() {
 
               <a
                 href="/solutions"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-box-border bg-box-bg px-5 text-sm font-semibold text-heading-1 transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-pink-500 bg-box-bg px-5 text-sm font-semibold text-heading-1 transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <span>Explore our solutions</span>
                 <ArrowRight size={16} />
@@ -83,16 +83,12 @@ export default function HeroCarousel() {
 
           {/* Visual */}
           <div className="relative min-w-0">
-            <div className="relative flex h-[320px] w-full items-center justify-center overflow-hidden sm:h-[380px] md:h-[440px] lg:h-[500px]">
+            <div className="relative flex w-full items-center justify-center overflow-hidden md:h-[500px]">
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl dark:bg-gray-900">
-                <img
-                  key={slide.id}
-                  src={slide.image}
-                  alt={slide.title}
-                  loading={currentSlide === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                  className="h-full w-full object-cover transition-opacity duration-500 ease-in-out"
-                />
+                <iframe
+                  src="https://lottie.host/embed/c0dfcb30-077c-4006-a90d-b6e5a3f0cd3f/wPA1F8wC7Y.lottie"
+                  className="h-full w-full items-center object-cover transition-opacity duration-500 ease-in-out"
+                ></iframe>
               </div>
             </div>
 
