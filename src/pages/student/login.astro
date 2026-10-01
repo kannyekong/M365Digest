@@ -1,0 +1,149 @@
+---
+import StudentLoginForm from "../../islands/student/StudentLoginForm";
+
+import "../../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="theme-color" content="#CEEDE5" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Student Login | CloudTweak Academy</title>
+
+    <meta
+      name="description"
+      content="Sign in to your CloudTweak Academy student account and continue your learning journey."
+    />
+  </head>
+
+  <body
+    class="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-white"
+  >
+    <main class="min-h-screen lg:grid lg:grid-cols-2">
+      <section class="relative hidden overflow-hidden lg:flex">
+        <div class="absolute inset-0">
+          <img
+            src="https://uziqrzfbfjucelzmaaeq.supabase.co/storage/v1/object/public/cloudtweak-media/general/2026/09/58c14270-c413-488b-add5-e527a20ce759.jpeg"
+            alt="CloudTweak Academy"
+            class="h-full w-full object-cover"
+          />
+        </div>
+
+        <div class="absolute inset-0 bg-slate-950/65"></div>
+
+        <div
+          class="relative z-10 flex min-h-screen w-full flex-col justify-between p-10 xl:p-14"
+        >
+          <a href="/" class="inline-block w-fit">
+            <img
+              src="/logos/cloudtweakwhite.png"
+              alt="CloudTweak"
+              class="w-48 object-contain"
+            />
+          </a>
+
+          <div class="max-w-xl">
+            <h1 class="text-4xl font-bold leading-tight text-white xl:text-5xl">
+              Build the skills.
+              <br />
+              Master the cloud.
+              <br />
+              Grow your career.
+            </h1>
+
+            <p class="mt-6 max-w-lg text-base leading-7 text-slate-200">
+              Sign in to continue your Microsoft 365 and cloud technology
+              learning journey with CloudTweak Academy.
+            </p>
+          </div>
+
+          <div
+            class="flex items-center justify-between border-t border-white/15 pt-6 text-xs text-white"
+          >
+            <span> © 2026 CloudTweak Technologies Limited. </span>
+
+            <span class="hidden sm:block"> Learn. Build. Get Certified. </span>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="flex flex-col min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20"
+      >
+        <div class="mb-10 lg:hidden">
+          <a href="/">
+            <img
+              src="/logos/cloudtweaklogo.png"
+              alt="CloudTweak"
+              class="w-44 object-contain dark:hidden"
+            />
+
+            <img
+              src="/logos/cloudtweakwhite.png"
+              alt="CloudTweak"
+              class="hidden w-44 object-contain dark:block"
+            />
+          </a>
+        </div>
+        <div
+          class="rounded-3xl border border-slate-200 w-full bg-white p-6 shadow-sm sm:p-8 xl:p-10 dark:border-slate-800 dark:bg-slate-900"
+        >
+          <div class="mb-8 text-center">
+            <p
+              class="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-primary"
+            >
+              Student Portal
+            </p>
+
+            <h2
+              class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white"
+            >
+              Welcome back
+            </h2>
+
+            <p
+              class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400"
+            >
+              Sign in to continue where you left off.
+            </p>
+          </div>
+
+          <StudentLoginForm client:load />
+
+          <div
+            class="mt-8 border-t border-slate-200 pt-6 text-center dark:border-slate-800"
+          >
+            <a
+              href="/"
+              class="text-xs font-medium text-slate-400 transition hover:text-slate-600 dark:hover:text-slate-200"
+            >
+              Return to CloudTweak Academy
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

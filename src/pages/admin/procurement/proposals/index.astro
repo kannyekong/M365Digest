@@ -1,0 +1,25 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProcurementProposalsWorkspace from "../../../../components/admin/procurement/ProcurementProposalsWorkspace";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Proposals">
+  <Header
+    title="Manage procurement proposals, revisions, submissions and commercial outcomes"
+  />
+  <div class="space-y-8 p-5">
+    <div>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight">Proposals</h1>
+
+      <p
+        class="mt-2 max-w-2xl text-sm leading-6 text-black/60 dark:text-white/50"
+      >
+        Manage proposal preparation, commercial submissions, revisions,
+        evaluation and acceptance.
+      </p>
+    </div>
+
+    <ProcurementProposalsWorkspace client:load />
+  </div>
+</AdminLayout>

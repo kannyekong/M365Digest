@@ -219,7 +219,7 @@ export default function ContactTable({ contacts, setContacts }: Props) {
 
       <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full">
-          <thead className="border-b bg-slate-50">
+          <thead className="border-b border-slate-100 bg-slate-50">
             <tr className="text-left text-xs font-semibold text-slate-700">
               <th
                 className="cursor-pointer px-6 py-4"
@@ -251,15 +251,8 @@ export default function ContactTable({ contacts, setContacts }: Props) {
                 </div>
               </th>
 
-              <th className="px-6 py-4">
-                <ContextualTip
-                  id="contact-view-submission"
-                  title="View full submission"
-                  description="Click the view icon in this column to see all the details submitted by the customer."
-                  position="bottom"
-                >
-                  <span className="cursor-help">View</span>
-                </ContextualTip>
+              <th className="cursor-pointer px-6 py-4">
+                <div className="flex items-center gap-1">Message</div>
               </th>
 
               <th className="px-6 py-4">Actions</th>
@@ -279,19 +272,20 @@ export default function ContactTable({ contacts, setContacts }: Props) {
 
                 <td className="px-6 py-4 text-xs">{contact.phone_number}</td>
 
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-xs truncate">
+                  <p>{contact.question}</p>
+                </td>
+
+                <td className="px-6 py-4 space-x-2">
                   <ViewSubmissionModal
                     title="Contact Submission"
                     data={contact}
                   />
-                </td>
-
-                <td className="px-6 py-4">
                   <button
                     onClick={() => handleDelete(contact)}
-                    className="rounded-lg p-2 text-slate-600 transition hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-2 text-slate-600 transition hover:bg-red-50 hover:text-red-600 bg-red-50"
                   >
-                    <Trash2 size={18} className="text-red-500" />
+                    <Trash2 size={15} className="text-red-500" />
                   </button>
                 </td>
               </tr>

@@ -194,19 +194,18 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
           <div
             class="overflow-hidden rounded-3xl border border-slate-300 bg-card shadow-xl"
           >
-            <div class="relative aspect-video">
+            <div class="relative aspect-video overflow-hidden">
               <iframe
                 src="https://lottie.host/embed/f894fa68-9431-45ef-aacc-cdbc5ba75aae/06LaqZc34p.lottie"
                 title="Inside the CloudTweak Classroom"
-                class="absolute inset-0 h-full w-full justify-center"
+                class="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-[1.38]"
                 loading="lazy"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
 
-              <!-- Canvas confined to the same box, sits above the iframe -->
               <canvas
                 id="confetti-canvas"
-                class="absolute inset-0 h-full w-full pointer-events-none z-10"
+                class="pointer-events-none absolute inset-0 z-10 h-full w-full"
               ></canvas>
             </div>
 
@@ -229,9 +228,8 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
                   <p
                     class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white"
                   >
-                    See how businesses can harness AI to streamline operations,
-                    automate everyday processes, and unlock new levels of
-                    productivity across your organization.
+                    Businesses can harness AI to streamline operations, automate
+                    processes, and unlock new levels of productivity.
                   </p>
                 </div>
               </div>
@@ -388,17 +386,29 @@ const { videoUrl = "https://www.youtube-nocookie.com/embed/x2BcJsEDW8c" } =
 
       const fireGentleBurst = () => {
         const rect = wrapper.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return; // hidden/collapsed box, skip
+        if (rect.width === 0 || rect.height === 0) return;
 
-        myConfetti({
-          particleCount: 15, // small burst, not a flood
-          spread: 55,
-          startVelocity: 25,
-          gravity: 0.9,
-          ticks: 150, // shorter lifespan so it clears before the next burst
-          origin: { x: 0.5, y: 0.5 },
-          scalar: Math.max(0.5, Math.min(0.9, rect.width / 700)),
-          zIndex: 10,
+        const scalar = Math.max(0.5, Math.min(0.9, rect.width / 700));
+
+        // Fire from a few points across the box so coverage spans the full width,
+        // instead of one burst exploding from dead center.
+        const origins = [
+          { x: 0.2, y: 0.5 },
+          { x: 0.5, y: 0.4 },
+          { x: 0.8, y: 0.5 },
+        ];
+
+        origins.forEach((origin) => {
+          myConfetti({
+            particleCount: 6, // fewer per origin since we're firing 3x
+            spread: 100, // wider cone per burst
+            startVelocity: 20,
+            gravity: 0.7, // slightly lower = more hang time, covers more area
+            ticks: 150,
+            origin,
+            scalar,
+            zIndex: 10,
+          });
         });
       };
 

@@ -80,7 +80,7 @@ export default function UserMenu() {
       </button>
 
       <div
-        className={`absolute right-0 mt-3 w-64 rounded-2xl border bg-white shadow-2xl transition-all duration-200 origin-top-right z-50
+        className={`absolute right-0 mt-3 w-64 rounded-2xl border border-slate-300 bg-white shadow-2xl transition-all duration-200 origin-top-right z-50
 
         ${
           open

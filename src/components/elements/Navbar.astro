@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-astro";
 import BtnLink from "../shared/BtnLink.astro";
 import Container from "../shared/Container.astro";
 import { supabase } from "../../lib/superbase";
+import BtnLinkStart from "../shared/BtnLinkStart.astro";
 
 interface NavigationChild {
   href: string;
@@ -170,10 +171,7 @@ function isLinkActive(href?: string) {
     return activePath === "/";
   }
 
-  return (
-    activePath === linkPath ||
-    activePath.startsWith(`${linkPath}/`)
-  );
+  return activePath === linkPath || activePath.startsWith(`${linkPath}/`);
 }
 
 /* Determines whether a top-level navigation item owns the current route. */
@@ -185,8 +183,7 @@ function isParentActive(item: NavigationItem) {
       const parentPath = normalizePath(path);
 
       return (
-        activePath === parentPath ||
-        activePath.startsWith(`${parentPath}/`)
+        activePath === parentPath || activePath.startsWith(`${parentPath}/`)
       );
     });
   }
@@ -323,8 +320,12 @@ function isParentActive(item: NavigationItem) {
         </ul>
 
         <div
-          class="flex w-full items-center border-b border-box-bg px-6 pb-6 sm:w-max lg:min-w-max lg:border-0 lg:px-0 lg:pb-0"
+          class="flex flex-col md:flex-row w-full items-center border-b border-box-bg px-6 pb-6 gap-2 sm:w-max lg:min-w-max lg:border-0 lg:px-0 lg:pb-0"
         >
+          <BtnLinkStart
+            text="Login"
+            className="flex w-full justify-center rounded-full sm:w-max"
+          />
           <BtnLink
             text="Ask AI Assistant"
             className="flex w-full justify-center rounded-full sm:w-max"
@@ -333,7 +334,7 @@ function isParentActive(item: NavigationItem) {
         </div>
       </div>
 
-      <div class="flex min-w-max items-center gap-x-3">
+      <!-- <div class="flex min-w-max items-center gap-x-3">
         <button
           type="button"
           data-switch-theme
@@ -374,35 +375,34 @@ function isParentActive(item: NavigationItem) {
 
           <span class="sr-only">Switch theme</span>
         </button>
-
-        <button
-          type="button"
-          data-toggle-nav
-          data-open-nav="false"
-          aria-label="Toggle navigation"
-          class="relative flex h-auto w-7 flex-col outline-none lg:invisible lg:hidden"
+</div>-->
+      <button
+        type="button"
+        data-toggle-nav
+        data-open-nav="false"
+        aria-label="Toggle navigation"
+        class="relative flex h-auto w-7 flex-col outline-none lg:invisible lg:hidden"
+      >
+        <span
+          id="line1"
+          class="h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
         >
-          <span
-            id="line1"
-            class="h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
-          >
-          </span>
+        </span>
 
-          <span
-            id="line2"
-            class="mt-1 h-0.5 w-6 origin-center rounded-full bg-heading-2 transition-all duration-300 ease-linear"
-          >
-          </span>
+        <span
+          id="line2"
+          class="mt-1 h-0.5 w-6 origin-center rounded-full bg-heading-2 transition-all duration-300 ease-linear"
+        >
+        </span>
 
-          <span
-            id="line3"
-            class="mt-1 h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
-          >
-          </span>
+        <span
+          id="line3"
+          class="mt-1 h-0.5 w-6 rounded-full bg-heading-2 transition-all duration-300 ease-linear"
+        >
+        </span>
 
-          <span class="sr-only">Toggle navigation</span>
-        </button>
-      </div>
+        <span class="sr-only">Toggle navigation</span>
+      </button>
     </nav>
   </Container>
 </header>
@@ -420,14 +420,12 @@ function isParentActive(item: NavigationItem) {
         return;
       }
 
-      const navbar =
-        document.querySelector<HTMLElement>("[data-navbar]");
+      const navbar = document.querySelector<HTMLElement>("[data-navbar]");
 
       const toggleButton =
         document.querySelector<HTMLButtonElement>("[data-toggle-nav]");
 
-      const navIsOpen =
-        toggleButton?.getAttribute("data-open-nav") === "true";
+      const navIsOpen = toggleButton?.getAttribute("data-open-nav") === "true";
 
       if (!navbar || !navIsOpen) {
         return;
@@ -504,8 +502,7 @@ function isParentActive(item: NavigationItem) {
       trigger.addEventListener("click", (event) => {
         event.stopPropagation();
 
-        const isOpen =
-          trigger.getAttribute("aria-expanded") === "true";
+        const isOpen = trigger.getAttribute("aria-expanded") === "true";
 
         if (isOpen) {
           closeSubmenu(parent);
@@ -549,19 +546,12 @@ function isParentActive(item: NavigationItem) {
     });
   }
 
-  document.addEventListener(
-    "astro:page-load",
-    initializePublicSubmenus
-  );
+  document.addEventListener("astro:page-load", initializePublicSubmenus);
 
   if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializePublicSubmenus,
-      {
-        once: true,
-      }
-    );
+    document.addEventListener("DOMContentLoaded", initializePublicSubmenus, {
+      once: true,
+    });
   } else {
     initializePublicSubmenus();
   }

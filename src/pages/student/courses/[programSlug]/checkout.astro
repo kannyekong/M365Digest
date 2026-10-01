@@ -1,0 +1,32 @@
+---
+export const prerender = false;
+
+import StudentLayout from "../../../../layouts/StudentLayout.astro";
+import StudentHeader from "../../../../components/admin/UI/StudentHeader.astro";
+import StudentAcademyCheckout from "../../../../islands/student/StudentAcademyCheckout";
+
+const { programSlug } = Astro.params;
+
+if (!programSlug) {
+  return Astro.redirect("/student/courses");
+}
+---
+
+<StudentLayout
+  title="Complete Enrollment"
+  description="Complete your CloudTweak Academy enrollment."
+>
+  <StudentHeader
+    eyebrow="Enrollment"
+    title="Complete Enrollment"
+    description="Review your course and continue to secure your place."
+    backHref={`/student/courses/${programSlug}`}
+    backLabel="Back to Program"
+  />
+
+  <main class="min-h-screen p-5">
+    <div class="mx-auto max-w-[1180px]">
+      <StudentAcademyCheckout programSlug={programSlug} client:load />
+    </div>
+  </main>
+</StudentLayout>

@@ -1,35 +1,26 @@
 ---
+import { UserCircle } from "lucide-astro";
+
 export interface Props {
-  href: string;
-  text: string;
+  text?: string;
   className?: string;
-  variant: "primary" | "secondary";
 }
 
-const { href, text, className, variant } = Astro.props;
-
-const getThemeStyle = (variant: "primary" | "secondary") => {
-  if (variant === "primary") {
-    return "bg-green-600 relative after:bg-green-700";
-  }
-  return "text-primary";
-};
-
-const getTextColor = (variant: "primary" | "secondary") => {
-  if (variant === "primary") {
-    return "text-white";
-  }
-  return "text-primary";
-};
+const { text = "Login", className = "" } = Astro.props;
 ---
 
 <a
-  href={href}
-  class={`text-sm md:text-md lg:px-6 py-3 md:py-3 rounded-full outline-none relative overflow-hidden duration-300 ease-linear
-                    after:absolute after:inset-x-0 after:aspect-square after:scale-0 after:opacity-70 after:origin-center after:duration-300 after:ease-linear after:rounded-full after:top-0 after:left-0 after:bg-[#172554]
-                    ${getThemeStyle(variant)} hover:after:opacity-100 hover:after:scale-[2.5] ${className}`}
+  href="/student/register"
+  class:list={[
+    "inline-flex items-center justify-center gap-2 rounded-full",
+    "border border-primary bg-transparent px-4 py-3",
+    "text-sm font-semibold text-primary dark:text-white dark:border-white",
+    "transition-colors duration-200",
+    "hover:text-primary",
+    "focus:outline-none focus:ring-2 focus:ring-primary/30",
+    className,
+  ]}
 >
-  <span class={`relative ${getTextColor(variant)} z-10`}>
-    {text}
-  </span>
+  <UserCircle size={18} />
+  <span>{text}</span>
 </a>

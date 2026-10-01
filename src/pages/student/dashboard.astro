@@ -1,0 +1,17 @@
+---
+import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
+import StudentDashboard from "../../islands/student/StudentDashboard";
+import StudentLayout from "../../layouts/StudentLayout.astro";
+---
+
+<StudentLayout
+  title="Learner Dashboard"
+  description="Student Dashboard Overview"
+>
+  <StudentHeader
+    eyebrow="Learner Dashboard"
+    title="Dashboard Overview"
+    description="Continue your learning, track your enrolled programs, and discover what's next."
+  />
+  <StudentDashboard client:load />
+</StudentLayout>

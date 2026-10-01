@@ -57,7 +57,7 @@ export default function HeroCarousel() {
             <div className="mt-5 flex h-[58px] flex-wrap items-start gap-3">
               <a
                 href="#tally-open=MeglOM&tally-layout=modal&tally-width=500&tally-emoji-animation=wave&tally-auto-close=2000&tally-form-events-forwarding=1"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-pink-500 px-5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-blue-800 px-5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <Rocket size={17} />
                 <span>Request a Quote</span>
@@ -65,7 +65,7 @@ export default function HeroCarousel() {
 
               <a
                 href="/solutions"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-pink-500 bg-box-bg px-5 text-sm font-semibold text-heading-1 transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-pink-500 text-pink-500 bg-box-bg px-5 text-sm font-semibold transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <span>Explore our solutions</span>
                 <ArrowRight size={16} />
@@ -87,7 +87,7 @@ export default function HeroCarousel() {
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl dark:bg-gray-900">
                 <iframe
                   src="https://lottie.host/embed/c0dfcb30-077c-4006-a90d-b6e5a3f0cd3f/wPA1F8wC7Y.lottie"
-                  className="h-full w-full items-center object-cover transition-opacity duration-500 ease-in-out"
+                  className="h-full w-full items-center object-cover transition-opacity duration-500 ease-in-out scale-[1.3]"
                 ></iframe>
               </div>
             </div>

@@ -29,6 +29,13 @@ export default function ToastProvider() {
             secondary: "#fff",
           },
         },
+
+        warning: {
+          iconTheme: {
+            primary: "#F34E01",
+            secondary: "#fff",
+          },
+        },
       }}
     />
   );

@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProcurementOpportunitiesWorkspace from "../../../../components/admin/procurement/ProcurementOpportunitiesWorkspace";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Opportunity Pipeline">
+    <Header />
+  <div class="min-h-screen p-5">
+    <div class="mx-auto max-w-full">
+      <ProcurementOpportunitiesWorkspace client:load />
+    </div>
+  </div>
+</AdminLayout>

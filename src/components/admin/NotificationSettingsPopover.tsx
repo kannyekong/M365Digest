@@ -63,7 +63,7 @@ export default function NotificationSettingsPopover() {
         <div
           role="dialog"
           aria-label="Notification settings"
-          className="absolute right-0 top-full z-50 mt-3"
+          className="absolute right-0 top-full z-9999 mt-3"
         >
           <div className="relative">
             <button

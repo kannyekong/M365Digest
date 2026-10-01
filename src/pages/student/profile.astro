@@ -1,0 +1,48 @@
+---
+import StudentLayout from "../../layouts/StudentLayout.astro";
+import { UserRound } from "lucide-astro";
+import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
+---
+
+<StudentLayout
+  title="My Profile"
+  description="Manage your CloudTweak Academy profile."
+>
+  <StudentHeader
+    eyebrow="Account"
+    title="My Profile"
+    description="Manage the personal information associated with your Academy account."
+  />
+  <main class="min-h-screen p-5">
+    <div class="mx-auto max-w-full space-y-6">
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8"
+      >
+        <div class="flex items-center gap-4">
+          <div
+            class="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+          >
+            <UserRound size={24} />
+          </div>
+
+          <div>
+            <h2 class="font-semibold text-slate-900 dark:text-white">
+              Profile Information
+            </h2>
+
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              Your student profile information will appear here.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-8 rounded-xl bg-slate-50 p-5 dark:bg-slate-800/60">
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Profile editing will be connected to your existing
+            <code>student_profiles</code> data next.
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+</StudentLayout>

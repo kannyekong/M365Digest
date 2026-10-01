@@ -93,9 +93,9 @@ export default function ViewSubmissionModal({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg p-2 hover:bg-blue-900 transition bg-blue-700"
+        className="rounded-lg p-2 hover:bg-blue-300 transition bg-blue-100"
       >
-        <Eye size={12} className="text-white" />
+        <Eye size={15} className="text-blue-600" />
       </button>
 
       {open && (

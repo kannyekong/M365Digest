@@ -1,0 +1,31 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProcurementRfqsWorkspace from "../../../../components/admin/procurement/ProcurementRfqsWorkspace";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="RFQs / RFPs">
+  <Header
+    title="Track procurement requests, tenders, submissions and evaluation deadlines."
+  />
+  <div class="space-y-8 p-5">
+    <div>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">
+            RFQs / RFPs
+          </h1>
+
+          <p
+            class="mt-2 max-w-2xl text-sm leading-6 text-black/60 dark:text-white/50"
+          >
+            Manage procurement requests from receipt through qualification,
+            proposal preparation, submission and award.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ProcurementRfqsWorkspace client:load />
+  </div>
+</AdminLayout>

@@ -1,0 +1,111 @@
+---
+import LogoutButton from "../../../islands/LogoutButton";
+
+import StudentSidebarNavigation, {
+  type StudentNavigationItem,
+} from "../navigation/StudentSidebarNavigation";
+
+const sections: StudentNavigationItem[] = [
+  {
+    title: "Dashboard Overview",
+    href: "/student/dashboard",
+    icon: "dashboard",
+  },
+
+  {
+    title: "All Courses",
+    icon: "courses",
+    href: "/student/courses/allcourses",
+  },
+
+  {
+    title: "My Courses",
+    icon: "courses",
+    href: "/student/courses",
+  },
+  {
+    title: "Resources",
+    icon: "resources",
+    href: "/student/resources",
+  },
+  {
+    title: "My Progress",
+    icon: "progress",
+    href: "/student/progress",
+  },
+
+  {
+    title: "Certificates",
+    icon: "certificates",
+    href: "/student/certificates",
+  },
+
+  {
+    title: "Payment History",
+    icon: "receipt",
+    href: "/student/payment-history",
+  },
+
+  {
+    title: "Report a problem",
+    icon: "support",
+    href: "/student/report-problem",
+  },
+
+  {
+    title: "Account Settings",
+    icon: "profile",
+    href: "/student/settings",
+  },
+
+  // {
+  //   title: "Account",
+  //   icon: "profile",
+  //   links: [
+  //     {
+  //       title: "My Profile",
+  //       href: "/student/profile",
+  //     },
+  //     {
+  //       title: "Settings",
+  //       href: "/student/settings",
+  //     },
+  //   ],
+  // },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<aside class="sticky top-0 flex h-screen w-62 flex-col dark:bg-black">
+  <a
+    href="/student/dashboard"
+    class="border-b border-r border-slate-100 p-6 dark:border-slate-800"
+  >
+    <img
+      src="/logos/cloudtweaklogo.png"
+      alt="CloudTweak"
+      class="w-3/4 object-contain dark:hidden"
+    />
+
+    <img
+      src="/logos/cloudtweakwhite.png"
+      alt="CloudTweak"
+      class="hidden w-3/4 object-contain dark:block"
+    />
+  </a>
+
+  <nav
+    class="flex-1 overflow-y-auto border-r border-slate-100 px-4 dark:border-slate-800"
+  >
+    <StudentSidebarNavigation
+      sections={sections}
+      currentPath={currentPath}
+      client:load
+    />
+  </nav>
+
+  <div class="mt-auto px-6 py-3 pb-8 text-red-500">
+    <LogoutButton client:load />
+  </div>
+</aside>

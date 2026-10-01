@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+
+import StudentLayout from "../../layouts/StudentLayout.astro";
+import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
+import StudentPaymentHistory from "../../islands/student/StudentPaymentHistory";
+---
+
+<StudentLayout
+  title="Payment History"
+  description="View your CloudTweak Academy payment history and receipts."
+>
+  <StudentHeader
+    eyebrow="Account"
+    title="Payment History"
+    description="Review your Academy payments and access your receipts."
+  />
+
+  <main class="min-h-screen p-5">
+    <div class="mx-auto max-w-[1180px]">
+      <StudentPaymentHistory client:load />
+    </div>
+  </main>
+</StudentLayout>

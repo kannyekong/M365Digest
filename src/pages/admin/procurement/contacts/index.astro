@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProcurementContactsWorkspace from "../../../../components/admin/procurement/ProcurementContactsWorkspace";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Procurement Contacts">
+  <Header />
+  <div class="p-5">
+    <ProcurementContactsWorkspace client:load />
+  </div>
+</AdminLayout>

@@ -1,0 +1,21 @@
+---
+import StudentLayout from "../../../layouts/StudentLayout.astro";
+import AllCourses from "../../../islands/student/AllCourses";
+import StudentHeader from "../../../components/admin/UI/StudentHeader.astro";
+---
+
+<StudentLayout
+  title="All Courses"
+  description="View all CloudTweak Academy courses and discover new programs."
+>
+  <main class="min-h-screen">
+    <StudentHeader
+      eyebrow="Academy"
+      title="All Courses"
+      description="View all programs, and discover what next to enroll on."
+    />
+    <div class="mx-auto max-w-[1600px] space-y-6 p-5">
+      <AllCourses client:load />
+    </div>
+  </main>
+</StudentLayout>

@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import ProcurementLeadsWorkspace from "../../../../components/admin/procurement/ProcurementLeadWorkspace";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Procurement Leads">
+  <Header />
+  <div class="min-h-screen p-5">
+    <div class="mx-auto max-w-[1600px]">
+      <ProcurementLeadsWorkspace client:load />
+    </div>
+  </div>
+</AdminLayout>
