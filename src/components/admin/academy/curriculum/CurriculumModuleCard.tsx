@@ -11,7 +11,6 @@ import {
   ClipboardCheck,
   Trash2,
   X,
-  BookOpenCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AcademyLesson, AcademyModule } from "../../../../types/academy";
@@ -54,7 +53,6 @@ interface CurriculumModuleCardProps {
   savingLessonId: string | null;
   deletingLessonId: string | null;
   onResources: (lesson: AcademyLesson) => void;
-  onQuiz: (target: { moduleId: string; lessonId: string | null }) => void;
   onUpdateModule: (
     moduleId: string,
     updates: ModuleUpdateValues
@@ -85,7 +83,6 @@ export default function CurriculumModuleCard({
   onUpdateLesson,
   onDeleteLesson,
   onResources,
-  onQuiz,
 }: CurriculumModuleCardProps) {
   // Track whether the module details are being edited.
   const [editingModule, setEditingModule] = useState(false);
@@ -418,20 +415,6 @@ export default function CurriculumModuleCard({
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              onQuiz({
-                moduleId: module.id,
-                lessonId: null,
-              });
-            }}
-            disabled={deletingModule || savingModule}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-300 px-3 text-sm font-semibold text-emerald-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-950/50"
-          >
-            <BookOpenCheck className="h-4 w-4" />
-            Add Quiz
-          </button>
 
           <button
             type="button"
@@ -491,12 +474,6 @@ export default function CurriculumModuleCard({
                   saving={savingLessonId === lesson.id}
                   deleting={deletingLessonId === lesson.id}
                   onResources={onResources}
-                  onQuiz={() => {
-                    onQuiz({
-                      moduleId: module.id,
-                      lessonId: lesson.id,
-                    });
-                  }}
                   onUpdate={onUpdateLesson}
                   onDelete={onDeleteLesson}
                 />
