@@ -190,8 +190,9 @@ export default function StudentResourceViewer({
         );
 
         setResources(publishedResources);
-        setQuizzes(quizData.filter((quiz) => quiz.is_published));
-        setActiveQuizId(null);
+        const publishedQuizzes = quizData.filter((quiz) => quiz.is_published);
+        setQuizzes(publishedQuizzes);
+        setActiveQuizId(publishedResources.length === 0 ? publishedQuizzes[0]?.id ?? null : null);
 
         const progressMap: Record<string, StudentResourceProgress> = {};
 
