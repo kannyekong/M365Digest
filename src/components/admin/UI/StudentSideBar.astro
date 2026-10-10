@@ -1,6 +1,10 @@
 ---
 import LogoutButton from "../../../islands/LogoutButton";
 
+import StudentClockWidget from "../../../islands/student/StudentClockWidget";
+
+import UpcomingSessionWidget from "../../../islands/student/UpcomingSessionWidget";
+
 import StudentSidebarNavigation, {
   type StudentNavigationItem,
 } from "../navigation/StudentSidebarNavigation";
@@ -11,13 +15,11 @@ const sections: StudentNavigationItem[] = [
     href: "/student/dashboard",
     icon: "dashboard",
   },
-
   {
-    title: "All Courses",
-    icon: "courses",
+    title: "Explore Courses",
+    icon: "allcourses",
     href: "/student/courses/allcourses",
   },
-
   {
     title: "My Courses",
     icon: "courses",
@@ -33,45 +35,26 @@ const sections: StudentNavigationItem[] = [
     icon: "progress",
     href: "/student/progress",
   },
-
   {
     title: "Certificates",
     icon: "certificates",
     href: "/student/certificates",
   },
-
   {
     title: "Payment History",
     icon: "receipt",
     href: "/student/payment-history",
   },
-
   {
     title: "Report a problem",
     icon: "support",
     href: "/student/report-problem",
   },
-
   {
     title: "Account Settings",
     icon: "profile",
     href: "/student/settings",
   },
-
-  // {
-  //   title: "Account",
-  //   icon: "profile",
-  //   links: [
-  //     {
-  //       title: "My Profile",
-  //       href: "/student/profile",
-  //     },
-  //     {
-  //       title: "Settings",
-  //       href: "/student/settings",
-  //     },
-  //   ],
-  // },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -105,7 +88,11 @@ const currentPath = Astro.url.pathname;
     />
   </nav>
 
-  <div class="mt-auto px-6 py-3 pb-8 text-red-500">
+  <div
+    class="grid grid-1 gap-3 mt-auto space-y-4 border-r border-slate-100 px-4 py-4 dark:border-slate-800"
+  >
+    <UpcomingSessionWidget client:load />
+
     <LogoutButton client:load />
   </div>
 </aside>

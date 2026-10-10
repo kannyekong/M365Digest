@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, KeyRound, LogOut, ChevronDown } from "lucide-react";
 import { logout } from "../lib/auth";
-import { getCurrentUser } from "../lib/profile";
+import StudentProfileImage from "./student/StudentProfileImage";
 
 interface Props {
   image?: string;
@@ -9,24 +9,7 @@ interface Props {
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [cacheKey, setCacheKey] = useState(Date.now());
-  const avatar = user?.user_metadata?.avatar_url;
-  const initials = user?.email?.substring(0, 2).toUpperCase() ?? "A";
   const menuRef = useRef<HTMLDivElement>(null);
-
-  //GETS CURRENT USER FROM SUPABASE
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  async function loadUser() {
-    const { data } = await getCurrentUser();
-
-    setUser(data.user);
-    setCacheKey(Date.now());
-  }
-  //
 
   //REDIRECTS TO LOGIN PAGE AND DESTRUCTS SESSIONS
   async function LogoutButton() {
@@ -62,10 +45,7 @@ export default function UserMenu() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-3 rounded-xl hover:bg-slate-100 px-2 py-1 transition"
       >
-        <img
-          src="/images/avatar.png"
-          className="h-10 w-10 rounded-full object-cover"
-        />
+        <StudentProfileImage size="md" className="ring-4 ring-primary/10" />
 
         <ChevronDown
           size={18}
@@ -74,7 +54,7 @@ export default function UserMenu() {
       </button>
 
       <div
-        className={`absolute right-0 mt-3 w-64 rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all duration-200 origin-top-right z-50
+        className={`absolute right-0 mt-3 w-64 rounded-2xl border border-slate-300 bg-white shadow-2xl transition-all duration-200 origin-top-right z-50
 
         ${
           open
@@ -87,11 +67,19 @@ export default function UserMenu() {
             href="/student/settings"
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-slate-100 transition"
           >
-            <KeyRound size={18} />
-            Account Settings{" "}
+            <Camera size={18} />
+            Update Profile Photo
           </a>
 
-          <div className="my-2 border-t border-slate-200" />
+          <a
+            href="/student/settings"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-slate-100 transition"
+          >
+            <KeyRound size={18} />
+            Change Password
+          </a>
+
+          <div className="my-2 border-t" />
 
           <button
             onClick={LogoutButton}

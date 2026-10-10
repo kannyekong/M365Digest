@@ -11,14 +11,6 @@ const { data: posts } = await getPublishedPosts();
 <Layout title="CloudTweak | Blog">
   <section class="py-6">
     <Container>
-      <div class="max-w-3xl mx-auto text-center my-6">
-        <span
-          class="inline-flex rounded-full bg-primary/10 px-5 py-2 text-primary font-semibold"
-        >
-          Blog Insights & Resources
-        </span>
-      </div>
-
       <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-16">
         {
           posts?.map((post) => (

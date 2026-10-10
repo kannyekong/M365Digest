@@ -383,7 +383,7 @@ export default function StudentCourses() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search programs..."
-            className="w-full rounded-xl border-4 border-orange-500 bg-white py-6 pl-11 pr-4 text-sm outline-none transition placeholder:text-slate-400 placeholder:text-2xl focus:border-orange-400 focus:ring-2 focus:ring-orange-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+            className="w-full rounded-xl border-4 border-orange-500 bg-white py-6 pl-11 pr-4 text-sm outline-none transition placeholder:text-slate-400 placeholder:text-2xl focus:border-orange-700 focus:ring-2 focus:ring-orange-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
           />
         </div>
 

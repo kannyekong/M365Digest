@@ -12,6 +12,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import { getSession } from "../../lib/auth";
 import { supabase } from "../../lib/superbase";
+import StudentProfileImage from "./StudentProfileImage";
 
 type Profile = {
   id: string;
@@ -66,7 +67,9 @@ export default function StudentAccountSettings() {
     setLoading(true);
 
     try {
-      const { data: { session } } = await getSession();
+      const {
+        data: { session },
+      } = await getSession();
 
       if (!session) {
         window.location.replace("/student/login");
@@ -193,7 +196,9 @@ export default function StudentAccountSettings() {
     setClosingAccount(true);
 
     try {
-      const { data: { session } } = await getSession();
+      const {
+        data: { session },
+      } = await getSession();
 
       if (!session) {
         window.location.replace("/student/login");
@@ -246,11 +251,16 @@ export default function StudentAccountSettings() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
           <div className="flex items-start gap-4 border-b border-slate-200 pb-5 dark:border-slate-800">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
-              <UserRound size={21} />
+            <div className="flex items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+              <StudentProfileImage
+                size="lg"
+                className="ring-4 ring-primary/10"
+              />
             </div>
             <div>
-              <h2 className="font-semibold text-slate-950 dark:text-white">Personal information</h2>
+              <h2 className="font-semibold text-slate-950 dark:text-white">
+                Personal information
+              </h2>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Keep your Academy profile information up to date.
               </p>
@@ -260,7 +270,9 @@ export default function StudentAccountSettings() {
           <form onSubmit={handleProfileSubmit} className="mt-6 space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">First name</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  First name
+                </label>
                 <input
                   value={profile.first_name ?? ""}
                   readOnly
@@ -269,7 +281,9 @@ export default function StudentAccountSettings() {
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Last name</label>
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Last name
+                </label>
                 <input
                   value={profile.last_name ?? ""}
                   readOnly
@@ -280,25 +294,38 @@ export default function StudentAccountSettings() {
 
             <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-xs leading-5 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300">
               <BadgeCheck size={16} className="mt-0.5 shrink-0" />
-              <span>This name is used on your CloudTweak Academy certificate.</span>
+              <span>
+                This name is used on your CloudTweak Academy certificate.
+              </span>
             </div>
 
             <div>
-              <label htmlFor="display-name" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Display name</label>
+              <label
+                htmlFor="display-name"
+                className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
+                Display name
+              </label>
               <input
                 id="display-name"
                 value={profile.display_name ?? ""}
-                onChange={(event) => setProfile({ ...profile, display_name: event.target.value })}
+                onChange={(event) =>
+                  setProfile({ ...profile, display_name: event.target.value })
+                }
                 placeholder="How your name should appear in the portal"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Email address</label>
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Email address
+              </label>
               <div className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
                 <Mail size={17} className="text-slate-400" />
-                <span className="truncate text-sm text-slate-600 dark:text-slate-300">{email}</span>
+                <span className="truncate text-sm text-slate-600 dark:text-slate-300">
+                  {email}
+                </span>
                 <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                   <ShieldCheck size={12} /> Verified
                 </span>
@@ -307,45 +334,73 @@ export default function StudentAccountSettings() {
 
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="phone" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Phone</label>
+                <label
+                  htmlFor="phone"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+                >
+                  Phone
+                </label>
                 <input
                   id="phone"
                   value={profile.phone ?? ""}
-                  onChange={(event) => setProfile({ ...profile, phone: event.target.value })}
+                  onChange={(event) =>
+                    setProfile({ ...profile, phone: event.target.value })
+                  }
                   className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label htmlFor="country" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Country</label>
+                <label
+                  htmlFor="country"
+                  className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+                >
+                  Country
+                </label>
                 <input
                   id="country"
                   value={profile.country ?? ""}
-                  onChange={(event) => setProfile({ ...profile, country: event.target.value })}
+                  onChange={(event) =>
+                    setProfile({ ...profile, country: event.target.value })
+                  }
                   className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="avatar-url" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Profile image URL</label>
+              <label
+                htmlFor="avatar-url"
+                className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
+                Profile image URL <span className="italic font-normal">(Paste image link from your desired CDN)</span>
+              </label>
               <input
                 id="avatar-url"
                 value={profile.avatar_url ?? ""}
-                onChange={(event) => setProfile({ ...profile, avatar_url: event.target.value })}
-                placeholder="https://..."
+                onChange={(event) =>
+                  setProfile({ ...profile, avatar_url: event.target.value })
+                }
+                placeholder="https://drive.google.com/file/d/1UC8..."
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
             </div>
 
             <div>
-              <label htmlFor="bio" className="text-sm font-semibold text-slate-700 dark:text-slate-200">Bio</label>
+              <label
+                htmlFor="bio"
+                className="text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
+                Bio
+              </label>
               <textarea
                 id="bio"
                 rows={5}
                 maxLength={500}
                 value={profile.bio ?? ""}
-                onChange={(event) => setProfile({ ...profile, bio: event.target.value })}
+                onChange={(event) =>
+                  setProfile({ ...profile, bio: event.target.value })
+                }
                 placeholder="Tell us a little about yourself."
                 className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none focus:border-primary dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               />
@@ -356,7 +411,11 @@ export default function StudentAccountSettings() {
               disabled={savingProfile}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
             >
-              {savingProfile ? <LoaderCircle className="animate-spin" size={17} /> : <CheckCircle2 size={17} />}
+              {savingProfile ? (
+                <LoaderCircle className="animate-spin" size={17} />
+              ) : (
+                <CheckCircle2 size={17} />
+              )}
               {savingProfile ? "Saving..." : "Save profile"}
             </button>
           </form>
@@ -369,8 +428,12 @@ export default function StudentAccountSettings() {
                 <KeyRound size={21} />
               </div>
               <div>
-                <h2 className="font-semibold text-slate-950 dark:text-white">Password</h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Use a strong password you do not reuse elsewhere.</p>
+                <h2 className="font-semibold text-slate-950 dark:text-white">
+                  Password
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Use a strong password you do not reuse elsewhere.
+                </p>
               </div>
             </div>
 
@@ -396,7 +459,11 @@ export default function StudentAccountSettings() {
                 disabled={changingPassword}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900"
               >
-                {changingPassword ? <LoaderCircle className="animate-spin" size={17} /> : <KeyRound size={17} />}
+                {changingPassword ? (
+                  <LoaderCircle className="animate-spin" size={17} />
+                ) : (
+                  <KeyRound size={17} />
+                )}
                 Update password
               </button>
             </form>
@@ -405,23 +472,48 @@ export default function StudentAccountSettings() {
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-3">
               <ShieldCheck className="text-emerald-500" size={21} />
-              <h2 className="font-semibold text-slate-950 dark:text-white">Account information</h2>
+              <h2 className="font-semibold text-slate-950 dark:text-white">
+                Account information
+              </h2>
             </div>
 
             <div className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between gap-4"><span className="text-slate-500">Profile status</span><span className="font-semibold">{profile.profile_completed ? "Complete" : "Incomplete"}</span></div>
-              <div className="flex justify-between gap-4"><span className="text-slate-500">Certificate name confirmed</span><span className="font-semibold">{profile.name_confirmed ? "Yes" : "No"}</span></div>
-              <div className="flex justify-between gap-4"><span className="text-slate-500">Member since</span><span className="font-semibold">{formatDate(profile.created_at)}</span></div>
+              <div className="flex justify-between gap-4">
+                <span className="text-slate-500">Profile status</span>
+                <span className="font-semibold">
+                  {profile.profile_completed ? "Complete" : "Incomplete"}
+                </span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-slate-500">
+                  Certificate name confirmed
+                </span>
+                <span className="font-semibold">
+                  {profile.name_confirmed ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-slate-500">Member since</span>
+                <span className="font-semibold">
+                  {formatDate(profile.created_at)}
+                </span>
+              </div>
             </div>
           </section>
 
           <section className="rounded-2xl border border-red-200 bg-red-50/60 p-6 dark:border-red-900/50 dark:bg-red-950/20">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" size={21} />
+              <AlertTriangle
+                className="mt-0.5 shrink-0 text-red-600 dark:text-red-400"
+                size={21}
+              />
               <div>
-                <h2 className="font-semibold text-red-800 dark:text-red-300">Close account</h2>
+                <h2 className="font-semibold text-red-800 dark:text-red-300">
+                  Close account
+                </h2>
                 <p className="mt-1 text-sm leading-6 text-red-700/80 dark:text-red-300/80">
-                  Permanently delete your Academy account and associated student profile. This action cannot be undone.
+                  Permanently delete your Academy account and associated student
+                  profile. This action cannot be undone.
                 </p>
                 <button
                   type="button"
@@ -448,12 +540,17 @@ export default function StudentAccountSettings() {
               <AlertTriangle size={23} />
             </div>
 
-            <h2 id="close-account-title" className="mt-5 text-xl font-bold text-slate-950 dark:text-white">
+            <h2
+              id="close-account-title"
+              className="mt-5 text-xl font-bold text-slate-950 dark:text-white"
+            >
               Close your Academy account?
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
-              This permanently removes your student profile and access to the Academy portal. Your payment and financial records may need to be retained by CloudTweak for accounting and legal purposes.
+              This permanently removes your student profile and access to the
+              Academy portal. Your payment and financial records may need to be
+              retained by CloudTweak for accounting and legal purposes.
             </p>
 
             <p className="mt-5 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -485,7 +582,9 @@ export default function StudentAccountSettings() {
                 onClick={() => void handleCloseAccount()}
                 className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {closingAccount && <LoaderCircle className="animate-spin" size={16} />}
+                {closingAccount && (
+                  <LoaderCircle className="animate-spin" size={16} />
+                )}
                 {closingAccount ? "Closing..." : "Close account"}
               </button>
             </div>
@@ -493,7 +592,14 @@ export default function StudentAccountSettings() {
         </div>
       )}
 
-      <ToastContainer position="top-right" autoClose={5000} newestOnTop closeOnClick pauseOnHover theme="colored" />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 }

@@ -13,6 +13,7 @@ import {
 
 import { getSession } from "../../lib/auth";
 import { supabase } from "../../lib/superbase";
+import ProgramCarousel from "./ProgramCarousel";
 
 type StudentProfile = {
   id: string;
@@ -318,7 +319,7 @@ export default function StudentDashboard() {
 
   if (errorMessage) {
     return (
-      <div className="min-h-screen p-5 dark:bg-slate-950 md:p-6 xl:p-8">
+      <div className="min-h-screen p-5">
         <div className="mx-auto max-w-[1600px]">
           <div className="rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm dark:border-red-900/50 dark:bg-slate-900">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-950/40">
@@ -347,16 +348,16 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen p-5 dark:bg-slate-950 md:p-6 xl:p-8">
+    <div className="min-h-screen p-5">
       <div className="mx-auto max-w-[1600px] space-y-6">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-7">
+        <section className="rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 p-8 shadow-sm md:p-7">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white md:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-white dark:text-white md:text-3xl">
                 Welcome back, {displayName}
               </h1>
 
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white dark:text-slate-400">
                 Continue your learning journey, track your progress, and access
                 your Academy courses from one place.
               </p>
@@ -364,7 +365,7 @@ export default function StudentDashboard() {
 
             <a
               href="/student/courses"
-              className="inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-white bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               Browse My Courses
               <ArrowRight size={16} />
@@ -372,78 +373,88 @@ export default function StudentDashboard() {
           </div>
         </section>
 
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  My Courses
-                </p>
+        <section className="grid gap-5 xl:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-blue-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    Enrolled Courses
+                  </p>
 
-                <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-                  {stats.totalCourses}
-                </p>
+                  <p className="mt-3 text-3xl font-bold text-primary dark:text-white">
+                    {stats.totalCourses}
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                  <BookOpen size={20} />
+                </div>
               </div>
+            </div>
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
-                <BookOpen size={20} />
+            <div className="rounded-2xl border border-orange-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                    In Progress
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold text-orange-500 dark:text-white">
+                    {stats.inProgress}
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
+                  <PlayCircle size={20} />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-green-500 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
+                    Completed
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold text-green-600 dark:text-white">
+                    {stats.completed}
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-purple-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-purple-500">
+                    Overall Progress
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold text-purple-500 dark:text-white">
+                    {stats.overallProgress}%
+                  </p>
+                </div>
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
+                  <TrendingUp size={20} />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  In Progress
-                </p>
-
-                <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-                  {stats.inProgress}
-                </p>
-              </div>
-
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-                <PlayCircle size={20} />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Completed
-                </p>
-
-                <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-                  {stats.completed}
-                </p>
-              </div>
-
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
-                <CheckCircle2 size={20} />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Overall Progress
-                </p>
-
-                <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-                  {stats.overallProgress}%
-                </p>
-              </div>
-
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
-                <TrendingUp size={20} />
-              </div>
-            </div>
-          </div>
+          <ProgramCarousel
+            title="Explore Courses"
+            eyebrow="Available Courses"
+            description="Discover more programs from CloudTweak Academy."
+            exploreAllHref="/student/courses/allcourses"
+            exploreAllLabel="Explore All Courses"
+          />
         </section>
 
         {continueLearningCourse && (
@@ -470,7 +481,7 @@ export default function StudentDashboard() {
 
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="grid md:grid-cols-[220px_1fr]">
-                <div className="flex min-h-[180px] items-center justify-center bg-gradient-to-br from-sky-100 via-emerald-50 to-yellow-50 text-sky-600 dark:from-sky-950 dark:via-emerald-950 dark:to-yellow-950 dark:text-sky-300">
+                <div className="flex min-h-[180px] items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-orange-100 text-sky-600 dark:from-sky-950 dark:via-emerald-950 dark:to-yellow-950 dark:text-sky-300">
                   <GraduationCap size={52} strokeWidth={1.5} />
                 </div>
 

@@ -172,7 +172,7 @@ export default function LoginForm() {
             <div className="mb-10 flex justify-center lg:hidden">
               <a href="/" className="inline-flex items-center">
                 <img
-                  src="/images/cloudtweak-logo.png"
+                  src="/logos/cloudtweaklogo.png"
                   alt="CloudTweak"
                   className="h-10 w-auto object-contain"
                 />

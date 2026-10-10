@@ -1,0 +1,28 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import AcademyModuleNav from "../../../components/admin/academy/AcademyModuleNav";
+import AcademyQuizManagement from "../../../islands/AcademyQuizManagement";
+---
+
+<AdminLayout title="Academy Categories">
+  <Header title="Academy Categories" />
+  <main class="space-y-8 lg:p-5">
+    <header
+      class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div>
+        <h1 class="mt-2 text-xl font-bold text-slate-950">
+          Create and manage a quiz
+        </h1>
+
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Create and modify quizzes added on the curriculum builder
+        </p>
+      </div>
+    </header>
+
+    <AcademyModuleNav current="" />
+    <AcademyQuizManagement client:load />
+  </main>
+</AdminLayout>

@@ -5,15 +5,14 @@ import {
   ChevronRight,
   CircleQuestionMark,
   CircleUserRound,
-  FileText,
   GraduationCap,
   LayoutDashboard,
   LibraryBig,
   Receipt,
-  ReceiptText,
-  Settings,
+  Sparkles,
   UserRound,
 } from "lucide-react";
+import { FaBookBookmark } from "react-icons/fa6";
 
 export type StudentNavigationIcon =
   | "dashboard"
@@ -24,6 +23,7 @@ export type StudentNavigationIcon =
   | "profile"
   | "settings"
   | "receipt"
+  | "allcourses"
   | "support";
 
 export interface StudentNavigationItem {
@@ -105,6 +105,9 @@ function getNavigationIcon(icon?: StudentNavigationIcon) {
 
     case "courses":
       return GraduationCap;
+
+    case "allcourses":
+      return Sparkles;
 
     case "resources":
       return LibraryBig;

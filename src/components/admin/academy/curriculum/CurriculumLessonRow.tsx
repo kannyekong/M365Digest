@@ -6,8 +6,11 @@ import {
   GraduationCap,
   LoaderCircle,
   Pencil,
+  Link2,
+  ClipboardCheck,
   Trash2,
   X,
+  BookOpenCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AcademyLesson } from "../../../../types/academy";
@@ -19,6 +22,8 @@ interface CurriculumLessonRowProps {
   lesson: AcademyLesson;
   deleting: boolean;
   saving: boolean;
+  onResources: (lesson: AcademyLesson) => void;
+  onQuiz: (lesson: AcademyLesson) => void;
   onUpdate: (
     lessonId: string,
     updates: {
@@ -74,6 +79,8 @@ export default function CurriculumLessonRow({
   lesson,
   deleting,
   saving,
+  onResources,
+  onQuiz,
   onUpdate,
   onDelete,
 }: CurriculumLessonRowProps) {
@@ -290,6 +297,29 @@ export default function CurriculumLessonRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            onResources(lesson);
+          }}
+          disabled={deleting || saving}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Link2 className="h-4 w-4" />
+          Resources
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onQuiz(lesson);
+          }}
+          disabled={deleting || saving}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-300 px-3 text-sm font-semibold text-emerald-700 hover:bg-slate-50 transition disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-950/50"
+        >
+          <BookOpenCheck className="h-4 w-4" />
+          Add Quiz
+        </button>
         <button
           type="button"
           onClick={() => {

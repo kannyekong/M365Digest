@@ -503,12 +503,8 @@ export default function StudentCourses() {
       <section>
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-500">
-              Academy
-            </p>
-
             <h2 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
-              Explore Academy
+              Explore Other Courses
             </h2>
 
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

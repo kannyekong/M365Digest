@@ -8,6 +8,7 @@ import {
   NotepadTextDashed,
   UserStar,
   RotateCcw,
+  Presentation,
 } from "lucide-react";
 
 interface AcademyModuleNavProps {
@@ -19,6 +20,8 @@ interface AcademyModuleNavProps {
     | "Certificates"
     | "Categories"
     | "Templates"
+    | "Sessions"
+    | ""
     | "Instructors";
 }
 
@@ -79,7 +82,13 @@ const items = [
     href: "/admin/bootcamp/instructors",
     icon: UserStar,
   },
-  
+
+  {
+    key: "Sessions",
+    label: "Sessions",
+    href: "/admin/academy/livesessions",
+    icon: Presentation,
+  },
 ] as const;
 
 /**

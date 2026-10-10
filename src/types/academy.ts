@@ -404,3 +404,492 @@ export interface AcademyCertificate {
 export interface AcademyInstructorWithProgramCount extends AcademyInstructor {
   assigned_program_count: number;
 }
+/**
+ * Supported Academy resource types.
+ *
+ * A resource is supporting material attached to an existing
+ * curriculum lesson.
+ */
+export type AcademyResourceType =
+  "video" | "pdf" | "document" | "spreadsheet" | "zip" | "link";
+
+/**
+ * Supported external resource providers.
+ */
+export type AcademyResourceProvider =
+  | "sharepoint"
+  | "onedrive"
+  | "youtube"
+  | "vimeo"
+  | "supabase_storage"
+  | "external";
+
+/**
+ * Academy curriculum resource.
+ */
+export interface AcademyResource {
+  id: string;
+  lesson_id: string;
+
+  title: string;
+  description: string | null;
+
+  resource_type: AcademyResourceType;
+  provider: AcademyResourceProvider | null;
+
+  external_url: string | null;
+  storage_path: string | null;
+
+  thumbnail_url: string | null;
+
+  mime_type: string | null;
+  file_name: string | null;
+  file_size: number | null;
+
+  duration_seconds: number | null;
+
+  is_required: boolean;
+  is_published: boolean;
+
+  available_from: string | null;
+  available_until: string | null;
+
+  display_order: number;
+
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Input used when creating an Academy resource.
+ */
+export interface AcademyResourceInput {
+  lesson_id: string;
+
+  title: string;
+  description?: string | null;
+
+  resource_type: AcademyResourceType;
+  provider?: AcademyResourceProvider | null;
+
+  external_url?: string | null;
+  storage_path?: string | null;
+
+  thumbnail_url?: string | null;
+
+  mime_type?: string | null;
+  file_name?: string | null;
+  file_size?: number | null;
+
+  duration_seconds?: number | null;
+
+  is_required?: boolean;
+  is_published?: boolean;
+
+  available_from?: string | null;
+  available_until?: string | null;
+
+  display_order?: number;
+}
+
+/**
+ * Supported live-class platforms.
+ */
+export type AcademyLiveSessionPlatform =
+  "teams" | "zoom" | "google_meet" | "other";
+
+/**
+ * Current state of an Academy live class.
+ */
+export type AcademyLiveSessionStatus = "scheduled" | "cancelled" | "completed";
+
+/**
+ * Academy live class/session.
+ */
+export interface AcademyLiveSession {
+  id: string;
+
+  program_id: string;
+  module_id: string | null;
+  lesson_id: string | null;
+  resource_id: string | null;
+
+  title: string;
+  description: string | null;
+
+  platform: AcademyLiveSessionPlatform;
+  meeting_url: string;
+
+  start_at: string;
+  end_at: string | null;
+
+  is_published: boolean;
+  status: AcademyLiveSessionStatus;
+
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Input used when creating an Academy live class.
+ */
+export interface AcademyLiveSessionInput {
+  program_id: string;
+
+  module_id?: string | null;
+  lesson_id?: string | null;
+  resource_id?: string | null;
+
+  title: string;
+  description?: string | null;
+
+  platform: AcademyLiveSessionPlatform;
+  meeting_url: string;
+
+  start_at: string;
+  end_at?: string | null;
+
+  is_published?: boolean;
+  status?: AcademyLiveSessionStatus;
+}
+
+/**
+ * Student progress for an individual Academy resource.
+ */
+export type StudentResourceProgressStatus =
+  "not_started" | "in_progress" | "completed";
+
+/**
+ * Tracks a student's progress through an Academy resource.
+ */
+export interface StudentResourceProgress {
+  id: string;
+
+  student_id: string;
+  enrollment_id: string;
+  resource_id: string;
+
+  status: StudentResourceProgressStatus;
+
+  started_at: string | null;
+  completed_at: string | null;
+  last_accessed_at: string | null;
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpcomingSession {
+  id: string;
+  title: string;
+  description?: string | null;
+  platform: AcademyLiveSessionPlatform;
+  meetingUrl: string;
+  startAt: string;
+  endAt?: string | null;
+}
+
+/**
+ * Supported Academy quiz question types.
+ */
+export type AcademyQuizQuestionType =
+  "single_choice" | "multiple_choice" | "true_false";
+
+/** Represents an Academy quiz configuration. */
+export interface AcademyQuiz {
+  id: string;
+  program_id: string;
+  module_id: string | null;
+  lesson_id: string | null;
+  title: string;
+  description: string | null;
+  passing_score: number;
+  max_attempts: number | null;
+  is_required: boolean;
+  is_published: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Represents an individual quiz question. */
+export interface AcademyQuizQuestion {
+  id: string;
+  quiz_id: string;
+  question_text: string;
+  question_type: AcademyQuizQuestionType;
+  points: number;
+  explanation: string | null;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Represents an answer option belonging to a quiz question. */
+export interface AcademyQuizOption {
+  id: string;
+  question_id: string;
+  option_text: string;
+  is_correct: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Represents the metadata for a student quiz attempt. */
+export interface StudentQuizAttempt {
+  id: string;
+  student_id: string;
+  enrollment_id: string;
+  quiz_id: string;
+  attempt_number: number;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  started_at: string;
+  completed_at: string | null;
+  created_at: string;
+}
+
+/** Represents a sanitized answer option returned to the student. */
+export interface StudentQuizOption {
+  id: string;
+  optionText: string;
+}
+
+/** Represents a randomized question returned for a specific student attempt. */
+export interface StudentQuizAttemptQuestion {
+  questionId: string;
+  questionText: string;
+  questionType: AcademyQuizQuestionType;
+  points: number;
+  questionPosition: number;
+  options: StudentQuizOption[];
+  selectedOptionIds: string[];
+}
+
+/** Represents the complete quiz payload used by the student quiz player. */
+export interface StudentQuizAttemptPayload {
+  attemptId: string;
+  attemptNumber: number;
+  quizId: string;
+  title: string;
+  description: string | null;
+  passingScore: number;
+  maxAttempts: number | null;
+  isRequired: boolean;
+  startedAt: string;
+  completedAt: string | null;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  questions: StudentQuizAttemptQuestion[];
+}
+
+/** Represents the safe response returned when a student starts or resumes a quiz attempt. */
+export interface StudentQuizStartResponse {
+  attemptId: string;
+  attemptNumber: number;
+  quizId: string;
+  title: string;
+  description: string | null;
+  passingScore: number;
+  maxAttempts: number | null;
+  isRequired: boolean;
+  startedAt: string;
+  completedAt: string | null;
+  resumed: boolean;
+}
+
+/** Represents the answer submitted for one quiz question. */
+export interface StudentQuizSubmissionAnswer {
+  questionId: string;
+  selectedOptionIds: string[];
+}
+
+/** Represents the result returned after server-side grading. */
+export interface StudentQuizResult {
+  attemptId: string;
+  score: number;
+  totalPoints: number;
+  percentage: number;
+  passingScore: number;
+  passed: boolean;
+  completedAt: string;
+}
+
+/** Represents one option during historical quiz review. */
+export interface StudentQuizReviewOption {
+  id: string;
+  optionText: string;
+  isCorrect: boolean;
+  selected: boolean;
+}
+
+/** Represents one question during historical quiz review. */
+export interface StudentQuizReviewQuestion {
+  questionId: string;
+  questionText: string;
+  questionType: AcademyQuizQuestionType;
+  points: number;
+  explanation: string | null;
+  questionPosition: number;
+  isCorrect: boolean;
+  pointsAwarded: number;
+  options: StudentQuizReviewOption[];
+}
+
+/** Represents the complete historical review of a quiz attempt. */
+export interface StudentQuizReview {
+  attemptId: string;
+  attemptNumber: number;
+  quizId: string;
+  title: string;
+  passingScore: number;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  startedAt: string;
+  completedAt: string;
+  questions: StudentQuizReviewQuestion[];
+}
+
+/** Represents the data needed to create a quiz. */
+export interface AcademyQuizInput {
+  program_id: string;
+  module_id?: string | null;
+  lesson_id?: string | null;
+  title: string;
+  description?: string | null;
+  passing_score?: number;
+  max_attempts?: number | null;
+  is_required?: boolean;
+  is_published?: boolean;
+  display_order?: number;
+}
+
+/** Represents the data needed to create a quiz question. */
+export interface AcademyQuizQuestionInput {
+  quiz_id: string;
+  question_text: string;
+  question_type: AcademyQuizQuestionType;
+  points?: number;
+  explanation?: string | null;
+  display_order?: number;
+}
+
+/** Represents the data needed to create a quiz option. */
+export interface AcademyQuizOptionInput {
+  question_id: string;
+  option_text: string;
+  is_correct?: boolean;
+  display_order?: number;
+}
+
+/**
+ * Represents a sanitized answer option returned to the student.
+ *
+ * Correct-answer information is intentionally excluded from this type.
+ */
+export interface StudentQuizOption {
+  id: string;
+  optionText: string;
+}
+
+/**
+ * Represents one randomized question in an active student quiz attempt.
+ */
+export interface StudentQuizAttemptQuestion {
+  questionId: string;
+  questionText: string;
+  questionType: AcademyQuizQuestionType;
+  points: number;
+  questionPosition: number;
+  options: StudentQuizOption[];
+  selectedOptionIds: string[];
+}
+
+/**
+ * Represents the complete sanitized payload used by the student quiz player.
+ */
+export interface StudentQuizAttemptPayload {
+  attemptId: string;
+  attemptNumber: number;
+  quizId: string;
+  title: string;
+  description: string | null;
+  passingScore: number;
+  maxAttempts: number | null;
+  isRequired: boolean;
+  startedAt: string;
+  completedAt: string | null;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  questions: StudentQuizAttemptQuestion[];
+}
+
+/**
+ * Represents one answer submitted by the student.
+ */
+export interface StudentQuizSubmissionAnswer {
+  questionId: string;
+  selectedOptionIds: string[];
+}
+
+/**
+ * Represents the result returned after server-side quiz grading.
+ */
+export interface StudentQuizResult {
+  attemptId: string;
+  score: number;
+  totalPoints: number;
+  percentage: number;
+  passingScore: number;
+  passed: boolean;
+  completedAt: string;
+}
+
+/**
+ * Represents one option during historical quiz review.
+ *
+ * Correct-answer information is only exposed after the attempt is completed.
+ */
+export interface StudentQuizReviewOption {
+  id: string;
+  optionText: string;
+  isCorrect: boolean;
+  selected: boolean;
+}
+
+/**
+ * Represents one question during historical quiz review.
+ */
+export interface StudentQuizReviewQuestion {
+  questionId: string;
+  questionText: string;
+  questionType: AcademyQuizQuestionType;
+  points: number;
+  explanation: string | null;
+  questionPosition: number;
+  isCorrect: boolean;
+  pointsAwarded: number;
+  options: StudentQuizReviewOption[];
+}
+
+/**
+ * Represents the complete historical review of a completed quiz attempt.
+ */
+export interface StudentQuizReview {
+  attemptId: string;
+  attemptNumber: number;
+  quizId: string;
+  title: string;
+  passingScore: number;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  startedAt: string;
+  completedAt: string;
+  questions: StudentQuizReviewQuestion[];
+}
