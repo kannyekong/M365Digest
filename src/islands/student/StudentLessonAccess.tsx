@@ -9,6 +9,7 @@ import StudentResourceViewer from "./StudentResourceViewer";
 
 interface StudentLessonAccessProps {
   programId: string;
+  moduleId: string;
   lessonId: string;
   programSlug: string;
   previousLessonUrl: string | null;
@@ -21,6 +22,7 @@ interface StudentLessonAccessProps {
  */
 export default function StudentLessonAccess({
   programId,
+  moduleId,
   lessonId,
   programSlug,
   previousLessonUrl,
@@ -122,6 +124,8 @@ export default function StudentLessonAccess({
           />
 
           <StudentResourceViewer
+            programId={programId}
+            moduleId={moduleId}
             lessonId={lessonId}
             enrollmentId={enrollmentId}
           />
