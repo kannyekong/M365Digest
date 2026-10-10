@@ -19,6 +19,8 @@ import {
   deleteAcademyResource,
   getAcademyLessonResources,
   getAcademyLessonQuizzes,
+  getAcademyModuleQuizzes,
+  updateAcademyQuiz,
   updateAcademyResource,
 } from "../../../../lib/academy";
 
@@ -194,6 +196,8 @@ export default function CurriculumResourceManager({
 }: CurriculumResourceManagerProps) {
   const [resources, setResources] = useState<AcademyResource[]>([]);
   const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
+  const [moduleQuizzes, setModuleQuizzes] = useState<AcademyQuiz[]>([]);
+  const [movingQuizId, setMovingQuizId] = useState<string | null>(null);
   const [editingQuiz, setEditingQuiz] = useState<AcademyQuiz | null>(null);
   const [showQuizBuilder, setShowQuizBuilder] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -215,9 +219,14 @@ export default function CurriculumResourceManager({
     setErrorMessage("");
 
     try {
-      const [records, quizRecords] = await Promise.all([getAcademyLessonResources(lessonId), getAcademyLessonQuizzes(lessonId)]);
+      const [records, quizRecords, moduleQuizRecords] = await Promise.all([
+        getAcademyLessonResources(lessonId),
+        getAcademyLessonQuizzes(lessonId),
+        getAcademyModuleQuizzes(moduleId),
+      ]);
       setResources(records);
       setQuizzes(quizRecords);
+      setModuleQuizzes(moduleQuizRecords.filter((quiz) => !quiz.lesson_id));
     } catch (error) {
       console.error("Failed to load lesson resources:", error);
       setErrorMessage("The lesson resources could not be loaded.");
@@ -238,6 +247,23 @@ export default function CurriculumResourceManager({
     setQuizzes((current) => current.some((item) => item.id === quiz.id) ? current.map((item) => item.id === quiz.id ? quiz : item) : [...current, quiz].sort((a, b) => a.display_order - b.display_order));
     setEditingQuiz(quiz);
     toast.success("Lesson quiz saved.");
+  }
+
+  /** Reattach an existing module quiz to this lesson without recreating its record or attempts. */
+  async function handleMoveModuleQuiz(quiz: AcademyQuiz) {
+    if (movingQuizId) return;
+    setMovingQuizId(quiz.id);
+    try {
+      const updated = await updateAcademyQuiz(quiz.id, { module_id: null, lesson_id: lessonId });
+      setModuleQuizzes((current) => current.filter((item) => item.id !== quiz.id));
+      setQuizzes((current) => [...current, updated].sort((a, b) => a.display_order - b.display_order));
+      toast.success("Quiz moved to this lesson. Existing attempts were preserved.");
+    } catch (error) {
+      console.error("Failed to move module quiz to lesson:", error);
+      toast.error(error instanceof Error ? error.message : "Unable to move this quiz to the lesson.");
+    } finally {
+      setMovingQuizId(null);
+    }
   }
 
   /** Remove a quiz from the local list after confirmed deletion. */
@@ -757,6 +783,7 @@ export default function CurriculumResourceManager({
 
           <section className="mb-6 rounded-2xl border border-slate-200 p-4 dark:border-slate-800">
             <div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500"><ClipboardCheck className="h-5 w-5" /></div><div><h3 className="font-semibold text-slate-900 dark:text-white">Lesson quizzes</h3><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage assessments independently from lesson resources.</p></div></div><button type="button" onClick={handleAddQuiz} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white hover:opacity-90"><Plus className="h-4 w-4" /> Add quiz</button></div>
+            {moduleQuizzes.length > 0 ? <div className="mt-4 rounded-xl border border-amber-300/70 bg-amber-50/60 p-3 dark:border-amber-900/60 dark:bg-amber-950/20"><p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Existing module quizzes</p><p className="mt-1 text-xs leading-5 text-amber-700 dark:text-amber-400">Move a quiz here to associate it with this lesson. Its existing quiz ID, questions, and attempt history are retained.</p><div className="mt-3 space-y-2">{moduleQuizzes.map((quiz) => <article key={quiz.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-white p-3 dark:border-amber-900/50 dark:bg-slate-950"><div><p className="text-sm font-semibold text-slate-900 dark:text-white">{quiz.title}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{quiz.is_published ? "Published" : "Draft"} · {quiz.is_required ? "Required" : "Optional"}</p></div><button type="button" disabled={Boolean(movingQuizId)} onClick={() => { void handleMoveModuleQuiz(quiz); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-amber-300 px-3 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:text-amber-300 dark:hover:bg-amber-950/50">{movingQuizId === quiz.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />}{movingQuizId === quiz.id ? "Moving..." : "Move to lesson"}</button></article>)}</div></div> : null}
             {quizzes.length > 0 ? <div className="mt-4 space-y-2">{quizzes.map((quiz) => <article key={quiz.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800"><div className="min-w-0"><p className="font-semibold text-slate-900 dark:text-white">{quiz.title}</p><div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><span>{quiz.is_published ? "Published" : "Draft"}</span><span>•</span><span>{quiz.is_required ? "Required" : "Optional"}</span><span>•</span><span>Pass mark: {quiz.passing_score}%</span></div></div><button type="button" onClick={() => { setEditingQuiz(quiz); setShowQuizBuilder(true); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"><Pencil className="h-4 w-4" /> Manage quiz</button></article>)}</div> : <p className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">No quizzes attached to this lesson yet.</p>}
           </section>
 
