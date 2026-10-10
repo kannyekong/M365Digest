@@ -1,5 +1,6 @@
 import {
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   ExternalLink,
   FileArchive,
@@ -13,17 +14,23 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   getAcademyLessonResources,
+  getAcademyLessonQuizzes,
   getStudentResourceProgress,
   upsertStudentResourceProgress,
 } from "../../lib/academy";
 import { supabase } from "../../lib/superbase";
+import StudentQuizPlayer from "./StudentQuizPlayer";
 import type {
   AcademyResource,
   StudentResourceProgress,
   StudentResourceProgressStatus,
+  AcademyQuiz,
+  StudentQuizResult,
 } from "../../types/academy";
 
 interface StudentResourceViewerProps {
+  programId: string;
+  moduleId: string;
   lessonId: string;
   enrollmentId: string;
 }
@@ -151,10 +158,14 @@ function isResourceAvailable(resource: AcademyResource) {
  * Display and track Academy resources belonging to one lesson.
  */
 export default function StudentResourceViewer({
+  programId,
+  moduleId,
   lessonId,
   enrollmentId,
 }: StudentResourceViewerProps) {
   const [resources, setResources] = useState<AcademyResource[]>([]);
+  const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
+  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
   const [progress, setProgress] = useState<
     Record<string, StudentResourceProgress>
   >({});
@@ -172,16 +183,15 @@ export default function StudentResourceViewer({
       setErrorMessage("");
 
       try {
-        const [resourceData, progressData] = await Promise.all([
-          getAcademyLessonResources(lessonId),
-          getStudentResourceProgress(enrollmentId),
-        ]);
+        const [resourceData, progressData, quizData] = await Promise.all([getAcademyLessonResources(lessonId), getStudentResourceProgress(enrollmentId), getAcademyLessonQuizzes(lessonId)]);
 
         const publishedResources = resourceData.filter(
           (resource) => resource.is_published && isResourceAvailable(resource)
         );
 
         setResources(publishedResources);
+        setQuizzes(quizData.filter((quiz) => quiz.is_published));
+        setActiveQuizId(null);
 
         const progressMap: Record<string, StudentResourceProgress> = {};
 
@@ -193,6 +203,8 @@ export default function StudentResourceViewer({
 
         if (publishedResources.length > 0) {
           setActiveResourceId(publishedResources[0].id);
+        } else {
+          setActiveResourceId(null);
         }
       } catch (error) {
         console.error("Failed to load student resources:", error);
@@ -218,6 +230,15 @@ export default function StudentResourceViewer({
       resources.find((resource) => resource.id === activeResourceId) ?? null
     );
   }, [resources, activeResourceId]);
+
+  /** Return the currently selected lesson quiz, if one is selected. */
+  const activeQuiz = useMemo(() => quizzes.find((quiz) => quiz.id === activeQuizId) ?? null, [quizzes, activeQuizId]);
+
+  /** Notify lesson progression controls when a student passes a quiz. */
+  function handleQuizProceed(result: StudentQuizResult) {
+    if (!result.passed) return;
+    window.dispatchEvent(new CustomEvent("academy:quiz-passed", { detail: { programId, moduleId, lessonId, enrollmentId, result } }));
+  }
 
   /**
    * Mark a resource as started without changing a completed resource back
@@ -421,7 +442,7 @@ export default function StudentResourceViewer({
     );
   }
 
-  if (resources.length === 0) {
+  if (resources.length === 0 && quizzes.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
         <FileText className="mx-auto h-10 w-10 text-slate-400" />
@@ -447,12 +468,16 @@ export default function StudentResourceViewer({
             </h3>
 
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {resources.length}{" "}
-              {resources.length === 1 ? "resource" : "resources"}
+              {resources.length + quizzes.length}{" "}
+              {resources.length + quizzes.length === 1 ? "item" : "items"}
             </p>
           </div>
 
           <div className="mt-2 space-y-1">
+            {quizzes.map((quiz) => {
+              const active = quiz.id === activeQuizId;
+              return <button key={quiz.id} type="button" onClick={() => { setActiveQuizId(quiz.id); setActiveResourceId(null); }} className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${active ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}><ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{quiz.title}</span><span className="mt-1 flex items-center gap-2 text-xs opacity-70">Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}</span></span></button>;
+            })}
             {resources.map((resource) => {
               const Icon = getResourceIcon(resource.resource_type);
               const resourceProgress = progress[resource.id];
@@ -464,6 +489,7 @@ export default function StudentResourceViewer({
                   key={resource.id}
                   type="button"
                   onClick={() => {
+                    setActiveQuizId(null);
                     setActiveResourceId(resource.id);
                   }}
                   className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
@@ -501,7 +527,9 @@ export default function StudentResourceViewer({
         </aside>
 
         <div className="min-w-0">
-          {activeResource ? (
+          {activeQuiz ? (
+            <div className="space-y-5"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">Lesson quiz</span><span className={`rounded-full px-3 py-1 text-xs font-semibold ${activeQuiz.is_required ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>{activeQuiz.is_required ? "Required" : "Optional"}</span></div><h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">{activeQuiz.title}</h2>{activeQuiz.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">{activeQuiz.description}</p> : null}</div><StudentQuizPlayer key={activeQuiz.id} quizId={activeQuiz.id} enrollmentId={enrollmentId} onProceed={handleQuizProceed} /></div>
+          ) : activeResource ? (
             <div className="space-y-5">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
