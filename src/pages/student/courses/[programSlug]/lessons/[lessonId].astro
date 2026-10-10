@@ -3,7 +3,6 @@ import StudentLayout from "../../../../../layouts/StudentLayout.astro";
 import StudentHeader from "../../../../../components/admin/UI/StudentHeader.astro";
 import { supabase } from "../../../../../lib/superbase";
 import StudentLessonAccess from "../../../../../islands/student/StudentLessonAccess";
-import StudentLessonAssessment from "../../../../../islands/student/StudentLessonAssessment";
 
 const { programSlug, lessonId } = Astro.params;
 
@@ -211,17 +210,11 @@ const lessonTypeLabel = lesson.lesson_type
       <StudentLessonAccess
         client:load
         programId={program.id}
+        moduleId={moduleData.id}
         lessonId={lesson.id}
         programSlug={programSlug}
         previousLessonUrl={previousLessonUrl}
         nextLessonUrl={nextLessonUrl}
-      />
-
-      <StudentLessonAssessment
-        client:load
-        programId={program.id}
-        moduleId={moduleData.id}
-        lessonId={lesson.id}
       />
     </div>
   </main>
