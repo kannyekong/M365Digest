@@ -1538,7 +1538,122 @@ export async function getStudentLessonProgress(
     throw error;
   }
 
-  // Return the existing progress record when one exists.
+  // Return an untracked lesson when no progress row exists.
+  if (!data || data.status !== "completed") {
+    return data;
+  }
+
+  // Revalidate a stored completion against today's required curriculum items.
+  // This does not rewrite the historical progress row or alter quiz attempts.
+  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
+    await Promise.all([
+      supabase
+        .from("academy_program_resources")
+        .select("id, available_from, available_until")
+        .eq("lesson_id", lessonId)
+        .eq("is_required", true)
+        .eq("is_published", true),
+      supabase
+        .from("academy_quizzes")
+        .select("id")
+        .eq("lesson_id", lessonId)
+        .eq("is_required", true)
+        .eq("is_published", true),
+    ]);
+
+  // Do not silently trust stale completion if requirements cannot be checked.
+  if (requiredResourcesError) {
+    throw new Error(
+      `Unable to revalidate required lesson resources. ${requiredResourcesError.message}`
+    );
+  }
+
+  if (requiredQuizzesError) {
+    throw new Error(
+      `Unable to revalidate required lesson quizzes. ${requiredQuizzesError.message}`
+    );
+  }
+
+  // Only resources currently available to the student count toward completion.
+  const now = Date.now();
+  const availableResourceIds = (requiredResources ?? [])
+    .filter((resource) => {
+      const availableFrom = resource.available_from
+        ? new Date(resource.available_from).getTime()
+        : null;
+      const availableUntil = resource.available_until
+        ? new Date(resource.available_until).getTime()
+        : null;
+
+      return (
+        (availableFrom === null || now >= availableFrom) &&
+        (availableUntil === null || now <= availableUntil)
+      );
+    })
+    .map((resource) => resource.id);
+
+  if (availableResourceIds.length > 0) {
+    const { data: completedResources, error: completedResourcesError } =
+      await supabase
+        .from("student_resource_progress")
+        .select("resource_id")
+        .eq("enrollment_id", enrollmentId)
+        .eq("status", "completed")
+        .in("resource_id", availableResourceIds);
+
+    if (completedResourcesError) {
+      throw new Error(
+        `Unable to revalidate required resource completion. ${completedResourcesError.message}`
+      );
+    }
+
+    const completedResourceIds = new Set(
+      (completedResources ?? []).map((resource) => resource.resource_id)
+    );
+
+    if (availableResourceIds.some((resourceId) => !completedResourceIds.has(resourceId))) {
+      return {
+        ...data,
+        status: "in_progress",
+        progress_percent: 99,
+        completed_at: null,
+      };
+    }
+  }
+
+  // Check passing attempts for this enrollment against currently required quizzes.
+  const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
+
+  if (requiredQuizIds.length > 0) {
+    const { data: passedAttempts, error: passedAttemptsError } = await supabase
+      .from("student_quiz_attempts")
+      .select("quiz_id")
+      .eq("enrollment_id", enrollmentId)
+      .eq("passed", true)
+      .not("completed_at", "is", null)
+      .in("quiz_id", requiredQuizIds);
+
+    if (passedAttemptsError) {
+      throw new Error(
+        `Unable to revalidate required quiz completion. ${passedAttemptsError.message}`
+      );
+    }
+
+    const passedQuizIds = new Set(
+      (passedAttempts ?? []).map((attempt) => attempt.quiz_id)
+    );
+
+    if (requiredQuizIds.some((quizId) => !passedQuizIds.has(quizId))) {
+      return {
+        ...data,
+        status: "in_progress",
+        progress_percent: 99,
+        completed_at: null,
+      };
+    }
+  }
+
+  // Preserve the saved completion when all current requirements are satisfied.
   return data;
 }
 
