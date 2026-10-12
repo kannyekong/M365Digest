@@ -18,7 +18,7 @@ import {
   getStudentResourceProgress,
   upsertStudentResourceProgress,
 } from "../../lib/academy";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 import StudentQuizPlayer from "./StudentQuizPlayer";
 import type {
   AcademyResource,
