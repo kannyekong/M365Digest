@@ -251,6 +251,82 @@ export async function getStudentCourseProgress(
     ])
   );
 
+  // Load currently published required resources and quizzes to validate saved completion.
+  const lessonIds = lessons.map((lesson) => lesson.id);
+  const now = new Date().toISOString();
+  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
+    await Promise.all([
+      lessonIds.length > 0
+        ? supabase
+            .from("academy_program_resources")
+            .select("id, lesson_id, available_from, available_until")
+            .in("lesson_id", lessonIds)
+            .eq("is_required", true)
+            .eq("is_published", true)
+        : Promise.resolve({ data: [], error: null }),
+      lessonIds.length > 0
+        ? supabase
+            .from("academy_quizzes")
+            .select("id, lesson_id")
+            .in("lesson_id", lessonIds)
+            .eq("is_required", true)
+            .eq("is_published", true)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  if (requiredResourcesError) throw requiredResourcesError;
+  if (requiredQuizzesError) throw requiredQuizzesError;
+
+  const availableRequiredResources = (requiredResources ?? []).filter(
+    (resource) =>
+      (!resource.available_from || resource.available_from <= now) &&
+      (!resource.available_until || resource.available_until >= now)
+  );
+  const requiredResourceIds = availableRequiredResources.map((resource) => resource.id);
+  const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
+
+  // Load completion evidence scoped to the student's enrollments.
+  const [{ data: completedResources, error: completedResourcesError }, { data: passedQuizAttempts, error: passedQuizAttemptsError }] =
+    await Promise.all([
+      requiredResourceIds.length > 0
+        ? supabase
+            .from("student_resource_progress")
+            .select("enrollment_id, resource_id")
+            .in("enrollment_id", enrollmentIds)
+            .in("resource_id", requiredResourceIds)
+            .eq("status", "completed")
+        : Promise.resolve({ data: [], error: null }),
+      requiredQuizIds.length > 0
+        ? supabase
+            .from("student_quiz_attempts")
+            .select("enrollment_id, quiz_id")
+            .in("enrollment_id", enrollmentIds)
+            .in("quiz_id", requiredQuizIds)
+            .eq("passed", true)
+            .not("completed_at", "is", null)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  if (completedResourcesError) throw completedResourcesError;
+  if (passedQuizAttemptsError) throw passedQuizAttemptsError;
+
+  const completedResourceKeys = new Set(
+    (completedResources ?? []).map((item) => `${item.enrollment_id}:${item.resource_id}`)
+  );
+  const passedQuizKeys = new Set(
+    (passedQuizAttempts ?? []).map((item) => `${item.enrollment_id}:${item.quiz_id}`)
+  );
+
+  // A previously completed lesson is no longer complete if new required items remain unfinished.
+  const hasOutstandingRequirements = (enrollmentId: string, lessonId: string) => {
+    const lessonResources = availableRequiredResources.filter((item) => item.lesson_id === lessonId);
+    const lessonQuizzes = (requiredQuizzes ?? []).filter((item) => item.lesson_id === lessonId);
+    return (
+      lessonResources.some((item) => !completedResourceKeys.has(`${enrollmentId}:${item.id}`)) ||
+      lessonQuizzes.some((item) => !passedQuizKeys.has(`${enrollmentId}:${item.id}`))
+    );
+  };
+
   // Calculate the final course summaries.
   return enrollments.map((enrollment) => {
     const currentProgramId = enrollment.program!.id;
@@ -261,10 +337,19 @@ export async function getStudentCourseProgress(
     );
 
     // Resolve progress records for this enrollment.
-    const courseProgress = programLessons.map((lesson) => ({
-      lesson,
-      progress: progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null,
-    }));
+    const courseProgress = programLessons.map((lesson) => {
+      const savedProgress = progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null;
+      const invalidatedCompletion =
+        savedProgress?.status === "completed" &&
+        hasOutstandingRequirements(enrollment.id, lesson.id);
+
+      return {
+        lesson,
+        progress: invalidatedCompletion
+          ? { ...savedProgress, status: "in_progress", progress_percent: 99 }
+          : savedProgress,
+      };
+    });
 
     // Count the complete curriculum, not only tracked lessons.
     const totalLessons = courseProgress.length;
@@ -289,9 +374,8 @@ export async function getStudentCourseProgress(
     const calculatedProgress =
       totalLessons > 0 ? Math.round(totalProgress / totalLessons) : 0;
 
-    // Completed enrollments always display 100%.
-    const progressPercent =
-      enrollment.status === "completed" ? 100 : calculatedProgress;
+    // Derive the displayed percentage from current lesson requirements, even for older completed enrollments.
+    const progressPercent = calculatedProgress;
 
     // Find the most recently accessed incomplete lesson.
     const recentlyAccessedIncomplete = courseProgress
