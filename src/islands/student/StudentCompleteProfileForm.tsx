@@ -70,7 +70,7 @@ export default function StudentCompleteProfileForm() {
   }, []);
 
   // Saves the student's completed profile and enables LMS access.
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
@@ -92,7 +92,7 @@ export default function StudentCompleteProfileForm() {
 
     setSaving(true);
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await studentSupabase
       .from("student_profiles")
       .update({
         first_name: trimmedFirstName,
