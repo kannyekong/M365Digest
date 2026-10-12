@@ -11,9 +11,16 @@ export default function StudentLoginForm() {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Redirects already-authenticated students away from the login page.
   useEffect(() => {
+    // Shows a confirmation after the password has been reset successfully.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("passwordReset") === "success") {
+      setSuccessMessage("Your password has been updated. Please sign in with your new password.");
+    }
+
     async function checkExistingSession() {
       const {
         data: { session },
@@ -86,6 +93,12 @@ export default function StudentLoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {successMessage && (
+        <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+          {successMessage}
+        </div>
+      )}
+
       {errorMessage && (
         <div
           role="alert"
