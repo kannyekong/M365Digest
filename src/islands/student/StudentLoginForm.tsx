@@ -36,12 +36,16 @@ export default function StudentLoginForm() {
       if (session) {
         const { data: profile, error } = await studentSupabase
           .from("student_profiles")
-          .select("id")
+          .select("id, profile_completed")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
         if (!error && profile) {
-          window.location.replace("/student/dashboard");
+          window.location.replace(
+            profile.profile_completed
+              ? "/student/dashboard"
+              : "/student/complete-profile"
+          );
           return;
         }
 
@@ -96,7 +100,41 @@ export default function StudentLoginForm() {
       return;
     }
 
-    window.location.replace("/student/dashboard");
+    // Sends the student to the correct next step instead of routing every login through the dashboard.
+    const {
+      data: { session },
+      error: sessionError,
+    } = await getSession();
+
+    if (sessionError || !session) {
+      setErrorMessage("You signed in, but we could not verify your session. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: profile, error: profileError } = await studentSupabase
+      .from("student_profiles")
+      .select("id, profile_completed")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      console.error("Student profile lookup after login failed:", profileError);
+      await studentSupabase.auth.signOut();
+      setErrorMessage(
+        profileError
+          ? "We could not verify your student profile. Please try again or contact support."
+          : "We could not find a student profile linked to this account. Please contact support."
+      );
+      setLoading(false);
+      return;
+    }
+
+    window.location.replace(
+      profile.profile_completed
+        ? "/student/dashboard"
+        : "/student/complete-profile"
+    );
   }
 
   if (checkingSession) {
