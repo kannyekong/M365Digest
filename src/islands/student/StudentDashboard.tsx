@@ -72,34 +72,34 @@ export default function StudentDashboard() {
       setLoading(true);
       setErrorMessage("");
 
-      console.info("[StudentAuthTrace][Dashboard] load started", { path: window.location.pathname, timestamp: new Date().toISOString() });
+      
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-      console.info("[StudentAuthTrace][Dashboard] session result", { hasSession: Boolean(session), userId: session?.user?.id ?? null, sessionError: sessionResult.error?.message ?? null });
+      
 
       if (!session) {
-        console.warn("[StudentAuthTrace][Dashboard] redirect to /student/login: no session");
+        
         window.location.replace("/student/login");
         return;
       }
 
-      console.info("[StudentAuthTrace][Dashboard] querying student profile", { userId: session.user.id, client: "studentSupabase" });
+      
       const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id, first_name, last_name")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      console.info("[StudentAuthTrace][Dashboard] profile result", { found: Boolean(profileData), profileId: profileData?.id ?? null, profileError: profileError ? { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint } : null });
+      
       if (profileError) {
-        console.error("[StudentAuthTrace][Dashboard] profile query failed:", profileError);
+        
         setErrorMessage("We could not load your student profile.");
         setLoading(false);
         return;
       }
 
       if (!profileData) {
-        console.warn("[StudentAuthTrace][Dashboard] redirect to /student/complete-profile: no profile row", { userId: session.user.id });
+        
         window.location.replace("/student/complete-profile");
         return;
       }
