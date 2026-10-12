@@ -20,6 +20,9 @@ export default function StudentLoginForm() {
     if (params.get("passwordReset") === "success") {
       setSuccessMessage("Your password has been updated. Please sign in with your new password.");
     }
+    if (params.get("error") === "profile-missing") {
+      setErrorMessage("We could not find a student profile linked to this account. Please check that you signed in with your student email or contact support.");
+    }
 
     async function checkExistingSession() {
       const {
