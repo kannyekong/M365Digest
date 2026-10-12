@@ -1,4 +1,4 @@
-import { supabase } from "./superbase";
+import { studentSupabase, supabase } from "./superbase";
 import type {
   AcademyCategory,
   AcademyCertificate,
