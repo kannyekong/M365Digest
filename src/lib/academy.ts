@@ -2566,3 +2566,29 @@ export async function getStudentLessonQuiz(
 
   return data as AcademyQuiz | null;
 }
+
+
+/** Loads lesson resources using the isolated student session. */
+export async function getStudentLessonResources(lessonId: string) {
+  const { data, error } = await studentSupabase
+    .from("academy_program_resources")
+    .select("*")
+    .eq("lesson_id", lessonId)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as AcademyResource[];
+}
+
+/** Loads lesson quizzes using the isolated student session. */
+export async function getStudentLessonQuizzes(lessonId: string) {
+  const { data, error } = await studentSupabase
+    .from("academy_quizzes")
+    .select("*")
+    .eq("lesson_id", lessonId)
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as AcademyQuiz[];
+}
