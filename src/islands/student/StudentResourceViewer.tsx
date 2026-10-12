@@ -166,6 +166,7 @@ export default function StudentResourceViewer({
   const [resources, setResources] = useState<AcademyResource[]>([]);
   const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
   const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
+  const [passedQuizIds, setPassedQuizIds] = useState<Set<string>>(new Set());
   const [progress, setProgress] = useState<
     Record<string, StudentResourceProgress>
   >({});
@@ -184,6 +185,29 @@ export default function StudentResourceViewer({
 
       try {
         const [resourceData, progressData, quizData] = await Promise.all([getAcademyLessonResources(lessonId), getStudentResourceProgress(enrollmentId), getAcademyLessonQuizzes(lessonId)]);
+
+        // Load passing attempts for this enrollment without mixing quiz status into resource progress.
+        const publishedQuizIds = quizData
+          .filter((quiz) => quiz.is_published)
+          .map((quiz) => quiz.id);
+        const { data: passedAttempts, error: passedAttemptsError } =
+          publishedQuizIds.length > 0
+            ? await supabase
+                .from("student_quiz_attempts")
+                .select("quiz_id")
+                .eq("enrollment_id", enrollmentId)
+                .eq("passed", true)
+                .not("completed_at", "is", null)
+                .in("quiz_id", publishedQuizIds)
+            : { data: [], error: null };
+
+        if (passedAttemptsError) {
+          throw passedAttemptsError;
+        }
+
+        setPassedQuizIds(
+          new Set((passedAttempts ?? []).map((attempt) => attempt.quiz_id))
+        );
 
         const publishedResources = resourceData.filter(
           (resource) => resource.is_published && isResourceAvailable(resource)
@@ -234,6 +258,35 @@ export default function StudentResourceViewer({
 
   /** Return the currently selected lesson quiz, if one is selected. */
   const activeQuiz = useMemo(() => quizzes.find((quiz) => quiz.id === activeQuizId) ?? null, [quizzes, activeQuizId]);
+
+  // Combine resources and quizzes so completed items sort ahead of unfinished items.
+  const orderedSidebarItems = useMemo(() => {
+    const items = [
+      ...quizzes.map((quiz) => ({
+        id: quiz.id,
+        kind: "quiz" as const,
+        title: quiz.title,
+        completed: passedQuizIds.has(quiz.id),
+        displayOrder: quiz.display_order,
+        quiz,
+      })),
+      ...resources.map((resource) => ({
+        id: resource.id,
+        kind: "resource" as const,
+        title: resource.title,
+        completed: progress[resource.id]?.status === "completed",
+        displayOrder: resource.display_order,
+        resource,
+      })),
+    ];
+
+    return items.sort(
+      (a, b) =>
+        Number(b.completed) - Number(a.completed) ||
+        a.displayOrder - b.displayOrder ||
+        a.title.localeCompare(b.title)
+    );
+  }, [quizzes, resources, passedQuizIds, progress]);
 
   /** Notify lesson progression controls when a student passes a quiz. */
   function handleQuizProceed(result: StudentQuizResult) {
@@ -475,14 +528,46 @@ export default function StudentResourceViewer({
           </div>
 
           <div className="mt-2 space-y-1">
-            {quizzes.map((quiz) => {
-              const active = quiz.id === activeQuizId;
-              return <button key={quiz.id} type="button" onClick={() => { setActiveQuizId(quiz.id); setActiveResourceId(null); }} className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${active ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}><ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{quiz.title}</span><span className="mt-1 flex items-center gap-2 text-xs opacity-70">Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}</span></span></button>;
-            })}
-            {resources.map((resource) => {
+            {orderedSidebarItems.map((item) => {
+              if (item.kind === "quiz") {
+                const quiz = item.quiz;
+                const active = quiz.id === activeQuizId;
+
+                return (
+                  <button
+                    key={quiz.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveQuizId(quiz.id);
+                      setActiveResourceId(null);
+                    }}
+                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
+                      active
+                        ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                        : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">
+                        {quiz.title}
+                      </span>
+                      <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
+                        Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}
+                      </span>
+                    </span>
+                    {item.completed ? (
+                      <CheckCircle2
+                        className="h-5 w-5 shrink-0 text-emerald-500"
+                        aria-label="Quiz passed"
+                      />
+                    ) : null}
+                  </button>
+                );
+              }
+
+              const resource = item.resource;
               const Icon = getResourceIcon(resource.resource_type);
-              const resourceProgress = progress[resource.id];
-              const completed = resourceProgress?.status === "completed";
               const active = resource.id === activeResourceId;
 
               return (
@@ -500,15 +585,12 @@ export default function StudentResourceViewer({
                   }`}
                 >
                   <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold">
                       {resource.title}
                     </span>
-
                     <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
                       {formatResourceType(resource.resource_type)}
-
                       {resource.is_required ? (
                         <>
                           <span>•</span>
@@ -517,9 +599,11 @@ export default function StudentResourceViewer({
                       ) : null}
                     </span>
                   </span>
-
-                  {completed ? (
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+                  {item.completed ? (
+                    <CheckCircle2
+                      className="h-5 w-5 shrink-0 text-emerald-500"
+                      aria-label="Resource completed"
+                    />
                   ) : null}
                 </button>
               );
