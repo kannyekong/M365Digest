@@ -246,7 +246,6 @@ export default function CurriculumResourceManager({
   function handleQuizSaved(quiz: AcademyQuiz) {
     setQuizzes((current) => current.some((item) => item.id === quiz.id) ? current.map((item) => item.id === quiz.id ? quiz : item) : [...current, quiz].sort((a, b) => a.display_order - b.display_order));
     setEditingQuiz(quiz);
-    toast.success("Lesson quiz saved.");
   }
 
   /** Reattach an existing module quiz to this lesson without recreating its record or attempts. */
