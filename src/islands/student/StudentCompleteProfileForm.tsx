@@ -18,18 +18,18 @@ export default function StudentCompleteProfileForm() {
   useEffect(() => {
     // Loads the authenticated student's existing profile information.
     async function loadProfile() {
-      console.info("[StudentAuthTrace][CompleteProfile] load started", { path: window.location.pathname, timestamp: new Date().toISOString() });
+      
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-      console.info("[StudentAuthTrace][CompleteProfile] session result", { hasSession: Boolean(session), userId: session?.user?.id ?? null, sessionError: sessionResult.error?.message ?? null });
+      
 
       if (!session) {
-        console.warn("[StudentAuthTrace][CompleteProfile] redirect to /student/login: no session");
+        
         window.location.replace("/student/login");
         return;
       }
 
-      console.info("[StudentAuthTrace][CompleteProfile] querying profile", { userId: session.user.id });
+      
       const { data: profile, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select(
@@ -38,16 +38,16 @@ export default function StudentCompleteProfileForm() {
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      console.info("[StudentAuthTrace][CompleteProfile] profile result", { found: Boolean(profile), profileId: profile?.id ?? null, profileCompleted: profile?.profile_completed ?? null, profileError: profileError ? { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint } : null });
+      
       if (profileError) {
-        console.error("[StudentAuthTrace][CompleteProfile] profile query failed:", profileError);
+        
         setError("We could not load your profile. Please try again.");
         setLoading(false);
         return;
       }
 
       if (!profile) {
-        console.warn("[StudentAuthTrace][CompleteProfile] profile row missing; staying on page", { userId: session.user.id });
+        
         setError(
           "Your student profile could not be found. Please contact support."
         );
@@ -56,7 +56,7 @@ export default function StudentCompleteProfileForm() {
       }
 
       if (profile.profile_completed) {
-        console.info("[StudentAuthTrace][CompleteProfile] redirect to /student/dashboard: profile already completed", { userId: session.user.id, profileId: profile.id });
+        
         window.location.replace("/student/dashboard");
         return;
       }
@@ -73,7 +73,7 @@ export default function StudentCompleteProfileForm() {
     }
 
     loadProfile().catch((error) => {
-      console.error("[StudentAuthTrace][CompleteProfile] unhandled profile-load error", error);
+      
       setError("We could not load your profile. Please refresh and try again.");
       setLoading(false);
     });
@@ -126,7 +126,7 @@ export default function StudentCompleteProfileForm() {
       return;
     }
 
-    console.info("[StudentAuthTrace][CompleteProfile] profile saved; redirect to dashboard", { profileId });
+    
     window.location.replace("/student/dashboard");
   }
 
