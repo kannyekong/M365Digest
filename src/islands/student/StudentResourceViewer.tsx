@@ -291,7 +291,17 @@ export default function StudentResourceViewer({
   /** Notify lesson progression controls when a student passes a quiz. */
   function handleQuizProceed(result: StudentQuizResult) {
     if (!result.passed) return;
-    window.dispatchEvent(new CustomEvent("academy:quiz-passed", { detail: { programId, moduleId, lessonId, enrollmentId, result } }));
+
+    // Reflect the newly passed quiz immediately in the lesson sidebar.
+    if (activeQuizId) {
+      setPassedQuizIds((current) => new Set(current).add(activeQuizId));
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("academy:quiz-passed", {
+        detail: { programId, moduleId, lessonId, enrollmentId, result },
+      })
+    );
   }
 
   /**
