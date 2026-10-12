@@ -1754,7 +1754,9 @@ export async function completeStudentLesson(
 
     if (unpassedQuizCount > 0) {
       throw new Error(
-        `Pass the ${unpassedQuizCount} required lesson quiz${unpassedQuizCount === 1 ? "" : "zes"} before marking this lesson complete.`
+        unpassedQuizCount === 1
+          ? "Pass the required lesson quiz before marking this lesson complete."
+          : `Pass all ${unpassedQuizCount} required lesson quizzes before marking this lesson complete.`
       );
     }
   }
