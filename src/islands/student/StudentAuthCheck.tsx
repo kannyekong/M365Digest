@@ -26,11 +26,13 @@ export default function StudentAuthCheck() {
 
       if (error) {
         console.error("Failed to load student profile:", error);
-        window.location.replace("/student/login");
+        await studentSupabase.auth.signOut();
+        window.location.replace("/student/login?error=profile-check-failed");
         return;
       }
 
       if (!profile) {
+        await studentSupabase.auth.signOut();
         window.location.replace("/student/login?error=profile-missing");
         return;
       }
