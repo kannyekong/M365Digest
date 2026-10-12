@@ -29,28 +29,28 @@ export default function StudentLoginForm() {
     }
 
     async function checkExistingSession() {
-      console.info("[StudentAuthTrace][Login] existing-session check started", { path: window.location.pathname, timestamp: new Date().toISOString() });
+      
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-      console.info("[StudentAuthTrace][Login] existing-session result", { hasSession: Boolean(session), userId: session?.user?.id ?? null, sessionError: sessionResult.error?.message ?? null });
+      
 
       if (session) {
-        console.info("[StudentAuthTrace][Login] querying profile for existing session", { userId: session.user.id });
+        
         const { data: profile, error } = await studentSupabase
           .from("student_profiles")
           .select("id, profile_completed")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
-        console.info("[StudentAuthTrace][Login] existing-session profile result", { found: Boolean(profile), profileId: profile?.id ?? null, profileCompleted: profile?.profile_completed ?? null, profileError: error ? { message: error.message, code: error.code, details: error.details, hint: error.hint } : null });
+        
         if (!error && profile) {
           const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
-          console.info("[StudentAuthTrace][Login] redirect existing session", { destination, userId: session.user.id });
+          
           window.location.replace(destination);
           return;
         }
 
-        console.warn("[StudentAuthTrace][Login] signing out because profile verification failed", { userId: session.user.id, reason: error ? "profile-query-error" : "profile-row-missing", profileError: error?.message ?? null });
+        
         await studentSupabase.auth.signOut();
         setErrorMessage(
           error
@@ -59,12 +59,12 @@ export default function StudentLoginForm() {
         );
       }
 
-      console.info("[StudentAuthTrace][Login] existing-session check complete; login form can render");
+      
       setCheckingSession(false);
     }
 
     checkExistingSession().catch((error) => {
-      console.error("[StudentAuthTrace][Login] unhandled existing-session check error", error);
+      
       setErrorMessage("We could not verify your session. Please refresh and try again.");
       setCheckingSession(false);
     });
@@ -85,7 +85,7 @@ export default function StudentLoginForm() {
 
     setLoading(true);
 
-    console.info("[StudentAuthTrace][Login] submitting credentials", { emailPresent: Boolean(normalizedEmail), timestamp: new Date().toISOString() });
+    
     const { error } = await login(normalizedEmail, password);
 
     if (error) {
@@ -112,7 +112,7 @@ export default function StudentLoginForm() {
     const sessionResult = await getSession();
     const session = sessionResult.data?.session ?? null;
     const sessionError = sessionResult.error;
-    console.info("[StudentAuthTrace][Login] session after sign-in", { hasSession: Boolean(session), userId: session?.user?.id ?? null, sessionError: sessionError?.message ?? null });
+    
 
     if (sessionError || !session) {
       setErrorMessage("You signed in, but we could not verify your session. Please try again.");
@@ -120,16 +120,16 @@ export default function StudentLoginForm() {
       return;
     }
 
-    console.info("[StudentAuthTrace][Login] querying profile after sign-in", { userId: session.user.id });
+    
     const { data: profile, error: profileError } = await studentSupabase
       .from("student_profiles")
       .select("id, profile_completed")
       .eq("user_id", session.user.id)
       .maybeSingle();
 
-    console.info("[StudentAuthTrace][Login] post-login profile result", { found: Boolean(profile), profileId: profile?.id ?? null, profileCompleted: profile?.profile_completed ?? null, profileError: profileError ? { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint } : null });
+    
     if (profileError || !profile) {
-      console.error("[StudentAuthTrace][Login] profile lookup after login failed:", profileError);
+      
       await studentSupabase.auth.signOut();
       setErrorMessage(
         profileError
@@ -141,7 +141,7 @@ export default function StudentLoginForm() {
     }
 
     const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
-    console.info("[StudentAuthTrace][Login] redirect after successful sign-in", { destination, userId: session.user.id, profileCompleted: profile.profile_completed });
+    
     window.location.replace(destination);
   }
 
