@@ -31,7 +31,7 @@ export default function StudentAuthCheck() {
       }
 
       if (!profile) {
-        window.location.replace("/student/complete-profile");
+        window.location.replace("/student/login?error=profile-missing");
         return;
       }
 
