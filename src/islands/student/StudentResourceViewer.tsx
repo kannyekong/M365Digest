@@ -13,12 +13,12 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import {
-  getAcademyLessonResources,
-  getAcademyLessonQuizzes,
+  getStudentLessonResources,
+  getStudentLessonQuizzes,
   getStudentResourceProgress,
   upsertStudentResourceProgress,
 } from "../../lib/academy";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 import StudentQuizPlayer from "./StudentQuizPlayer";
 import type {
   AcademyResource,
@@ -184,7 +184,7 @@ export default function StudentResourceViewer({
       setErrorMessage("");
 
       try {
-        const [resourceData, progressData, quizData] = await Promise.all([getAcademyLessonResources(lessonId), getStudentResourceProgress(enrollmentId), getAcademyLessonQuizzes(lessonId)]);
+        const [resourceData, progressData, quizData] = await Promise.all([getStudentLessonResources(lessonId), getStudentResourceProgress(enrollmentId), getStudentLessonQuizzes(lessonId)]);
 
         // Load passing attempts for this enrollment without mixing quiz status into resource progress.
         const publishedQuizIds = quizData

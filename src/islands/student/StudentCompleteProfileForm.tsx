@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 export default function StudentCompleteProfileForm() {
   const [profileId, setProfileId] = useState("");
@@ -27,7 +27,7 @@ export default function StudentCompleteProfileForm() {
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select(
           "id, first_name, last_name, phone, country, bio, name_confirmed, profile_completed"

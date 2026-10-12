@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff, LockKeyhole, Mail, ArrowRight } from "lucide-react";
 
 import { getSession, login } from "../../lib/auth";
+import { studentSupabase } from "../../lib/superbase";
 
 export default function StudentLoginForm() {
   const [email, setEmail] = useState("");
@@ -11,17 +12,45 @@ export default function StudentLoginForm() {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Redirects already-authenticated students away from the login page.
   useEffect(() => {
+    // Shows a confirmation after the password has been reset successfully.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("passwordReset") === "success") {
+      setSuccessMessage("Your password has been updated. Please sign in with your new password.");
+    }
+    if (params.get("error") === "profile-missing") {
+      setErrorMessage("We could not find a student profile linked to this account. Please check that you signed in with your student email or contact support.");
+    }
+    if (params.get("error") === "profile-check-failed") {
+      setErrorMessage("We could not verify your student profile. Please sign in again or contact support if the issue continues.");
+    }
+
     async function checkExistingSession() {
       const {
         data: { session },
       } = await getSession();
 
       if (session) {
-        window.location.replace("/student/dashboard");
-        return;
+        const { data: profile, error } = await studentSupabase
+          .from("student_profiles")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (!error && profile) {
+          window.location.replace("/student/dashboard");
+          return;
+        }
+
+        await studentSupabase.auth.signOut();
+        setErrorMessage(
+          error
+            ? "We could not verify your student profile. Please sign in again."
+            : "We could not find a student profile linked to this account. Please check your student email or contact support."
+        );
       }
 
       setCheckingSession(false);
@@ -86,6 +115,12 @@ export default function StudentLoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {successMessage && (
+        <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+          {successMessage}
+        </div>
+      )}
+
       {errorMessage && (
         <div
           role="alert"

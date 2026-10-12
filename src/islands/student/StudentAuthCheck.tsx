@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 export default function StudentAuthCheck() {
   const [checking, setChecking] = useState(true);
@@ -18,7 +18,7 @@ export default function StudentAuthCheck() {
         return;
       }
 
-      const { data: profile, error } = await supabase
+      const { data: profile, error } = await studentSupabase
         .from("student_profiles")
         .select("id, profile_completed")
         .eq("user_id", session.user.id)
@@ -26,12 +26,14 @@ export default function StudentAuthCheck() {
 
       if (error) {
         console.error("Failed to load student profile:", error);
-        window.location.replace("/student/login");
+        await studentSupabase.auth.signOut();
+        window.location.replace("/student/login?error=profile-check-failed");
         return;
       }
 
       if (!profile) {
-        window.location.replace("/student/complete-profile");
+        await studentSupabase.auth.signOut();
+        window.location.replace("/student/login?error=profile-missing");
         return;
       }
 

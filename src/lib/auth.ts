@@ -1,18 +1,18 @@
-import { supabase } from "./superbase";
+import { studentSupabase } from "./superbase";
 
 export async function login(email: string, password: string) {
-  return supabase.auth.signInWithPassword({
+  return studentSupabase.auth.signInWithPassword({
     email,
     password,
   });
 }
 
 export async function logout() {
-  return supabase.auth.signOut();
+  return studentSupabase.auth.signOut();
 }
 
 export async function getSession() {
-  return supabase.auth.getSession();
+  return studentSupabase.auth.getSession();
 }
 
 // Registers a new CloudTweak Academy student and sends the
@@ -23,7 +23,7 @@ export async function registerStudent(
   firstName: string,
   lastName: string
 ) {
-  return supabase.auth.signUp({
+  return studentSupabase.auth.signUp({
     email,
     password,
     options: {
@@ -39,7 +39,7 @@ export async function registerStudent(
 
 // Verifies the email address using the OTP sent by Supabase Auth.
 export async function verifyStudentEmail(email: string, token: string) {
-  return supabase.auth.verifyOtp({
+  return studentSupabase.auth.verifyOtp({
     email,
     token,
     type: "email",
@@ -49,7 +49,7 @@ export async function verifyStudentEmail(email: string, token: string) {
 // Resends the student email-verification OTP when the previous code
 // has expired or the student did not receive the original message.
 export async function resendStudentVerification(email: string) {
-  return supabase.auth.resend({
+  return studentSupabase.auth.resend({
     type: "signup",
     email,
   });

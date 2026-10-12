@@ -1,4 +1,4 @@
-import { supabase } from "./superbase";
+import { studentSupabase, supabase } from "./superbase";
 import type {
   AcademyCategory,
   AcademyCertificate,
@@ -96,7 +96,7 @@ export async function getStudentCourseProgress(
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   // Stop when authentication lookup fails.
   if (sessionError) {
@@ -109,7 +109,7 @@ export async function getStudentCourseProgress(
   }
 
   // Resolve the student profile belonging to the authenticated user.
-  const { data: student, error: studentError } = await supabase
+  const { data: student, error: studentError } = await studentSupabase
     .from("student_profiles")
     .select("id")
     .eq("user_id", session.user.id)
@@ -126,7 +126,7 @@ export async function getStudentCourseProgress(
   }
 
   // Load the student's enrollments and their Academy programs.
-  let enrollmentQuery = supabase
+  let enrollmentQuery = studentSupabase
     .from("student_enrollments")
     .select(
       `
@@ -178,7 +178,7 @@ export async function getStudentCourseProgress(
   const programIds = enrollments.map((enrollment) => enrollment.program!.id);
 
   // Load every module belonging to the enrolled programs.
-  const { data: moduleData, error: moduleError } = await supabase
+  const { data: moduleData, error: moduleError } = await studentSupabase
     .from("academy_program_modules")
     .select("id, program_id")
     .in("program_id", programIds)
@@ -196,7 +196,7 @@ export async function getStudentCourseProgress(
   // Load every lesson in the enrolled programs.
   const { data: lessonData, error: lessonError } =
     moduleIds.length > 0
-      ? await supabase
+      ? await studentSupabase
           .from("academy_program_lessons")
           .select("id, module_id, display_order")
           .in("module_id", moduleIds)
@@ -225,7 +225,7 @@ export async function getStudentCourseProgress(
   const enrollmentIds = enrollments.map((enrollment) => enrollment.id);
 
   // Load every existing lesson-progress record for these enrollments.
-  const { data: progressData, error: progressError } = await supabase
+  const { data: progressData, error: progressError } = await studentSupabase
     .from("student_lesson_progress")
     .select(
       `
@@ -257,7 +257,7 @@ export async function getStudentCourseProgress(
   const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
     await Promise.all([
       lessonIds.length > 0
-        ? supabase
+        ? studentSupabase
             .from("academy_program_resources")
             .select("id, lesson_id, available_from, available_until")
             .in("lesson_id", lessonIds)
@@ -265,7 +265,7 @@ export async function getStudentCourseProgress(
             .eq("is_published", true)
         : Promise.resolve({ data: [], error: null }),
       lessonIds.length > 0
-        ? supabase
+        ? studentSupabase
             .from("academy_quizzes")
             .select("id, lesson_id")
             .in("lesson_id", lessonIds)
@@ -289,7 +289,7 @@ export async function getStudentCourseProgress(
   const [{ data: completedResources, error: completedResourcesError }, { data: passedQuizAttempts, error: passedQuizAttemptsError }] =
     await Promise.all([
       requiredResourceIds.length > 0
-        ? supabase
+        ? studentSupabase
             .from("student_resource_progress")
             .select("enrollment_id, resource_id")
             .in("enrollment_id", enrollmentIds)
@@ -297,7 +297,7 @@ export async function getStudentCourseProgress(
             .eq("status", "completed")
         : Promise.resolve({ data: [], error: null }),
       requiredQuizIds.length > 0
-        ? supabase
+        ? studentSupabase
             .from("student_quiz_attempts")
             .select("enrollment_id, quiz_id")
             .in("enrollment_id", enrollmentIds)
@@ -1395,7 +1395,7 @@ export async function deleteAcademyLiveSession(id: string) {
  * Retrieves a student's progress for a specific enrollment.
  */
 export async function getStudentResourceProgress(enrollmentId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("student_resource_progress")
     .select("*")
     .eq("enrollment_id", enrollmentId);
@@ -1414,7 +1414,7 @@ export async function getStudentResourceProgressByResource(
   enrollmentId: string,
   resourceId: string
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("student_resource_progress")
     .select("*")
     .eq("enrollment_id", enrollmentId)
@@ -1443,7 +1443,7 @@ export async function upsertStudentResourceProgress(progress: {
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   // Stop when no authenticated session exists.
   if (sessionError) {
@@ -1455,7 +1455,7 @@ export async function upsertStudentResourceProgress(progress: {
   }
 
   // Find the student's profile associated with the supplied enrollment.
-  const { data: enrollment, error: enrollmentError } = await supabase
+  const { data: enrollment, error: enrollmentError } = await studentSupabase
     .from("student_enrollments")
     .select("id, student_id")
     .eq("id", progress.enrollment_id)
@@ -1467,7 +1467,7 @@ export async function upsertStudentResourceProgress(progress: {
   }
 
   // Confirm that the enrollment belongs to the authenticated student.
-  const { data: studentProfile, error: profileError } = await supabase
+  const { data: studentProfile, error: profileError } = await studentSupabase
     .from("student_profiles")
     .select("id")
     .eq("id", enrollment.student_id)
@@ -1481,7 +1481,7 @@ export async function upsertStudentResourceProgress(progress: {
 
   // Check whether this resource already has a progress record.
   const { data: existingProgress, error: existingProgressError } =
-    await supabase
+    await studentSupabase
       .from("student_resource_progress")
       .select("*")
       .eq("enrollment_id", progress.enrollment_id)
@@ -1514,7 +1514,7 @@ export async function upsertStudentResourceProgress(progress: {
   };
 
   // Create or update the student's resource progress record.
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("student_resource_progress")
     .upsert(payload, {
       onConflict: "enrollment_id,resource_id",
@@ -1539,7 +1539,7 @@ export async function getStudentEnrollmentForProgram(programId: string) {
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   // Stop when the authentication lookup fails.
   if (sessionError) {
@@ -1552,7 +1552,7 @@ export async function getStudentEnrollmentForProgram(programId: string) {
   }
 
   // Find the student profile belonging to the authenticated user.
-  const { data: student, error: studentError } = await supabase
+  const { data: student, error: studentError } = await studentSupabase
     .from("student_profiles")
     .select("id")
     .eq("user_id", session.user.id)
@@ -1569,7 +1569,7 @@ export async function getStudentEnrollmentForProgram(programId: string) {
   }
 
   // Find the student's enrollment for the requested program.
-  const { data: enrollment, error: enrollmentError } = await supabase
+  const { data: enrollment, error: enrollmentError } = await studentSupabase
     .from("student_enrollments")
     .select("id, student_id, program_id, status, start_date, end_date")
     .eq("student_id", student.id)
@@ -1597,7 +1597,7 @@ export async function getStudentLessonProgress(
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   // Stop when the session lookup fails.
   if (sessionError) {
@@ -1610,7 +1610,7 @@ export async function getStudentLessonProgress(
   }
 
   // Retrieve the requested lesson progress record.
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("student_lesson_progress")
     .select("*")
     .eq("enrollment_id", enrollmentId)
@@ -1631,13 +1631,13 @@ export async function getStudentLessonProgress(
   // This does not rewrite the historical progress row or alter quiz attempts.
   const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
     await Promise.all([
-      supabase
+      studentSupabase
         .from("academy_program_resources")
         .select("id, available_from, available_until")
         .eq("lesson_id", lessonId)
         .eq("is_required", true)
         .eq("is_published", true),
-      supabase
+      studentSupabase
         .from("academy_quizzes")
         .select("id")
         .eq("lesson_id", lessonId)
@@ -1678,7 +1678,7 @@ export async function getStudentLessonProgress(
 
   if (availableResourceIds.length > 0) {
     const { data: completedResources, error: completedResourcesError } =
-      await supabase
+      await studentSupabase
         .from("student_resource_progress")
         .select("resource_id")
         .eq("enrollment_id", enrollmentId)
@@ -1709,7 +1709,7 @@ export async function getStudentLessonProgress(
   const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
 
   if (requiredQuizIds.length > 0) {
-    const { data: passedAttempts, error: passedAttemptsError } = await supabase
+    const { data: passedAttempts, error: passedAttemptsError } = await studentSupabase
       .from("student_quiz_attempts")
       .select("quiz_id")
       .eq("enrollment_id", enrollmentId)
@@ -1752,7 +1752,7 @@ export async function completeStudentLesson(
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   // Stop when the authentication lookup itself fails.
   if (sessionError) {
@@ -1765,7 +1765,7 @@ export async function completeStudentLesson(
   }
 
   // Resolve the student profile belonging to the authenticated user.
-  const { data: student, error: studentError } = await supabase
+  const { data: student, error: studentError } = await studentSupabase
     .from("student_profiles")
     .select("id")
     .eq("user_id", session.user.id)
@@ -1786,7 +1786,7 @@ export async function completeStudentLesson(
   }
 
   // Confirm that the enrollment belongs to the authenticated student.
-  const { data: enrollment, error: enrollmentError } = await supabase
+  const { data: enrollment, error: enrollmentError } = await studentSupabase
     .from("student_enrollments")
     .select("id, student_id, program_id, status")
     .eq("id", enrollmentId)
@@ -1813,7 +1813,7 @@ export async function completeStudentLesson(
   }
 
   // Verify that the lesson belongs to the student's enrolled program.
-  const { data: lesson, error: lessonError } = await supabase
+  const { data: lesson, error: lessonError } = await studentSupabase
     .from("academy_program_lessons")
     .select(
       `
@@ -1847,7 +1847,7 @@ export async function completeStudentLesson(
   }
 
   // Load published required resources that are currently available to the student.
-  const { data: requiredResources, error: requiredResourcesError } = await supabase
+  const { data: requiredResources, error: requiredResourcesError } = await studentSupabase
     .from("academy_program_resources")
     .select("id, available_from, available_until")
     .eq("lesson_id", lessonId)
@@ -1882,7 +1882,7 @@ export async function completeStudentLesson(
   // Require every available required resource to have completed progress.
   if (availableRequiredResourceIds.length > 0) {
     const { data: completedResources, error: completedResourcesError } =
-      await supabase
+      await studentSupabase
         .from("student_resource_progress")
         .select("resource_id")
         .eq("enrollment_id", enrollmentId)
@@ -1911,7 +1911,7 @@ export async function completeStudentLesson(
   }
 
   // Load published required quizzes attached directly to this lesson.
-  const { data: requiredQuizzes, error: requiredQuizzesError } = await supabase
+  const { data: requiredQuizzes, error: requiredQuizzesError } = await studentSupabase
     .from("academy_quizzes")
     .select("id")
     .eq("lesson_id", lessonId)
@@ -1929,7 +1929,7 @@ export async function completeStudentLesson(
 
   // Require a completed passing attempt for each required quiz in this enrollment.
   if (requiredQuizIds.length > 0) {
-    const { data: passedAttempts, error: passedAttemptsError } = await supabase
+    const { data: passedAttempts, error: passedAttemptsError } = await studentSupabase
       .from("student_quiz_attempts")
       .select("quiz_id")
       .eq("enrollment_id", enrollmentId)
@@ -1964,7 +1964,7 @@ export async function completeStudentLesson(
   const completedAt = new Date().toISOString();
 
   // Create or update the student's lesson progress record.
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("student_lesson_progress")
     .upsert(
       {
@@ -2072,7 +2072,7 @@ export async function getNextStudentLiveSession(): Promise<UpcomingSession | nul
   const {
     data: { session },
     error: sessionError,
-  } = await supabase.auth.getSession();
+  } = await studentSupabase.auth.getSession();
 
   if (sessionError) {
     throw sessionError;
@@ -2083,7 +2083,7 @@ export async function getNextStudentLiveSession(): Promise<UpcomingSession | nul
   }
 
   // Resolve the student's profile from the authenticated user.
-  const { data: student, error: studentError } = await supabase
+  const { data: student, error: studentError } = await studentSupabase
     .from("student_profiles")
     .select("id")
     .eq("user_id", session.user.id)
@@ -2094,7 +2094,7 @@ export async function getNextStudentLiveSession(): Promise<UpcomingSession | nul
   }
 
   // Load the student's currently active learning enrollments.
-  const { data: enrollments, error: enrollmentError } = await supabase
+  const { data: enrollments, error: enrollmentError } = await studentSupabase
     .from("student_enrollments")
     .select("program_id")
     .eq("student_id", student.id)
@@ -2120,7 +2120,7 @@ export async function getNextStudentLiveSession(): Promise<UpcomingSession | nul
 
   // Retrieve the earliest published and scheduled session
   // belonging to one of the student's enrolled programs.
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("academy_live_sessions")
     .select(
       `
@@ -2431,7 +2431,7 @@ export async function deleteAcademyQuizOption(optionId: string) {
 export async function getStudentQuizAttempt(
   attemptId: string
 ): Promise<StudentQuizAttemptPayload> {
-  const { data, error } = await supabase.rpc("academy_get_quiz_attempt", {
+  const { data, error } = await studentSupabase.rpc("academy_get_quiz_attempt", {
     p_attempt_id: attemptId,
   });
 
@@ -2451,7 +2451,7 @@ export async function getStudentQuizAttempt(
 export async function reviewStudentQuizAttempt(
   attemptId: string
 ): Promise<StudentQuizReview> {
-  const { data, error } = await supabase.rpc("academy_review_quiz_attempt", {
+  const { data, error } = await studentSupabase.rpc("academy_review_quiz_attempt", {
     p_attempt_id: attemptId,
   });
 
@@ -2507,7 +2507,7 @@ export async function startStudentQuiz(
   quizId: string,
   enrollmentId: string
 ): Promise<StudentQuizAttemptPayload> {
-  const { data, error } = await supabase.rpc("academy_start_quiz", {
+  const { data, error } = await studentSupabase.rpc("academy_start_quiz", {
     p_quiz_id: quizId,
     p_enrollment_id: enrollmentId,
   });
@@ -2528,7 +2528,7 @@ export async function submitStudentQuiz(
   attemptId: string,
   answers: StudentQuizSubmissionAnswer[]
 ): Promise<StudentQuizResult> {
-  const { data, error } = await supabase.rpc("academy_submit_quiz", {
+  const { data, error } = await studentSupabase.rpc("academy_submit_quiz", {
     p_attempt_id: attemptId,
     p_answers: answers,
   });
@@ -2550,7 +2550,7 @@ export async function getStudentLessonQuiz(
   programId: string,
   lessonId: string
 ): Promise<AcademyQuiz | null> {
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
     .from("academy_quizzes")
     .select("*")
     .eq("program_id", programId)
@@ -2565,4 +2565,30 @@ export async function getStudentLessonQuiz(
   }
 
   return data as AcademyQuiz | null;
+}
+
+
+/** Loads lesson resources using the isolated student session. */
+export async function getStudentLessonResources(lessonId: string) {
+  const { data, error } = await studentSupabase
+    .from("academy_program_resources")
+    .select("*")
+    .eq("lesson_id", lessonId)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as AcademyResource[];
+}
+
+/** Loads lesson quizzes using the isolated student session. */
+export async function getStudentLessonQuizzes(lessonId: string) {
+  const { data, error } = await studentSupabase
+    .from("academy_quizzes")
+    .select("*")
+    .eq("lesson_id", lessonId)
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as AcademyQuiz[];
 }
