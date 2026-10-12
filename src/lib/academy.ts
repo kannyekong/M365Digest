@@ -251,6 +251,82 @@ export async function getStudentCourseProgress(
     ])
   );
 
+  // Load currently published required resources and quizzes to validate saved completion.
+  const lessonIds = lessons.map((lesson) => lesson.id);
+  const now = new Date().toISOString();
+  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
+    await Promise.all([
+      lessonIds.length > 0
+        ? supabase
+            .from("academy_program_resources")
+            .select("id, lesson_id, available_from, available_until")
+            .in("lesson_id", lessonIds)
+            .eq("is_required", true)
+            .eq("is_published", true)
+        : Promise.resolve({ data: [], error: null }),
+      lessonIds.length > 0
+        ? supabase
+            .from("academy_quizzes")
+            .select("id, lesson_id")
+            .in("lesson_id", lessonIds)
+            .eq("is_required", true)
+            .eq("is_published", true)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  if (requiredResourcesError) throw requiredResourcesError;
+  if (requiredQuizzesError) throw requiredQuizzesError;
+
+  const availableRequiredResources = (requiredResources ?? []).filter(
+    (resource) =>
+      (!resource.available_from || resource.available_from <= now) &&
+      (!resource.available_until || resource.available_until >= now)
+  );
+  const requiredResourceIds = availableRequiredResources.map((resource) => resource.id);
+  const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
+
+  // Load completion evidence scoped to the student's enrollments.
+  const [{ data: completedResources, error: completedResourcesError }, { data: passedQuizAttempts, error: passedQuizAttemptsError }] =
+    await Promise.all([
+      requiredResourceIds.length > 0
+        ? supabase
+            .from("student_resource_progress")
+            .select("enrollment_id, resource_id")
+            .in("enrollment_id", enrollmentIds)
+            .in("resource_id", requiredResourceIds)
+            .eq("status", "completed")
+        : Promise.resolve({ data: [], error: null }),
+      requiredQuizIds.length > 0
+        ? supabase
+            .from("student_quiz_attempts")
+            .select("enrollment_id, quiz_id")
+            .in("enrollment_id", enrollmentIds)
+            .in("quiz_id", requiredQuizIds)
+            .eq("passed", true)
+            .not("completed_at", "is", null)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+  if (completedResourcesError) throw completedResourcesError;
+  if (passedQuizAttemptsError) throw passedQuizAttemptsError;
+
+  const completedResourceKeys = new Set(
+    (completedResources ?? []).map((item) => `${item.enrollment_id}:${item.resource_id}`)
+  );
+  const passedQuizKeys = new Set(
+    (passedQuizAttempts ?? []).map((item) => `${item.enrollment_id}:${item.quiz_id}`)
+  );
+
+  // A previously completed lesson is no longer complete if new required items remain unfinished.
+  const hasOutstandingRequirements = (enrollmentId: string, lessonId: string) => {
+    const lessonResources = availableRequiredResources.filter((item) => item.lesson_id === lessonId);
+    const lessonQuizzes = (requiredQuizzes ?? []).filter((item) => item.lesson_id === lessonId);
+    return (
+      lessonResources.some((item) => !completedResourceKeys.has(`${enrollmentId}:${item.id}`)) ||
+      lessonQuizzes.some((item) => !passedQuizKeys.has(`${enrollmentId}:${item.id}`))
+    );
+  };
+
   // Calculate the final course summaries.
   return enrollments.map((enrollment) => {
     const currentProgramId = enrollment.program!.id;
@@ -261,10 +337,19 @@ export async function getStudentCourseProgress(
     );
 
     // Resolve progress records for this enrollment.
-    const courseProgress = programLessons.map((lesson) => ({
-      lesson,
-      progress: progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null,
-    }));
+    const courseProgress = programLessons.map((lesson) => {
+      const savedProgress = progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null;
+      const invalidatedCompletion =
+        savedProgress?.status === "completed" &&
+        hasOutstandingRequirements(enrollment.id, lesson.id);
+
+      return {
+        lesson,
+        progress: invalidatedCompletion
+          ? { ...savedProgress, status: "in_progress", progress_percent: 99 }
+          : savedProgress,
+      };
+    });
 
     // Count the complete curriculum, not only tracked lessons.
     const totalLessons = courseProgress.length;
@@ -289,9 +374,8 @@ export async function getStudentCourseProgress(
     const calculatedProgress =
       totalLessons > 0 ? Math.round(totalProgress / totalLessons) : 0;
 
-    // Completed enrollments always display 100%.
-    const progressPercent =
-      enrollment.status === "completed" ? 100 : calculatedProgress;
+    // Derive the displayed percentage from current lesson requirements, even for older completed enrollments.
+    const progressPercent = calculatedProgress;
 
     // Find the most recently accessed incomplete lesson.
     const recentlyAccessedIncomplete = courseProgress
@@ -1538,7 +1622,122 @@ export async function getStudentLessonProgress(
     throw error;
   }
 
-  // Return the existing progress record when one exists.
+  // Return an untracked lesson when no progress row exists.
+  if (!data || data.status !== "completed") {
+    return data;
+  }
+
+  // Revalidate a stored completion against today's required curriculum items.
+  // This does not rewrite the historical progress row or alter quiz attempts.
+  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
+    await Promise.all([
+      supabase
+        .from("academy_program_resources")
+        .select("id, available_from, available_until")
+        .eq("lesson_id", lessonId)
+        .eq("is_required", true)
+        .eq("is_published", true),
+      supabase
+        .from("academy_quizzes")
+        .select("id")
+        .eq("lesson_id", lessonId)
+        .eq("is_required", true)
+        .eq("is_published", true),
+    ]);
+
+  // Do not silently trust stale completion if requirements cannot be checked.
+  if (requiredResourcesError) {
+    throw new Error(
+      `Unable to revalidate required lesson resources. ${requiredResourcesError.message}`
+    );
+  }
+
+  if (requiredQuizzesError) {
+    throw new Error(
+      `Unable to revalidate required lesson quizzes. ${requiredQuizzesError.message}`
+    );
+  }
+
+  // Only resources currently available to the student count toward completion.
+  const now = Date.now();
+  const availableResourceIds = (requiredResources ?? [])
+    .filter((resource) => {
+      const availableFrom = resource.available_from
+        ? new Date(resource.available_from).getTime()
+        : null;
+      const availableUntil = resource.available_until
+        ? new Date(resource.available_until).getTime()
+        : null;
+
+      return (
+        (availableFrom === null || now >= availableFrom) &&
+        (availableUntil === null || now <= availableUntil)
+      );
+    })
+    .map((resource) => resource.id);
+
+  if (availableResourceIds.length > 0) {
+    const { data: completedResources, error: completedResourcesError } =
+      await supabase
+        .from("student_resource_progress")
+        .select("resource_id")
+        .eq("enrollment_id", enrollmentId)
+        .eq("status", "completed")
+        .in("resource_id", availableResourceIds);
+
+    if (completedResourcesError) {
+      throw new Error(
+        `Unable to revalidate required resource completion. ${completedResourcesError.message}`
+      );
+    }
+
+    const completedResourceIds = new Set(
+      (completedResources ?? []).map((resource) => resource.resource_id)
+    );
+
+    if (availableResourceIds.some((resourceId) => !completedResourceIds.has(resourceId))) {
+      return {
+        ...data,
+        status: "in_progress",
+        progress_percent: 99,
+        completed_at: null,
+      };
+    }
+  }
+
+  // Check passing attempts for this enrollment against currently required quizzes.
+  const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
+
+  if (requiredQuizIds.length > 0) {
+    const { data: passedAttempts, error: passedAttemptsError } = await supabase
+      .from("student_quiz_attempts")
+      .select("quiz_id")
+      .eq("enrollment_id", enrollmentId)
+      .eq("passed", true)
+      .not("completed_at", "is", null)
+      .in("quiz_id", requiredQuizIds);
+
+    if (passedAttemptsError) {
+      throw new Error(
+        `Unable to revalidate required quiz completion. ${passedAttemptsError.message}`
+      );
+    }
+
+    const passedQuizIds = new Set(
+      (passedAttempts ?? []).map((attempt) => attempt.quiz_id)
+    );
+
+    if (requiredQuizIds.some((quizId) => !passedQuizIds.has(quizId))) {
+      return {
+        ...data,
+        status: "in_progress",
+        progress_percent: 99,
+        completed_at: null,
+      };
+    }
+  }
+
+  // Preserve the saved completion when all current requirements are satisfied.
   return data;
 }
 
@@ -1645,6 +1844,120 @@ export async function completeStudentLesson(
   // Verify the lesson/program relationship.
   if (!moduleData || moduleData.program_id !== enrollment.program_id) {
     throw new Error("This lesson does not belong to your enrolled course.");
+  }
+
+  // Load published required resources that are currently available to the student.
+  const { data: requiredResources, error: requiredResourcesError } = await supabase
+    .from("academy_program_resources")
+    .select("id, available_from, available_until")
+    .eq("lesson_id", lessonId)
+    .eq("is_required", true)
+    .eq("is_published", true);
+
+  // Stop if required resource configuration cannot be verified.
+  if (requiredResourcesError) {
+    throw new Error(
+      `Unable to verify required lesson resources. ${requiredResourcesError.message}`
+    );
+  }
+
+  // Do not block progression on resources that are not available yet or have expired.
+  const now = Date.now();
+  const availableRequiredResourceIds = (requiredResources ?? [])
+    .filter((resource) => {
+      const availableFrom = resource.available_from
+        ? new Date(resource.available_from).getTime()
+        : null;
+      const availableUntil = resource.available_until
+        ? new Date(resource.available_until).getTime()
+        : null;
+
+      return (
+        (availableFrom === null || now >= availableFrom) &&
+        (availableUntil === null || now <= availableUntil)
+      );
+    })
+    .map((resource) => resource.id);
+
+  // Require every available required resource to have completed progress.
+  if (availableRequiredResourceIds.length > 0) {
+    const { data: completedResources, error: completedResourcesError } =
+      await supabase
+        .from("student_resource_progress")
+        .select("resource_id")
+        .eq("enrollment_id", enrollmentId)
+        .eq("status", "completed")
+        .in("resource_id", availableRequiredResourceIds);
+
+    // Stop if resource completion cannot be verified.
+    if (completedResourcesError) {
+      throw new Error(
+        `Unable to verify required resource completion. ${completedResourcesError.message}`
+      );
+    }
+
+    const completedResourceIds = new Set(
+      (completedResources ?? []).map((resource) => resource.resource_id)
+    );
+    const incompleteResourceCount = availableRequiredResourceIds.filter(
+      (resourceId) => !completedResourceIds.has(resourceId)
+    ).length;
+
+    if (incompleteResourceCount > 0) {
+      throw new Error(
+        `Complete the ${incompleteResourceCount} required lesson resource${incompleteResourceCount === 1 ? "" : "s"} before marking this lesson complete.`
+      );
+    }
+  }
+
+  // Load published required quizzes attached directly to this lesson.
+  const { data: requiredQuizzes, error: requiredQuizzesError } = await supabase
+    .from("academy_quizzes")
+    .select("id")
+    .eq("lesson_id", lessonId)
+    .eq("is_required", true)
+    .eq("is_published", true);
+
+  // Stop if required quiz configuration cannot be verified.
+  if (requiredQuizzesError) {
+    throw new Error(
+      `Unable to verify required lesson quizzes. ${requiredQuizzesError.message}`
+    );
+  }
+
+  const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
+
+  // Require a completed passing attempt for each required quiz in this enrollment.
+  if (requiredQuizIds.length > 0) {
+    const { data: passedAttempts, error: passedAttemptsError } = await supabase
+      .from("student_quiz_attempts")
+      .select("quiz_id")
+      .eq("enrollment_id", enrollmentId)
+      .eq("passed", true)
+      .not("completed_at", "is", null)
+      .in("quiz_id", requiredQuizIds);
+
+    // Stop if quiz completion cannot be verified.
+    if (passedAttemptsError) {
+      throw new Error(
+        `Unable to verify required quiz completion. ${passedAttemptsError.message}`
+      );
+    }
+
+    const passedQuizIds = new Set(
+      (passedAttempts ?? []).map((attempt) => attempt.quiz_id)
+    );
+    const unpassedQuizCount = requiredQuizIds.filter(
+      (quizId) => !passedQuizIds.has(quizId)
+    ).length;
+
+    if (unpassedQuizCount > 0) {
+      throw new Error(
+        unpassedQuizCount === 1
+          ? "Pass the required lesson quiz before marking this lesson complete."
+          : `Pass all ${unpassedQuizCount} required lesson quizzes before marking this lesson complete.`
+      );
+    }
   }
 
   // Generate one consistent completion timestamp.

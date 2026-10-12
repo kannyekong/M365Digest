@@ -1,7 +1,6 @@
 import { ArrowLeft, BookOpen, LoaderCircle, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CurriculumResourceManager from "./CurriculumResourceManager";
-import QuizBuilder from "../../../../islands/QuizBuilder";
 import { toast } from "react-toastify";
 import {
   createAcademyLesson,
@@ -18,7 +17,6 @@ import type {
   AcademyLesson,
   AcademyModule,
   AcademyProgram,
-  AcademyQuiz,
 } from "../../../../types/academy";
 import CurriculumModuleCard from "./CurriculumModuleCard";
 
@@ -61,11 +59,6 @@ interface NewModuleFormState {
   is_preview: boolean;
 }
 
-interface QuizTarget {
-  moduleId: string;
-  lessonId: string | null;
-}
-
 const DEFAULT_MODULE_FORM: NewModuleFormState = {
   title: "",
   description: "",
@@ -91,15 +84,7 @@ export default function AcademyCurriculumBuilder({
   >({});
 
   // Track the lesson whose resources are currently being managed.
-  const [resourceLesson, setResourceLesson] = useState<AcademyLesson | null>(
-    null
-  );
-
-  // Track the module or lesson currently being configured with a quiz.
-  const [quizTarget, setQuizTarget] = useState<QuizTarget | null>(null);
-
-  // Store an existing quiz when the builder is opened in edit mode.
-  const [selectedQuiz, setSelectedQuiz] = useState<AcademyQuiz | null>(null);
+  const [resourceLesson, setResourceLesson] = useState<{ lesson: AcademyLesson; moduleId: string } | null>(null);
 
   // Track whether the curriculum is loading.
   const [loading, setLoading] = useState(true);
@@ -170,43 +155,8 @@ export default function AcademyCurriculumBuilder({
   /**
    * Open the resource manager for a curriculum lesson.
    */
-  function handleOpenResources(lesson: AcademyLesson) {
-    setResourceLesson(lesson);
-  }
-
-  /**
-   * Open the Quiz Builder for a module or lesson.
-   */
-  function handleOpenQuiz(target: QuizTarget) {
-    setSelectedQuiz(null);
-    setQuizTarget(target);
-  }
-
-  /**
-   * Close the Quiz Builder and clear its active target.
-   */
-  function handleCloseQuizBuilder() {
-    setQuizTarget(null);
-    setSelectedQuiz(null);
-  }
-
-  /**
-   * Handle a successfully saved quiz.
-   */
-  function handleQuizSaved(savedQuiz: AcademyQuiz) {
-    setSelectedQuiz(savedQuiz);
-
-    toast.success("Quiz saved successfully.");
-  }
-
-  /**
-   * Handle deletion of the active quiz.
-   */
-  function handleQuizDeleted() {
-    setSelectedQuiz(null);
-    setQuizTarget(null);
-
-    toast.success("Quiz deleted successfully.");
+  function handleOpenResources(moduleId: string, lesson: AcademyLesson) {
+    setResourceLesson({ lesson, moduleId });
   }
 
   /**
@@ -863,8 +813,7 @@ export default function AcademyCurriculumBuilder({
               onCreateLesson={handleCreateLesson}
               onUpdateLesson={handleUpdateLesson}
               onDeleteLesson={handleDeleteLesson}
-              onResources={handleOpenResources}
-              onQuiz={handleOpenQuiz}
+              onResources={(lesson) => handleOpenResources(curriculumModule.id, lesson)}
             />
           ))}
         </div>
@@ -898,29 +847,16 @@ export default function AcademyCurriculumBuilder({
 
       {resourceLesson ? (
         <CurriculumResourceManager
-          lessonId={resourceLesson.id}
-          lessonTitle={resourceLesson.title}
+          programId={programId}
+          moduleId={resourceLesson.moduleId}
+          lessonId={resourceLesson.lesson.id}
+          lessonTitle={resourceLesson.lesson.title}
           onClose={() => {
             setResourceLesson(null);
           }}
         />
       ) : null}
 
-      {quizTarget ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="relative max-h-[95vh] w-full max-w-6xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-950">
-            <QuizBuilder
-              programId={programId}
-              moduleId={quizTarget.moduleId}
-              lessonId={quizTarget.lessonId}
-              quiz={selectedQuiz}
-              onSaved={handleQuizSaved}
-              onDeleted={handleQuizDeleted}
-              onCancel={handleCloseQuizBuilder}
-            />
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
