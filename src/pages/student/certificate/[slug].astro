@@ -1,373 +1,141 @@
 ---
 import StudentLayout from "../../../layouts/StudentLayout.astro";
-import StudentHeader from "../../../components/admin/UI/StudentHeader.astro";
-import {
-  Award,
-  ArrowLeft,
-  BadgeCheck,
-  CalendarDays,
-  Download,
-  LockKeyhole,
-  ShieldCheck,
-} from "lucide-astro";
+import { Award, ArrowLeft, BadgeCheck, CalendarDays, Download, ShieldCheck } from "lucide-astro";
 
 export const prerender = false;
-
-// Keep these records aligned with the certificate programs in index.astro.
-// Replace this illustrative data with the authenticated student's issued
-// certificate record when the database integration is connected.
-const certificatePrograms = [
-  {
-    slug: "microsoft-365-administration",
-    title: "Microsoft 365 Administration",
-    category: "Microsoft 365",
-    status: "not-ready",
-    progress: "In progress",
-  },
-  {
-    slug: "exchange-online-administration",
-    title: "Exchange Online Administration",
-    category: "Microsoft Exchange",
-    status: "not-ready",
-    progress: "In progress",
-  },
-  {
-    slug: "sharepoint-onedrive-administration",
-    title: "SharePoint & OneDrive Administration",
-    category: "SharePoint",
-    status: "not-ready",
-    progress: "In progress",
-  },
-  {
-    slug: "microsoft-entra-id",
-    title: "Microsoft Entra ID Administration",
-    category: "Identity & Access",
-    status: "ready",
-    progress: "Completed",
-  },
-  {
-    slug: "microsoft-teams-administration",
-    title: "Microsoft Teams Administration",
-    category: "Microsoft Teams",
-    status: "not-ready",
-    progress: "In progress",
-  },
-  {
-    slug: "power-platform-automation",
-    title: "Power Platform Automation",
-    category: "Automation",
-    status: "ready",
-    progress: "Completed",
-  },
-  {
-    slug: "copilot-for-microsoft-365",
-    title: "Copilot for Microsoft 365",
-    category: "AI Productivity",
-    status: "not-ready",
-    progress: "In progress",
-  },
-];
-
-// Resolve the selected program from the URL slug.
-const slug = Astro.params.slug;
-
-const program = certificatePrograms.find((item) => item.slug === slug);
-
-// A missing slug should return a genuine 404 response.
-if (!program) {
-  Astro.response.status = 404;
-}
-
-// Only programs marked ready in the current listing can display a preview.
-const isReady = program?.status === "ready";
-
-const pageTitle = program
-  ? `${program.title} Certificate`
-  : "Certificate Not Found";
 ---
 
-<StudentLayout
-  title={pageTitle}
-  description="View your CloudTweak Academy certificate preview."
->
-  <main class="min-h-screen p-4 dark:bg-slate-950">
-    <div class="mx-auto max-w-full space-y-6">
-      <a
-        href="/student/certificate"
-        class="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-teal-700 dark:text-slate-300 dark:hover:text-teal-400"
-      >
-        <ArrowLeft size={17} />
-        Back to certificates
-      </a>
-
-      {
-        !program ? (
-          <section class="rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
-              <Award size={26} />
+<StudentLayout title="Certificate details" description="View your CloudTweak Academy certificate.">
+  <main class="min-h-screen p-4 md:p-6 dark:bg-slate-950">
+    <div class="mx-auto max-w-6xl space-y-6">
+      <a href="/student/certificate" class="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-800 dark:text-teal-300"><ArrowLeft size={17} /> Back to certificates</a>
+      <section id="certificate-loading" role="status" aria-live="polite" class="rounded-2xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">Loading your certificate…</section>
+      <section id="certificate-not-found" class="hidden rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900"><Award size={30} class="mx-auto text-slate-400" /><h1 class="mt-4 text-xl font-bold text-slate-900 dark:text-white">Certificate not found</h1><p class="mt-2 text-sm text-slate-500 dark:text-slate-400">This program is not among your completed certificate-enabled programs.</p></section>
+      <section id="certificate-detail" class="hidden space-y-5">
+        <div id="certificate-status" class="rounded-2xl border p-5"></div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-2 px-1"><div><h2 class="font-semibold text-slate-900 dark:text-white">Certificate details</h2><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">CloudTweak Academy</p></div><span id="certificate-badge" class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"><BadgeCheck size={14} /> Certificate status</span></div>
+          <div id="certificate-paper" class="relative overflow-hidden border-[8px] border-double border-teal-800 bg-white p-5 text-center text-slate-900 sm:border-[12px] sm:p-10 lg:p-14">
+            <div class="pointer-events-none absolute inset-2 border border-amber-500/70 sm:inset-3"></div>
+            <div class="relative mx-auto flex max-w-3xl flex-col items-center">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-500 bg-teal-50 text-teal-800 sm:h-20 sm:w-20"><Award size={39} /></div>
+              <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.3em] text-teal-800 sm:text-xs">CloudTweak Technologies Limited</p><p class="mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">CloudTweak Academy</p><div class="mt-6 h-px w-28 bg-amber-500"></div>
+              <h1 class="mt-6 font-serif text-3xl font-bold leading-tight text-teal-950 sm:text-5xl">Certificate</h1><p class="mt-2 font-serif text-lg italic text-slate-600 sm:text-2xl">of Completion</p><p class="mt-7 text-sm text-slate-600 sm:text-base">This certificate is presented to</p>
+              <p id="certificate-recipient" class="mt-5 w-full break-words border-b border-slate-300 pb-3 font-serif text-2xl font-semibold text-slate-900 sm:text-4xl">—</p><p class="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">in recognition of successful completion of the learning program</p><h2 id="certificate-program" class="mt-3 max-w-2xl font-serif text-xl font-bold leading-snug text-teal-900 sm:text-3xl">—</h2>
+              <div class="mt-10 grid w-full max-w-2xl gap-8 sm:grid-cols-2 sm:gap-12">
+                <div class="text-center"><div class="mx-auto mb-2 flex h-5 items-center justify-center"><CalendarDays size={18} class="text-teal-800" /></div><div class="mx-auto w-full max-w-52 border-b border-slate-400"></div><p class="mt-2 text-xs font-semibold text-slate-700">Issue date</p><p id="certificate-issue-date" class="mt-1 text-xs text-slate-500">—</p></div>
+                <div class="text-center"><div class="mx-auto mb-2 flex h-5 items-center justify-center"><ShieldCheck size={18} class="text-teal-800" /></div><div class="mx-auto w-full max-w-52 border-b border-slate-400"></div><p class="mt-2 text-xs font-semibold text-slate-700">Certificate number</p><p id="certificate-number" class="mt-1 text-xs text-slate-500">—</p></div>
+              </div>
+              <p id="certificate-verification" class="mt-8 text-xs text-slate-500">Verification code: —</p>
             </div>
-
-            <h1 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">
-              Certificate not found
-            </h1>
-
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
-              This certificate page does not match an available Academy program.
-              Return to your certificates to select another program.
-            </p>
-
-            <a
-              href="/student/certificate"
-              class="mt-6 inline-flex items-center justify-center rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800"
-            >
-              View certificates
-            </a>
-          </section>
-        ) : (
-          <>
-            {isReady ? (
-              <>
-                <section class="flex flex-col gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 dark:border-emerald-900 dark:bg-emerald-950/20 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                  <div class="flex items-start gap-3">
-                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                      <ShieldCheck size={21} />
-                    </div>
-
-                    <div>
-                      <p class="font-semibold text-emerald-900 dark:text-emerald-200">
-                        Program marked as completed
-                      </p>
-                      <p class="mt-1 text-sm leading-5 text-emerald-800 dark:text-emerald-300">
-                        This is a layout preview. Your issued certificate
-                        details and downloadable file will appear here after the
-                        student certificate data is connected.
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    id="print-certificate"
-                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-800"
-                  >
-                    <Download size={17} />
-                    Print / Save as PDF
-                  </button>
-                </section>
-
-                <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-                  <div class="mb-4 flex flex-wrap items-center justify-between gap-2 px-1">
-                    <div>
-                      <h2 class="font-semibold text-slate-900 dark:text-white">
-                        Certificate preview
-                      </h2>
-                      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                        {program.category}
-                      </p>
-                    </div>
-
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                      <BadgeCheck size={14} />
-                      Preview — not yet verified
-                    </span>
-                  </div>
-
-                  <div
-                    id="certificate-paper"
-                    class="certificate-paper relative overflow-hidden border-[8px] border-double border-teal-800 bg-white p-5 text-center text-slate-900 sm:border-[12px] sm:p-10 lg:p-14"
-                  >
-                    <div class="pointer-events-none absolute inset-2 border border-amber-500/70 sm:inset-3" />
-
-                    <div class="relative mx-auto flex max-w-3xl flex-col items-center">
-                      <div class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber-500 bg-teal-50 text-teal-800 sm:h-20 sm:w-20">
-                        <Award size={39} />
-                      </div>
-
-                      <p class="mt-5 text-[10px] font-bold uppercase tracking-[0.3em] text-teal-800 sm:text-xs sm:tracking-[0.4em]">
-                        CloudTweak Technologies Limited
-                      </p>
-
-                      <p class="mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-                        CloudTweak Academy
-                      </p>
-
-                      <div class="mt-6 h-px w-28 bg-amber-500" />
-
-                      <h1 class="mt-6 font-serif text-3xl font-bold leading-tight text-teal-950 sm:text-5xl">
-                        Certificate
-                      </h1>
-
-                      <p class="mt-2 font-serif text-lg italic text-slate-600 sm:text-2xl">
-                        of Completion
-                      </p>
-
-                      <p class="mt-7 text-sm text-slate-600 sm:text-base">
-                        This certificate is presented to
-                      </p>
-
-                      <p class="mt-5 w-full break-words border-b border-slate-300 pb-3 font-serif text-2xl font-semibold text-slate-900 sm:text-4xl">
-                        Student Name
-                      </p>
-
-                      <p class="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-                        in recognition of successful completion of the learning
-                        program
-                      </p>
-
-                      <h2 class="mt-3 max-w-2xl font-serif text-xl font-bold leading-snug text-teal-900 sm:text-3xl">
-                        {program.title}
-                      </h2>
-
-                      <p class="mt-4 max-w-xl text-xs leading-6 text-slate-500 sm:text-sm">
-                        Awarded in recognition of learning and achievement
-                        through CloudTweak Academy.
-                      </p>
-
-                      <div class="mt-10 grid w-full max-w-2xl gap-8 sm:grid-cols-2 sm:gap-12">
-                        <div class="text-center">
-                          <div class="mx-auto mb-2 flex h-5 items-center justify-center">
-                            <CalendarDays size={18} class="text-teal-800" />
-                          </div>
-                          <div class="mx-auto w-full max-w-52 border-b border-slate-400" />
-                          <p class="mt-2 text-xs font-semibold text-slate-700">
-                            Issue date
-                          </p>
-                          <p class="mt-1 text-[10px] text-slate-500">
-                            To be populated from the issued certificate
-                          </p>
-                        </div>
-
-                        <div class="text-center">
-                          <div class="mx-auto mb-2 flex h-5 items-center justify-center">
-                            <ShieldCheck size={18} class="text-teal-800" />
-                          </div>
-                          <div class="mx-auto w-full max-w-52 border-b border-slate-400" />
-                          <p class="mt-2 text-xs font-semibold text-slate-700">
-                            Certificate verification
-                          </p>
-                          <p class="mt-1 text-[10px] text-slate-500">
-                            Verification code to be populated
-                          </p>
-                        </div>
-                      </div>
-
-                      <p class="mt-9 text-[9px] font-medium uppercase tracking-[0.18em] text-slate-400 sm:text-[10px]">
-                        Official certificate details will be shown after
-                        issuance
-                      </p>
-                    </div>
-                  </div>
-
-                  <p class="mt-4 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                    This is a visual layout preview, not an issued certificate.
-                    The learner's name, certificate number, issue date,
-                    verification code, signature and official PDF must come from
-                    the authenticated student's actual certificate record.
-                  </p>
-                </section>
-              </>
-            ) : (
-              <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
-                <div class="mx-auto max-w-lg text-center">
-                  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-                    <LockKeyhole size={28} />
-                  </div>
-
-                  <span class="mt-5 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                    <Award size={14} />
-                    Certificate not ready
-                  </span>
-
-                  <h1 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">
-                    Keep learning — you're not there yet
-                  </h1>
-
-                  <p class="mt-3 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                    Your {program.title} certificate preview is locked while the
-                    program is in progress. Once the applicable completion
-                    requirements have been met and a certificate has been
-                    issued, it can be accessed here.
-                  </p>
-
-                  <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-left dark:border-slate-700 dark:bg-slate-950">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Current program status
-                    </p>
-                    <p class="mt-2 font-semibold text-slate-900 dark:text-white">
-                      {program.progress}
-                    </p>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Category: {program.category}
-                    </p>
-                  </div>
-
-                  <a
-                    href="/student/courses"
-                    class="mt-6 inline-flex items-center justify-center rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800"
-                  >
-                    Continue learning
-                  </a>
-                </div>
-              </section>
-            )}
-          </>
-        )
-      }
+          </div>
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p id="certificate-footnote" class="text-xs leading-5 text-slate-500 dark:text-slate-400"></p><a id="certificate-download" class="hidden shrink-0 items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-800" href="#"><Download size={17} /> Download PDF</a></div>
+        </div>
+      </section>
     </div>
   </main>
 </StudentLayout>
 
 <script>
-  // Open the browser print dialog only when a ready program preview is shown.
-  const printButton =
-    document.querySelector<HTMLButtonElement>("#print-certificate");
+  import { studentSupabase } from "../../../lib/superbase";
 
-  printButton?.addEventListener("click", () => {
-    window.print();
+  type CertificateResponse = {
+    success: boolean;
+    message?: string;
+    certificate: {
+      programTitle: string;
+      programSlug: string;
+      status: "issued" | "eligible" | "revoked";
+      recipientName: string;
+      completedAt: string | null;
+      certificate: {
+        certificateNumber: string;
+        verificationCode: string;
+        issueDate: string;
+        fileUrl: string | null;
+        revocationReason: string | null;
+      } | null;
+    } | null;
+  };
+
+  // Load the selected program's certificate through a server endpoint that validates the student token.
+  async function loadCertificate() {
+    const loading = document.querySelector<HTMLElement>("#certificate-loading");
+    const notFound = document.querySelector<HTMLElement>("#certificate-not-found");
+    const detail = document.querySelector<HTMLElement>("#certificate-detail");
+    const slug = window.location.pathname.split("/").filter(Boolean).at(-1) ?? "";
+    const { data: { session } } = await studentSupabase.auth.getSession();
+
+    if (!session?.access_token) {
+      if (loading) loading.innerHTML = 'Please <a class="font-semibold text-teal-700 underline" href="/student/login">sign in</a> to view your certificate.';
+      return;
+    }
+
+    const response = await fetch(`/api/student/certificates?slug=${encodeURIComponent(slug)}`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      cache: "no-store",
+    });
+    const payload = await response.json() as CertificateResponse;
+    if (!response.ok || !payload.success) {
+      if (loading) loading.textContent = payload.message ?? "Your certificate could not be loaded.";
+      return;
+    }
+    if (!payload.certificate) {
+      loading?.classList.add("hidden");
+      notFound?.classList.remove("hidden");
+      return;
+    }
+
+    const item = payload.certificate;
+    const certificate = item.certificate;
+    const issued = item.status === "issued";
+    const revoked = item.status === "revoked";
+    loading?.classList.add("hidden");
+    detail?.classList.remove("hidden");
+
+    const setText = (selector: string, value: string) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (element) element.textContent = value;
+    };
+    const statusPanel = document.querySelector<HTMLElement>("#certificate-status");
+    const badge = document.querySelector<HTMLElement>("#certificate-badge");
+    const footnote = document.querySelector<HTMLElement>("#certificate-footnote");
+    const download = document.querySelector<HTMLAnchorElement>("#certificate-download");
+
+    if (statusPanel) {
+      statusPanel.className = revoked
+        ? "rounded-2xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-900 dark:bg-rose-950/20"
+        : issued
+          ? "rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900 dark:bg-emerald-950/20"
+          : "rounded-2xl border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-900 dark:bg-amber-950/20";
+      statusPanel.textContent = revoked
+        ? `This certificate has been revoked. ${certificate?.revocationReason ?? ""}`
+        : issued
+          ? "Your certificate has been issued and is ready to download."
+          : "Your program completion is recorded. Your certificate will appear here after an administrator issues it.";
+    }
+    if (badge) badge.textContent = revoked ? "Revoked" : issued ? "Issued" : "Awaiting issuance";
+    setText("#certificate-recipient", item.recipientName);
+    setText("#certificate-program", item.programTitle);
+    setText("#certificate-issue-date", issued && certificate?.issueDate ? new Date(certificate.issueDate).toLocaleDateString() : "Pending issuance");
+    setText("#certificate-number", issued && certificate?.certificateNumber ? certificate.certificateNumber : "Pending issuance");
+    setText("#certificate-verification", issued && certificate?.verificationCode ? `Verification code: ${certificate.verificationCode}` : "Verification code is assigned at issuance");
+    if (footnote) footnote.textContent = issued
+      ? "This certificate was issued by CloudTweak Academy. Use the verification code to confirm its status."
+      : revoked
+        ? "This certificate is not valid for use."
+        : "Eligibility is based on recorded program completion. Enrollment or payment alone does not issue a certificate.";
+    if (issued && certificate?.fileUrl && download) {
+      download.href = certificate.fileUrl;
+      download.target = "_blank";
+      download.rel = "noopener noreferrer";
+      download.classList.remove("hidden");
+    }
+  }
+
+  loadCertificate().catch((error) => {
+    console.error("Unable to load certificate:", error);
+    const loading = document.querySelector<HTMLElement>("#certificate-loading");
+    if (loading) loading.textContent = "Your certificate could not be loaded. Please refresh and try again.";
   });
 </script>
-
-<style>
-  /* Keep the preview readable on screen and isolate it for printing. */
-  .certificate-paper {
-    min-height: 580px;
-  }
-
-  @media (min-width: 640px) {
-    .certificate-paper {
-      min-height: 680px;
-    }
-  }
-
-  /* Print only the certificate artwork, not the student portal interface. */
-  @media print {
-    @page {
-      size: landscape;
-      margin: 10mm;
-    }
-
-    :global(body) {
-      background: white !important;
-    }
-
-    body * {
-      visibility: hidden !important;
-    }
-
-    #certificate-paper,
-    #certificate-paper * {
-      visibility: visible !important;
-    }
-
-    #certificate-paper {
-      position: absolute;
-      inset: 0 auto auto 0;
-      width: 100%;
-      min-height: 0;
-      margin: 0;
-      border-color: #115e59 !important;
-      print-color-adjust: exact;
-      -webkit-print-color-adjust: exact;
-    }
-  }
-</style>
