@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import AcademySupportRequests from "../../../../components/academy/support/AcademySupportRequests";
+import Header from "../../../../components/admin/UI/Header.astro";
+---
+
+<AdminLayout title="Academy Support Requests">
+  <Header title="Academy Support Requests" />
+  <main class="p-5">
+    <AcademySupportRequests client:load />
+  </main>
+</AdminLayout>
