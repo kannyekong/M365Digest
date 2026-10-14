@@ -192,7 +192,7 @@ export default function StudentResourceViewer({
           .map((quiz) => quiz.id);
         const { data: passedAttempts, error: passedAttemptsError } =
           publishedQuizIds.length > 0
-            ? await supabase
+            ? await studentSupabase
                 .from("student_quiz_attempts")
                 .select("quiz_id")
                 .eq("enrollment_id", enrollmentId)

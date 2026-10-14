@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
 
 type Program = {
@@ -106,7 +106,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       }
 
       // Loads the student's Academy profile so enrollment can be resolved safely.
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id")
         .eq("user_id", session.user.id)
@@ -125,7 +125,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       }
 
       // Loads the published Academy program identified by the route slug.
-      const { data: programData, error: programError } = await supabase
+      const { data: programData, error: programError } = await studentSupabase
         .from("academy_programs")
         .select(
           `
@@ -169,7 +169,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
       setProgram(programData);
       // Checks whether the authenticated student already has an enrollment for this program.
-      const { data: enrollmentData, error: enrollmentError } = await supabase
+      const { data: enrollmentData, error: enrollmentError } = await studentSupabase
         .from("student_enrollments")
         .select("id, status, start_date, end_date")
         .eq("student_id", profileData.id)
@@ -216,7 +216,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
             ) {
               // Reload the enrollment created or recovered by the server.
               const { data: syncedEnrollment, error: syncedEnrollmentError } =
-                await supabase
+                await studentSupabase
                   .from("student_enrollments")
                   .select("id, status, start_date, end_date")
                   .eq("id", syncResult.enrollmentId)
@@ -248,7 +248,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       setEnrollment(resolvedEnrollment);
 
       // Loads the course modules independently so non-enrolled students can preview the curriculum.
-      const { data: moduleData, error: moduleError } = await supabase
+      const { data: moduleData, error: moduleError } = await studentSupabase
         .from("academy_program_modules")
         .select(
           `
@@ -285,7 +285,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       }
 
       // Loads the lessons belonging to the course modules.
-      const { data: lessonData, error: lessonError } = await supabase
+      const { data: lessonData, error: lessonError } = await studentSupabase
         .from("academy_program_lessons")
         .select(
           `
@@ -315,7 +315,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
       // Loads lesson progress only when the student has an enrollment.
       if (resolvedEnrollment) {
-        const { data: progressData, error: progressError } = await supabase
+        const { data: progressData, error: progressError } = await studentSupabase
           .from("student_lesson_progress")
           .select(
             `

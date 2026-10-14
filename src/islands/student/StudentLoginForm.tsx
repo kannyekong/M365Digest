@@ -29,22 +29,28 @@ export default function StudentLoginForm() {
     }
 
     async function checkExistingSession() {
-      const {
-        data: { session },
-      } = await getSession();
+      
+      const sessionResult = await getSession();
+      const session = sessionResult.data?.session ?? null;
+      
 
       if (session) {
+        
         const { data: profile, error } = await studentSupabase
           .from("student_profiles")
-          .select("id")
+          .select("id, profile_completed")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
+        
         if (!error && profile) {
-          window.location.replace("/student/dashboard");
+          const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
+          
+          window.location.replace(destination);
           return;
         }
 
+        
         await studentSupabase.auth.signOut();
         setErrorMessage(
           error
@@ -53,10 +59,15 @@ export default function StudentLoginForm() {
         );
       }
 
+      
       setCheckingSession(false);
     }
 
-    checkExistingSession();
+    checkExistingSession().catch((error) => {
+      
+      setErrorMessage("We could not verify your session. Please refresh and try again.");
+      setCheckingSession(false);
+    });
   }, []);
 
   // Handles student email/password authentication through Supabase Auth.
@@ -74,6 +85,7 @@ export default function StudentLoginForm() {
 
     setLoading(true);
 
+    
     const { error } = await login(normalizedEmail, password);
 
     if (error) {
@@ -96,7 +108,41 @@ export default function StudentLoginForm() {
       return;
     }
 
-    window.location.replace("/student/dashboard");
+    // Sends the student to the correct next step instead of routing every login through the dashboard.
+    const sessionResult = await getSession();
+    const session = sessionResult.data?.session ?? null;
+    const sessionError = sessionResult.error;
+    
+
+    if (sessionError || !session) {
+      setErrorMessage("You signed in, but we could not verify your session. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    
+    const { data: profile, error: profileError } = await studentSupabase
+      .from("student_profiles")
+      .select("id, profile_completed")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    
+    if (profileError || !profile) {
+      
+      await studentSupabase.auth.signOut();
+      setErrorMessage(
+        profileError
+          ? "We could not verify your student profile. Please try again or contact support."
+          : "We could not find a student profile linked to this account. Please contact support."
+      );
+      setLoading(false);
+      return;
+    }
+
+    const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
+    
+    window.location.replace(destination);
   }
 
   if (checkingSession) {

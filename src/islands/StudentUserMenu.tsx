@@ -14,7 +14,7 @@ export default function UserMenu() {
   //REDIRECTS TO LOGIN PAGE AND DESTRUCTS SESSIONS
   async function LogoutButton() {
     await logout();
-    window.location.href = "/admin/login";
+    window.location.href = "/student/login";
   }
   //
 

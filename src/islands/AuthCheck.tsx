@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSession } from "../lib/auth";
-
+import { getAdminSession } from "../lib/auth";
 ///
 export default function AuthCheck() {
   const [checking, setChecking] = useState(true);
@@ -9,9 +8,10 @@ export default function AuthCheck() {
     async function check() {
       const {
         data: { session },
-      } = await getSession();
+        error,
+      } = await getAdminSession();
 
-      if (!session) {
+      if (error || !session) {
         window.location.replace("/admin/login");
         return;
       }

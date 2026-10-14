@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 import StudentProfileImage from "./StudentProfileImage";
 
 type Profile = {
@@ -78,7 +78,7 @@ export default function StudentAccountSettings() {
 
       setEmail(session.user.email ?? "");
 
-      const { data, error } = await supabase
+      const { data, error } = await studentSupabase
         .from("student_profiles")
         .select(
           "id, first_name, last_name, display_name, phone, country, avatar_url, bio, profile_completed, name_confirmed, created_at"
@@ -117,7 +117,7 @@ export default function StudentAccountSettings() {
     setSavingProfile(true);
 
     try {
-      const { error } = await supabase
+      const { error } = await studentSupabase
         .from("student_profiles")
         .update({
           display_name: profile.display_name?.trim() || null,
@@ -163,7 +163,7 @@ export default function StudentAccountSettings() {
     setChangingPassword(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await studentSupabase.auth.updateUser({
         password: newPassword,
       });
 
@@ -219,7 +219,7 @@ export default function StudentAccountSettings() {
         throw new Error(result.message || "Your account could not be closed.");
       }
 
-      await supabase.auth.signOut();
+      await studentSupabase.auth.signOut();
       window.location.replace("/");
     } catch (error) {
       console.error("Failed to close student account:", error);

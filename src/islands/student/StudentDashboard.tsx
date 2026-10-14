@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 import ProgramCarousel from "./ProgramCarousel";
 
 type StudentProfile = {
@@ -72,23 +72,21 @@ export default function StudentDashboard() {
       setLoading(true);
       setErrorMessage("");
 
-      const {
-        data: { session },
-      } = await getSession();
+      const sessionResult = await getSession();
+      const session = sessionResult.data?.session ?? null;
 
       if (!session) {
         window.location.replace("/student/login");
         return;
       }
 
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id, first_name, last_name")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (profileError) {
-        console.error("Failed to load student profile:", profileError);
         setErrorMessage("We could not load your student profile.");
         setLoading(false);
         return;
@@ -102,10 +100,11 @@ export default function StudentDashboard() {
       setProfile(profileData);
 
       // Loads the student's enrollments and their related Academy programs.
-      const { data: enrollmentData, error: enrollmentError } = await supabase
-        .from("student_enrollments")
-        .select(
-          `
+      const { data: enrollmentData, error: enrollmentError } =
+        await studentSupabase
+          .from("student_enrollments")
+          .select(
+            `
             id,
             status,
             completed_at,
@@ -115,9 +114,9 @@ export default function StudentDashboard() {
               slug
             )
           `
-        )
-        .eq("student_id", profileData.id)
-        .order("created_at", { ascending: false });
+          )
+          .eq("student_id", profileData.id)
+          .order("created_at", { ascending: false });
 
       if (enrollmentError) {
         console.error("Failed to load student enrollments:", enrollmentError);
@@ -159,7 +158,7 @@ export default function StudentDashboard() {
         return;
       }
 
-      const { data: progressData, error: progressError } = await supabase
+      const { data: progressData, error: progressError } = await studentSupabase
         .from("student_lesson_progress")
         .select(
           `
@@ -350,10 +349,25 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen p-5">
       <div className="mx-auto max-w-[1600px] space-y-6">
-        <section className="rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 p-8 shadow-sm md:p-7">
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white dark:text-white md:text-3xl">
+        <section className="relative isolate overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 text-white p-8 shadow-sm md:p-7">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+          >
+            <div className="absolute -right-12 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
+
+            <div className="absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-teal-300/20 blur-3xl"></div>
+
+            <BookOpen
+              aria-hidden="true"
+              className="absolute -right-4 top-1/2 h-48 w-48 -translate-y-1/2 rotate-[-10deg] text-white/[0.13] sm:right-36 sm:h-64 sm:w-64 lg:right-64 lg:h-70 lg:w-80"
+              strokeWidth={1}
+            />
+          </div>
+
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="max-w-full">
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-3xl">
                 Welcome back, {displayName}
               </h1>
 
@@ -385,6 +399,16 @@ export default function StudentDashboard() {
                   <p className="mt-3 text-3xl font-bold text-primary dark:text-white">
                     {stats.totalCourses}
                   </p>
+                  <a
+                    href="/student/courses"
+                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-primary dark:text-green-400"
+                  >
+                    Browse
+                    <ArrowRight
+                      size={14}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </a>
                 </div>
 
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
@@ -403,6 +427,17 @@ export default function StudentDashboard() {
                   <p className="mt-3 text-3xl font-bold text-orange-500 dark:text-white">
                     {stats.inProgress}
                   </p>
+
+                  <a
+                    href="/student/courses"
+                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-orange-500 dark:text-orange-400"
+                  >
+                    View
+                    <ArrowRight
+                      size={14}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </a>
                 </div>
 
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
@@ -421,6 +456,17 @@ export default function StudentDashboard() {
                   <p className="mt-3 text-3xl font-bold text-green-600 dark:text-white">
                     {stats.completed}
                   </p>
+
+                  <a
+                    href="/student/certificate"
+                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-green-600 dark:text-green-400"
+                  >
+                    View
+                    <ArrowRight
+                      size={14}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </a>
                 </div>
 
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
@@ -431,12 +477,12 @@ export default function StudentDashboard() {
 
             <div className="rounded-2xl border border-purple-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-start justify-between">
-                <div>
+                <div className="flex h-full flex-col">
                   <p className="text-xs font-semibold uppercase tracking-wide text-purple-500">
                     Overall Progress
                   </p>
 
-                  <p className="mt-3 text-3xl font-bold text-purple-500 dark:text-white">
+                  <p className="mt-3 text-3xl font-bold text-purple-600 dark:text-white">
                     {stats.overallProgress}%
                   </p>
                 </div>

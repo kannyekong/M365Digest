@@ -1,7 +1,7 @@
 ---
 import StudentLayout from "../../../../../layouts/StudentLayout.astro";
 import StudentHeader from "../../../../../components/admin/UI/StudentHeader.astro";
-import { supabase } from "../../../../../lib/superbase";
+import { studentSupabase } from "../../../../../lib/superbase";
 import StudentLessonAccess from "../../../../../islands/student/StudentLessonAccess";
 
 const { programSlug, lessonId } = Astro.params;
@@ -12,7 +12,7 @@ if (!programSlug || !lessonId) {
 }
 
 // Resolve the published Academy program using the course slug.
-const { data: program, error: programError } = await supabase
+const { data: program, error: programError } = await studentSupabase
   .from("academy_programs")
   .select("id, title, slug")
   .eq("slug", programSlug)
@@ -25,7 +25,7 @@ if (programError || !program) {
 }
 
 // Load the requested lesson together with its parent module.
-const { data: lesson, error: lessonError } = await supabase
+const { data: lesson, error: lessonError } = await studentSupabase
   .from("academy_program_lessons")
   .select(
     `
@@ -52,7 +52,7 @@ if (lessonError || !lesson) {
   return Astro.redirect(`/student/courses/${programSlug}`);
 }
 
-// Normalize Supabase's nested module relationship into one module object.
+// Normalize studentSupabase's nested module relationship into one module object.
 const moduleData = Array.isArray(lesson.academy_program_modules)
   ? lesson.academy_program_modules[0]
   : lesson.academy_program_modules;
@@ -71,12 +71,13 @@ if (moduleData.program_id !== program.id) {
 /**
  * Load all modules belonging to the current Academy program in curriculum order.
  */
-const { data: programModules, error: programModulesError } = await supabase
-  .from("academy_program_modules")
-  .select("id, module_number, display_order")
-  .eq("program_id", program.id)
-  .order("module_number", { ascending: true })
-  .order("display_order", { ascending: true });
+const { data: programModules, error: programModulesError } =
+  await studentSupabase
+    .from("academy_program_modules")
+    .select("id, module_number, display_order")
+    .eq("program_id", program.id)
+    .order("module_number", { ascending: true })
+    .order("display_order", { ascending: true });
 
 // Navigation failure should not prevent the lesson itself from rendering.
 if (programModulesError) {
@@ -98,7 +99,7 @@ const moduleIds = (programModules ?? []).map(
  */
 const { data: programLessons, error: programLessonsError } =
   moduleIds.length > 0
-    ? await supabase
+    ? await studentSupabase
         .from("academy_program_lessons")
         .select("id, module_id, display_order")
         .in("module_id", moduleIds)

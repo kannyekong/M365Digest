@@ -9,43 +9,53 @@ export default function StudentAuthCheck() {
   useEffect(() => {
     // Verifies the authenticated Supabase session and the student's Academy profile.
     async function checkStudentAccess() {
-      const {
-        data: { session },
-      } = await getSession();
+      
+      const sessionResult = await getSession();
+      const session = sessionResult.data?.session ?? null;
+      
 
       if (!session) {
+        
         window.location.replace("/student/login");
         return;
       }
 
+      
       const { data: profile, error } = await studentSupabase
         .from("student_profiles")
         .select("id, profile_completed")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
+      
       if (error) {
-        console.error("Failed to load student profile:", error);
+        
         await studentSupabase.auth.signOut();
         window.location.replace("/student/login?error=profile-check-failed");
         return;
       }
 
       if (!profile) {
+        
         await studentSupabase.auth.signOut();
         window.location.replace("/student/login?error=profile-missing");
         return;
       }
 
       if (!profile.profile_completed) {
+        
         window.location.replace("/student/complete-profile");
         return;
       }
 
+      
       setChecking(false);
     }
 
-    checkStudentAccess();
+    checkStudentAccess().catch((error) => {
+      
+      window.location.replace("/student/login?error=profile-check-failed");
+    });
   }, []);
 
   if (!checking) return null;

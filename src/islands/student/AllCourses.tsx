@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 type StudentProfile = {
   id: string;
@@ -163,7 +163,7 @@ export default function StudentCourses() {
         return;
       }
 
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id")
         .eq("user_id", session.user.id)
@@ -188,7 +188,7 @@ export default function StudentCourses() {
 
       const profile = profileData as StudentProfile;
 
-      const { data: enrollmentData, error: enrollmentError } = await supabase
+      const { data: enrollmentData, error: enrollmentError } = await studentSupabase
         .from("student_enrollments")
         .select(
           `
@@ -225,7 +225,7 @@ export default function StudentCourses() {
 
       if (enrolledProgramIds.length > 0) {
         const { data: enrolledProgramData, error: enrolledProgramError } =
-          await supabase
+          await studentSupabase
             .from("academy_programs")
             .select(
               `
@@ -261,7 +261,7 @@ export default function StudentCourses() {
       }
 
       // Loads published Academy programs separately for the public catalog.
-      const { data: catalogData, error: catalogError } = await supabase
+      const { data: catalogData, error: catalogError } = await studentSupabase
         .from("academy_programs")
         .select(
           `
