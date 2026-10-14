@@ -8,7 +8,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
-import { supabase } from "../../../lib/superbase";
+import { getAdminSession } from "../../../lib/auth";
 import { toast } from "react-toastify";
 
 type SupportRequest = {
@@ -49,19 +49,25 @@ export default function AcademySupportRequests() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null);
 
-  /** Fetch support requests directly from the same table used by the student portal. */
+  /** Fetch support requests through the protected server-side admin API. */
   const loadRequests = useCallback(async (quiet = false) => {
     if (quiet) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const { data, error } = await supabase
-        .from("student_support_requests")
-        .select("id, student_id, subject, category, description, priority, status, created_at, updated_at")
-        .order("created_at", { ascending: false });
+      const { data: sessionData, error: sessionError } = await getAdminSession();
+      if (sessionError || !sessionData.session?.access_token) {
+        throw new Error("Your admin session has expired. Please sign in again.");
+      }
 
-      if (error) throw error;
-      setRequests((data ?? []) as SupportRequest[]);
+      const response = await fetch("/api/admin/academy/support-requests", {
+        headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Support requests could not be loaded.");
+      }
+      setRequests((result.requests ?? []) as SupportRequest[]);
     } catch (error) {
       console.error("Failed to load Academy support requests:", error);
       toast.error(error instanceof Error ? error.message : "Support requests could not be loaded.");
@@ -77,17 +83,27 @@ export default function AcademySupportRequests() {
     setUpdatingId(request.id);
 
     try {
-      const { data, error } = await supabase
-        .from("student_support_requests")
-        .update({ status: nextStatus, updated_at: new Date().toISOString() })
-        .eq("id", request.id)
-        .select("id, student_id, subject, category, description, priority, status, created_at, updated_at")
-        .single();
+      const { data: sessionData, error: sessionError } = await getAdminSession();
+      if (sessionError || !sessionData.session?.access_token) {
+        throw new Error("Your admin session has expired. Please sign in again.");
+      }
 
-      if (error) throw error;
+      const response = await fetch("/api/admin/academy/support-requests", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+        body: JSON.stringify({ id: request.id, status: nextStatus }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Ticket status could not be updated.");
+      }
+      const data = result.request as SupportRequest;
 
-      setRequests((current) => current.map((item) => item.id === request.id ? data as SupportRequest : item));
-      setSelectedRequest((current) => current?.id === request.id ? data as SupportRequest : current);
+      setRequests((current) => current.map((item) => item.id === request.id ? data : item));
+      setSelectedRequest((current) => current?.id === request.id ? data : current);
       toast.success(nextStatus === "resolved" ? "Support request closed." : "Support request reopened.");
     } catch (error) {
       console.error("Failed to update support request:", error);
