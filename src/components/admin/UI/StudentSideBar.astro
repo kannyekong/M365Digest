@@ -3,7 +3,7 @@ import LogoutButton from "../../../islands/LogoutButton";
 
 import StudentClockWidget from "../../../islands/student/StudentClockWidget";
 
-import UpcomingSessionWidget from "../../../islands/student/UpcomingSessionWidget";
+import AnalogClockWidget from "../../../islands/student/AnalogClockWidget";
 
 import StudentSidebarNavigation, {
   type StudentNavigationItem,
@@ -38,7 +38,7 @@ const sections: StudentNavigationItem[] = [
   {
     title: "Certificates",
     icon: "certificates",
-    href: "/student/certificates",
+    href: "/student/certificate",
   },
   {
     title: "Payment History",
@@ -88,9 +88,11 @@ const currentPath = Astro.url.pathname;
     />
   </nav>
 
-  <div class="mt-auto space-y-4 border-r border-slate-100 px-4 py-4 dark:border-slate-800">
-    <StudentClockWidget client:load />
-    <UpcomingSessionWidget client:load />
+  <div
+    class="grid grid-1 gap-3 mt-auto space-y-4 border-r border-slate-100 px-4 py-4 dark:border-slate-800"
+  >
+    <!-- <UpcomingSessionWidget client:load /> -->
+    <AnalogClockWidget client:load />
 
     <LogoutButton userType="student" client:load />
   </div>

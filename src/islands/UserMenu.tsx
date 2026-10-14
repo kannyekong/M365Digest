@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, KeyRound, LogOut, ChevronDown } from "lucide-react";
-import { logout } from "../lib/auth";
 import { getCurrentUser } from "../lib/profile";
+import { adminLogout } from "../lib/auth";
 
 interface Props {
   image?: string;
@@ -30,7 +30,7 @@ export default function UserMenu() {
 
   //REDIRECTS TO LOGIN PAGE AND DESTRUCTS SESSIONS
   async function LogoutButton() {
-    await logout();
+    await adminLogout();
     window.location.href = "/admin/login";
   }
   //

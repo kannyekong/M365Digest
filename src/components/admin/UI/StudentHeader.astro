@@ -1,5 +1,6 @@
 ---
 import StudentClockWidget from "../../../islands/student/StudentClockWidget";
+import UpcomingSessionWidget from "../../../islands/student/UpcomingSessionWidget";
 import StudentUserMenu from "../../../islands/StudentUserMenu";
 import { ArrowLeft } from "lucide-astro";
 
@@ -28,7 +29,7 @@ const {
           backHref && (
             <a
               href={backHref}
-              class="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              class="mb-3 inline-flex items-center gap-1 text-sm font-medium text-primary transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
               <ArrowLeft size={16} />
               {backLabel}
@@ -60,7 +61,7 @@ const {
       </section>
 
       <div class="flex flex-row items-center justify-between">
-        <StudentClockWidget client:load />
+        <UpcomingSessionWidget client:load/>
         <StudentUserMenu client:load />
       </div>
     </div>

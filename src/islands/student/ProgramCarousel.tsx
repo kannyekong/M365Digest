@@ -122,7 +122,7 @@ export default function ProgramCarousel({
 
   if (loading) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-primary dark:border-slate-700 dark:border-t-primary" />
 
@@ -136,7 +136,7 @@ export default function ProgramCarousel({
 
   if (errorMessage) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             Unable to load programs
@@ -160,7 +160,7 @@ export default function ProgramCarousel({
 
   if (programs.length === 0) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             No programs available
@@ -181,7 +181,7 @@ export default function ProgramCarousel({
   const displayPrice = program.discountPrice ?? program.price ?? null;
 
   return (
-    <div className="relative flex h-full min-h-[330px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="relative flex h-[360px] min-h-[360px] max-h-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -222,13 +222,13 @@ export default function ProgramCarousel({
         ) : null}
       </div>
 
-      <div className="relative flex flex-1 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {imageUrl ? (
           <div className="absolute inset-0">
             <img
               src={imageUrl}
               alt={program.title}
-              className="h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover object-center"
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />

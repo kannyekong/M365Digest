@@ -1,7 +1,15 @@
-import { studentSupabase } from "./superbase";
+import { supabase, studentSupabase } from "./superbase";
 
 export async function login(email: string, password: string) {
   return studentSupabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+}
+
+// Authenticate an administrator using the shared admin and public-site session.
+export async function adminLogin(email: string, password: string) {
+  return supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -11,8 +19,18 @@ export async function logout() {
   return studentSupabase.auth.signOut();
 }
 
+// Sign out the administrator from the shared Supabase client.
+export async function adminLogout() {
+  return supabase.auth.signOut();
+}
+
 export async function getSession() {
   return studentSupabase.auth.getSession();
+}
+
+// Retrieve the session belonging to the shared admin/public-site client.
+export async function getAdminSession() {
+  return supabase.auth.getSession();
 }
 
 // Registers a new CloudTweak Academy student and sends the

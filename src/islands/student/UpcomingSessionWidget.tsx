@@ -1,17 +1,18 @@
-import { ArrowRight, CalendarDays, Clock3, Presentation, Video } from "lucide-react";
+import { CalendarDays, Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getNextStudentLiveSession } from "../../lib/academy";
 import type { UpcomingSession } from "../../types/academy";
 
+// Displays the next scheduled session in a compact dashboard header.
 export default function UpcomingSessionWidget() {
   const [session, setSession] = useState<UpcomingSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Loads the next available live session for the authenticated student.
-   */
+  // Loads the next session and preserves errors for visible feedback.
   useEffect(() => {
+    let isMounted = true;
+
     async function loadSession() {
       try {
         setLoading(true);
@@ -19,127 +20,104 @@ export default function UpcomingSessionWidget() {
 
         const nextSession = await getNextStudentLiveSession();
 
-        setSession(nextSession);
+        if (isMounted) {
+          setSession(nextSession);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to load the upcoming session."
-        );
+        console.error("Failed to load upcoming session:", err);
+
+        if (isMounted) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Unable to load the upcoming session."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
-    loadSession();
+    void loadSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-4 h-6 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-      </div>
-    );
-  }
+  // Formats the session date and time in the browser's local timezone.
+  const formatSessionDate = (date: Date) =>
+    new Intl.DateTimeFormat("en-NG", {
+      day: "numeric",
+      month: "short",
+    }).format(date);
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          <Video className="h-4 w-4 text-primary" />
-          Upcoming Session
-        </div>
+  const formatSessionTime = (date: Date) =>
+    new Intl.DateTimeFormat("en-NG", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
 
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          Unable to load your upcoming session.
-        </p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-orange-600">
-          <Video className="h-4 w-4 text-orange-600" />
-          Upcoming Session
-        </div>
-
-        <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-200">
-          No upcoming sessions
-        </p>
-
-        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-          Your next live class will appear here when scheduled.
-        </p>
-      </div>
-    );
-  }
-
-  const startDate = new Date(session.startAt);
-
-  const formattedDate = new Intl.DateTimeFormat("en-NG", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  }).format(startDate);
-
-  const formattedTime = new Intl.DateTimeFormat("en-NG", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  }).format(startDate);
-
-  const platformLabel = {
-    teams: "Microsoft Teams",
-    zoom: "Zoom",
-    google_meet: "Google Meet",
-    other: "Online Session",
-  }[session.platform];
+  const startDate = session ? new Date(session.startAt) : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-orange-600">
-        <Video className="h-4 w-4 text-orange-600" />
-        Upcoming Session
+    <div className="flex min-w-0 max-w-[320px] items-center gap-3">
+      <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 sm:flex">
+        <CalendarDays className="h-4 w-4" />
       </div>
 
-      <h3 className="mt-3 line-clamp-2 text-sm font-bold text-slate-900 dark:text-white">
-        {session.title}
-      </h3>
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+          Upcoming session
+        </p>
 
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <CalendarDays className="h-4 w-4 shrink-0" />
-          <span>{formattedTime}</span> • <span>{formattedDate}</span>
-        </div>
+        {loading ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Loading session...
+          </p>
+        ) : error ? (
+          <p
+            className="max-w-[200px] truncate text-xs text-red-600"
+            title={error}
+          >
+            Session unavailable
+          </p>
+        ) : !session ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            No upcoming sessions
+          </p>
+        ) : (
+          <>
+            <p
+              className="max-w-[190px] truncate text-xs font-semibold text-slate-900 dark:text-white"
+              title={session.title}
+            >
+              {session.title}
+            </p>
 
-        <div className="text-xs font-medium text-slate-400 dark:text-slate-500">
-          Venue: {platformLabel}
-        </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {startDate && formatSessionDate(startDate)} ·{" "}
+              {startDate && formatSessionTime(startDate)}
+            </p>
+          </>
+        )}
       </div>
 
-      <a
-        href={session.meetingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
-      >
-        Join this Session
-        <ArrowRight className="h-4 w-4" />
-      </a>
-      <a
-        href={session.meetingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-3 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
-      >
-        View all Sessions
-        <Presentation className="h-4 w-4" />
-      </a>
+      {session && !loading && !error && (
+        <a
+          href={session.meetingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Join ${session.title}`}
+          className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-primary px-2.5 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+        >
+          <Video className="h-3.5 w-3.5" />
+          Join
+        </a>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase, supabase } from "../../lib/superbase";
 
 interface StudentProfileImageProps {
   size?: "sm" | "md" | "lg";
@@ -36,7 +36,7 @@ export default function StudentProfileImage({
 
       if (!session) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await studentSupabase
         .from("student_profiles")
         .select("first_name, last_name, avatar_url")
         .eq("user_id", session.user.id)
