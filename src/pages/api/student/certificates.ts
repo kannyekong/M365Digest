@@ -120,12 +120,10 @@ export const GET: APIRoute = async ({ request }) => {
 
     if (certificatesError) throw certificatesError;
 
-    const certificatesByRegistration = new Map(
-      ((certificateRows ?? []) as unknown as CertificateRow[]).map((certificate) => [
-        certificate.registration_id,
-        certificate,
-      ])
-    );
+    const certificatesByRegistration = new Map<string, CertificateRow>();
+    for (const certificate of (certificateRows ?? []) as unknown as CertificateRow[]) {
+      certificatesByRegistration.set(certificate.registration_id, certificate);
+    }
 
     // Deduplicate registrations for the same program, preferring the newest completed registration.
     const bySlug = new Map<string, Record<string, unknown>>();
