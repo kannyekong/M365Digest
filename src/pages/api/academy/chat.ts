@@ -74,6 +74,93 @@ async function getChatContext(request: Request): Promise<ChatContext> {
   return { client, userId: user.id, role: "student", studentId: profile.id };
 }
 
+/** Resolve all authorized admin accounts so each receives a private in-app notification. */
+async function getAdminRecipients(client: SupabaseClient) {
+  const allowedEmails = String(import.meta.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+  const recipients: Array<{ id: string; email: string }> = [];
+  const perPage = 1000;
+
+  for (let page = 1; page <= 10; page += 1) {
+    const { data, error } = await client.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+
+    for (const user of data.users) {
+      const role = String(user.app_metadata?.role ?? "").toLowerCase();
+      const roles = Array.isArray(user.app_metadata?.roles)
+        ? user.app_metadata.roles.map((value) => String(value).toLowerCase())
+        : [];
+      const isAdmin =
+        (user.email && allowedEmails.includes(user.email.toLowerCase())) ||
+        role === "admin" ||
+        roles.includes("admin");
+
+      if (isAdmin && user.email) recipients.push({ id: user.id, email: user.email });
+    }
+
+    if (data.users.length < perPage) break;
+  }
+
+  return recipients;
+}
+
+/** Save recipient-specific in-app notifications without failing message delivery. */
+async function notifyChatParticipants(
+  client: SupabaseClient,
+  conversationId: string,
+  senderRole: ChatRole,
+  senderUserId: string,
+  studentUserId: string,
+  studentInitiated: boolean,
+  messageBody: string
+) {
+  const preview = messageBody.length > 140 ? `${messageBody.slice(0, 137)}…` : messageBody;
+  const base = {
+    source_table: "academy_chat_messages",
+    source_id: conversationId,
+    metadata: { conversation_id: conversationId, sender_user_id: senderUserId },
+    is_read: false,
+    read_at: null,
+  };
+
+  try {
+    if (senderRole === "student") {
+      const admins = await getAdminRecipients(client);
+      if (admins.length === 0) {
+        console.warn("Academy chat notification skipped: no authorized admin accounts were found.");
+        return;
+      }
+
+      const rows = admins.map((admin) => ({
+        ...base,
+        recipient_id: admin.id,
+        type: "system",
+        title: studentInitiated ? "New Academy chat started" : "New student chat reply",
+        message: `${studentInitiated ? "A student started a conversation" : "A student replied"} in Academy support: ${preview}`,
+        link: `/admin/academy/chat?conversationId=${encodeURIComponent(conversationId)}`,
+      }));
+
+      const { error } = await client.from("notifications").insert(rows);
+      if (error) throw error;
+      return;
+    }
+
+    const { error } = await client.from("notifications").insert({
+      ...base,
+      recipient_id: studentUserId,
+      type: "academy_announcement",
+      title: "New reply from Academy support",
+      message: `Academy support replied to your chat: ${preview}`,
+      link: "/student/chat",
+    });
+    if (error) throw error;
+  } catch (error) {
+    console.error("Academy chat notification could not be created:", error);
+  }
+}
+
 /** Finds or creates the single private conversation associated with a student. */
 async function getOrCreateStudentConversation(client: SupabaseClient, studentId: string) {
   const { data: existing, error: lookupError } = await client
@@ -180,8 +267,16 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     let conversation;
+    let studentInitiated = false;
+    let studentUserId = context.userId;
     if (context.role === "student") {
       conversation = await getOrCreateStudentConversation(context.client, context.studentId!);
+      const { count, error: countError } = await context.client
+        .from("academy_chat_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", conversation.id);
+      if (countError) throw countError;
+      studentInitiated = (count ?? 0) === 0;
       if (body.conversationId && body.conversationId !== conversation.id) {
         return jsonResponse({ success: false, message: "Conversation not found." }, 404);
       }
@@ -215,6 +310,37 @@ export const POST: APIRoute = async ({ request }) => {
       .single();
 
     if (insertError) throw insertError;
+
+    if (context.role === "admin") {
+      const { data: profile, error: profileError } = await context.client
+        .from("student_profiles")
+        .select("user_id")
+        .eq("id", conversation.student_id)
+        .maybeSingle();
+      if (profileError) {
+        console.error("Academy chat student recipient lookup failed:", profileError);
+      } else if (profile?.user_id) {
+        await notifyChatParticipants(
+          context.client,
+          conversation.id,
+          context.role,
+          context.userId,
+          profile.user_id,
+          false,
+          messageBody
+        );
+      }
+    } else {
+      await notifyChatParticipants(
+        context.client,
+        conversation.id,
+        context.role,
+        context.userId,
+        studentUserId,
+        studentInitiated,
+        messageBody
+      );
+    }
 
     const { error: updateError } = await context.client
       .from("academy_chat_conversations")
