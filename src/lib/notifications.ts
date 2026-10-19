@@ -2,13 +2,23 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "./superbase";
 import type { Notification } from "../types/notification";
 
+/** Resolve the currently signed-in administrator for recipient-scoped notification access. */
+async function getRecipientId(): Promise<string> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  if (!data.user) throw new Error("Please sign in to view notifications.");
+  return data.user.id;
+}
+
 /**
  * Retrieve the latest notifications ordered by newest first.
  */
 export async function getNotifications(limit = 30) {
+  const recipientId = await getRecipientId();
   const { data, error } = await supabase
     .from("notifications")
     .select("*")
+    .eq("recipient_id", recipientId)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -23,12 +33,14 @@ export async function getNotifications(limit = 30) {
  * Return the number of unread notifications.
  */
 export async function getUnreadNotificationCount() {
+  const recipientId = await getRecipientId();
   const { count, error } = await supabase
     .from("notifications")
     .select("*", {
       count: "exact",
       head: true,
     })
+    .eq("recipient_id", recipientId)
     .eq("is_read", false);
 
   if (error) {
@@ -42,6 +54,7 @@ export async function getUnreadNotificationCount() {
  * Mark one notification as read.
  */
 export async function markNotificationAsRead(id: string) {
+  const recipientId = await getRecipientId();
   const readAt = new Date().toISOString();
 
   const { data, error } = await supabase
@@ -51,6 +64,7 @@ export async function markNotificationAsRead(id: string) {
       read_at: readAt,
     })
     .eq("id", id)
+    .eq("recipient_id", recipientId)
     .select()
     .single();
 
@@ -65,6 +79,7 @@ export async function markNotificationAsRead(id: string) {
  * Mark every unread notification as read.
  */
 export async function markAllNotificationsAsRead() {
+  const recipientId = await getRecipientId();
   const readAt = new Date().toISOString();
 
   const { error } = await supabase
@@ -73,6 +88,7 @@ export async function markAllNotificationsAsRead() {
       is_read: true,
       read_at: readAt,
     })
+    .eq("recipient_id", recipientId)
     .eq("is_read", false);
 
   if (error) {
@@ -86,7 +102,12 @@ export async function markAllNotificationsAsRead() {
  * Delete a notification.
  */
 export async function deleteNotification(id: string) {
-  const { error } = await supabase.from("notifications").delete().eq("id", id);
+  const recipientId = await getRecipientId();
+  const { error } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", id)
+    .eq("recipient_id", recipientId);
 
   if (error) {
     throw error;
@@ -100,15 +121,18 @@ export function subscribeToNotifications(
   onInsert: (notification: Notification) => void,
   onUpdate: (notification: Notification) => void
 ): RealtimeChannel {
-  return supabase
-    .channel("notifications")
+  const channel = supabase.channel(`notifications-${crypto.randomUUID()}`);
 
-    .on(
+  // Restrict realtime events to the signed-in administrator's own notifications.
+  void getRecipientId().then((recipientId) => {
+    channel
+      .on(
       "postgres_changes",
       {
         event: "INSERT",
         schema: "public",
         table: "notifications",
+        filter: `recipient_id=eq.${recipientId}`,
       },
       (payload) => {
         onInsert(payload.new as Notification);
@@ -121,13 +145,18 @@ export function subscribeToNotifications(
         event: "UPDATE",
         schema: "public",
         table: "notifications",
+        filter: `recipient_id=eq.${recipientId}`,
       },
       (payload) => {
         onUpdate(payload.new as Notification);
       }
     )
+      .subscribe();
+  }).catch((error) => {
+    console.error("Could not initialize admin notification subscription:", error);
+  });
 
-    .subscribe();
+  return channel;
 }
 
 /**
