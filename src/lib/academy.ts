@@ -136,6 +136,7 @@ export async function getStudentCourseProgress(
         created_at,
         academy_programs (
           id,
+          status,
           title,
           slug
         )
@@ -167,7 +168,10 @@ export async function getStudentCourseProgress(
         ? (enrollment.academy_programs[0] ?? null)
         : enrollment.academy_programs,
     }))
-    .filter((enrollment) => enrollment.program !== null);
+    .filter(
+      (enrollment) =>
+        enrollment.program !== null && enrollment.program.status !== "archived"
+    );
 
   // Return an empty result when the student has no matching enrollment.
   if (enrollments.length === 0) {
@@ -254,25 +258,27 @@ export async function getStudentCourseProgress(
   // Load currently published required resources and quizzes to validate saved completion.
   const lessonIds = lessons.map((lesson) => lesson.id);
   const now = new Date().toISOString();
-  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
-    await Promise.all([
-      lessonIds.length > 0
-        ? studentSupabase
-            .from("academy_program_resources")
-            .select("id, lesson_id, available_from, available_until")
-            .in("lesson_id", lessonIds)
-            .eq("is_required", true)
-            .eq("is_published", true)
-        : Promise.resolve({ data: [], error: null }),
-      lessonIds.length > 0
-        ? studentSupabase
-            .from("academy_quizzes")
-            .select("id, lesson_id")
-            .in("lesson_id", lessonIds)
-            .eq("is_required", true)
-            .eq("is_published", true)
-        : Promise.resolve({ data: [], error: null }),
-    ]);
+  const [
+    { data: requiredResources, error: requiredResourcesError },
+    { data: requiredQuizzes, error: requiredQuizzesError },
+  ] = await Promise.all([
+    lessonIds.length > 0
+      ? studentSupabase
+          .from("academy_program_resources")
+          .select("id, lesson_id, available_from, available_until")
+          .in("lesson_id", lessonIds)
+          .eq("is_required", true)
+          .eq("is_published", true)
+      : Promise.resolve({ data: [], error: null }),
+    lessonIds.length > 0
+      ? studentSupabase
+          .from("academy_quizzes")
+          .select("id, lesson_id")
+          .in("lesson_id", lessonIds)
+          .eq("is_required", true)
+          .eq("is_published", true)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
   if (requiredResourcesError) throw requiredResourcesError;
   if (requiredQuizzesError) throw requiredQuizzesError;
@@ -282,48 +288,67 @@ export async function getStudentCourseProgress(
       (!resource.available_from || resource.available_from <= now) &&
       (!resource.available_until || resource.available_until >= now)
   );
-  const requiredResourceIds = availableRequiredResources.map((resource) => resource.id);
+  const requiredResourceIds = availableRequiredResources.map(
+    (resource) => resource.id
+  );
   const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
 
   // Load completion evidence scoped to the student's enrollments.
-  const [{ data: completedResources, error: completedResourcesError }, { data: passedQuizAttempts, error: passedQuizAttemptsError }] =
-    await Promise.all([
-      requiredResourceIds.length > 0
-        ? studentSupabase
-            .from("student_resource_progress")
-            .select("enrollment_id, resource_id")
-            .in("enrollment_id", enrollmentIds)
-            .in("resource_id", requiredResourceIds)
-            .eq("status", "completed")
-        : Promise.resolve({ data: [], error: null }),
-      requiredQuizIds.length > 0
-        ? studentSupabase
-            .from("student_quiz_attempts")
-            .select("enrollment_id, quiz_id")
-            .in("enrollment_id", enrollmentIds)
-            .in("quiz_id", requiredQuizIds)
-            .eq("passed", true)
-            .not("completed_at", "is", null)
-        : Promise.resolve({ data: [], error: null }),
-    ]);
+  const [
+    { data: completedResources, error: completedResourcesError },
+    { data: passedQuizAttempts, error: passedQuizAttemptsError },
+  ] = await Promise.all([
+    requiredResourceIds.length > 0
+      ? studentSupabase
+          .from("student_resource_progress")
+          .select("enrollment_id, resource_id")
+          .in("enrollment_id", enrollmentIds)
+          .in("resource_id", requiredResourceIds)
+          .eq("status", "completed")
+      : Promise.resolve({ data: [], error: null }),
+    requiredQuizIds.length > 0
+      ? studentSupabase
+          .from("student_quiz_attempts")
+          .select("enrollment_id, quiz_id")
+          .in("enrollment_id", enrollmentIds)
+          .in("quiz_id", requiredQuizIds)
+          .eq("passed", true)
+          .not("completed_at", "is", null)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
   if (completedResourcesError) throw completedResourcesError;
   if (passedQuizAttemptsError) throw passedQuizAttemptsError;
 
   const completedResourceKeys = new Set(
-    (completedResources ?? []).map((item) => `${item.enrollment_id}:${item.resource_id}`)
+    (completedResources ?? []).map(
+      (item) => `${item.enrollment_id}:${item.resource_id}`
+    )
   );
   const passedQuizKeys = new Set(
-    (passedQuizAttempts ?? []).map((item) => `${item.enrollment_id}:${item.quiz_id}`)
+    (passedQuizAttempts ?? []).map(
+      (item) => `${item.enrollment_id}:${item.quiz_id}`
+    )
   );
 
   // A previously completed lesson is no longer complete if new required items remain unfinished.
-  const hasOutstandingRequirements = (enrollmentId: string, lessonId: string) => {
-    const lessonResources = availableRequiredResources.filter((item) => item.lesson_id === lessonId);
-    const lessonQuizzes = (requiredQuizzes ?? []).filter((item) => item.lesson_id === lessonId);
+  const hasOutstandingRequirements = (
+    enrollmentId: string,
+    lessonId: string
+  ) => {
+    const lessonResources = availableRequiredResources.filter(
+      (item) => item.lesson_id === lessonId
+    );
+    const lessonQuizzes = (requiredQuizzes ?? []).filter(
+      (item) => item.lesson_id === lessonId
+    );
     return (
-      lessonResources.some((item) => !completedResourceKeys.has(`${enrollmentId}:${item.id}`)) ||
-      lessonQuizzes.some((item) => !passedQuizKeys.has(`${enrollmentId}:${item.id}`))
+      lessonResources.some(
+        (item) => !completedResourceKeys.has(`${enrollmentId}:${item.id}`)
+      ) ||
+      lessonQuizzes.some(
+        (item) => !passedQuizKeys.has(`${enrollmentId}:${item.id}`)
+      )
     );
   };
 
@@ -338,7 +363,8 @@ export async function getStudentCourseProgress(
 
     // Resolve progress records for this enrollment.
     const courseProgress = programLessons.map((lesson) => {
-      const savedProgress = progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null;
+      const savedProgress =
+        progressMap.get(`${enrollment.id}:${lesson.id}`) ?? null;
       const invalidatedCompletion =
         savedProgress?.status === "completed" &&
         hasOutstandingRequirements(enrollment.id, lesson.id);
@@ -1629,21 +1655,23 @@ export async function getStudentLessonProgress(
 
   // Revalidate a stored completion against today's required curriculum items.
   // This does not rewrite the historical progress row or alter quiz attempts.
-  const [{ data: requiredResources, error: requiredResourcesError }, { data: requiredQuizzes, error: requiredQuizzesError }] =
-    await Promise.all([
-      studentSupabase
-        .from("academy_program_resources")
-        .select("id, available_from, available_until")
-        .eq("lesson_id", lessonId)
-        .eq("is_required", true)
-        .eq("is_published", true),
-      studentSupabase
-        .from("academy_quizzes")
-        .select("id")
-        .eq("lesson_id", lessonId)
-        .eq("is_required", true)
-        .eq("is_published", true),
-    ]);
+  const [
+    { data: requiredResources, error: requiredResourcesError },
+    { data: requiredQuizzes, error: requiredQuizzesError },
+  ] = await Promise.all([
+    studentSupabase
+      .from("academy_program_resources")
+      .select("id, available_from, available_until")
+      .eq("lesson_id", lessonId)
+      .eq("is_required", true)
+      .eq("is_published", true),
+    studentSupabase
+      .from("academy_quizzes")
+      .select("id")
+      .eq("lesson_id", lessonId)
+      .eq("is_required", true)
+      .eq("is_published", true),
+  ]);
 
   // Do not silently trust stale completion if requirements cannot be checked.
   if (requiredResourcesError) {
@@ -1695,7 +1723,11 @@ export async function getStudentLessonProgress(
       (completedResources ?? []).map((resource) => resource.resource_id)
     );
 
-    if (availableResourceIds.some((resourceId) => !completedResourceIds.has(resourceId))) {
+    if (
+      availableResourceIds.some(
+        (resourceId) => !completedResourceIds.has(resourceId)
+      )
+    ) {
       return {
         ...data,
         status: "in_progress",
@@ -1709,13 +1741,14 @@ export async function getStudentLessonProgress(
   const requiredQuizIds = (requiredQuizzes ?? []).map((quiz) => quiz.id);
 
   if (requiredQuizIds.length > 0) {
-    const { data: passedAttempts, error: passedAttemptsError } = await studentSupabase
-      .from("student_quiz_attempts")
-      .select("quiz_id")
-      .eq("enrollment_id", enrollmentId)
-      .eq("passed", true)
-      .not("completed_at", "is", null)
-      .in("quiz_id", requiredQuizIds);
+    const { data: passedAttempts, error: passedAttemptsError } =
+      await studentSupabase
+        .from("student_quiz_attempts")
+        .select("quiz_id")
+        .eq("enrollment_id", enrollmentId)
+        .eq("passed", true)
+        .not("completed_at", "is", null)
+        .in("quiz_id", requiredQuizIds);
 
     if (passedAttemptsError) {
       throw new Error(
@@ -1847,12 +1880,13 @@ export async function completeStudentLesson(
   }
 
   // Load published required resources that are currently available to the student.
-  const { data: requiredResources, error: requiredResourcesError } = await studentSupabase
-    .from("academy_program_resources")
-    .select("id, available_from, available_until")
-    .eq("lesson_id", lessonId)
-    .eq("is_required", true)
-    .eq("is_published", true);
+  const { data: requiredResources, error: requiredResourcesError } =
+    await studentSupabase
+      .from("academy_program_resources")
+      .select("id, available_from, available_until")
+      .eq("lesson_id", lessonId)
+      .eq("is_required", true)
+      .eq("is_published", true);
 
   // Stop if required resource configuration cannot be verified.
   if (requiredResourcesError) {
@@ -1911,12 +1945,13 @@ export async function completeStudentLesson(
   }
 
   // Load published required quizzes attached directly to this lesson.
-  const { data: requiredQuizzes, error: requiredQuizzesError } = await studentSupabase
-    .from("academy_quizzes")
-    .select("id")
-    .eq("lesson_id", lessonId)
-    .eq("is_required", true)
-    .eq("is_published", true);
+  const { data: requiredQuizzes, error: requiredQuizzesError } =
+    await studentSupabase
+      .from("academy_quizzes")
+      .select("id")
+      .eq("lesson_id", lessonId)
+      .eq("is_required", true)
+      .eq("is_published", true);
 
   // Stop if required quiz configuration cannot be verified.
   if (requiredQuizzesError) {
@@ -1929,13 +1964,14 @@ export async function completeStudentLesson(
 
   // Require a completed passing attempt for each required quiz in this enrollment.
   if (requiredQuizIds.length > 0) {
-    const { data: passedAttempts, error: passedAttemptsError } = await studentSupabase
-      .from("student_quiz_attempts")
-      .select("quiz_id")
-      .eq("enrollment_id", enrollmentId)
-      .eq("passed", true)
-      .not("completed_at", "is", null)
-      .in("quiz_id", requiredQuizIds);
+    const { data: passedAttempts, error: passedAttemptsError } =
+      await studentSupabase
+        .from("student_quiz_attempts")
+        .select("quiz_id")
+        .eq("enrollment_id", enrollmentId)
+        .eq("passed", true)
+        .not("completed_at", "is", null)
+        .in("quiz_id", requiredQuizIds);
 
     // Stop if quiz completion cannot be verified.
     if (passedAttemptsError) {
@@ -2022,7 +2058,26 @@ export interface AcademyProgramCarouselItem {
 export async function getAvailableAcademyPrograms(): Promise<
   AcademyProgramCarouselItem[]
 > {
+  // Inspect the shared client's session immediately before the program query.
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  // Log session timing without exposing authentication tokens.
+  console.log("[Academy Programs] Session before query:", {
+    hasSession: Boolean(session),
+    expiresAt: session?.expires_at
+      ? new Date(session.expires_at * 1000).toISOString()
+      : null,
+    now: new Date().toISOString(),
+    isExpired: session?.expires_at
+      ? session.expires_at * 1000 <= Date.now()
+      : null,
+    sessionError: sessionError?.message ?? null,
+  });
   const { data, error } = await supabase
+
     .from("academy_programs")
     .select(
       `
@@ -2041,7 +2096,7 @@ export async function getAvailableAcademyPrograms(): Promise<
     `
     )
     .eq("status", "published")
-    .eq("registration_open", true)
+    // .eq("registration_open", true)
     .order("display_order", { ascending: true });
 
   if (error) {
@@ -2160,6 +2215,108 @@ export async function getNextStudentLiveSession(): Promise<UpcomingSession | nul
     startAt: data.start_at,
     endAt: data.end_at,
   };
+}
+
+/**
+ * Retrieves published live sessions for the authenticated student's
+ * active or paused enrollments, excluding archived programs.
+ */
+export async function getStudentLiveSessions() {
+  // Resolve the authenticated student.
+  const {
+    data: { session },
+    error: sessionError,
+  } = await studentSupabase.auth.getSession();
+
+  if (sessionError) throw sessionError;
+
+  if (!session) {
+    throw new Error("You must be signed in to view live sessions.");
+  }
+
+  // Use maybeSingle when the student profile may not exist.
+  const { data: student, error: studentError } = await studentSupabase
+    .from("student_profiles")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+
+  if (studentError) {
+    throw studentError;
+  }
+
+  if (!student) {
+    return [];
+  }
+
+  // Find the student's eligible enrollments.
+  const { data: enrollments, error: enrollmentError } = await studentSupabase
+    .from("student_enrollments")
+    .select("program_id")
+    .eq("student_id", student.id)
+    .in("status", ["active", "paused"]);
+
+  if (enrollmentError) throw enrollmentError;
+
+  const programIds = [
+    ...new Set(
+      (enrollments ?? [])
+        .map((enrollment) => enrollment.program_id)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+
+  if (programIds.length === 0) return [];
+
+  // Fetch sessions and their associated course details.
+  const { data, error } = await studentSupabase
+    .from("academy_live_sessions")
+    .select(
+      `
+      id,
+      program_id,
+      title,
+      description,
+      platform,
+      meeting_url,
+      start_at,
+      end_at,
+      status,
+      program:academy_programs!inner (
+        title,
+        slug,
+        status
+      )
+    `
+    )
+    .in("program_id", programIds)
+    .eq("is_published", true)
+    .eq("program.status", "published")
+    .neq("status", "cancelled")
+    .order("start_at", { ascending: true });
+
+  if (error) throw error;
+
+  // Normalize the nested program relationship for the student UI.
+  return (data ?? []).map((session) => {
+    const program = Array.isArray(session.program)
+      ? session.program[0]
+      : session.program;
+
+    return {
+      id: session.id,
+      programId: session.program_id,
+      courseTitle: program?.title ?? "Academy course",
+      courseSlug: program?.slug ?? "",
+      title: session.title,
+      description: session.description,
+      platform: session.platform,
+      meetingUrl: session.meeting_url,
+      startAt: session.start_at,
+      endAt: session.end_at,
+      status: session.status,
+    };
+  });
 }
 
 /**
@@ -2431,9 +2588,12 @@ export async function deleteAcademyQuizOption(optionId: string) {
 export async function getStudentQuizAttempt(
   attemptId: string
 ): Promise<StudentQuizAttemptPayload> {
-  const { data, error } = await studentSupabase.rpc("academy_get_quiz_attempt", {
-    p_attempt_id: attemptId,
-  });
+  const { data, error } = await studentSupabase.rpc(
+    "academy_get_quiz_attempt",
+    {
+      p_attempt_id: attemptId,
+    }
+  );
 
   if (error) {
     throw error;
@@ -2451,9 +2611,12 @@ export async function getStudentQuizAttempt(
 export async function reviewStudentQuizAttempt(
   attemptId: string
 ): Promise<StudentQuizReview> {
-  const { data, error } = await studentSupabase.rpc("academy_review_quiz_attempt", {
-    p_attempt_id: attemptId,
-  });
+  const { data, error } = await studentSupabase.rpc(
+    "academy_review_quiz_attempt",
+    {
+      p_attempt_id: attemptId,
+    }
+  );
 
   if (error) {
     throw error;
@@ -2566,7 +2729,6 @@ export async function getStudentLessonQuiz(
 
   return data as AcademyQuiz | null;
 }
-
 
 /** Loads lesson resources using the isolated student session. */
 export async function getStudentLessonResources(lessonId: string) {

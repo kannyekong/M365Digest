@@ -1,30 +1,147 @@
 ---
 import StudentLayout from "../../../layouts/StudentLayout.astro";
 import StudentHeader from "../../../components/admin/UI/StudentHeader.astro";
-import { Award, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, ShieldCheck } from "lucide-astro";
+import SummaryCard from "../../../components/student/SummaryCard";
+import { ChevronLeft, ChevronRight, Search } from "lucide-astro";
+import { Award, Clock3, GraduationCap } from "lucide-react";
 ---
 
-<StudentLayout title="Certificates" description="View certificates issued for your completed CloudTweak Academy programs.">
-  <StudentHeader eyebrow="Achievements" title="My Certificates" description="Certificates become available after you complete an eligible Academy program and an administrator issues your certificate." />
+<StudentLayout
+  title="Certificates"
+  description="View certificates issued for your completed CloudTweak Academy programs."
+>
+  <StudentHeader
+    eyebrow="Achievements"
+    title="My Certificates"
+    description="Certificates become available after you complete an eligible Academy program and an administrator issues your certificate."
+  />
   <main class="min-h-screen p-5 md:p-6">
     <div class="mx-auto max-w-[1600px] space-y-6">
       <section class="grid gap-4 sm:grid-cols-3">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-sm text-slate-500 dark:text-slate-400">Completed programs</p><p id="certificate-total" class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">—</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Certificate-enabled programs</p></div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-sm text-slate-500 dark:text-slate-400">Certificates issued</p><p id="certificate-issued" class="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">—</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Ready to view or download</p></div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><p class="text-sm text-slate-500 dark:text-slate-400">Awaiting issuance</p><p id="certificate-pending" class="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">—</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Completion recorded</p></div>
+        <SummaryCard
+          title="Completed programs"
+          value="—"
+          valueColor="text-slate-900 dark:text-white"
+          icon={GraduationCap}
+          watermarkIcon={GraduationCap}
+          accentColor="text-blue-600"
+          iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
+          iconColor="text-blue-600 dark:text-blue-400"
+          valueId="certificate-total"
+        />
+
+        <SummaryCard
+          title="Certificates issued"
+          value="—"
+          valueColor="text-emerald-600 dark:text-emerald-400"
+          icon={Award}
+          watermarkIcon={Award}
+          accentColor="text-emerald-600"
+          iconBackgroundColor="bg-emerald-50 dark:bg-emerald-950/40"
+          iconColor="text-emerald-600 dark:text-emerald-400"
+          valueId="certificate-issued"
+        />
+
+        <SummaryCard
+          title="Awaiting issuance"
+          value="—"
+          valueColor="text-amber-600 dark:text-amber-400"
+          icon={Clock3}
+          watermarkIcon={Clock3}
+          accentColor="text-amber-600"
+          iconBackgroundColor="bg-amber-50 dark:bg-amber-950/40"
+          iconColor="text-amber-600 dark:text-amber-400"
+          valueId="certificate-pending"
+        />
       </section>
-      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-5">
-        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div><h2 class="font-semibold text-slate-900 dark:text-white">Your program certificates</h2><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Only your own completed, certificate-enabled programs are shown.</p></div>
+      <section
+        class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-5"
+      >
+        <div
+          class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+        >
+          <div>
+            <h2 class="font-semibold text-slate-900 dark:text-white">
+              Your program certificates
+            </h2><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Only your own completed, certificate-enabled programs are shown.
+            </p>
+          </div>
           <div class="flex flex-col gap-3 sm:flex-row">
-            <label class="relative block"><span class="sr-only">Search certificates</span><Search size={16} class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input id="certificate-search" type="search" placeholder="Search programs..." class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white sm:w-56" /></label>
-            <label><span class="sr-only">Filter status</span><select id="certificate-filter" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 sm:w-44"><option value="all">All statuses</option><option value="issued">Issued</option><option value="eligible">Awaiting issuance</option><option value="revoked">Revoked</option></select></label>
+            <label class="relative block"
+              ><span class="sr-only">Search certificates</span><Search
+                size={16}
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              /><input
+                id="certificate-search"
+                type="search"
+                placeholder="Search programs..."
+                class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white sm:w-56"
+              /></label
+            >
+            <label
+              ><span class="sr-only">Filter status</span><select
+                id="certificate-filter"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 sm:w-44"
+                ><option value="all">All statuses</option><option value="issued"
+                  >Issued</option
+                ><option value="eligible">Awaiting issuance</option><option
+                  value="revoked">Revoked</option
+                ></select
+              ></label
+            >
           </div>
         </div>
-        <div id="certificate-message" role="status" aria-live="polite" class="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">Loading your certificates…</div>
+        <div
+          id="certificate-message"
+          role="status"
+          aria-live="polite"
+          class="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"
+        >
+          Loading your certificates…
+        </div>
         <div id="certificate-grid" class="mt-5 grid gap-4 md:grid-cols-2"></div>
-        <div id="certificate-empty" class="hidden rounded-xl border border-dashed border-slate-200 px-6 py-12 text-center dark:border-slate-700"><Award size={25} class="mx-auto text-slate-400" /><h3 class="mt-3 font-semibold text-slate-900 dark:text-white">No matching certificates</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Completed certificate-enabled programs will appear here.</p></div>
-        <div class="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"><p id="certificate-result-count" class="text-sm text-slate-500 dark:text-slate-400"></p><nav id="certificate-pagination" aria-label="Certificate pages" class="hidden items-center justify-center gap-1.5"><button type="button" data-page-prev class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300"><ChevronLeft size={15} /> Previous</button><div id="certificate-page-numbers" class="flex items-center gap-1.5"></div><button type="button" data-page-next class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300">Next <ChevronRight size={15} /></button></nav></div>
+        <div
+          id="certificate-empty"
+          class="hidden rounded-xl border border-dashed border-slate-200 px-6 py-12 text-center dark:border-slate-700"
+        >
+          <Award size={25} className="mx-auto text-slate-400" /><h3
+            class="mt-3 font-semibold text-slate-900 dark:text-white"
+          >
+            No matching certificates
+          </h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Completed certificate-enabled programs will appear here.
+          </p>
+        </div>
+        <div
+          class="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p
+            id="certificate-result-count"
+            class="text-sm text-slate-500 dark:text-slate-400"
+          >
+          </p><nav
+            id="certificate-pagination"
+            aria-label="Certificate pages"
+            class="hidden items-center justify-center gap-1.5"
+          >
+            <button
+              type="button"
+              data-page-prev
+              class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300"
+              ><ChevronLeft size={15} /> Previous</button
+            ><div
+              id="certificate-page-numbers"
+              class="flex items-center gap-1.5"
+            >
+            </div><button
+              type="button"
+              data-page-next
+              class="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300"
+              >Next <ChevronRight size={15} /></button
+            >
+          </nav>
+        </div>
       </section>
     </div>
   </main>
@@ -42,7 +159,8 @@ import { Award, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, ShieldChe
     certificate: { certificateNumber: string; fileUrl: string | null } | null;
   };
 
-  const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector);
+  const $ = <T extends HTMLElement>(selector: string) =>
+    document.querySelector<T>(selector);
   const message = $<HTMLElement>("#certificate-message");
   const grid = $<HTMLElement>("#certificate-grid");
   const search = $<HTMLInputElement>("#certificate-search");
@@ -59,30 +177,56 @@ import { Award, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, ShieldChe
 
   // Escape database values before inserting them into card markup.
   function escapeHtml(value: string) {
-    return value.replace(/[&<>"']/g, (character) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;",
-    })[character] ?? character);
+    return value.replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        })[character] ?? character
+    );
   }
 
   // Load only records returned for the verified current student session.
   async function loadCertificates() {
-    const { data: { session } } = await studentSupabase.auth.getSession();
+    const {
+      data: { session },
+    } = await studentSupabase.auth.getSession();
     if (!session?.access_token) {
-      if (message) message.innerHTML = 'Please <a class="font-semibold text-teal-700 underline dark:text-teal-300" href="/student/login">sign in</a> to view your certificates.';
+      if (message)
+        message.innerHTML =
+          'Please <a class="font-semibold text-teal-700 underline dark:text-teal-300" href="/student/login">sign in</a> to view your certificates.';
       return;
     }
-    const response = await fetch("/api/student/certificates", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+    const response = await fetch("/api/student/certificates", {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      cache: "no-store",
+    });
     const payload = await response.json();
     if (!response.ok || !payload.success) {
-      if (message) message.textContent = payload.message ?? "Your certificates could not be loaded.";
+      if (message)
+        message.textContent =
+          payload.message ?? "Your certificates could not be loaded.";
       return;
     }
     records = payload.certificates as CertificateItem[];
     message?.classList.add("hidden");
-    const setCount = (id: string, value: number) => { const el = $(`#${id}`); if (el) el.textContent = String(value); };
+    const setCount = (id: string, value: number) => {
+      const el = $(`#${id}`);
+      if (el) el.textContent = String(value);
+    };
     setCount("certificate-total", records.length);
-    setCount("certificate-issued", records.filter((item) => item.status === "issued").length);
-    setCount("certificate-pending", records.filter((item) => item.status === "eligible").length);
+    setCount(
+      "certificate-issued",
+      records.filter((item) => item.status === "issued").length
+    );
+    setCount(
+      "certificate-pending",
+      records.filter((item) => item.status === "eligible").length
+    );
     render();
   }
 
@@ -91,22 +235,38 @@ import { Award, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, ShieldChe
     if (!grid) return;
     const term = search?.value.trim().toLowerCase() ?? "";
     const status = filter?.value ?? "all";
-    const filtered = records.filter((item) => item.programTitle.toLowerCase().includes(term) && (status === "all" || item.status === status));
+    const filtered = records.filter(
+      (item) =>
+        item.programTitle.toLowerCase().includes(term) &&
+        (status === "all" || item.status === status)
+    );
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     currentPage = Math.min(currentPage, totalPages);
     const start = (currentPage - 1) * pageSize;
     const visible = filtered.slice(start, start + pageSize);
-    grid.innerHTML = visible.map((item) => {
-      const issued = item.status === "issued";
-      const revoked = item.status === "revoked";
-      const label = revoked ? "Revoked" : issued ? "Issued" : "Awaiting issuance";
-      const badge = revoked ? "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300" : issued ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300";
-      return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-teal-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"><a href="/student/certificate/${encodeURIComponent(item.programSlug)}" class="block p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300">✦</div><div><p class="text-xs text-slate-500 dark:text-slate-400">CloudTweak Academy</p><h3 class="mt-1 font-semibold text-slate-900 dark:text-white">${escapeHtml(item.programTitle)}</h3></div></div><span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${badge}">${label}</span></div><div class="mt-5 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-teal-50 p-5 text-center dark:border-slate-700 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/40"><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-800 dark:text-teal-300">CloudTweak Academy</p><p class="mt-2 font-serif text-lg font-semibold text-slate-800 dark:text-slate-100">Certificate of Completion</p><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${escapeHtml(item.programTitle)}</p><p class="mt-3 text-xs text-slate-400">${issued ? `No. ${escapeHtml(item.certificate?.certificateNumber ?? "")}` : "Certificate details appear after issuance"}</p></div><div class="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>${item.completedAt ? `Completed ${new Date(item.completedAt).toLocaleDateString()}` : "Completion recorded"}</span><span>View details <span aria-hidden="true">→</span></span></div></a></article>`;
-    }).join("");
+    grid.innerHTML = visible
+      .map((item) => {
+        const issued = item.status === "issued";
+        const revoked = item.status === "revoked";
+        const label = revoked
+          ? "Revoked"
+          : issued
+            ? "Issued"
+            : "Awaiting issuance";
+        const badge = revoked
+          ? "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
+          : issued
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300";
+        return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-teal-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"><a href="/student/certificate/${encodeURIComponent(item.programSlug)}" class="block p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300">✦</div><div><p class="text-xs text-slate-500 dark:text-slate-400">CloudTweak Academy</p><h3 class="mt-1 font-semibold text-slate-900 dark:text-white">${escapeHtml(item.programTitle)}</h3></div></div><span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${badge}">${label}</span></div><div class="mt-5 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-teal-50 p-5 text-center dark:border-slate-700 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/40"><p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-800 dark:text-teal-300">CloudTweak Academy</p><p class="mt-2 font-serif text-lg font-semibold text-slate-800 dark:text-slate-100">Certificate of Completion</p><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${escapeHtml(item.programTitle)}</p><p class="mt-3 text-xs text-slate-400">${issued ? `No. ${escapeHtml(item.certificate?.certificateNumber ?? "")}` : "Certificate details appear after issuance"}</p></div><div class="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>${item.completedAt ? `Completed ${new Date(item.completedAt).toLocaleDateString()}` : "Completion recorded"}</span><span>View details <span aria-hidden="true">→</span></span></div></a></article>`;
+      })
+      .join("");
     empty?.classList.toggle("hidden", filtered.length > 0);
-    if (count) count.textContent = `Showing ${filtered.length ? start + 1 : 0}–${Math.min(start + pageSize, filtered.length)} of ${filtered.length} programs`;
+    if (count)
+      count.textContent = `Showing ${filtered.length ? start + 1 : 0}–${Math.min(start + pageSize, filtered.length)} of ${filtered.length} programs`;
     pagination?.classList.toggle("hidden", filtered.length <= pageSize);
-    if (pagination) pagination.classList.toggle("flex", filtered.length > pageSize);
+    if (pagination)
+      pagination.classList.toggle("flex", filtered.length > pageSize);
     if (previous) previous.disabled = currentPage <= 1;
     if (next) next.disabled = currentPage >= totalPages;
     if (pageNumbers) {
@@ -115,16 +275,39 @@ import { Award, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, ShieldChe
         const button = document.createElement("button");
         button.type = "button";
         button.textContent = String(page);
-        button.className = page === currentPage ? "h-9 min-w-9 rounded-lg bg-teal-700 px-3 text-sm font-semibold text-white" : "h-9 min-w-9 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300";
-        button.addEventListener("click", () => { currentPage = page; render(); });
+        button.className =
+          page === currentPage
+            ? "h-9 min-w-9 rounded-lg bg-teal-700 px-3 text-sm font-semibold text-white"
+            : "h-9 min-w-9 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300";
+        button.addEventListener("click", () => {
+          currentPage = page;
+          render();
+        });
         pageNumbers.append(button);
       }
     }
   }
 
-  search?.addEventListener("input", () => { currentPage = 1; render(); });
-  filter?.addEventListener("change", () => { currentPage = 1; render(); });
-  previous?.addEventListener("click", () => { currentPage -= 1; render(); });
-  next?.addEventListener("click", () => { currentPage += 1; render(); });
-  loadCertificates().catch((error) => { console.error("Student certificates failed to load:", error); if (message) message.textContent = "Your certificates could not be loaded. Please refresh and try again."; });
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    render();
+  });
+  filter?.addEventListener("change", () => {
+    currentPage = 1;
+    render();
+  });
+  previous?.addEventListener("click", () => {
+    currentPage -= 1;
+    render();
+  });
+  next?.addEventListener("click", () => {
+    currentPage += 1;
+    render();
+  });
+  loadCertificates().catch((error) => {
+    console.error("Student certificates failed to load:", error);
+    if (message)
+      message.textContent =
+        "Your certificates could not be loaded. Please refresh and try again.";
+  });
 </script>

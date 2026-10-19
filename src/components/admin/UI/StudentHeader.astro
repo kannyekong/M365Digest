@@ -1,7 +1,9 @@
 ---
 import StudentClockWidget from "../../../islands/student/StudentClockWidget";
+import StudentNotificationBell from "../../../islands/student/StudentNotificationBell";
 import UpcomingSessionWidget from "../../../islands/student/UpcomingSessionWidget";
 import StudentUserMenu from "../../../islands/StudentUserMenu";
+import StudentMobileNavigation from "../../../islands/student/StudentMobileNavigation";
 import { ArrowLeft } from "lucide-astro";
 
 interface Props {
@@ -22,9 +24,12 @@ const {
 ---
 
 <div class="sticky top-0 z-40 bg-white dark:bg-slate-950">
-  <header class="border-b border-slate-200 dark:border-slate-800 px-5">
-    <div class="flex items-center justify-between py-2">
-      <section>
+  <header class="border-b border-slate-200 px-5 dark:border-slate-800">
+    <!-- Mobile-only global navigation: logo left, hamburger right. -->
+    <StudentMobileNavigation client:load currentPath={Astro.url.pathname} />
+
+    <div class="flex items-center justify-between gap-4 py-2">
+      <section class="min-w-0">
         {
           backHref && (
             <a
@@ -60,9 +65,12 @@ const {
         }
       </section>
 
-      <div class="flex flex-row items-center justify-between">
-        <UpcomingSessionWidget client:load/>
-        <StudentUserMenu client:load />
+      <div class="flex shrink-0 flex-row items-center gap-3">
+        <span class="hidden md:block"
+          ><UpcomingSessionWidget client:load /></span
+        >
+        <span class="hidden md:flex"><StudentNotificationBell client:load /></span>
+        <span><StudentUserMenu client:load /></span>
       </div>
     </div>
   </header>

@@ -503,7 +503,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
     <div className="space-y-6">
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="flex flex-col justify-center p-7 md:p-10 lg:p-12">
+          <div className="flex flex-col justify-center p-3 md:p-8">
             <div className="flex flex-wrap items-center gap-2">
               {program.code && (
                 <span className="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">

@@ -86,7 +86,7 @@ export default function AnalogClockWidget({
   return (
     <section className="w-full rounded-2xl bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col items-center gap-3">
-        <div className="relative aspect-square w-full max-w-[150px]">
+        <div className="relative aspect-square w-full max-w-[120px]">
           <svg
             viewBox="0 0 200 200"
             role="img"
@@ -116,7 +116,7 @@ export default function AnalogClockWidget({
                   stroke="currentColor"
                   className={
                     isHourMark
-                      ? "text-slate-500 dark:text-slate-300"
+                      ? "text-black dark:text-slate-300"
                       : "text-slate-300 dark:text-slate-600"
                   }
                   strokeWidth={isHourMark ? 2.5 : 1}
@@ -154,7 +154,7 @@ export default function AnalogClockWidget({
               y2="62"
               transform={`rotate(${hourAngle} 100 100)`}
               stroke="currentColor"
-              className="text-slate-800 dark:text-white"
+              className="text-orange-500 dark:text-white"
               strokeWidth="5"
               strokeLinecap="round"
             />
@@ -166,7 +166,7 @@ export default function AnalogClockWidget({
               y2="39"
               transform={`rotate(${minuteAngle} 100 100)`}
               stroke="currentColor"
-              className="text-slate-600 dark:text-slate-300"
+              className="text-orange-500 dark:text-white"
               strokeWidth="3"
               strokeLinecap="round"
             />
@@ -177,12 +177,13 @@ export default function AnalogClockWidget({
               x2="100"
               y2="31"
               transform={`rotate(${secondAngle} 100 100)`}
-              stroke="#0d9488"
+              stroke="currentColor"
+              className="text-orange-500 dark:text-white"
               strokeWidth="1.5"
               strokeLinecap="round"
             />
 
-            <circle cx="100" cy="100" r="5" fill="#0d9488" />
+            <circle cx="100" cy="100" r="5" fill="currentColor" className="text-orange-500 dark:text-white" />
           </svg>
         </div>
 

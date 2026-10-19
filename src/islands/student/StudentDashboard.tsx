@@ -3,14 +3,18 @@ import {
   ArrowRight,
   Award,
   BookOpen,
-  CheckCircle2,
   Clock3,
-  GraduationCap,
   LibraryBig,
-  PlayCircle,
-  TrendingUp,
+  CheckCircle,
+  Medal,
+  Podium,
+  Footprints,
+  GraduationCap,
+  Laptop,
+  BookmarkCheck,
+  Shapes,
 } from "lucide-react";
-
+import SummaryCard from "../../components/student/SummaryCard";
 import { getSession } from "../../lib/auth";
 import { studentSupabase } from "../../lib/superbase";
 import ProgramCarousel from "./ProgramCarousel";
@@ -25,6 +29,7 @@ type EnrollmentProgram = {
   id: string;
   title: string;
   slug: string;
+  status: string;
 };
 
 type Enrollment = {
@@ -111,6 +116,7 @@ export default function StudentDashboard() {
             academy_programs (
               id,
               title,
+              status,
               slug
             )
           `
@@ -185,10 +191,14 @@ export default function StudentDashboard() {
     loadDashboard();
   }, []);
 
-  // Calculates course-level progress from the student's lesson progress records.
+  /* Calculates course progress while excluding archived programs. */
   const courseSummaries = useMemo<CourseSummary[]>(() => {
     return enrollments
-      .filter((enrollment) => enrollment.academy_programs)
+      .filter(
+        (enrollment) =>
+          enrollment.academy_programs &&
+          enrollment.academy_programs.status !== "archived"
+      )
       .map((enrollment) => {
         const program = enrollment.academy_programs!;
 
@@ -349,7 +359,7 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen p-5">
       <div className="mx-auto max-w-[1600px] space-y-6">
-        <section className="relative isolate overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 text-white p-8 shadow-sm md:p-7">
+        <section className="relative isolate overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 text-white p-6 shadow-sm md:p-7">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -358,7 +368,7 @@ export default function StudentDashboard() {
 
             <div className="absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-teal-300/20 blur-3xl"></div>
 
-            <BookOpen
+            <Shapes
               aria-hidden="true"
               className="absolute -right-4 top-1/2 h-48 w-48 -translate-y-1/2 rotate-[-10deg] text-white/[0.13] sm:right-36 sm:h-64 sm:w-64 lg:right-64 lg:h-70 lg:w-80"
               strokeWidth={1}
@@ -389,109 +399,55 @@ export default function StudentDashboard() {
 
         <section className="grid gap-5 xl:grid-cols-2">
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-blue-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                    Enrolled Courses
-                  </p>
+            <SummaryCard
+              title="Enrolled Courses"
+              value={stats.totalCourses}
+              valueColor="text-primary"
+              icon={BookOpen}
+              watermarkIcon={Laptop}
+              accentColor="text-primary"
+              iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
+              iconColor="text-blue-600 dark:text-blue-400"
+              href="/student/courses"
+              linkLabel="Browse"
+            />
 
-                  <p className="mt-3 text-3xl font-bold text-primary dark:text-white">
-                    {stats.totalCourses}
-                  </p>
-                  <a
-                    href="/student/courses"
-                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-primary dark:text-green-400"
-                  >
-                    Browse
-                    <ArrowRight
-                      size={14}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </a>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
-                  <BookOpen size={20} />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-orange-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
-                    In Progress
-                  </p>
-
-                  <p className="mt-3 text-3xl font-bold text-orange-500 dark:text-white">
-                    {stats.inProgress}
-                  </p>
-
-                  <a
-                    href="/student/courses"
-                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-orange-500 dark:text-orange-400"
-                  >
-                    View
-                    <ArrowRight
-                      size={14}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </a>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-                  <PlayCircle size={20} />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-green-500 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-green-600">
-                    Completed
-                  </p>
-
-                  <p className="mt-3 text-3xl font-bold text-green-600 dark:text-white">
-                    {stats.completed}
-                  </p>
-
-                  <a
-                    href="/student/certificate"
-                    className="mt-4 flex items-center gap-1 text-sm font-semibold text-green-600 dark:text-green-400"
-                  >
-                    View
-                    <ArrowRight
-                      size={14}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </a>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
-                  <CheckCircle2 size={20} />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-purple-300 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-start justify-between">
-                <div className="flex h-full flex-col">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-purple-500">
-                    Overall Progress
-                  </p>
-
-                  <p className="mt-3 text-3xl font-bold text-purple-600 dark:text-white">
-                    {stats.overallProgress}%
-                  </p>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
-                  <TrendingUp size={20} />
-                </div>
-              </div>
-            </div>
+            <SummaryCard
+              title="In Progress"
+              value={stats.inProgress}
+              valueColor="text-orange-600"
+              icon={Podium}
+              watermarkIcon={Footprints}
+              accentColor="text-orange-600"
+              iconBackgroundColor="bg-orange-50 dark:bg-orange-950/40"
+              iconColor="text-orange-600 dark:text-orange-400"
+              href="/student/courses"
+              linkLabel="Browse"
+            />
+            <SummaryCard
+              title="Completed"
+              value={stats.completed}
+              valueColor="text-green-600"
+              icon={CheckCircle}
+              watermarkIcon={BookmarkCheck}
+              accentColor="text-green-600"
+              iconBackgroundColor="bg-green-50 dark:bg-green-950/40"
+              iconColor="text-green-600 dark:text-green-400"
+              href="/student/courses"
+              linkLabel="Browse"
+            />
+            <SummaryCard
+              title="Overall Progress"
+              value={stats.overallProgress + "%"}
+              valueColor="text-blue-600"
+              icon={Medal}
+              watermarkIcon={GraduationCap}
+              accentColor="text-blue-600"
+              iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
+              iconColor="text-blue-600 dark:text-blue-400"
+              href="/student/progress"
+              linkLabel="View Progress"
+            />
           </div>
 
           <ProgramCarousel
@@ -596,7 +552,7 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <a
               href="/student/courses"
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              className="group rounded-2xl border border-blue-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
                 <BookOpen size={21} />
@@ -621,7 +577,7 @@ export default function StudentDashboard() {
 
             <a
               href="/student/resources"
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              className="group rounded-2xl border border-green-300 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
                 <LibraryBig size={21} />
@@ -646,10 +602,10 @@ export default function StudentDashboard() {
 
             <a
               href="/student/progress"
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              className="group rounded-2xl border border-purple-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
-                <TrendingUp size={21} />
+                <Footprints size={21} />
               </div>
 
               <h3 className="mt-5 font-semibold text-slate-900 dark:text-white">
@@ -670,8 +626,8 @@ export default function StudentDashboard() {
             </a>
 
             <a
-              href="/student/certificates"
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              href="/student/certificate"
+              className="group rounded-2xl border border-orange-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-400">
                 <Award size={21} />
@@ -747,7 +703,7 @@ export default function StudentDashboard() {
                   href={`/student/courses/${course.slug}`}
                   className="group flex flex-col gap-5 p-6 transition hover:bg-slate-50 dark:hover:bg-slate-800/40 md:flex-row md:items-center"
                 >
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-slate-800 dark:text-slate-500">
                     <GraduationCap size={25} />
                   </div>
 
@@ -757,7 +713,19 @@ export default function StudentDashboard() {
                         {course.title}
                       </h3>
 
-                      <span className="w-fit rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      <span
+                        className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                          course.status.toLowerCase() === "active"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : course.status.toLowerCase() === "completed"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : course.status.toLowerCase() === "paused"
+                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                : course.status.toLowerCase() === "pending"
+                                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                                  : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                        }`}
+                      >
                         {course.status}
                       </span>
                     </div>

@@ -1,6 +1,6 @@
 ---
 import { Picture } from "astro:assets";
-import { Image, Wallpaper } from "lucide-astro";
+import { Check, Image, Users, Wallpaper } from "lucide-astro";
 import {
   Presentation,
   FlaskConical,
@@ -15,12 +15,68 @@ import {
   Play,
 } from "lucide-react";
 
+import { getPublishedAcademyPrograms } from "../../lib/academy";
+import type { AcademyProgram } from "../../types/academy";
+
 interface Props {
   videoUrl?: string;
 }
 
-const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
-  Astro.props;
+// Fetch published Academy programs from the existing Supabase service.
+const programRecords = await getPublishedAcademyPrograms();
+
+// Ensure the pricing calculation receives a valid array of programs.
+const programs: AcademyProgram[] = Array.isArray(programRecords)
+  ? programRecords.filter((program): program is AcademyProgram =>
+      Boolean(program)
+    )
+  : [];
+
+// Keep only programs that are configured to display a valid price.
+const pricedPrograms = programs.filter((program) => {
+  const amount = program.discount_price ?? program.price;
+
+  return program.show_price && Number.isFinite(amount) && amount >= 0;
+});
+
+// Find the lowest available published program price, accounting for discounts.
+const lowestProgramPrice =
+  pricedPrograms.length > 0
+    ? Math.min(
+        ...pricedPrograms.map(
+          (program) => program.discount_price ?? program.price
+        )
+      )
+    : null;
+
+// Match the currency to the program supplying the lowest price.
+const lowestProgramCurrency =
+  pricedPrograms.find(
+    (program) =>
+      (program.discount_price ?? program.price) === lowestProgramPrice
+  )?.currency || "NGN";
+
+/**
+ * Format the lowest published program price using its configured currency.
+ */
+function formatPricingAmount(
+  amount: number | null,
+  currency: string = "NGN"
+): string {
+  if (amount === null) {
+    return "Contact us";
+  }
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString("en-US")}`;
+  }
+}
 ---
 
 <section>
@@ -360,76 +416,184 @@ const { videoUrl = "https://www.youtube.com/embed/YOUR_VIDEO_ID" } =
         </style>
       </div>
 
-      <div class="relative lg:sticky">
+      {/* Pricing-card stack for the homepage's right-hand column. */}
+
+      <div
+        class="relative isolate mx-auto w-full max-w-[650px] space-y-5 lg:min-h-[630px] lg:space-y-0"
+      >
         <div
-          class="absolute -inset-6 -z-10 rounded-[2.5rem] bg-primary/5 blur-3xl"
+          class="absolute inset-10 -z-10 rounded-full bg-primary/10 blur-3xl"
           aria-hidden="true"
         >
         </div>
 
-        <div
-          class="overflow-hidden rounded-3xl border border-slate-300 bg-card shadow-xl"
+        <article
+          class="group relative z-10 w-full rounded-3xl border border-box-border bg-box-bg p-5 shadow-lg transition duration-300 hover:shadow-2xl lg:absolute lg:left-0 lg:top-0 lg:w-[76%] lg:p-6 lg:hover:z-40 lg:hover:-translate-y-3"
         >
-          <div
-            class="flex items-center justify-between border-b border-border bg-muted/40 px-5 py-4"
-          >
-            <div class="flex items-center gap-3">
-              <div class="flex gap-1.5" aria-hidden="true">
-                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
-                ></span>
-                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
-                ></span>
-                <span class="h-2.5 w-2.5 rounded-full bg-muted-foreground/30"
-                ></span>
-              </div>
+          <div class="flex items-center justify-between gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"
+            >
+              <BookOpen size={20} />
             </div>
 
             <span
-              class="rounded-full bg-blue-700 px-3 py-1 text-xs font-medium text-white"
+              class="text-[10px] font-bold uppercase tracking-wider text-primary"
             >
-              Hands-on Learning
+              Self-paced
             </span>
           </div>
 
-          <div class="relative aspect-video bg-black">
-            <img src="images/trainingbanner.png" />
-          </div>
+          <h3 class="mt-4 text-lg font-bold text-heading-1">
+            Individual Program
+          </h3>
 
-          <div class="p-5 sm:p-6">
-            <div class="flex items-start gap-4">
-              <div
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 dark:border border-white"
-              >
-                <Wallpaper className="h-5 w-5 text-primary" />
-              </div>
+          <p class="mt-1 text-sm leading-6 text-heading-3">
+            Build practical skills around your technology or career goals.
+          </p>
 
-              <div>
-                <h3
-                  class="font-semibold text-foreground sm:text-lg dark:text-white"
-                >
-                  See how we learn at CloudTweak
-                </h3>
-
-                <p
-                  class="mt-1 text-sm leading-6 text-muted-foreground dark:text-white"
-                >
-                  Watch a preview of our instructor-led, hands-on learning
-                  experience and discover how we turn technical concepts into
-                  practical skills.
-                </p>
-              </div>
-            </div>
-
-            <div
-              class="mt-5 flex flex-wrap gap-x-2 md:gap-x-5 gap-y-2 border-t border-slate-300 pt-5 text-xs font-medium text-muted-foreground sm:text-sm dark:text-white"
+          <div class="mt-4">
+            <p
+              class="text-[10px] font-semibold uppercase tracking-widest text-heading-3"
             >
-              <span>Instructor-led</span>
-              <span>Hands-on</span>
-              <span>Project-based</span>
-              <span>Career-focused</span>
-            </div>
+              Programs from
+            </p>
+
+            <p class="mt-1 text-2xl font-extrabold text-heading-1">
+              {
+                lowestProgramPrice !== null
+                  ? formatPricingAmount(
+                      lowestProgramPrice,
+                      lowestProgramCurrency
+                    )
+                  : "Contact us"
+              }
+            </p>
           </div>
-        </div>
+
+          <a
+            href="/academy"
+            class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          >
+            Explore programs
+            <ArrowRight size={16} />
+          </a>
+        </article>
+
+        <article
+          class="group relative z-20 w-full overflow-hidden rounded-3xl border border-primary/30 bg-primary p-5 text-white shadow-2xl transition duration-300 hover:shadow-primary/30 lg:absolute lg:right-0 lg:top-[170px] lg:w-[82%] lg:p-6 lg:hover:z-50 lg:hover:-translate-y-3"
+        >
+          <div
+            class="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/15 blur-2xl"
+            aria-hidden="true"
+          >
+          </div>
+
+          <div class="relative">
+            <div class="flex items-center justify-between gap-3">
+              <span
+                class="rounded-full bg-white/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider"
+              >
+                Most popular
+              </span>
+
+              <GraduationCap size={22} />
+            </div>
+
+            <h3 class="mt-4 text-xl font-bold">Professional Learning</h3>
+
+            <p class="mt-1 text-sm leading-6 text-white/80">
+              A guided path to deeper technical skills and professional
+              confidence.
+            </p>
+
+            <div class="mt-4">
+              <p
+                class="text-[10px] font-semibold uppercase tracking-widest text-white/70"
+              >
+                Start with
+              </p>
+
+              <p class="mt-1 text-3xl font-extrabold">
+                {
+                  lowestProgramPrice !== null
+                    ? formatPricingAmount(
+                        lowestProgramPrice,
+                        lowestProgramCurrency
+                      )
+                    : "Program-based"
+                }
+              </p>
+            </div>
+
+            <ul class="mt-4 space-y-2 text-sm text-white/95">
+              <li class="flex items-center gap-2">
+                <Check size={15} />
+                Guided learning
+              </li>
+
+              <li class="flex items-center gap-2">
+                <Check size={15} />
+                Hands-on labs and assessments
+              </li>
+
+              <li class="flex items-center gap-2">
+                <Check size={15} />
+                Certificate on eligible programs
+              </li>
+            </ul>
+
+            <a
+              href="/student/register"
+              class="mt-5 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-bold text-slate-950 transition hover:bg-slate-100"
+            >
+              Start learning
+              <ArrowRight size={16} />
+            </a>
+          </div>
+        </article>
+
+        <article
+          class="group relative z-30 w-full rounded-3xl border border-box-border bg-box-bg p-5 shadow-xl transition duration-300 hover:shadow-2xl lg:absolute lg:bottom-0 lg:left-0 lg:w-[76%] lg:p-6 lg:hover:z-50 lg:hover:-translate-y-3"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400"
+            >
+              <Users size={20} />
+            </div>
+
+            <span
+              class="text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400"
+            >
+              For organizations
+            </span>
+          </div>
+
+          <h3 class="mt-4 text-lg font-bold text-heading-1">Team Training</h3>
+
+          <p class="mt-1 text-sm leading-6 text-heading-3">
+            Training tailored to your organization's technology needs.
+          </p>
+
+          <div class="mt-4">
+            <p
+              class="text-[10px] font-semibold uppercase tracking-widest text-heading-3"
+            >
+              Pricing
+            </p>
+
+            <p class="mt-1 text-2xl font-extrabold text-heading-1">Custom</p>
+          </div>
+
+          <a
+            href="#contact"
+            class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          >
+            Discuss team training
+            <ArrowRight size={16} />
+          </a>
+        </article>
       </div>
     </div>
   </div>

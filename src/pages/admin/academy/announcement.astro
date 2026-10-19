@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import AcademyAnnouncements from "../../../components/admin/academy/AcademyAnnouncement";
+---
+
+<AdminLayout title="Academy Announcements">
+  <Header title="Academy Categories" />
+  <main class="space-y-8 lg:p-5">
+    <AcademyAnnouncements client:load />
+  </main>
+</AdminLayout>
