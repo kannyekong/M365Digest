@@ -107,7 +107,7 @@ export default function AcademyChat({ role }: Props) {
     try {
       const result = await request("/api/academy/chat", {
         method: "POST",
-        body: JSON.stringify({ conversationId: conversation?.id ?? selectedId || undefined, body: draft.trim() }),
+        body: JSON.stringify({ conversationId: (conversation?.id ?? selectedId) || undefined, body: draft.trim() }),
       });
       setDraft("");
       setMessages((current) => [...current, result.message as ChatMessage]);
