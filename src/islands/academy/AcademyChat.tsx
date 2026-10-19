@@ -148,7 +148,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
           </div>
         </aside>
       )}
-      <section className="flex min-h-[650px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <section className={floating && role === "student" ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-white dark:bg-slate-950" : "flex min-h-[650px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"}>
         <header className="flex items-center gap-3 border-b border-slate-200 p-5 dark:border-slate-800">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300"><MessageCircle size={21} /></div>
           <div className="min-w-0 flex-1">
@@ -157,7 +157,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
           </div>
           <button type="button" onClick={() => { setRefreshing(true); void load(); }} aria-label="Refresh messages" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><RefreshCw size={16} className={refreshing ? "animate-spin" : ""} /></button>
         </header>
-        <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-4 dark:bg-slate-900/40 sm:p-6">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-4 dark:bg-slate-900/40 sm:p-6">
           {loading ? <div className="flex h-full items-center justify-center text-sm text-slate-500"><LoaderCircle className="mr-2 animate-spin" size={18} />Loading conversation…</div> :
             messages.map((message) => {
               const own = message.sender_role === role;
@@ -201,5 +201,4 @@ export default function AcademyChat({ role, floating = false }: Props) {
   }
 
   return chatPanel;
-}
 }
