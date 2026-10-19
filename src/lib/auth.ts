@@ -1,6 +1,14 @@
-import { supabase } from "./superbase";
+import { supabase, studentSupabase } from "./superbase";
 
 export async function login(email: string, password: string) {
+  return studentSupabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+}
+
+// Authenticate an administrator using the shared admin and public-site session.
+export async function adminLogin(email: string, password: string) {
   return supabase.auth.signInWithPassword({
     email,
     password,
@@ -8,10 +16,20 @@ export async function login(email: string, password: string) {
 }
 
 export async function logout() {
+  return studentSupabase.auth.signOut();
+}
+
+// Sign out the administrator from the shared Supabase client.
+export async function adminLogout() {
   return supabase.auth.signOut();
 }
 
 export async function getSession() {
+  return studentSupabase.auth.getSession();
+}
+
+// Retrieve the session belonging to the shared admin/public-site client.
+export async function getAdminSession() {
   return supabase.auth.getSession();
 }
 
@@ -23,7 +41,7 @@ export async function registerStudent(
   firstName: string,
   lastName: string
 ) {
-  return supabase.auth.signUp({
+  return studentSupabase.auth.signUp({
     email,
     password,
     options: {
@@ -39,7 +57,7 @@ export async function registerStudent(
 
 // Verifies the email address using the OTP sent by Supabase Auth.
 export async function verifyStudentEmail(email: string, token: string) {
-  return supabase.auth.verifyOtp({
+  return studentSupabase.auth.verifyOtp({
     email,
     token,
     type: "email",
@@ -49,7 +67,7 @@ export async function verifyStudentEmail(email: string, token: string) {
 // Resends the student email-verification OTP when the previous code
 // has expired or the student did not receive the original message.
 export async function resendStudentVerification(email: string) {
-  return supabase.auth.resend({
+  return studentSupabase.auth.resend({
     type: "signup",
     email,
   });

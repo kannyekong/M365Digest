@@ -70,7 +70,7 @@ const sections: AdminNavigationItem[] = [
       },
 
       {
-        title: "Live Meetings",
+        title: "Live Sessions",
         href: "/admin/academy/livesessions",
       },
 
@@ -89,6 +89,14 @@ const sections: AdminNavigationItem[] = [
       {
         title: "Certificates",
         href: "/admin/academy/certificates",
+      },
+      {
+        title: "Support Requests",
+        href: "/admin/academy/support-requests",
+      },
+      {
+        title: "Student Chat",
+        href: "/admin/academy/chat",
       },
       {
         title: "Categories",
@@ -445,6 +453,6 @@ const currentPath = Astro.url.pathname;
   </nav>
 
   <div class="mt-auto px-6 py-3 pb-8 text-red-500">
-    <LogoutButton client:load />
+    <LogoutButton userType="admin" client:load />
   </div>
 </aside>

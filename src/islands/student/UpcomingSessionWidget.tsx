@@ -1,145 +1,173 @@
-import { ArrowRight, CalendarDays, Clock3, Presentation, Video } from "lucide-react";
+import { CalendarDays, Video } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getNextStudentLiveSession } from "../../lib/academy";
+import {
+  getNextStudentLiveSession,
+  getStudentLiveSessions,
+} from "../../lib/academy";
 import type { UpcomingSession } from "../../types/academy";
 
+type DashboardSession = UpcomingSession & {
+  status?: "scheduled" | "cancelled" | "completed";
+};
+
+// Displays the next scheduled session and session counts in the dashboard header.
 export default function UpcomingSessionWidget() {
   const [session, setSession] = useState<UpcomingSession | null>(null);
+  const [sessions, setSessions] = useState<DashboardSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Loads the next available live session for the authenticated student.
-   */
+  // Loads the next session and the complete session list.
   useEffect(() => {
+    let isMounted = true;
+
     async function loadSession() {
       try {
         setLoading(true);
         setError(null);
 
-        const nextSession = await getNextStudentLiveSession();
+        const [nextSession, allSessions] = await Promise.all([
+          getNextStudentLiveSession(),
+          getStudentLiveSessions(),
+        ]);
 
-        setSession(nextSession);
+        if (isMounted) {
+          setSession(nextSession);
+          setSessions(allSessions);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to load the upcoming session."
-        );
+        console.error("Failed to load upcoming sessions:", err);
+
+        if (isMounted) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Unable to load upcoming sessions."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
-    loadSession();
+    void loadSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  if (loading) {
+  // Formats dates and times in the browser's local timezone.
+  const formatSessionDate = (date: Date) =>
+    new Intl.DateTimeFormat("en-NG", {
+      day: "numeric",
+      month: "short",
+    }).format(date);
+
+  const formatSessionTime = (date: Date) =>
+    new Intl.DateTimeFormat("en-NG", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+
+  const now = Date.now();
+
+  const upcomingCount = sessions.filter((item) => {
+    const start = new Date(item.startAt).getTime();
+
+    return item.status === "scheduled" && Number.isFinite(start) && start > now;
+  }).length;
+
+  const liveCount = sessions.filter((item) => {
+    const start = new Date(item.startAt).getTime();
+    const end = item.endAt ? new Date(item.endAt).getTime() : NaN;
+
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-4 h-6 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-      </div>
+      item.status === "scheduled" &&
+      Number.isFinite(start) &&
+      Number.isFinite(end) &&
+      start <= now &&
+      now <= end
     );
-  }
+  }).length;
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          <Video className="h-4 w-4 text-primary" />
-          Upcoming Session
-        </div>
-
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          Unable to load your upcoming session.
-        </p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-orange-600">
-          <Video className="h-4 w-4 text-orange-600" />
-          Upcoming Session
-        </div>
-
-        <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-200">
-          No upcoming sessions
-        </p>
-
-        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-          Your next live class will appear here when scheduled.
-        </p>
-      </div>
-    );
-  }
-
-  const startDate = new Date(session.startAt);
-
-  const formattedDate = new Intl.DateTimeFormat("en-NG", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  }).format(startDate);
-
-  const formattedTime = new Intl.DateTimeFormat("en-NG", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  }).format(startDate);
-
-  const platformLabel = {
-    teams: "Microsoft Teams",
-    zoom: "Zoom",
-    google_meet: "Google Meet",
-    other: "Online Session",
-  }[session.platform];
+  const startDate = session?.startAt ? new Date(session.startAt) : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-orange-600">
-        <Video className="h-4 w-4 text-orange-600" />
-        Upcoming Session
+    <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
+      <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 sm:flex">
+        <CalendarDays className="h-4 w-4" />
       </div>
 
-      <h3 className="mt-3 line-clamp-2 text-sm font-bold text-slate-900 dark:text-white">
-        {session.title}
-      </h3>
+      <div className="min-w-0 flex-1 mr-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
+          Upcoming session
+        </p>
 
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <CalendarDays className="h-4 w-4 shrink-0" />
-          <span>{formattedTime}</span> • <span>{formattedDate}</span>
-        </div>
+        {loading ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Loading session...
+          </p>
+        ) : error ? (
+          <p
+            className="max-w-[200px] truncate text-xs text-red-600 dark:text-red-400"
+            title={error}
+          >
+            Session unavailable
+          </p>
+        ) : !session ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            No upcoming sessions
+          </p>
+        ) : (
+          <>
+            <p
+              className="max-w-[190px] truncate text-xs font-semibold text-slate-900 dark:text-white"
+              title={session.title}
+            >
+              {session.title}
+            </p>
 
-        <div className="text-xs font-medium text-slate-400 dark:text-slate-500">
-          Venue: {platformLabel}
-        </div>
+            {startDate && (
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                {formatSessionDate(startDate)} · {formatSessionTime(startDate)}
+              </p>
+            )}
+            <div className="flex shrink-0 items-center gap-2">
+              <a
+                href="/student/live-sessions"
+                className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700 transition hover:bg-orange-100 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-950"
+                aria-label={`View upcoming sessions: ${upcomingCount}`}
+              >
+                Upcoming ({loading || error ? "—" : upcomingCount})
+              </a>
+
+              <a
+                href="/student/live-sessions"
+                className="rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700 transition hover:bg-green-100 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950"
+                aria-label={`View live sessions: ${liveCount}`}
+              >
+                Live ({loading || error ? "—" : liveCount})
+              </a>
+              {session && !loading && !error && (
+                <a
+                  href={session.meetingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Join ${session.title}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-white transition hover:opacity-90"
+                >
+                  <Video className="h-3.5 w-3.5" />
+                  Join
+                </a>
+              )}
+            </div>
+          </>
+        )}
       </div>
-
-      <a
-        href={session.meetingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
-      >
-        Join this Session
-        <ArrowRight className="h-4 w-4" />
-      </a>
-      <a
-        href={session.meetingUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-3 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
-      >
-        View all Sessions
-        <Presentation className="h-4 w-4" />
-      </a>
     </div>
   );
 }

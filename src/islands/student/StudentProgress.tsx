@@ -59,8 +59,8 @@ export default function StudentProgress() {
   // Display responsive loading placeholders while course progress loads.
   if (loading) {
     return (
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
             className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
@@ -105,7 +105,7 @@ export default function StudentProgress() {
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {courses.map((course) => {
         // Determine whether this course has reached full completion.
         const isCompleted =
@@ -169,7 +169,7 @@ export default function StudentProgress() {
             <div className="border-t border-slate-200 p-4 dark:border-slate-800">
               <a
                 href={`/student/courses/${course.slug}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
               >
                 Go to Course
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

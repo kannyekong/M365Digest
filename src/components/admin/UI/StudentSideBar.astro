@@ -1,9 +1,7 @@
 ---
 import LogoutButton from "../../../islands/LogoutButton";
 
-import StudentClockWidget from "../../../islands/student/StudentClockWidget";
-
-import UpcomingSessionWidget from "../../../islands/student/UpcomingSessionWidget";
+import AnalogClockWidget from "../../../islands/student/AnalogClockWidget";
 
 import StudentSidebarNavigation, {
   type StudentNavigationItem,
@@ -25,10 +23,16 @@ const sections: StudentNavigationItem[] = [
     icon: "courses",
     href: "/student/courses",
   },
+
   {
     title: "Resources",
     icon: "resources",
     href: "/student/resources",
+  },
+  {
+    title: "Live Sessions",
+    icon: "live-sessions",
+    href: "/student/live-sessions",
   },
   {
     title: "My Progress",
@@ -38,7 +42,7 @@ const sections: StudentNavigationItem[] = [
   {
     title: "Certificates",
     icon: "certificates",
-    href: "/student/certificates",
+    href: "/student/certificate",
   },
   {
     title: "Payment History",
@@ -49,6 +53,11 @@ const sections: StudentNavigationItem[] = [
     title: "Report a problem",
     icon: "support",
     href: "/student/report-problem",
+  },
+  {
+    title: "Chat with Support",
+    icon: "support",
+    href: "/student/chat",
   },
   {
     title: "Account Settings",
@@ -63,18 +72,12 @@ const currentPath = Astro.url.pathname;
 <aside class="sticky top-0 flex h-screen w-62 flex-col dark:bg-black">
   <a
     href="/student/dashboard"
-    class="border-b border-r border-slate-100 p-6 dark:border-slate-800"
+    class="border-b border-r p-4 border-slate-100 dark:border-slate-800"
   >
     <img
       src="/logos/cloudtweaklogo.png"
       alt="CloudTweak"
-      class="w-3/4 object-contain dark:hidden"
-    />
-
-    <img
-      src="/logos/cloudtweakwhite.png"
-      alt="CloudTweak"
-      class="hidden w-3/4 object-contain dark:block"
+      class="w-3/4 items-center justify-center object-contain dark:hidden"
     />
   </a>
 
@@ -91,8 +94,7 @@ const currentPath = Astro.url.pathname;
   <div
     class="grid grid-1 gap-3 mt-auto space-y-4 border-r border-slate-100 px-4 py-4 dark:border-slate-800"
   >
-    <UpcomingSessionWidget client:load />
-
-    <LogoutButton client:load />
+    <AnalogClockWidget client:load />
+    <LogoutButton userType="student" client:load />
   </div>
 </aside>

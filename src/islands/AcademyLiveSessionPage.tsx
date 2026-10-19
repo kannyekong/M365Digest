@@ -23,6 +23,31 @@ interface ProgramOption {
   title: string;
 }
 
+type SessionTargetType = "module" | "lesson" | "resource";
+
+interface ModuleOption {
+  id: string;
+  program_id: string;
+  title: string;
+}
+
+interface LessonOption {
+  id: string;
+  module_id: string;
+  title: string;
+}
+
+interface ResourceOption {
+  id: string;
+  lesson_id: string;
+  title: string;
+}
+
+interface SessionTargetOption {
+  id: string;
+  title: string;
+}
+
 interface LiveSession {
   id: string;
   program_id: string;
@@ -136,7 +161,6 @@ function getStatusClasses(status: SessionStatus) {
 export default function AcademyLiveSessionsPage() {
   const [sessions, setSessions] = useState<LiveSession[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -158,6 +182,16 @@ export default function AcademyLiveSessionsPage() {
   );
 
   const [form, setForm] = useState<SessionForm>(emptyForm);
+
+  const [targetType, setTargetType] = useState<SessionTargetType>("module");
+
+  const [targetId, setTargetId] = useState("");
+
+  const [modules, setModules] = useState<ModuleOption[]>([]);
+  const [lessons, setLessons] = useState<LessonOption[]>([]);
+  const [resources, setResources] = useState<ResourceOption[]>([]);
+
+  const [loadingTargets, setLoadingTargets] = useState(false);
 
   /**
    * Load available Academy programs for the session form and filter.
@@ -289,12 +323,96 @@ export default function AcademyLiveSessionsPage() {
     }
   }, [errorMessage]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTargets() {
+      if (!form.programId) {
+        setModules([]);
+        setLessons([]);
+        setResources([]);
+        return;
+      }
+
+      setLoadingTargets(true);
+
+      try {
+        const { data: moduleData, error: moduleError } = await supabase
+          .from("academy_program_modules")
+          .select("id, program_id, title")
+          .eq("program_id", form.programId)
+          .order("display_order", { ascending: true });
+
+        if (moduleError) throw moduleError;
+
+        const loadedModules = (moduleData ?? []) as ModuleOption[];
+        const moduleIds = loadedModules.map((module) => module.id);
+
+        let loadedLessons: LessonOption[] = [];
+        let loadedResources: ResourceOption[] = [];
+
+        if (moduleIds.length > 0) {
+          const { data: lessonData, error: lessonError } = await supabase
+            .from("academy_program_lessons")
+            .select("id, module_id, title")
+            .in("module_id", moduleIds)
+            .order("display_order", { ascending: true });
+
+          if (lessonError) throw lessonError;
+
+          loadedLessons = (lessonData ?? []) as LessonOption[];
+
+          const lessonIds = loadedLessons.map((lesson) => lesson.id);
+
+          if (lessonIds.length > 0) {
+            const { data: resourceData, error: resourceError } = await supabase
+              .from("academy_program_resources")
+              .select("id, lesson_id, title")
+              .in("lesson_id", lessonIds)
+              .order("display_order", { ascending: true });
+
+            if (resourceError) throw resourceError;
+
+            loadedResources = (resourceData ?? []) as ResourceOption[];
+          }
+        }
+
+        if (!cancelled) {
+          setModules(loadedModules);
+          setLessons(loadedLessons);
+          setResources(loadedResources);
+        }
+      } catch (error) {
+        console.error("Failed to load session targets:", error);
+
+        if (!cancelled) {
+          setModules([]);
+          setLessons([]);
+          setResources([]);
+          setErrorMessage("Could not load modules, lessons, or resources.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingTargets(false);
+        }
+      }
+    }
+
+    void loadTargets();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.programId]);
+
   /**
    * Open the create-session modal with a clean form.
    */
   function openCreateModal() {
     setForm(emptyForm);
     setEditingSession(null);
+    setTargetType("module");
+    setTargetId("");
     setShowCreateModal(true);
   }
 
@@ -315,6 +433,19 @@ export default function AcademyLiveSessionsPage() {
       endAt: toDateTimeLocal(session.end_at),
       isPublished: session.is_published,
     });
+    if (session.resource_id) {
+      setTargetType("resource");
+      setTargetId(session.resource_id);
+    } else if (session.lesson_id) {
+      setTargetType("lesson");
+      setTargetId(session.lesson_id);
+    } else if (session.module_id) {
+      setTargetType("module");
+      setTargetId(session.module_id);
+    } else {
+      setTargetType("module");
+      setTargetId("");
+    }
   }
 
   /**
@@ -324,6 +455,8 @@ export default function AcademyLiveSessionsPage() {
     setShowCreateModal(false);
     setEditingSession(null);
     setForm(emptyForm);
+    setTargetType("module");
+    setTargetId("");
   }
 
   /**
@@ -331,6 +464,11 @@ export default function AcademyLiveSessionsPage() {
    */
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!targetId) {
+      setErrorMessage(`Please select a ${targetType} for this session.`);
+      return;
+    }
 
     if (!form.programId) {
       setErrorMessage("Please select an Academy program.");
@@ -363,9 +501,11 @@ export default function AcademyLiveSessionsPage() {
     try {
       const payload = {
         program_id: form.programId,
-        module_id: null,
-        lesson_id: null,
-        resource_id: null,
+
+        module_id: targetType === "module" ? targetId : null,
+        lesson_id: targetType === "lesson" ? targetId : null,
+        resource_id: targetType === "resource" ? targetId : null,
+
         title: form.title.trim(),
         description: form.description.trim() || null,
         platform: form.platform,
@@ -775,6 +915,99 @@ export default function AcademyLiveSessionsPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="live-session-target-type"
+                  className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
+                >
+                  Session target type
+                </label>
+
+                <select
+                  id="live-session-target-type"
+                  value={targetType}
+                  onChange={(event) => {
+                    setTargetType(event.target.value as SessionTargetType);
+                    setTargetId("");
+                  }}
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-950"
+                  required
+                >
+                  <option value="module">Module</option>
+                  <option value="lesson">Lesson</option>
+                  <option value="resource">Resource</option>
+                </select>
+
+                <label
+                  htmlFor="live-session-target"
+                  className="mb-2 mt-4 block text-sm font-semibold text-slate-800 dark:text-slate-200"
+                >
+                  Select target
+                </label>
+
+                <select
+                  id="live-session-target"
+                  value={targetId}
+                  onChange={(event) => setTargetId(event.target.value)}
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-950"
+                  required
+                  disabled={!form.programId || loadingTargets}
+                >
+                  <option value="">
+                    {loadingTargets ? "Loading targets..." : "Select a target"}
+                  </option>
+
+                  {targetType === "module" &&
+                    modules.map((module) => (
+                      <option key={module.id} value={module.id}>
+                        {module.title}
+                      </option>
+                    ))}
+
+                  {targetType === "lesson" &&
+                    lessons.map((lesson) => {
+                      const parentModule = modules.find(
+                        (module) =>
+                          module.id ===
+                          lessons.find((item) => item.id === lesson.id)
+                            ?.module_id
+                      );
+
+                      return (
+                        <option key={lesson.id} value={lesson.id}>
+                          {parentModule ? `${parentModule.title} — ` : ""}
+                          {lesson.title}
+                        </option>
+                      );
+                    })}
+
+                  {targetType === "resource" &&
+                    resources.map((resource) => {
+                      const parentLesson = lessons.find(
+                        (lesson) => lesson.id === resource.lesson_id
+                      );
+
+                      return (
+                        <option key={resource.id} value={resource.id}>
+                          {parentLesson ? `${parentLesson.title} — ` : ""}
+                          {resource.title}
+                        </option>
+                      );
+                    })}
+                </select>
+
+                {!loadingTargets &&
+                  form.programId &&
+                  ((targetType === "module" && modules.length === 0) ||
+                    (targetType === "lesson" && lessons.length === 0) ||
+                    (targetType === "resource" && resources.length === 0)) && (
+                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                      No {targetType}s are available for this program. Add one
+                      before scheduling the session.
+                    </p>
+                  )}
               </div>
 
               <div>

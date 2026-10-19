@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 export default function StudentCompleteProfileForm() {
   const [profileId, setProfileId] = useState("");
@@ -18,16 +18,19 @@ export default function StudentCompleteProfileForm() {
   useEffect(() => {
     // Loads the authenticated student's existing profile information.
     async function loadProfile() {
-      const {
-        data: { session },
-      } = await getSession();
+      
+      const sessionResult = await getSession();
+      const session = sessionResult.data?.session ?? null;
+      
 
       if (!session) {
+        
         window.location.replace("/student/login");
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
+      
+      const { data: profile, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select(
           "id, first_name, last_name, phone, country, bio, name_confirmed, profile_completed"
@@ -35,14 +38,16 @@ export default function StudentCompleteProfileForm() {
         .eq("user_id", session.user.id)
         .maybeSingle();
 
+      
       if (profileError) {
-        console.error("Failed to load student profile:", profileError);
+        
         setError("We could not load your profile. Please try again.");
         setLoading(false);
         return;
       }
 
       if (!profile) {
+        
         setError(
           "Your student profile could not be found. Please contact support."
         );
@@ -51,6 +56,7 @@ export default function StudentCompleteProfileForm() {
       }
 
       if (profile.profile_completed) {
+        
         window.location.replace("/student/dashboard");
         return;
       }
@@ -66,11 +72,15 @@ export default function StudentCompleteProfileForm() {
       setLoading(false);
     }
 
-    loadProfile();
+    loadProfile().catch((error) => {
+      
+      setError("We could not load your profile. Please refresh and try again.");
+      setLoading(false);
+    });
   }, []);
 
   // Saves the student's completed profile and enables LMS access.
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
@@ -92,7 +102,7 @@ export default function StudentCompleteProfileForm() {
 
     setSaving(true);
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await studentSupabase
       .from("student_profiles")
       .update({
         first_name: trimmedFirstName,
@@ -116,6 +126,7 @@ export default function StudentCompleteProfileForm() {
       return;
     }
 
+    
     window.location.replace("/student/dashboard");
   }
 

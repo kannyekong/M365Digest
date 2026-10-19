@@ -1,34 +1,33 @@
 ---
 import { Eye, Globe, Lightbulb, Rocket } from "lucide-astro";
-
 import Title from "../shared/Title.astro";
 
-/* Stores the content and visual identity used for each company value card. */
+// Keep each card's content, image, and visual styling together.
 const values = [
   {
     label: "Our Mission",
     heading: "Simplifying Cloud Transformation",
     description:
       "To help organizations work smarter by integrating AI, automation, and cloud technologies to streamline workflows, improve collaboration, and drive sustainable growth.",
+    image: "/images/aii.png",
+    imageAlt: "CloudTweak's mission",
     icon: Rocket,
-    borderColor: "border-blue-300",
     iconBackground: "bg-blue-50",
     iconColor: "text-blue-600",
     labelColor: "text-blue-800",
-    glowColor: "bg-blue-400/10",
-    accentColor: "bg-blue-700",
+    accentColor: "bg-blue-500",
   },
   {
     label: "Our Vision",
     heading: "Shaping the Future of Cloud Excellence",
     description:
       "To become a trusted leader in AI, automation, and cloud transformation, empowering organizations to unlock the full potential of modern technologies through intelligent, secure, and scalable digital solutions.",
+    image: "/images/cloudexcellence.jpg",
+    imageAlt: "CloudTweak's vision",
     icon: Eye,
-    borderColor: "border-pink-300",
     iconBackground: "bg-pink-50",
     iconColor: "text-pink-600",
     labelColor: "text-pink-800",
-    glowColor: "bg-pink-400/10",
     accentColor: "bg-pink-500",
   },
   {
@@ -36,41 +35,39 @@ const values = [
     heading: "Technology That Creates Meaningful Impact",
     description:
       "To help organizations turn emerging technologies into practical business value by safely adopting AI, automating processes, and maximizing the potential of cloud solutions.",
+    image: "/images/img.jpg",
+    imageAlt: "CloudTweak's purpose",
     icon: Lightbulb,
-    borderColor: "border-blue-300",
-    iconBackground: "bg-blue-50",
-    iconColor: "text-blue-600",
-    labelColor: "text-blue-800",
-    glowColor: "bg-blue-400/10",
-    accentColor: "bg-blue-700",
+    iconBackground: "bg-violet-50",
+    iconColor: "text-violet-600",
+    labelColor: "text-violet-800",
+    accentColor: "bg-violet-500",
   },
 ];
 ---
 
 <section
-  class="relative isolate overflow-hidden py-12"
+  class="relative isolate overflow-hidden py-10 sm:py-14"
   aria-labelledby="vision-mission-purpose-heading"
 >
-  <!-- Subtle section decoration -->
   <div
-    class="pointer-events-none absolute left-0 top-1/4 -z-10 h-72 w-72 rounded-full bg-blue-500/5 blur-[120px]"
+    class="pointer-events-none absolute left-0 top-1/4 -z-10 h-64 w-64 rounded-full bg-blue-500/5 blur-[100px]"
     aria-hidden="true"
   >
   </div>
 
   <div
-    class="pointer-events-none absolute bottom-0 right-0 -z-10 h-96 w-96 rounded-full bg-emerald-500/5 blur-[140px]"
+    class="pointer-events-none absolute bottom-0 right-0 -z-10 h-72 w-72 rounded-full bg-emerald-500/5 blur-[110px]"
     aria-hidden="true"
   >
   </div>
 
-  <div class="mx-auto max-w-7xl px-6">
-    <!-- Section heading -->
-    <div class="mx-auto mb-12 max-w-3xl text-center lg:mb-16">
+  <div class="mx-auto max-w-7xl px-5 sm:px-6">
+    <div class="mx-auto mb-8 max-w-3xl text-center sm:mb-10">
       <span
-        class="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-5 py-2 text-sm font-medium text-blue-700 backdrop-blur-xl dark:text-blue-300"
+        class="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-1.5 text-sm font-medium text-blue-700 backdrop-blur-xl dark:text-blue-300"
       >
-        <Globe size={18} />
+        <Globe size={17} />
         Our Values
       </span>
 
@@ -86,59 +83,55 @@ const values = [
       </Title>
     </div>
 
-    <!-- Values cards -->
-    <div class="grid gap-6 lg:grid-cols-3 lg:gap-8">
+    <div
+      class="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
+    >
       {
         values.map(
           ({
             label,
             heading,
             description,
+            image,
+            imageAlt,
             icon: Icon,
-            borderColor,
             iconBackground,
             iconColor,
             labelColor,
-            glowColor,
             accentColor,
           }) => (
-            <article
-              class:list={[
-                "group relative overflow-hidden rounded-[2rem] border bg-white/90 shadow-sm backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-xl",
-                borderColor,
-              ]}
-            >
-              <div
-                class:list={[
-                  "pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-0 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-100",
-                  glowColor,
-                ]}
-                aria-hidden="true"
-              />
+            <article class="group relative min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900">
+              <div class="relative h-44 overflow-hidden sm:h-48">
+                <img
+                  src={image}
+                  alt={imageAlt}
+                  loading="lazy"
+                  width="900"
+                  height="600"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-              <div
-                class:list={[
-                  "absolute left-8 right-8 top-0 h-[3px] rounded-b-full opacity-70",
-                  accentColor,
-                ]}
-                aria-hidden="true"
-              />
+                <div
+                  class:list={["absolute inset-x-0 bottom-0 h-1", accentColor]}
+                  aria-hidden="true"
+                />
+              </div>
 
-              <div class="relative flex h-full flex-col p-7 sm:p-8 lg:p-9">
-                <div class="flex items-center justify-between">
+              <div class="p-5 sm:p-6">
+                <div class="flex items-center justify-between gap-3">
                   <div
                     class:list={[
-                      "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-500 group-hover:scale-105",
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
                       iconBackground,
                       iconColor,
                     ]}
                   >
-                    <Icon size={27} strokeWidth={1.8} />
+                    <Icon size={21} strokeWidth={1.8} />
                   </div>
 
                   <span
                     class:list={[
-                      "text-xs font-bold uppercase tracking-[0.22em]",
+                      "text-xs font-bold uppercase tracking-wider",
                       labelColor,
                     ]}
                   >
@@ -146,25 +139,18 @@ const values = [
                   </span>
                 </div>
 
-                <div class="mt-10">
-                  <h3
-                    class={`text-2xl font-bold leading-tight ${labelColor} sm:text-[1.65rem]`}
-                  >
-                    {heading}
-                  </h3>
+                <h3
+                  class:list={[
+                    "mt-4 text-xl font-bold leading-snug sm:text-2xl",
+                    labelColor,
+                  ]}
+                >
+                  {heading}
+                </h3>
 
-                  <p class="mt-5 text-[15px] leading-7 text-slate-600">
-                    {description}
-                  </p>
-                </div>
-
-                <div class="mt-auto pt-8">
-                  <div class="flex items-center gap-3">
-                    <span class:list={["h-2 w-2 rounded-full", accentColor]} />
-
-                    <span class="h-px flex-1 bg-slate-200" />
-                  </div>
-                </div>
+                <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {description}
+                </p>
               </div>
             </article>
           )

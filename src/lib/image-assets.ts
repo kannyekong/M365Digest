@@ -123,6 +123,15 @@ async function getCurrentUserId() {
     error,
   } = await supabase.auth.getUser();
 
+  // Check whether the authenticated user has an active staff record.
+  if (user) {
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("auth_user_id, status")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+  }
+
   if (error) {
     throw new Error(error.message);
   }
@@ -252,6 +261,31 @@ export async function listImageAssets({
 
   if (!filters.includeArchived) {
     query = query.is("archived_at", null);
+  }
+
+  // Verify the currently authenticated user.
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  console.log("[Image Gallery] Auth check:", {
+    userId: user?.id ?? null,
+    authError: authError?.message ?? null,
+  });
+
+  // Check whether the authenticated user has an active staff record.
+  if (user) {
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("auth_user_id, status")
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
+
+    console.log("[Image Gallery] Staff check:", {
+      staff,
+      error: staffError?.message ?? null,
+    });
   }
 
   const { data, error, count } = await query

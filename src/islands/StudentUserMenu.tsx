@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, KeyRound, LogOut, ChevronDown } from "lucide-react";
+import {  KeyRound, LogOut, ChevronDown, UserCircle2 } from "lucide-react";
 import { logout } from "../lib/auth";
 import StudentProfileImage from "./student/StudentProfileImage";
 
@@ -14,7 +14,7 @@ export default function UserMenu() {
   //REDIRECTS TO LOGIN PAGE AND DESTRUCTS SESSIONS
   async function LogoutButton() {
     await logout();
-    window.location.href = "/admin/login";
+    window.location.href = "/student/login";
   }
   //
 
@@ -67,8 +67,8 @@ export default function UserMenu() {
             href="/student/settings"
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-slate-100 transition"
           >
-            <Camera size={18} />
-            Update Profile Photo
+            <UserCircle2 size={18} />
+            Profile Settings
           </a>
 
           <a
@@ -79,11 +79,11 @@ export default function UserMenu() {
             Change Password
           </a>
 
-          <div className="my-2 border-t" />
+          <div className="my-2 border-t border-slate-200" />
 
           <button
             onClick={LogoutButton}
-            className="flex w-full items-center bg-red-100 gap-3 rounded-xl px-4 py-3 text-red-600 hover:bg-red-500 hover:text-white transition"
+            className="flex w-full items-center bg-red-50 gap-3 rounded-xl px-4 py-3 text-red-600 hover:bg-red-500 hover:text-white transition"
           >
             <LogOut size={18} />
             Logout

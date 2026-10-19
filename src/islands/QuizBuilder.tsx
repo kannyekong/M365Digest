@@ -470,7 +470,7 @@ export default function QuizBuilder({
         is_published: isPublished,
       });
 
-      toast.success("Quiz updated successfully.");
+      toast.success("Quiz updated successfully. You can close the quiz modal now.");
       setConfirmState(null);
 
       onSaved?.(updatedQuiz);

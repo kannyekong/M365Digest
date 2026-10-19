@@ -13,7 +13,7 @@ export default function StudentRegisterForm() {
   const [loading, setLoading] = useState(false);
 
   // Handles student registration and redirects the student to email verification.
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>,) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
@@ -72,16 +72,10 @@ export default function StudentRegisterForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label
-            htmlFor="firstName"
-            className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
-          >
-            First name
-          </label>
-
           <input
             id="firstName"
             name="firstName"
+            placeholder="First name"
             type="text"
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
@@ -92,16 +86,10 @@ export default function StudentRegisterForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="lastName"
-            className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
-          >
-            Last name
-          </label>
-
           <input
             id="lastName"
             name="lastName"
+            placeholder="Last name"
             type="text"
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
@@ -113,17 +101,11 @@ export default function StudentRegisterForm() {
       </div>
 
       <div>
-        <label
-          htmlFor="email"
-          className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
-        >
-          Email address
-        </label>
-
         <input
           id="email"
           name="email"
           type="email"
+          placeholder="Email address"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           autoComplete="email"
@@ -133,17 +115,11 @@ export default function StudentRegisterForm() {
       </div>
 
       <div>
-        <label
-          htmlFor="password"
-          className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
-        >
-          Password
-        </label>
-
         <input
           id="password"
           name="password"
           type="password"
+          placeholder="Password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="new-password"
@@ -154,17 +130,11 @@ export default function StudentRegisterForm() {
       </div>
 
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
-        >
-          Confirm password
-        </label>
-
         <input
           id="confirmPassword"
           name="confirmPassword"
           type="password"
+          placeholder="Confirm password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
           autoComplete="new-password"

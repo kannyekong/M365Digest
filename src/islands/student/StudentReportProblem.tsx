@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import {
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
   CircleHelp,
   Clock3,
   LoaderCircle,
   MessageSquareText,
+  RefreshCw,
   Send,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -52,6 +56,39 @@ export default function StudentReportProblem() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const requestsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<
+    "desc" | "asc" | "open" | "resolved"
+  >("desc");
+
+  // Filter by status when requested, then sort the matching tickets by date.
+  const sortedRequests = [...requests]
+    .filter((request) => {
+      if (sortOrder === "open") {
+        return request.status.toLowerCase() === "open";
+      }
+
+      if (sortOrder === "resolved") {
+        return request.status.toLowerCase() === "resolved";
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const difference =
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+
+      return sortOrder === "asc" ? difference : -difference;
+    });
+
+  const totalPages = Math.ceil(sortedRequests.length / requestsPerPage);
+  const startIndex = (currentPage - 1) * requestsPerPage;
+  const paginatedRequests = sortedRequests.slice(
+    startIndex,
+    startIndex + requestsPerPage
+  );
 
   /**
    * Loads the authenticated student's previous support requests.
@@ -91,6 +128,17 @@ export default function StudentReportProblem() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Fetches the latest support-request statuses without reloading the page.
+  async function handleRefresh() {
+    setRefreshing(true);
+
+    try {
+      await loadRequests();
+    } finally {
+      setRefreshing(false);
     }
   }
 
@@ -248,15 +296,51 @@ export default function StudentReportProblem() {
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <div className="flex items-center gap-3">
-            <CircleHelp className="text-primary" size={21} />
-            <div>
-              <h2 className="font-semibold text-slate-950 dark:text-white">
-                Your support requests
-              </h2>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Track issues you have reported.
-              </p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-5">
+              <CircleHelp size={21} className="mt-1 shrink-0 text-blue-600" />
+
+              <div>
+                <h2 className="font-semibold text-slate-950 dark:text-white">
+                  Your support requests
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Track issues you have reported.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                aria-label="Refresh support requests"
+                title="Refresh support requests"
+                className="inline-flex shrink-0 items-center justify-center rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-100 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <RefreshCw
+                  size={17}
+                  className={refreshing ? "animate-spin" : ""}
+                />
+              </button>
+              <div className="flex items-center justify-between gap-3">
+                <select
+                  value={sortOrder}
+                  onChange={(event) => {
+                    setSortOrder(
+                      event.target.value as "desc" | "asc" | "open" | "resolved"
+                    );
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                >
+                  <option value="desc">Newest first</option>
+                  <option value="asc">Oldest first</option>
+                  <option value="open">Open</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -273,14 +357,14 @@ export default function StudentReportProblem() {
                 </p>
               </div>
             ) : (
-              requests.map((request) => (
+              paginatedRequests.map((request) => (
                 <article
                   key={request.id}
                   className="rounded-xl border border-slate-200 p-4 dark:border-slate-800"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-slate-950 dark:text-white">
+                      <p className="font-semibold text-sm text-slate-950 dark:text-white">
                         {request.subject}
                       </p>
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -296,7 +380,11 @@ export default function StudentReportProblem() {
                             : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                       }`}
                     >
-                      <Clock3 size={12} />
+                      {request.status === "resolved" ? (
+                        <CircleCheck size={12} />
+                      ) : (
+                        <Clock3 size={12} />
+                      )}
                       {request.status}
                     </span>
                   </div>
@@ -304,6 +392,43 @@ export default function StudentReportProblem() {
               ))
             )}
           </div>
+          {!loading && requests.length > 0 && (
+            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Showing {startIndex + 1}–
+                {Math.min(startIndex + requestsPerPage, sortedRequests.length)}{" "}
+                of {sortedRequests.length}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage((page) => Math.max(1, page - 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="rounded-full border border-slate-200 p-3 text-xs font-medium text-blue-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {currentPage} / {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage((page) => Math.min(totalPages, page + 1))
+                  }
+                  disabled={currentPage >= totalPages}
+                  className="rounded-full border border-slate-200 p-3 text-xs font-medium text-blue-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 

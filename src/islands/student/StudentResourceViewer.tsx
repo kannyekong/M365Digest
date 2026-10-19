@@ -1,5 +1,6 @@
 import {
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   ExternalLink,
   FileArchive,
@@ -12,18 +13,24 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import {
-  getAcademyLessonResources,
+  getStudentLessonResources,
+  getStudentLessonQuizzes,
   getStudentResourceProgress,
   upsertStudentResourceProgress,
 } from "../../lib/academy";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
+import StudentQuizPlayer from "./StudentQuizPlayer";
 import type {
   AcademyResource,
   StudentResourceProgress,
   StudentResourceProgressStatus,
+  AcademyQuiz,
+  StudentQuizResult,
 } from "../../types/academy";
 
 interface StudentResourceViewerProps {
+  programId: string;
+  moduleId: string;
   lessonId: string;
   enrollmentId: string;
 }
@@ -151,10 +158,15 @@ function isResourceAvailable(resource: AcademyResource) {
  * Display and track Academy resources belonging to one lesson.
  */
 export default function StudentResourceViewer({
+  programId,
+  moduleId,
   lessonId,
   enrollmentId,
 }: StudentResourceViewerProps) {
   const [resources, setResources] = useState<AcademyResource[]>([]);
+  const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
+  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
+  const [passedQuizIds, setPassedQuizIds] = useState<Set<string>>(new Set());
   const [progress, setProgress] = useState<
     Record<string, StudentResourceProgress>
   >({});
@@ -172,16 +184,39 @@ export default function StudentResourceViewer({
       setErrorMessage("");
 
       try {
-        const [resourceData, progressData] = await Promise.all([
-          getAcademyLessonResources(lessonId),
-          getStudentResourceProgress(enrollmentId),
-        ]);
+        const [resourceData, progressData, quizData] = await Promise.all([getStudentLessonResources(lessonId), getStudentResourceProgress(enrollmentId), getStudentLessonQuizzes(lessonId)]);
+
+        // Load passing attempts for this enrollment without mixing quiz status into resource progress.
+        const publishedQuizIds = quizData
+          .filter((quiz) => quiz.is_published)
+          .map((quiz) => quiz.id);
+        const { data: passedAttempts, error: passedAttemptsError } =
+          publishedQuizIds.length > 0
+            ? await studentSupabase
+                .from("student_quiz_attempts")
+                .select("quiz_id")
+                .eq("enrollment_id", enrollmentId)
+                .eq("passed", true)
+                .not("completed_at", "is", null)
+                .in("quiz_id", publishedQuizIds)
+            : { data: [], error: null };
+
+        if (passedAttemptsError) {
+          throw passedAttemptsError;
+        }
+
+        setPassedQuizIds(
+          new Set((passedAttempts ?? []).map((attempt) => attempt.quiz_id))
+        );
 
         const publishedResources = resourceData.filter(
           (resource) => resource.is_published && isResourceAvailable(resource)
         );
 
         setResources(publishedResources);
+        const publishedQuizzes = quizData.filter((quiz) => quiz.is_published);
+        setQuizzes(publishedQuizzes);
+        setActiveQuizId(publishedResources.length === 0 ? publishedQuizzes[0]?.id ?? null : null);
 
         const progressMap: Record<string, StudentResourceProgress> = {};
 
@@ -193,6 +228,8 @@ export default function StudentResourceViewer({
 
         if (publishedResources.length > 0) {
           setActiveResourceId(publishedResources[0].id);
+        } else {
+          setActiveResourceId(null);
         }
       } catch (error) {
         console.error("Failed to load student resources:", error);
@@ -218,6 +255,54 @@ export default function StudentResourceViewer({
       resources.find((resource) => resource.id === activeResourceId) ?? null
     );
   }, [resources, activeResourceId]);
+
+  /** Return the currently selected lesson quiz, if one is selected. */
+  const activeQuiz = useMemo(() => quizzes.find((quiz) => quiz.id === activeQuizId) ?? null, [quizzes, activeQuizId]);
+
+  // Combine resources and quizzes so completed items sort ahead of unfinished items.
+  const orderedSidebarItems = useMemo(() => {
+    const items = [
+      ...quizzes.map((quiz) => ({
+        id: quiz.id,
+        kind: "quiz" as const,
+        title: quiz.title,
+        completed: passedQuizIds.has(quiz.id),
+        displayOrder: quiz.display_order,
+        quiz,
+      })),
+      ...resources.map((resource) => ({
+        id: resource.id,
+        kind: "resource" as const,
+        title: resource.title,
+        completed: progress[resource.id]?.status === "completed",
+        displayOrder: resource.display_order,
+        resource,
+      })),
+    ];
+
+    return items.sort(
+      (a, b) =>
+        Number(b.completed) - Number(a.completed) ||
+        a.displayOrder - b.displayOrder ||
+        a.title.localeCompare(b.title)
+    );
+  }, [quizzes, resources, passedQuizIds, progress]);
+
+  /** Notify lesson progression controls when a student passes a quiz. */
+  function handleQuizProceed(result: StudentQuizResult) {
+    if (!result.passed) return;
+
+    // Reflect the newly passed quiz immediately in the lesson sidebar.
+    if (activeQuizId) {
+      setPassedQuizIds((current) => new Set(current).add(activeQuizId));
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("academy:quiz-passed", {
+        detail: { programId, moduleId, lessonId, enrollmentId, result },
+      })
+    );
+  }
 
   /**
    * Mark a resource as started without changing a completed resource back
@@ -421,7 +506,7 @@ export default function StudentResourceViewer({
     );
   }
 
-  if (resources.length === 0) {
+  if (resources.length === 0 && quizzes.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
         <FileText className="mx-auto h-10 w-10 text-slate-400" />
@@ -447,16 +532,52 @@ export default function StudentResourceViewer({
             </h3>
 
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {resources.length}{" "}
-              {resources.length === 1 ? "resource" : "resources"}
+              {resources.length + quizzes.length}{" "}
+              {resources.length + quizzes.length === 1 ? "item" : "items"}
             </p>
           </div>
 
           <div className="mt-2 space-y-1">
-            {resources.map((resource) => {
+            {orderedSidebarItems.map((item) => {
+              if (item.kind === "quiz") {
+                const quiz = item.quiz;
+                const active = quiz.id === activeQuizId;
+
+                return (
+                  <button
+                    key={quiz.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveQuizId(quiz.id);
+                      setActiveResourceId(null);
+                    }}
+                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
+                      active
+                        ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                        : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">
+                        {quiz.title}
+                      </span>
+                      <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
+                        Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}
+                      </span>
+                    </span>
+                    {item.completed ? (
+                      <CheckCircle2
+                        className="h-5 w-5 shrink-0 text-emerald-500"
+                        aria-label="Quiz passed"
+                      />
+                    ) : null}
+                  </button>
+                );
+              }
+
+              const resource = item.resource;
               const Icon = getResourceIcon(resource.resource_type);
-              const resourceProgress = progress[resource.id];
-              const completed = resourceProgress?.status === "completed";
               const active = resource.id === activeResourceId;
 
               return (
@@ -464,6 +585,7 @@ export default function StudentResourceViewer({
                   key={resource.id}
                   type="button"
                   onClick={() => {
+                    setActiveQuizId(null);
                     setActiveResourceId(resource.id);
                   }}
                   className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
@@ -473,15 +595,12 @@ export default function StudentResourceViewer({
                   }`}
                 >
                   <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold">
                       {resource.title}
                     </span>
-
                     <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
                       {formatResourceType(resource.resource_type)}
-
                       {resource.is_required ? (
                         <>
                           <span>•</span>
@@ -490,9 +609,11 @@ export default function StudentResourceViewer({
                       ) : null}
                     </span>
                   </span>
-
-                  {completed ? (
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+                  {item.completed ? (
+                    <CheckCircle2
+                      className="h-5 w-5 shrink-0 text-emerald-500"
+                      aria-label="Resource completed"
+                    />
                   ) : null}
                 </button>
               );
@@ -501,7 +622,9 @@ export default function StudentResourceViewer({
         </aside>
 
         <div className="min-w-0">
-          {activeResource ? (
+          {activeQuiz ? (
+            <div className="space-y-5"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">Lesson quiz</span><span className={`rounded-full px-3 py-1 text-xs font-semibold ${activeQuiz.is_required ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>{activeQuiz.is_required ? "Required" : "Optional"}</span></div><h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">{activeQuiz.title}</h2>{activeQuiz.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">{activeQuiz.description}</p> : null}</div><StudentQuizPlayer key={activeQuiz.id} quizId={activeQuiz.id} enrollmentId={enrollmentId} onProceed={handleQuizProceed} /></div>
+          ) : activeResource ? (
             <div className="space-y-5">
               <div>
                 <div className="flex flex-wrap items-center gap-2">

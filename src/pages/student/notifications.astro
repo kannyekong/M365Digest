@@ -1,0 +1,18 @@
+---
+import StudentLayout from "../../layouts/StudentLayout.astro";
+import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
+import StudentNotificationsPage from "../../islands/student/StudentNotificationsPage";
+---
+
+<StudentLayout
+  title="Notifications"
+  description="View your CloudTweak Academy notifications and important student updates."
+>
+  <StudentHeader
+    eyebrow="News & Announcements"
+    title="Notifications"
+    description="Stay up to date with your payments, courses, upcoming sessions, certificates, and Academy announcements."
+  />
+
+  <StudentNotificationsPage client:load />
+</StudentLayout>

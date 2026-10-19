@@ -418,7 +418,7 @@ export default function AdminDashboard() {
                     <h3 className="font-semibold">{post.title}</h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      <span className="text-white text-xs bg-blue-700 rounded-full p-1">
+                      <span className="text-white text-xs bg-blue-700 rounded-full px-1 py-0.5">
                         category
                       </span>
                       {post.category}

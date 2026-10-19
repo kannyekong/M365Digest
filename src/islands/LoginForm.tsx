@@ -5,10 +5,9 @@ import {
   EyeOff,
   LockKeyhole,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
-import { login } from "../lib/auth";
+import { adminLogin } from "../lib/auth";
 
 export default function LoginForm() {
   // Store the user's email address.
@@ -46,7 +45,7 @@ export default function LoginForm() {
 
     try {
       // Send the user's login credentials to Supabase.
-      const { error: loginError } = await login(
+      const { error: loginError } = await adminLogin(
         email.trim().toLowerCase(),
         password
       );

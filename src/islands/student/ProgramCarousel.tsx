@@ -1,5 +1,5 @@
 import { ArrowRight, ChevronLeft, ChevronRight, Clock3 } from "lucide-react";
-
+import { supabase } from "../../lib/superbase";
 import { useEffect, useState } from "react";
 
 import {
@@ -9,66 +9,117 @@ import {
 
 interface ProgramCarouselProps {
   title?: string;
+
   eyebrow?: string;
+
   description?: string;
+
   autoplay?: boolean;
+
   autoplayInterval?: number;
+
   showControls?: boolean;
+
   showExploreAll?: boolean;
+
   exploreAllHref?: string;
+
   exploreAllLabel?: string;
 }
 
-/**
- * Displays a reusable carousel of available Academy programs.
- */
 export default function ProgramCarousel({
   title = "Explore Programs",
+
   eyebrow = "Available Programs",
+
   description,
+
   autoplay = true,
+
   autoplayInterval = 5000,
+
   showControls = true,
+
   showExploreAll = true,
+
   exploreAllHref = "/student/courses/allcourses",
+
   exploreAllLabel = "Explore All Courses",
 }: ProgramCarouselProps) {
   const [programs, setPrograms] = useState<AcademyProgramCarouselItem[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  /**
-   * Loads published Academy programs available to students.
-   */
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const [loading, setLoading] = useState(true);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
+
+  // Retry transient Supabase/network failures before showing the error state.
   useEffect(() => {
+    let cancelled = false;
+
     async function loadPrograms() {
       setLoading(true);
       setErrorMessage("");
 
-      try {
-        const result = await getAvailableAcademyPrograms();
+      const maxAttempts = 3;
 
-        setPrograms(result);
-      } catch (error) {
-        console.error("Failed to load Academy programs:", error);
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        if (cancelled) return;
 
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "We could not load available programs."
-        );
-      } finally {
-        setLoading(false);
+        // Inspect the shared client's session without logging any tokens.
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        console.log("[ProgramCarousel] Shared Supabase session:", {
+          hasSession: Boolean(session),
+          expiresAt: session?.expires_at
+            ? new Date(session.expires_at * 1000).toISOString()
+            : null,
+          sessionError: error?.message ?? null,
+        });
+
+        try {
+          const result = await getAvailableAcademyPrograms();
+
+          if (cancelled) return;
+
+          setPrograms(Array.isArray(result) ? result : []);
+          setActiveIndex(0);
+          setErrorMessage("");
+          setLoading(false);
+          return;
+        } catch (error) {
+          console.error(
+            `Failed to load Academy programs (attempt ${attempt}/${maxAttempts}):`,
+            error
+          );
+
+          if (attempt < maxAttempts) {
+            // Use a short backoff so temporary network/database errors can recover.
+            await new Promise((resolve) =>
+              window.setTimeout(resolve, attempt * 700)
+            );
+          } else if (!cancelled) {
+            setErrorMessage(
+              "We could not load available programs. Please try again."
+            );
+            setLoading(false);
+          }
+        }
       }
     }
 
     void loadPrograms();
-  }, []);
 
-  /**
-   * Moves the carousel to the next available program.
-   */
+    return () => {
+      cancelled = true;
+    };
+  }, [retryKey]);
+
   function nextSlide() {
     setActiveIndex((current) => {
       if (programs.length <= 1) {
@@ -79,9 +130,6 @@ export default function ProgramCarousel({
     });
   }
 
-  /**
-   * Moves the carousel to the previous available program.
-   */
   function previousSlide() {
     setActiveIndex((current) => {
       if (programs.length <= 1) {
@@ -92,9 +140,6 @@ export default function ProgramCarousel({
     });
   }
 
-  /**
-   * Automatically advances the carousel when autoplay is enabled.
-   */
   useEffect(() => {
     if (!autoplay || programs.length <= 1) {
       return;
@@ -111,9 +156,6 @@ export default function ProgramCarousel({
     };
   }, [autoplay, autoplayInterval, programs.length]);
 
-  /**
-   * Keeps the active slide within range when the available program list changes.
-   */
   useEffect(() => {
     if (activeIndex >= programs.length && programs.length > 0) {
       setActiveIndex(0);
@@ -122,7 +164,7 @@ export default function ProgramCarousel({
 
   if (loading) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-primary dark:border-slate-700 dark:border-t-primary" />
 
@@ -136,7 +178,7 @@ export default function ProgramCarousel({
 
   if (errorMessage) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             Unable to load programs
@@ -145,14 +187,24 @@ export default function ProgramCarousel({
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {errorMessage}
           </p>
+          <div className="flex items-center justify-center flex-row gap-2">
+            <button
+              type="button"
+              onClick={() => setRetryKey((current) => current + 1)}
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Try Again
+            </button>
 
-          <a
-            href={exploreAllHref}
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Explore All Courses
-            <ArrowRight className="h-4 w-4" />
-          </a>
+            <a
+              href={exploreAllHref}
+
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Explore All Courses
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -160,7 +212,7 @@ export default function ProgramCarousel({
 
   if (programs.length === 0) {
     return (
-      <div className="flex h-full min-h-[330px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-[360px] min-h-[360px] max-h-[360px] items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             No programs available
@@ -181,7 +233,7 @@ export default function ProgramCarousel({
   const displayPrice = program.discountPrice ?? program.price ?? null;
 
   return (
-    <div className="relative flex h-full min-h-[330px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="relative flex h-[360px] min-h-[360px] max-h-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -203,8 +255,11 @@ export default function ProgramCarousel({
           <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
+
               onClick={previousSlide}
+
               aria-label="Previous program"
+
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -212,8 +267,11 @@ export default function ProgramCarousel({
 
             <button
               type="button"
+
               onClick={nextSlide}
+
               aria-label="Next program"
+
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <ChevronRight className="h-4 w-4" />
@@ -222,13 +280,15 @@ export default function ProgramCarousel({
         ) : null}
       </div>
 
-      <div className="relative flex flex-1 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         {imageUrl ? (
           <div className="absolute inset-0">
             <img
               src={imageUrl}
+
               alt={program.title}
-              className="h-full w-full object-cover"
+
+              className="absolute inset-0 h-full w-full object-cover object-center"
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20" />
@@ -245,14 +305,14 @@ export default function ProgramCarousel({
           >
             <div className="flex flex-wrap items-center gap-3">
               {program.durationValue ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium opacity-90">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium opacity-90 bg-blue-500 text-white px-2 py-1 rounded-full">
                   <Clock3 className="h-3.5 w-3.5" />
                   {program.durationValue} {program.durationUnit ?? "weeks"}
                 </span>
               ) : null}
 
               {displayPrice !== null ? (
-                <span className="text-xs font-semibold">
+                <span className="text-xs font-semibold  bg-green-500 text-white px-2 py-1 rounded-full">
                   {program.currency ?? "NGN"} {displayPrice.toLocaleString()}
                 </span>
               ) : null}
@@ -271,6 +331,7 @@ export default function ProgramCarousel({
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <a
                 href={`/student/courses/${program.slug}`}
+
                 className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                   imageUrl
                     ? "bg-white text-slate-900 hover:bg-slate-100"
@@ -284,6 +345,7 @@ export default function ProgramCarousel({
               {showExploreAll ? (
                 <a
                   href={exploreAllHref}
+
                   className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                     imageUrl
                       ? "border-white/30 bg-white/10 text-white hover:bg-white/20"
@@ -303,11 +365,15 @@ export default function ProgramCarousel({
           {programs.map((item, index) => (
             <button
               key={item.id}
+
               type="button"
+
               onClick={() => {
                 setActiveIndex(index);
               }}
+
               aria-label={`Go to ${item.title}`}
+
               className={`h-1.5 rounded-full transition-all ${
                 index === activeIndex
                   ? "w-6 bg-white"
