@@ -49,7 +49,10 @@ async function getChatContext(request: Request): Promise<ChatContext> {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
 
-  if (user.email && adminEmails.includes(user.email.toLowerCase())) {
+  const appRole = String(user.app_metadata?.role ?? "").toLowerCase();
+  const appRoles = Array.isArray(user.app_metadata?.roles) ? user.app_metadata.roles.map((role) => String(role).toLowerCase()) : [];
+
+  if ((user.email && adminEmails.includes(user.email.toLowerCase())) || appRole === "admin" || appRoles.includes("admin")) {
     return { client, userId: user.id, role: "admin" };
   }
 
@@ -65,7 +68,7 @@ async function getChatContext(request: Request): Promise<ChatContext> {
   }
 
   if (!profile) {
-    return { error: jsonResponse({ success: false, message: "You are not authorized to access Academy chat." }, 403) };
+    return { error: jsonResponse({ success: false, message: "Your account is not listed as an Academy student or authorized administrator. Check ADMIN_EMAILS in the deployment environment or the account role in Supabase Auth app metadata." }, 403) };
   }
 
   return { client, userId: user.id, role: "student", studentId: profile.id };
