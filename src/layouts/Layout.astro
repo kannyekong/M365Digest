@@ -2,6 +2,7 @@
 import Footer from "../components/elements/Footer.astro";
 import Navbar from "../components/elements/Navbar.astro";
 import ToastProvider from "../islands/ToastProvider";
+import "aos/dist/aos.css";
 
 export interface Props {
   title: string;
@@ -91,6 +92,58 @@ const {
 
     <script>
       import "../utils/lazy-image";
+    </script>
+
+    <script>
+      import AOS from "aos";
+
+      // Adds restrained scroll reveals to content blocks on public pages only.
+      function applyPublicScrollAnimations() {
+        const animationRules: Array<[string, string]> = [
+          ["main > section, main > div > section", "fade-up"],
+          ["main section > .container, main section > [class*='max-w-']", "fade-up"],
+          ["main .grid > article, main .grid > a, main .grid > div.group", "fade-up"],
+          ["main [data-aos]", ""],
+          ["main .rounded-2xl.border, main .rounded-3xl.border", "fade-up"],
+          ["main section h1, main section h2", "fade-up"],
+        ];
+
+        animationRules.forEach(([selector, animation]) => {
+          if (!animation) return;
+
+          document.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+            if (element.hasAttribute("data-aos")) return;
+
+            element.setAttribute("data-aos", animation);
+
+            // Stagger cards slightly to create a polished, cascading reveal.
+            if (element.matches("main .grid > article, main .grid > a, main .grid > div.group")) {
+              element.setAttribute("data-aos-delay", String(Math.min(index % 4, 3) * 100));
+            }
+
+            element.setAttribute("data-aos-duration", "750");
+          });
+        });
+
+        AOS.init({
+          once: true,
+          mirror: false,
+          offset: 70,
+          duration: 750,
+          easing: "ease-out-cubic",
+          anchorPlacement: "top-bottom",
+          disable: () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+        });
+
+        // Recalculate reveal positions after public-page images finish loading.
+        window.addEventListener("load", () => AOS.refreshHard(), { once: true });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", applyPublicScrollAnimations, { once: true });
+      } else {
+        applyPublicScrollAnimations();
+      }
     </script>
 
     <script>
