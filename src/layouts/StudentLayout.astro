@@ -3,6 +3,7 @@ import StudentAuthCheck from "../islands/student/StudentAuthCheck";
 import ToastProvider from "../islands/ToastProvider";
 import StudentSidebar from "../components/admin/UI/StudentSideBar.astro";
 import Preloader from "../components/shared/Preloader.astro";
+import AcademyChat from "../islands/academy/AcademyChat";
 import "../styles/global.css";
 interface Props {
   title: string;
@@ -78,5 +79,6 @@ const { title } = Astro.props;
       </main>
     </div>
     <ToastProvider client:load />
+    <AcademyChat client:load role="student" floating />
   </body>
 </html>
