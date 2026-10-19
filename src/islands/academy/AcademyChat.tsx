@@ -22,7 +22,7 @@ type ChatConversation = {
   student?: { first_name?: string | null; last_name?: string | null; display_name?: string | null; avatar_url?: string | null } | null;
 };
 
-type Props = { role: ChatRole };
+type Props = { role: ChatRole; floating?: boolean };
 
 function formatMessageTime(value: string) {
   const date = new Date(value);
@@ -30,7 +30,8 @@ function formatMessageTime(value: string) {
 }
 
 /** Provides the private student/admin chat UI and refreshes messages while the page is open. */
-export default function AcademyChat({ role }: Props) {
+export default function AcademyChat({ role, floating = false }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [conversation, setConversation] = useState<ChatConversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -127,8 +128,8 @@ export default function AcademyChat({ role }: Props) {
     [conversation?.student?.first_name, conversation?.student?.last_name].filter(Boolean).join(" ") ||
     "Academy student";
 
-  return (
-    <div className={role === "admin" ? "grid min-h-[650px] gap-5 lg:grid-cols-[300px_minmax(0,1fr)]" : "mx-auto max-w-5xl"}>
+  const chatPanel = (
+<div className={role === "admin" ? "grid min-h-[650px] gap-5 lg:grid-cols-[300px_minmax(0,1fr)]" : "mx-auto max-w-5xl"}>
       {role === "admin" && (
         <aside className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
@@ -177,4 +178,28 @@ export default function AcademyChat({ role }: Props) {
       </section>
     </div>
   );
+
+  if (role === "student" && floating) {
+    return (
+      <div className="fixed bottom-5 right-5 z-[100] flex flex-col items-end">
+        {isOpen && (
+          <div className="mb-3 h-[min(680px,calc(100dvh-7rem))] w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+            {chatPanel}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setIsOpen((open) => !open)}
+          aria-label={isOpen ? "Close Academy support chat" : "Open Academy support chat"}
+          aria-expanded={isOpen}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-700 text-white shadow-xl ring-4 ring-white/70 transition hover:scale-105 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-300 dark:ring-slate-900"
+        >
+          {isOpen ? <span className="text-2xl leading-none" aria-hidden="true">×</span> : <MessageCircle size={25} />}
+        </button>
+      </div>
+    );
+  }
+
+  return chatPanel;
+}
 }
