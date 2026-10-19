@@ -96,6 +96,14 @@ export default function AcademyChat({ role, floating = false }: Props) {
   }, [request, role, selectedId]);
 
   useEffect(() => {
+    // Open the conversation referenced by an admin notification link.
+    if (role === "admin") {
+      const conversationId = new URLSearchParams(window.location.search).get("conversationId");
+      if (conversationId) setSelectedId(conversationId);
+    }
+  }, [role]);
+
+  useEffect(() => {
     void load();
     const timer = window.setInterval(() => void load(true), 7000);
     return () => window.clearInterval(timer);
