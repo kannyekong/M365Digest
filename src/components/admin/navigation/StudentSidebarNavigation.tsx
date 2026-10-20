@@ -304,7 +304,7 @@ function NavigationLevel({
     .map(({ key }) => key);
 
   return (
-    <div className={depth === 0 ? "space-y-0.5" : ""}>
+    <div className="space-y-1.5">
       {items.map((item, index) => {
         const itemKey = createItemKey(parentKey, item, index);
 
@@ -410,7 +410,7 @@ function NavigationLevel({
             aria-current={active ? "page" : undefined}
             className={[
               "flex items-center gap-4 py-2 text-xs transition",
-              depth === 0 ? "mt-2 rounded-xl px-3" : getNestedPadding(depth),
+              depth === 0 ? "rounded-xl px-3" : getNestedPadding(depth),
               active
                 ? "bg-orange-50 font-semibold text-orange-500 dark:bg-sky-950/60 dark:text-sky-300"
                 : depth === 0
