@@ -25,19 +25,13 @@ const sections: StudentNavigationItem[] = [
   },
 
   {
-    title: "Resources",
+    title: "Course Resources",
     icon: "resources",
-    href: "/student/resources",
-  },
-  {
-    title: "Live Sessions",
-    icon: "live-sessions",
-    href: "/student/live-sessions",
-  },
-  {
-    title: "My Progress",
-    icon: "progress",
-    href: "/student/progress",
+    links: [
+      { title: "Resources", icon: "resources", href: "/student/resources" },
+      { title: "Live Sessions", icon: "live-sessions", href: "/student/live-sessions" },
+      { title: "My Progress", icon: "progress", href: "/student/progress" },
+    ],
   },
   {
     title: "Certificates",
@@ -53,11 +47,6 @@ const sections: StudentNavigationItem[] = [
     title: "Report a problem",
     icon: "support",
     href: "/student/report-problem",
-  },
-  {
-    title: "Chat with Support",
-    icon: "support",
-    href: "/student/chat",
   },
   {
     title: "Account Settings",

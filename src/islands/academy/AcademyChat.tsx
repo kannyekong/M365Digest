@@ -137,7 +137,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
     "Academy student";
 
   const chatPanel = (
-<div className={role === "admin" ? "grid min-h-[650px] gap-5 lg:grid-cols-[300px_minmax(0,1fr)]" : "mx-auto max-w-5xl"}>
+<div className={role === "admin" ? "grid min-h-[650px] gap-5 lg:grid-cols-[300px_minmax(0,1fr)]" : floating ? "flex h-full min-h-0 min-w-0 flex-col" : "mx-auto max-w-5xl"}>
       {role === "admin" && (
         <aside className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
@@ -147,8 +147,8 @@ export default function AcademyChat({ role, floating = false }: Props) {
           <div className="max-h-[580px] overflow-y-auto">
             {conversations.map((item) => {
               const name = item.student?.display_name || [item.student?.first_name, item.student?.last_name].filter(Boolean).join(" ") || "Academy student";
-              return <button type="button" key={item.id} onClick={() => selectConversation(item.id)} className={`block w-full border-b border-slate-100 p-4 text-left transition dark:border-slate-800 ${selectedId === item.id ? "bg-sky-50 dark:bg-sky-950/40" : "hover:bg-slate-50 dark:hover:bg-slate-900"}`}>
-                <span className="flex items-center gap-2 text-sm font-semibold"><CircleUserRound size={17} className="text-sky-600" />{name}</span>
+              return <button type="button" key={item.id} onClick={() => selectConversation(item.id)} className={`block w-full border-b border-slate-100 p-4 text-left transition dark:border-slate-800 ${selectedId === item.id ? "bg-[#154DD8]/10 dark:bg-[#154DD8]/20" : "hover:bg-slate-50 dark:hover:bg-slate-900"}`}>
+                <span className="flex items-center gap-2 text-sm font-semibold"><CircleUserRound size={17} className="text-[#154DD8]" />{name}</span>
                 <span className="mt-2 block text-xs text-slate-500">{item.status === "closed" ? "Closed" : "Open"} · {formatMessageTime(item.last_message_at)}</span>
               </button>;
             })}
@@ -158,21 +158,21 @@ export default function AcademyChat({ role, floating = false }: Props) {
       )}
       <section className={floating && role === "student" ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-white dark:bg-slate-950" : "flex min-h-[650px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"}>
         <header className="flex items-center gap-3 border-b border-slate-200 p-5 dark:border-slate-800">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300"><MessageCircle size={21} /></div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#154DD8]/10 text-[#154DD8] dark:bg-[#154DD8]/20 dark:text-blue-300"><MessageCircle size={21} /></div>
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold">{role === "admin" ? studentName : "CloudTweak Academy Support"}</h2>
             <p className="mt-1 text-xs text-slate-500">{conversation?.status === "closed" ? "Conversation closed" : "Private conversation · replies refresh automatically"}</p>
           </div>
           <button type="button" onClick={() => { setRefreshing(true); void load(); }} aria-label="Refresh messages" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><RefreshCw size={16} className={refreshing ? "animate-spin" : ""} /></button>
         </header>
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-slate-50/70 p-4 dark:bg-slate-900/40 sm:p-6">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-slate-50/70 p-4 dark:bg-slate-900/40 sm:p-6">
           {loading ? <div className="flex h-full items-center justify-center text-sm text-slate-500"><LoaderCircle className="mr-2 animate-spin" size={18} />Loading conversation…</div> :
             messages.map((message) => {
               const own = message.sender_role === role;
               return <div key={message.id} className={`flex ${own ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[75%] ${own ? "rounded-br-md bg-sky-700 text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[75%] ${own ? "rounded-br-md bg-[#154DD8] text-white" : "rounded-bl-md border border-slate-200 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"}`}>
                   <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                  <div className={`mt-2 flex items-center justify-end gap-1 text-[10px] ${own ? "text-sky-100" : "text-slate-400"}`}>{formatMessageTime(message.created_at)}{own && message.read_at && <CheckCheck size={13} aria-label="Read" />}</div>
+                  <div className={`mt-2 flex items-center justify-end gap-1 text-[10px] ${own ? "text-blue-100" : "text-slate-400"}`}>{formatMessageTime(message.created_at)}{own && message.read_at && <CheckCheck size={13} aria-label="Read" />}</div>
                 </div>
               </div>;
             })}
@@ -180,8 +180,8 @@ export default function AcademyChat({ role, floating = false }: Props) {
         </div>
         <form onSubmit={handleSend} className="flex items-end gap-3 border-t border-slate-200 p-4 dark:border-slate-800 sm:p-5">
           <label className="sr-only" htmlFor="academy-chat-message">Your message</label>
-          <textarea id="academy-chat-message" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={5000} rows={2} placeholder="Write a message…" disabled={sending || conversation?.status === "closed" || (role === "admin" && !conversation)} className="min-h-12 flex-1 resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-sky-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
-          <button type="submit" disabled={sending || !draft.trim() || conversation?.status === "closed" || (role === "admin" && !conversation)} className="inline-flex h-12 items-center gap-2 rounded-xl bg-sky-700 px-4 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-50"><Send size={16} /> <span className="hidden sm:inline">{sending ? "Sending…" : "Send"}</span></button>
+          <textarea id="academy-chat-message" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={5000} rows={2} placeholder="Write a message…" disabled={sending || conversation?.status === "closed" || (role === "admin" && !conversation)} className="min-h-12 flex-1 resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#154DD8] disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+          <button type="submit" disabled={sending || !draft.trim() || conversation?.status === "closed" || (role === "admin" && !conversation)} className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#154DD8] px-4 text-sm font-semibold text-white transition hover:bg-[#103FB5] disabled:cursor-not-allowed disabled:opacity-50"><Send size={16} /> <span className="hidden sm:inline">{sending ? "Sending…" : "Send"}</span></button>
         </form>
       </section>
     </div>
@@ -191,7 +191,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
     return (
       <div className="fixed bottom-5 right-5 z-[100] flex flex-col items-end">
         {isOpen && (
-          <div className="mb-3 h-[min(680px,calc(100dvh-7rem))] w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+          <div className="mb-3 flex h-[min(680px,calc(100dvh-7rem))] min-h-0 w-[min(390px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             {chatPanel}
           </div>
         )}
@@ -200,7 +200,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
           onClick={() => setIsOpen((open) => !open)}
           aria-label={isOpen ? "Close Academy support chat" : "Open Academy support chat"}
           aria-expanded={isOpen}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-sky-700 text-white shadow-xl ring-4 ring-white/70 transition hover:scale-105 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-300 dark:ring-slate-900"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#154DD8] text-white shadow-xl ring-4 ring-white/70 transition hover:scale-105 hover:bg-[#103FB5] focus:outline-none focus:ring-4 focus:ring-[#154DD8]/40 dark:ring-slate-900"
         >
           {isOpen ? <span className="text-2xl leading-none" aria-hidden="true">×</span> : <MessageCircle size={25} />}
         </button>
