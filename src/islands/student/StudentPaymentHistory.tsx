@@ -5,10 +5,13 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CreditCardCheck,
   Download,
+  ExternalLink,
   FileText,
   LoaderCircle,
   RefreshCw,
+  Rss,
   WalletCards,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -29,6 +32,7 @@ type Payment = {
   paid_at: string | null;
   transaction_date: string | null;
   created_at: string;
+  program_slug?: string | null;
 };
 
 /**
@@ -258,21 +262,26 @@ export default function StudentPaymentHistory() {
                     className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between"
                   >
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-950 dark:text-white">
+                      <p className="font-semibold text-sm text-slate-950 dark:text-white">
                         {payment.description || "Academy payment"}
                       </p>
 
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="inline-flex items-center gap-1 bg-green-50 p-1 rounded-2xl text-green-700 dark:bg-green-950/40 dark:text-green-300">
-                          <CalendarDays size={13} />
+                      <div className="mt-2 flex flex-col gap-x-4 gap-y-1 text-xs">
+                        <span className="inline-flex items-center gap-1 font-extralight">
+                          <CalendarDays size={13} className="text-orange-500" />
                           {formatDate(payment.paid_at)}
                         </span>
 
-                        <span className="bg-purple-50 p-1 rounded-2xl text-purple-700 dark:bg-purple-950/40 dark:text-purple-300">
-                          Reference: {payment.provider_reference || "—"}
+                        <span className="inline-flex items-center gap-1">
+                          <CreditCardCheck
+                            size={13}
+                            className="text-green-500"
+                          />
+                          {payment.provider_reference || "—"}
                         </span>
 
-                        <span className="bg-blue-50 p-1 rounded-2xl text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                        <span className="inline-flex items-center gap-1">
+                          <Rss size={13} className="text-blue-500" />
                           {payment.payment_method ||
                             payment.provider ||
                             "Payment"}
@@ -299,6 +308,27 @@ export default function StudentPaymentHistory() {
                         <Download size={15} />
                         Receipt
                       </button>
+
+                      <a
+                        href={
+                          payment.program_slug
+                            ? `/student/courses/${payment.program_slug}`
+                            : undefined
+                        }
+                        aria-disabled={!payment.program_slug}
+                        onClick={(event) => {
+                          if (!payment.program_slug) {
+                            event.preventDefault();
+                            toast.error(
+                              "The course linked to this payment could not be found."
+                            );
+                          }
+                        }}
+                        className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+                      >
+                        <ExternalLink size={15} />
+                        Go to Course
+                      </a>
                     </div>
                   </article>
                 ))}

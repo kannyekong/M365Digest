@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {  KeyRound, LogOut, ChevronDown, UserCircle2 } from "lucide-react";
+import { KeyRound, LogOut, ChevronDown, UserCircle2 } from "lucide-react";
 import { logout } from "../lib/auth";
 import StudentProfileImage from "./student/StudentProfileImage";
 
@@ -72,7 +72,7 @@ export default function UserMenu() {
           </a>
 
           <a
-            href="/student/settings"
+            href="/student/settings#password"
             className="flex w-full items-center gap-3 rounded-xl px-4 py-3 hover:bg-slate-100 transition"
           >
             <KeyRound size={18} />

@@ -14,43 +14,75 @@ export default function StudentLoginForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  /**
+   * Chooses the next onboarding destination while preserving a valid
+   * course checkout request across the login flow.
+   */
+  function getStudentDestination(profileCompleted: boolean): string {
+    const requestedReturnTo =
+      new URLSearchParams(window.location.search).get("returnTo") ??
+      sessionStorage.getItem("cloudtweak_student_return_to");
+
+    const returnTo =
+      requestedReturnTo &&
+      /^\/student\/courses\/[a-zA-Z0-9-]+\/checkout$/.test(requestedReturnTo)
+        ? requestedReturnTo
+        : null;
+
+    if (returnTo && profileCompleted) {
+      sessionStorage.removeItem("cloudtweak_student_return_to");
+      return returnTo;
+    }
+
+    if (returnTo) {
+      sessionStorage.setItem("cloudtweak_student_return_to", returnTo);
+    }
+
+    return profileCompleted
+      ? "/student/dashboard"
+      : returnTo
+        ? `/student/complete-profile?returnTo=${encodeURIComponent(returnTo)}`
+        : "/student/complete-profile";
+  }
+
   // Redirects already-authenticated students away from the login page.
   useEffect(() => {
     // Shows a confirmation after the password has been reset successfully.
     const params = new URLSearchParams(window.location.search);
     if (params.get("passwordReset") === "success") {
-      setSuccessMessage("Your password has been updated. Please sign in with your new password.");
+      setSuccessMessage(
+        "Your password has been updated. Please sign in with your new password."
+      );
     }
     if (params.get("error") === "profile-missing") {
-      setErrorMessage("We could not find a student profile linked to this account. Please check that you signed in with your student email or contact support.");
+      setErrorMessage(
+        "We could not find a student profile linked to this account. Please check that you signed in with your student email or contact support."
+      );
     }
     if (params.get("error") === "profile-check-failed") {
-      setErrorMessage("We could not verify your student profile. Please sign in again or contact support if the issue continues.");
+      setErrorMessage(
+        "We could not verify your student profile. Please sign in again or contact support if the issue continues."
+      );
     }
 
     async function checkExistingSession() {
-      
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-      
 
       if (session) {
-        
         const { data: profile, error } = await studentSupabase
           .from("student_profiles")
           .select("id, profile_completed")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
-        
         if (!error && profile) {
-          const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
-          
-          window.location.replace(destination);
+          window.location.replace(
+            getStudentDestination(profile.profile_completed)
+          );
           return;
         }
 
-        
         await studentSupabase.auth.signOut();
         setErrorMessage(
           error
@@ -59,13 +91,13 @@ export default function StudentLoginForm() {
         );
       }
 
-      
       setCheckingSession(false);
     }
 
     checkExistingSession().catch((error) => {
-      
-      setErrorMessage("We could not verify your session. Please refresh and try again.");
+      setErrorMessage(
+        "We could not verify your session. Please refresh and try again."
+      );
       setCheckingSession(false);
     });
   }, []);
@@ -85,7 +117,6 @@ export default function StudentLoginForm() {
 
     setLoading(true);
 
-    
     const { error } = await login(normalizedEmail, password);
 
     if (error) {
@@ -108,28 +139,29 @@ export default function StudentLoginForm() {
       return;
     }
 
+    // Start a fresh onboarding cycle for every successful sign-in.
+    sessionStorage.setItem("cloudtweak_student_onboarding_pending", "true");
+
     // Sends the student to the correct next step instead of routing every login through the dashboard.
     const sessionResult = await getSession();
     const session = sessionResult.data?.session ?? null;
     const sessionError = sessionResult.error;
-    
 
     if (sessionError || !session) {
-      setErrorMessage("You signed in, but we could not verify your session. Please try again.");
+      setErrorMessage(
+        "You signed in, but we could not verify your session. Please try again."
+      );
       setLoading(false);
       return;
     }
 
-    
     const { data: profile, error: profileError } = await studentSupabase
       .from("student_profiles")
       .select("id, profile_completed")
       .eq("user_id", session.user.id)
       .maybeSingle();
 
-    
     if (profileError || !profile) {
-      
       await studentSupabase.auth.signOut();
       setErrorMessage(
         profileError
@@ -140,9 +172,7 @@ export default function StudentLoginForm() {
       return;
     }
 
-    const destination = profile.profile_completed ? "/student/dashboard" : "/student/complete-profile";
-    
-    window.location.replace(destination);
+    window.location.replace(getStudentDestination(profile.profile_completed));
   }
 
   if (checkingSession) {
@@ -162,7 +192,10 @@ export default function StudentLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {successMessage && (
-        <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+        <div
+          role="status"
+          className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300"
+        >
           {successMessage}
         </div>
       )}

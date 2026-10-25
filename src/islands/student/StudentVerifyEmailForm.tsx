@@ -17,8 +17,26 @@ export default function StudentVerifyEmailForm() {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
-    // Retrieves the email carried over from the registration flow.
+    // Read the query parameters passed from registration.
     const params = new URLSearchParams(window.location.search);
+
+    // Retrieve and validate the intended course checkout destination.
+    const requestedReturnTo =
+      params.get("returnTo") ??
+      sessionStorage.getItem("cloudtweak_student_return_to");
+
+    const returnTo =
+      requestedReturnTo &&
+      /^\/student\/courses\/[a-zA-Z0-9-]+\/checkout$/.test(requestedReturnTo)
+        ? requestedReturnTo
+        : null;
+
+    // Preserve the valid destination for subsequent onboarding steps.
+    if (returnTo) {
+      sessionStorage.setItem("cloudtweak_student_return_to", returnTo);
+    }
+
+    // Retrieve the verification email from the URL or session storage.
     const queryEmail = params.get("email");
     const storedEmail = sessionStorage.getItem(
       "cloudtweak_student_verification_email"
@@ -26,11 +44,13 @@ export default function StudentVerifyEmailForm() {
 
     const verificationEmail = queryEmail || storedEmail || "";
 
+    // Return to registration if no verification email is available.
     if (!verificationEmail) {
       window.location.replace("/student/register");
       return;
     }
 
+    // Populate the email field used by the verification form.
     setEmail(verificationEmail);
   }, []);
 
@@ -119,9 +139,33 @@ export default function StudentVerifyEmailForm() {
       return;
     }
 
+    // Clear the email used during verification.
     sessionStorage.removeItem("cloudtweak_student_verification_email");
 
-    window.location.replace("/student/complete-profile");
+    // Retrieve the intended checkout destination preserved during registration.
+    const requestedReturnTo = sessionStorage.getItem(
+      "cloudtweak_student_return_to"
+    );
+
+    // Validate the destination before using it in the redirect.
+    const returnTo =
+      requestedReturnTo &&
+      /^\/student\/courses\/[a-zA-Z0-9-]+\/checkout$/.test(requestedReturnTo)
+        ? requestedReturnTo
+        : null;
+
+    // Carry the destination into profile completion.
+    const profileParams = new URLSearchParams();
+
+    if (returnTo) {
+      profileParams.set("returnTo", returnTo);
+    }
+
+    const profileUrl = profileParams.toString()
+      ? `/student/complete-profile?${profileParams.toString()}`
+      : "/student/complete-profile";
+
+    window.location.replace(profileUrl);
   }
 
   // Requests a new verification OTP from Supabase Auth.

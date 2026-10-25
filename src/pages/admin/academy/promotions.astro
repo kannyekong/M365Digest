@@ -1,0 +1,14 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Header from "../../../components/admin/UI/Header.astro";
+import AcademyModuleNav from "../../../components/admin/academy/AcademyModuleNav";
+import AcademyPromotionsPage from "../../../islands/AcademyPromotionsPage";
+---
+
+<AdminLayout title="Academy Promotions">
+  <Header title="Academy Promotions" />
+  <main class="space-y-8 p-4 lg:p-5">
+    <AcademyModuleNav current="" />
+    <AcademyPromotionsPage client:load />
+  </main>
+</AdminLayout>

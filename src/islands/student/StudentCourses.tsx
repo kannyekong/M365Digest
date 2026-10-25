@@ -626,6 +626,7 @@ export default function StudentCourses() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {paginatedEnrolledCourses.map((course) => {
               const status = getEnrollmentStatus(course.enrollment.status);
+              const enrolled = enrolledProgramIds.has(course.id);
 
               return (
                 <article
@@ -666,9 +667,20 @@ export default function StudentCourses() {
                   </div>
 
                   <div className="p-5">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
-                      {course.code ?? "Academy Program"}
-                    </p>
+                    <div className="flex flex-row justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                        {course.code ?? "Academy Program"}
+                      </p>
+                      {enrolled && (
+                        <span>
+                          {" "}
+                          <p className="inline-flex gap-1 justify-center items-center rounded-full bg-green-500 px-2 py-0.5 text-xs text-white">
+                            <CheckCircle2 size={16} />
+                            Enrolled
+                          </p>
+                        </span>
+                      )}
+                    </div>
 
                     <h3 className="mt-2 line-clamp-2 font-semibold text-slate-900 dark:text-white">
                       {course.title}
@@ -836,9 +848,20 @@ export default function StudentCourses() {
                   </div>
 
                   <div className="p-5">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
-                      {program.code ?? "Academy Program"}
-                    </p>
+                    <div className="flex flex-row justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                        {program.code ?? "Academy Program"}
+                      </p>
+                      {enrolled && (
+                        <span>
+                          {" "}
+                          <p className="inline-flex gap-1 justify-center items-center rounded-full bg-green-500 px-2 py-0.5 text-xs text-white">
+                            <CheckCircle2 size={16} />
+                            Enrolled
+                          </p>
+                        </span>
+                      )}
+                    </div>
 
                     <h3 className="mt-2 line-clamp-2 font-semibold text-slate-900 dark:text-white">
                       {program.title}

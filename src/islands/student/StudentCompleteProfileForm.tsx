@@ -15,21 +15,41 @@ export default function StudentCompleteProfileForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  /**
+   * Redirects the student to their intended course checkout when valid,
+   * or to the dashboard when no valid checkout destination exists.
+   */
+  function redirectAfterProfileCompletion() {
+    const requestedReturnTo =
+      new URLSearchParams(window.location.search).get("returnTo") ??
+      sessionStorage.getItem("cloudtweak_student_return_to");
+
+    const returnTo =
+      requestedReturnTo &&
+      /^\/student\/courses\/[a-zA-Z0-9-]+\/checkout$/.test(requestedReturnTo)
+        ? requestedReturnTo
+        : null;
+
+    if (returnTo) {
+      sessionStorage.removeItem("cloudtweak_student_return_to");
+      window.location.replace(returnTo);
+      return;
+    }
+
+    window.location.replace("/student/dashboard");
+  }
+
   useEffect(() => {
     // Loads the authenticated student's existing profile information.
     async function loadProfile() {
-      
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-      
 
       if (!session) {
-        
         window.location.replace("/student/login");
         return;
       }
 
-      
       const { data: profile, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select(
@@ -38,16 +58,13 @@ export default function StudentCompleteProfileForm() {
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      
       if (profileError) {
-        
         setError("We could not load your profile. Please try again.");
         setLoading(false);
         return;
       }
 
       if (!profile) {
-        
         setError(
           "Your student profile could not be found. Please contact support."
         );
@@ -56,8 +73,7 @@ export default function StudentCompleteProfileForm() {
       }
 
       if (profile.profile_completed) {
-        
-        window.location.replace("/student/dashboard");
+        redirectAfterProfileCompletion();
         return;
       }
 
@@ -73,7 +89,6 @@ export default function StudentCompleteProfileForm() {
     }
 
     loadProfile().catch((error) => {
-      
       setError("We could not load your profile. Please refresh and try again.");
       setLoading(false);
     });
@@ -126,8 +141,7 @@ export default function StudentCompleteProfileForm() {
       return;
     }
 
-    
-    window.location.replace("/student/dashboard");
+    redirectAfterProfileCompletion();
   }
 
   if (loading) {

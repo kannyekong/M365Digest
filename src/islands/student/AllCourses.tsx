@@ -346,7 +346,6 @@ export default function StudentCourses() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredPrograms.map((program) => {
               const enrolled = enrolledProgramIds.has(program.id);
-
               const image =
                 program.thumbnail_image_url ?? program.hero_image_url;
 
@@ -384,19 +383,28 @@ export default function StudentCourses() {
                   </div>
 
                   <div className="p-5">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
-                      {program.code ?? "Academy Program"}
-                    </p>
+                    <div className="flex flex-row justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                        {program.code ?? "Academy Program"}
+                      </p>
+                      {enrolled && (
+                        <span>
+                          {" "}
+                          <p className="inline-flex gap-1 justify-center items-center rounded-full bg-green-500 px-2 py-0.5 text-xs text-white">
+                            <CheckCircle2 size={16} />
+                            Enrolled
+                          </p>
+                        </span>
+                      )}
+                    </div>
 
                     <h3 className="mt-2 line-clamp-2 font-semibold text-slate-900 dark:text-white">
                       {program.title}
                     </h3>
-
                     <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
                       {program.short_description ??
                         "Build practical skills with CloudTweak Academy."}
                     </p>
-
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <div>
                         <p className="text-xs text-slate-400">Program fee</p>
@@ -422,7 +430,6 @@ export default function StudentCourses() {
                         </p>
                       </div>
                     </div>
-
                     {enrolled ? (
                       <a
                         href={`/student/courses/${program.slug}`}
@@ -430,7 +437,7 @@ export default function StudentCourses() {
                         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                       >
                         <CheckCircle2 size={16} />
-                        Open My Course
+                        Open Course
                       </a>
                     ) : (
                       <a

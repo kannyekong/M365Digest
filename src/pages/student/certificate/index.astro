@@ -17,7 +17,7 @@ import { Award, Clock3, GraduationCap } from "lucide-react";
   />
   <main class="min-h-screen p-5 md:p-6">
     <div class="mx-auto max-w-[1600px] space-y-6">
-      <section class="grid gap-4 sm:grid-cols-3">
+      <section class="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
         <SummaryCard
           title="Completed programs"
           value="—"
@@ -52,6 +52,18 @@ import { Award, Clock3, GraduationCap } from "lucide-react";
           iconBackgroundColor="bg-amber-50 dark:bg-amber-950/40"
           iconColor="text-amber-600 dark:text-amber-400"
           valueId="certificate-pending"
+        />
+
+        <SummaryCard
+          title="Programs In Progress"
+          value="—"
+          valueColor="text-amber-600 dark:text-amber-400"
+          icon={Clock3}
+          watermarkIcon={Clock3}
+          accentColor="text-amber-600"
+          iconBackgroundColor="bg-amber-50 dark:bg-amber-950/40"
+          iconColor="text-amber-600 dark:text-amber-400"
+          valueId="certificate-in-progress"
         />
       </section>
       <section
@@ -227,6 +239,11 @@ import { Award, Clock3, GraduationCap } from "lucide-react";
       "certificate-pending",
       records.filter((item) => item.status === "eligible").length
     );
+    setCount(
+      "certificate-in-progress",
+      Number(payload.programsInProgress ?? 0)
+    );
+
     render();
   }
 

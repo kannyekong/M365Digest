@@ -18,6 +18,8 @@ import SummaryCard from "../../components/student/SummaryCard";
 import { getSession } from "../../lib/auth";
 import { studentSupabase } from "../../lib/superbase";
 import ProgramCarousel from "./ProgramCarousel";
+import StudentOnboardingWizard from "./StudentOnboardingWizard";
+import PromotionalCarousel from "./PromotionalCarousel";
 
 type StudentProfile = {
   id: string;
@@ -359,43 +361,7 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen p-5">
       <div className="mx-auto max-w-[1600px] space-y-6">
-        <section className="relative isolate overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 text-white p-6 shadow-sm md:p-7">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-          >
-            <div className="absolute -right-12 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
-
-            <div className="absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-teal-300/20 blur-3xl"></div>
-
-            <Shapes
-              aria-hidden="true"
-              className="absolute -right-4 top-1/2 h-48 w-48 -translate-y-1/2 rotate-[-10deg] text-white/[0.13] sm:right-36 sm:h-64 sm:w-64 lg:right-64 lg:h-70 lg:w-80"
-              strokeWidth={1}
-            />
-          </div>
-
-          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="max-w-full">
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-3xl">
-                Welcome back, {displayName}
-              </h1>
-
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white dark:text-slate-400">
-                Continue your learning journey, track your progress, and access
-                your Academy courses from one place.
-              </p>
-            </div>
-
-            <a
-              href="/student/courses"
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-white bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              Browse My Courses
-              <ArrowRight size={16} />
-            </a>
-          </div>
-        </section>
+        <PromotionalCarousel displayName={displayName} />
 
         <section className="grid gap-5 xl:grid-cols-2">
           <div className="grid grid-cols-2 gap-3">
@@ -761,6 +727,7 @@ export default function StudentDashboard() {
           )}
         </section>
       </div>
+      <StudentOnboardingWizard finishHref="/student/courses" />
     </div>
   );
 }

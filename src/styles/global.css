@@ -57,8 +57,6 @@ html {
   scroll-behavior: smooth;
 }
 
-
-
 [data-toggle-nav][data-open-nav="true"] #line1 {
   transform: translateY(0.375rem) rotate(40deg);
 }
@@ -178,4 +176,9 @@ select#selectTask {
 /* Makes the progress bar background track subtle on colored toasts. */
 .Toastify__progress-bar--wrp {
   opacity: 0.35;
+}
+
+/* Rotate the lesson description chevron when its parent accordion is open. */
+details[open] .details-open-rotate {
+  transform: rotate(90deg);
 }

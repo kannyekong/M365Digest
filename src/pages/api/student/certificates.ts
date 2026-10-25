@@ -55,20 +55,26 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
 function normalizeProgram(
   value: ProgramRelation | ProgramRelation[] | null
 ): ProgramRelation | null {
-  return Array.isArray(value) ? value[0] ?? null : value;
+  return Array.isArray(value) ? (value[0] ?? null) : value;
 }
 
 /** Return only the signed-in learner's completed, certificate-enabled programs. */
 export const GET: APIRoute = async ({ request }) => {
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) {
-    return jsonResponse({ success: false, message: "Please sign in to view your certificates." }, 401);
+    return jsonResponse(
+      { success: false, message: "Please sign in to view your certificates." },
+      401
+    );
   }
 
   const supabaseUrl = import.meta.env.SUPABASE_URL;
   const serviceRoleKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !serviceRoleKey) {
-    return jsonResponse({ success: false, message: "Certificate service is unavailable." }, 500);
+    return jsonResponse(
+      { success: false, message: "Certificate service is unavailable." },
+      500
+    );
   }
 
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -77,51 +83,92 @@ export const GET: APIRoute = async ({ request }) => {
 
   try {
     const accessToken = authorization.slice("Bearer ".length).trim();
-    const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(accessToken);
     if (userError || !user?.email) {
-      return jsonResponse({ success: false, message: "Your session has expired. Please sign in again." }, 401);
+      return jsonResponse(
+        {
+          success: false,
+          message: "Your session has expired. Please sign in again.",
+        },
+        401
+      );
     }
 
     const requestedSlug = new URL(request.url).searchParams.get("slug")?.trim();
     const { data: rows, error: registrationsError } = await supabase
       .from("academy_registrations")
-      .select(`
+      .select(
+        `
         id, program_id, first_name, last_name, email,
         registration_status, certificate_status, completed_at,
         program:academy_programs ( id, title, slug, code, certificate_enabled )
-      `)
+      `
+      )
       .ilike("email", user.email)
       .order("completed_at", { ascending: false, nullsFirst: false });
 
     if (registrationsError) throw registrationsError;
 
-    const completed = ((rows ?? []) as unknown as RegistrationRow[])
-      .map((registration) => ({ ...registration, program: normalizeProgram(registration.program) }))
-      .filter((registration) =>
-        Boolean(registration.program?.certificate_enabled) &&
-        (registration.registration_status === "completed" || Boolean(registration.completed_at)) &&
-        Boolean(registration.program?.slug) &&
-        (!requestedSlug || registration.program?.slug === requestedSlug)
+    // Count distinct active programs before filtering completed registrations.
+    const allRegistrations = (rows ?? []) as unknown as RegistrationRow[];
+
+    const programsInProgress = new Set(
+      allRegistrations
+        .filter(
+          (registration) =>
+            ["confirmed", "enrolled"].includes(
+              registration.registration_status
+            ) && registration.completed_at === null
+        )
+        .map((registration) => registration.program_id)
+        .filter(Boolean)
+    ).size;
+
+    const completed = allRegistrations
+      .map((registration) => ({
+        ...registration,
+        program: normalizeProgram(registration.program),
+      }))
+      .filter(
+        (registration) =>
+          Boolean(registration.program?.certificate_enabled) &&
+          (registration.registration_status === "completed" ||
+            Boolean(registration.completed_at)) &&
+          Boolean(registration.program?.slug) &&
+          (!requestedSlug || registration.program?.slug === requestedSlug)
       );
 
     if (completed.length === 0) {
-      return jsonResponse({ success: true, certificates: [], certificate: null });
+      return jsonResponse({
+        success: true,
+        certificates: [],
+        certificate: null,
+        programsInProgress,
+      });
     }
 
-    const registrationIds = [...new Set(completed.map((registration) => registration.id))];
+    const registrationIds = [
+      ...new Set(completed.map((registration) => registration.id)),
+    ];
     const { data: certificateRows, error: certificatesError } = await supabase
       .from("academy_certificates")
-      .select(`
+      .select(
+        `
         id, registration_id, certificate_number, verification_code,
         recipient_name, program_title, issue_date, completion_date,
         file_url, status, generated_at, revoked_at, revocation_reason
-      `)
+      `
+      )
       .in("registration_id", registrationIds);
 
     if (certificatesError) throw certificatesError;
 
     const certificatesByRegistration = new Map<string, CertificateRow>();
-    for (const certificate of (certificateRows ?? []) as unknown as CertificateRow[]) {
+    for (const certificate of (certificateRows ??
+      []) as unknown as CertificateRow[]) {
       certificatesByRegistration.set(certificate.registration_id, certificate);
     }
 
@@ -129,9 +176,13 @@ export const GET: APIRoute = async ({ request }) => {
     const bySlug = new Map<string, Record<string, unknown>>();
     for (const registration of completed) {
       const program = registration.program!;
-      const storedCertificate = certificatesByRegistration.get(registration.id) ?? null;
+      const storedCertificate =
+        certificatesByRegistration.get(registration.id) ?? null;
       const revoked = storedCertificate?.status === "revoked";
-      const issued = storedCertificate?.status === "generated" && Boolean(storedCertificate.file_url) && !revoked;
+      const issued =
+        storedCertificate?.status === "generated" &&
+        Boolean(storedCertificate.file_url) &&
+        !revoked;
       const status = revoked ? "revoked" : issued ? "issued" : "eligible";
       const result = {
         registrationId: registration.id,
@@ -139,19 +190,26 @@ export const GET: APIRoute = async ({ request }) => {
         programTitle: program.title,
         programSlug: program.slug,
         programCode: program.code,
-        recipientName: storedCertificate?.recipient_name || `${registration.first_name} ${registration.last_name}`.trim(),
+        recipientName:
+          storedCertificate?.recipient_name ||
+          `${registration.first_name} ${registration.last_name}`.trim(),
         status,
         completedAt: registration.completed_at,
-        certificate: storedCertificate ? {
-          id: storedCertificate.id,
-          certificateNumber: storedCertificate.certificate_number,
-          verificationCode: storedCertificate.verification_code,
-          issueDate: storedCertificate.issue_date,
-          completionDate: storedCertificate.completion_date || registration.completed_at,
-          fileUrl: issued ? storedCertificate.file_url : null,
-          revokedAt: storedCertificate.revoked_at,
-          revocationReason: revoked ? storedCertificate.revocation_reason : null,
-        } : null,
+        certificate: storedCertificate
+          ? {
+              id: storedCertificate.id,
+              certificateNumber: storedCertificate.certificate_number,
+              verificationCode: storedCertificate.verification_code,
+              issueDate: storedCertificate.issue_date,
+              completionDate:
+                storedCertificate.completion_date || registration.completed_at,
+              fileUrl: issued ? storedCertificate.file_url : null,
+              revokedAt: storedCertificate.revoked_at,
+              revocationReason: revoked
+                ? storedCertificate.revocation_reason
+                : null,
+            }
+          : null,
       };
       if (!bySlug.has(program.slug)) bySlug.set(program.slug, result);
     }
@@ -160,10 +218,17 @@ export const GET: APIRoute = async ({ request }) => {
     return jsonResponse({
       success: true,
       certificates,
-      certificate: requestedSlug ? certificates[0] ?? null : null,
+      certificate: requestedSlug ? (certificates[0] ?? null) : null,
+      programsInProgress,
     });
   } catch (error) {
     console.error("Student certificate lookup failed:", error);
-    return jsonResponse({ success: false, message: "Your certificates could not be loaded. Please try again." }, 500);
+    return jsonResponse(
+      {
+        success: false,
+        message: "Your certificates could not be loaded. Please try again.",
+      },
+      500
+    );
   }
 };

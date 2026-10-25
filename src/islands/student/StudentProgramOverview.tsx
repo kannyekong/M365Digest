@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   ArrowRight,
   Award,
@@ -15,62 +16,114 @@ import {
 } from "lucide-react";
 
 import { getSession } from "../../lib/auth";
+
 import { studentSupabase } from "../../lib/superbase";
-import StudentHeader from "../../components/admin/UI/StudentHeader.astro";
+
+import CourseInstructorCarousel from "../academy/CourseInstructorCarousel";
+
+// Defines the instructor details displayed on a course slug page.
+
+// Represents an instructor profile in the shape expected by the carousel.
+type Instructor = {
+  id: string;
+  full_name: string;
+  job_title: string | null;
+  photo_url: string | null;
+  email: string;
+  phone: string;
+  website: string;
+};
 
 type Program = {
   id: string;
+
   title: string;
+
   slug: string;
+
   code: string | null;
+
   short_description: string | null;
+
   description: string | null;
+
   hero_image_url: string | null;
+
   thumbnail_image_url: string | null;
+
   banner_image_url: string | null;
+
   duration_value: number | null;
+
   duration_unit: string | null;
+
   delivery_mode: string | null;
+
   certificate_enabled: boolean;
+
   status: string;
+
   registration_open: boolean;
+
   price: number | null;
+
   discount_price: number | null;
+
   currency: string | null;
+
   show_price: boolean;
+  instructors: Instructor[];
 };
 
 type Enrollment = {
   id: string;
+
   status: string;
+
   start_date: string | null;
+
   end_date: string | null;
 };
 
 type Module = {
   id: string;
+
   title: string;
+
   description: string | null;
+
   display_order: number;
+
   duration: number | null;
+
   module_number: number | null;
+
   is_preview: boolean;
 };
 
 type Lesson = {
   id: string;
+
   module_id: string;
+
   title: string;
+
   description: string | null;
+
   display_order: number;
+
   duration: number | null;
+
   lesson_type: string | null;
 };
 
 type LessonProgress = {
   lesson_id: string;
+
   status: "not_started" | "in_progress" | "completed";
+
   progress_percent: number;
+
   last_accessed_at: string | null;
 };
 
@@ -80,20 +133,42 @@ type Props = {
 
 export default function StudentProgramOverview({ programSlug }: Props) {
   const [program, setProgram] = useState<Program | null>(null);
+
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+
   const [modules, setModules] = useState<Module[]>([]);
+
   const [lessons, setLessons] = useState<Lesson[]>([]);
+
   const [progressRecords, setProgressRecords] = useState<LessonProgress[]>([]);
+
   const [loading, setLoading] = useState(true);
+
   const [errorMessage, setErrorMessage] = useState("");
+
   const [expandedModules, setExpandedModules] = useState<Set<string>>(
     new Set()
   );
 
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  const description = program?.description ?? "";
+
+  const descriptionWords = description.trim().split(/\s+/).filter(Boolean);
+
+  const isDescriptionLong = descriptionWords.length > 75;
+
+  const displayedDescription =
+    isDescriptionExpanded || !isDescriptionLong
+      ? description
+      : `${descriptionWords.slice(0, 75).join(" ")}…`;
+
   useEffect(() => {
     // Loads the authenticated student's program, enrollment, curriculum, and progress.
+
     async function loadProgram() {
       setLoading(true);
+
       setErrorMessage("");
 
       const {
@@ -102,106 +177,255 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
       if (!session) {
         window.location.replace("/student/login");
+
         return;
       }
 
       // Loads the student's Academy profile so enrollment can be resolved safely.
+
       const { data: profileData, error: profileError } = await studentSupabase
+
         .from("student_profiles")
+
         .select("id")
+
         .eq("user_id", session.user.id)
+
         .maybeSingle();
 
       if (profileError) {
         console.error("Failed to load student profile:", profileError);
+
         setErrorMessage("We could not load your student profile.");
+
         setLoading(false);
+
         return;
       }
 
       if (!profileData) {
         window.location.replace("/student/complete-profile");
+
         return;
       }
 
       // Loads the published Academy program identified by the route slug.
+
       const { data: programData, error: programError } = await studentSupabase
+
         .from("academy_programs")
+
         .select(
           `
+
             id,
+
             title,
+
             slug,
+
             code,
+
             short_description,
+
             description,
+
             hero_image_url,
+
             thumbnail_image_url,
+
             banner_image_url,
+
             duration_value,
+
             duration_unit,
+
             delivery_mode,
+
             certificate_enabled,
+
             status,
+
             registration_open,
+
             price,
+
             discount_price,
+
             currency,
+
             show_price
+
           `
         )
+
         .eq("slug", programSlug)
+
         .eq("status", "published")
+
         .maybeSingle();
 
       if (programError) {
         console.error("Failed to load Academy program:", programError);
+
         setErrorMessage("We could not load this course.");
+
         setLoading(false);
+
         return;
       }
 
       if (!programData) {
         setErrorMessage("This course could not be found.");
+
         setLoading(false);
+
         return;
       }
 
-      setProgram(programData);
+      // Loads instructor assignments for this program in the configured display order.
+      const { data: instructorAssignments, error: instructorAssignmentsError } =
+        await studentSupabase
+          .from("academy_program_instructors")
+          .select("instructor_id, display_order")
+          .eq("program_id", programData.id)
+          .order("display_order", { ascending: true });
+
+      let assignedInstructors: Instructor[] = [];
+
+      if (instructorAssignmentsError) {
+        // Keep the course page available even if optional instructor data fails to load.
+        console.error(
+          "Failed to load program instructor assignments:",
+          instructorAssignmentsError
+        );
+      } else {
+        // Collect the instructor IDs linked to this program.
+        const instructorIds = [
+          ...new Set(
+            (instructorAssignments ?? []).map(
+              (assignment) => assignment.instructor_id
+            )
+          ),
+        ];
+
+        if (instructorIds.length > 0) {
+          // Loads active instructor profiles using the actual Academy database columns.
+          const { data: instructorProfiles, error: instructorProfilesError } =
+            await studentSupabase
+              .from("academy_instructors")
+              .select("id, full_name, title, image_url, email, phone,website")
+              .in("id", instructorIds)
+              .eq("is_active", true);
+
+          if (instructorProfilesError) {
+            // Instructor information is supplementary; do not block the course page.
+            console.error(
+              "Failed to load instructor profiles:",
+              instructorProfilesError
+            );
+          } else {
+            // Index profiles by ID so assignment order can be preserved.
+            // Gives the profile lookup an explicit type for reliable TypeScript inference.
+            type InstructorProfile = {
+              id: string;
+              full_name: string;
+              title: string | null;
+              image_url: string | null;
+              email: string | null;
+              phone: string | null;
+              website: string | null;
+            };
+
+            const instructorById = new Map<string, InstructorProfile>(
+              ((instructorProfiles ?? []) as InstructorProfile[]).map(
+                (instructor) => [instructor.id, instructor]
+              )
+            );
+
+            // Maps database field names to the props expected by the carousel.
+            assignedInstructors = (instructorAssignments ?? []).flatMap(
+              (assignment) => {
+                const instructor = instructorById.get(assignment.instructor_id);
+
+                if (!instructor) return [];
+
+                return [
+                  {
+                    id: instructor.id,
+                    full_name: instructor.full_name,
+                    job_title: instructor.title,
+                    photo_url: instructor.image_url,
+                    email: instructor.email ?? "",
+                    phone: instructor.phone ?? "",
+                    website: instructor.website ?? "",
+                  },
+                ];
+              }
+            );
+          }
+        }
+      }
+
+      // Stores the program and its assigned instructors together for rendering.
+      setProgram({
+        ...programData,
+        instructors: assignedInstructors,
+      });
+
       // Checks whether the authenticated student already has an enrollment for this program.
-      const { data: enrollmentData, error: enrollmentError } = await studentSupabase
-        .from("student_enrollments")
-        .select("id, status, start_date, end_date")
-        .eq("student_id", profileData.id)
-        .eq("program_id", programData.id)
-        .in("status", ["pending", "active", "paused", "completed"])
-        .maybeSingle();
+
+      const { data: enrollmentData, error: enrollmentError } =
+        await studentSupabase
+
+          .from("student_enrollments")
+
+          .select("id, status, start_date, end_date")
+
+          .eq("student_id", profileData.id)
+
+          .eq("program_id", programData.id)
+
+          .in("status", ["pending", "active", "paused", "completed"])
+
+          .maybeSingle();
 
       if (enrollmentError) {
         console.error("Failed to load enrollment:", enrollmentError);
+
         setErrorMessage("We could not determine your course enrollment.");
+
         setLoading(false);
+
         return;
       }
 
       // Keep the enrollment mutable because a paid registration may need
+
       // to be synchronized into student_enrollments before continuing.
+
       let resolvedEnrollment = enrollmentData;
 
       // Recover a paid Academy registration when the enrollment record is missing.
+
       if (!resolvedEnrollment) {
         const accessToken = session.access_token;
 
         if (accessToken) {
           try {
             // Ask the secure server endpoint to reconcile the student's paid
+
             // Academy registration into an active student enrollment.
+
             const syncResponse = await fetch("/api/student/enrollments/sync", {
               method: "POST",
+
               headers: {
                 "Content-Type": "application/json",
+
                 Authorization: `Bearer ${accessToken}`,
               },
+
               body: JSON.stringify({
                 programId: programData.id,
               }),
@@ -215,16 +439,22 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               syncResult.enrollmentId
             ) {
               // Reload the enrollment created or recovered by the server.
+
               const { data: syncedEnrollment, error: syncedEnrollmentError } =
                 await studentSupabase
+
                   .from("student_enrollments")
+
                   .select("id, status, start_date, end_date")
+
                   .eq("id", syncResult.enrollmentId)
+
                   .single();
 
               if (syncedEnrollmentError) {
                 console.error(
                   "Failed to reload synchronized enrollment:",
+
                   syncedEnrollmentError
                 );
               } else {
@@ -233,12 +463,14 @@ export default function StudentProgramOverview({ programSlug }: Props) {
             } else if (!syncResponse.ok && syncResult.message) {
               console.warn(
                 "Student enrollment synchronization did not complete:",
+
                 syncResult.message
               );
             }
           } catch (syncError) {
             console.error(
               "Student enrollment synchronization request failed:",
+
               syncError
             );
           }
@@ -248,26 +480,42 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       setEnrollment(resolvedEnrollment);
 
       // Loads the course modules independently so non-enrolled students can preview the curriculum.
+
       const { data: moduleData, error: moduleError } = await studentSupabase
+
         .from("academy_program_modules")
+
         .select(
           `
+
             id,
+
             title,
+
             description,
+
             display_order,
+
             duration,
+
             module_number,
+
             is_preview
+
           `
         )
+
         .eq("program_id", programData.id)
+
         .order("display_order", { ascending: true });
 
       if (moduleError) {
         console.error("Failed to load course modules:", moduleError);
+
         setErrorMessage("We could not load the course curriculum.");
+
         setLoading(false);
+
         return;
       }
 
@@ -279,58 +527,91 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
       if (moduleIds.length === 0) {
         setLessons([]);
+
         setProgressRecords([]);
+
         setLoading(false);
+
         return;
       }
 
       // Loads the lessons belonging to the course modules.
+
       const { data: lessonData, error: lessonError } = await studentSupabase
+
         .from("academy_program_lessons")
+
         .select(
           `
+
             id,
+
             module_id,
+
             title,
+
             description,
+
             display_order,
+
             duration,
+
             lesson_type
+
           `
         )
+
         .in("module_id", moduleIds)
+
         .order("display_order", { ascending: true });
 
       if (lessonError) {
         console.error("Failed to load course lessons:", lessonError);
+
         setErrorMessage("We could not load the course lessons.");
+
         setLoading(false);
+
         return;
       }
 
       setLessons((lessonData ?? []) as Lesson[]);
 
       // Clear previous progress before loading the current program's enrollment progress.
+
       setProgressRecords([]);
 
       // Loads lesson progress only when the student has an enrollment.
+
       if (resolvedEnrollment) {
-        const { data: progressData, error: progressError } = await studentSupabase
-          .from("student_lesson_progress")
-          .select(
-            `
+        const { data: progressData, error: progressError } =
+          await studentSupabase
+
+            .from("student_lesson_progress")
+
+            .select(
+              `
+
         lesson_id,
+
         status,
+
         progress_percent,
+
         last_accessed_at
+
       `
-          )
-          .eq("enrollment_id", resolvedEnrollment.id);
+            )
+
+            .eq("enrollment_id", resolvedEnrollment.id);
 
         if (progressError) {
           console.error("Failed to load lesson progress:", progressError);
+
           setErrorMessage("We could not load your learning progress.");
+
           setLoading(false);
+
           return;
         }
 
@@ -338,6 +619,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
       }
 
       // Opens the first module when the curriculum is initially displayed.
+
       if (loadedModules.length > 0) {
         setExpandedModules(new Set([loadedModules[0].id]));
       }
@@ -386,7 +668,9 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
     const formatter = new Intl.NumberFormat("en-NG", {
       style: "currency",
+
       currency,
+
       maximumFractionDigits: 0,
     });
 
@@ -406,12 +690,15 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
+
       currency: program.currency || "NGN",
+
       maximumFractionDigits: 0,
     }).format(program.price);
   }, [program, hasDiscount]);
 
   // Toggles one curriculum module while preserving the state of the other modules.
+
   function toggleModule(moduleId: string) {
     setExpandedModules((current) => {
       const next = new Set(current);
@@ -427,14 +714,18 @@ export default function StudentProgramOverview({ programSlug }: Props) {
   }
 
   // Returns the number of lessons belonging to one curriculum module.
+
   function getModuleLessonCount(moduleId: string) {
     return lessons.filter((lesson) => lesson.module_id === moduleId).length;
   }
 
   // Returns the completed lesson count for one curriculum module.
+
   function getModuleCompletedCount(moduleId: string) {
     const moduleLessonIds = lessons
+
       .filter((lesson) => lesson.module_id === moduleId)
+
       .map((lesson) => lesson.id);
 
     return progressRecords.filter(
@@ -451,9 +742,13 @@ export default function StudentProgramOverview({ programSlug }: Props) {
           <div className="grid min-h-[430px] lg:grid-cols-[1.05fr_0.95fr]">
             <div className="animate-pulse p-8 md:p-10">
               <div className="h-5 w-24 rounded bg-slate-200 dark:bg-slate-800" />
+
               <div className="mt-6 h-12 max-w-xl rounded bg-slate-200 dark:bg-slate-800" />
+
               <div className="mt-4 h-12 max-w-lg rounded bg-slate-200 dark:bg-slate-800" />
+
               <div className="mt-8 h-5 max-w-2xl rounded bg-slate-200 dark:bg-slate-800" />
+
               <div className="mt-3 h-5 max-w-xl rounded bg-slate-200 dark:bg-slate-800" />
             </div>
 
@@ -465,6 +760,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
+
               className="h-28 animate-pulse rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
             />
           ))}
@@ -490,6 +786,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
         <a
           href="/student/courses"
+
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
         >
           Back to My Courses
@@ -501,56 +798,81 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-hidden rounded-3xl bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="flex flex-col justify-center p-3 md:p-8">
-            <div className="flex flex-wrap items-center gap-2">
-              {program.code && (
-                <span className="inline-flex items-center rounded-full bg-orange-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-                  {program.code}
-                </span>
-              )}
+          <div className="relative isolate flex flex-col justify-center overflow-hidden rounded-tl-2xl bg-gradient-to-r from-orange-500 via-fuchsia-500 to-indigo-600 p-3 text-white md:p-8">
+            <div
+              aria-hidden="true"
 
-              {enrollment && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                  <CheckCircle2 size={13} />
-                  Enrolled
-                </span>
-              )}
+              className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+            >
+              <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-orange-300/20 blur-3xl" />
+
+              <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" />
+
+              <div className="absolute right-[18%] top-8 h-32 w-32 rounded-full border border-white/10" />
+
+              <div className="absolute right-[24%] top-16 h-20 w-20 rotate-12 rounded-3xl border border-white/10" />
+
+              <div className="absolute -right-8 bottom-8 h-40 w-40 rotate-45 rounded-[2rem] border border-white/10" />
+
+              <div className="absolute bottom-12 left-[42%] h-3 w-3 rounded-full bg-orange-300/60" />
+
+              <div className="absolute right-[35%] top-12 h-2 w-2 rounded-full bg-sky-200/70" />
             </div>
 
-            <h1 className="mt-6 max-w-2xl text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-              {program.title}
-            </h1>
+            <div className="relative z-10">
+              <div className="flex flex-wrap items-center gap-2">
+                {program.code && (
+                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+                    {program.code}
+                  </span>
+                )}
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              {enrollment && nextLesson ? (
-                <a
-                  href={`/student/courses/${program.slug}/lessons/${nextLesson.id}`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
-                >
-                  <PlayCircle size={17} />
-                  Continue Learning
-                  <ArrowRight size={16} />
-                </a>
-              ) : !enrollment && program.registration_open ? (
-                <a
-                  href={`/student/courses/${program.slug}/checkout`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
-                >
-                  <ShoppingCart size={17} />
-                  Enroll Now
-                  <ArrowRight size={16} />
-                </a>
-              ) : null}
+                {enrollment && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                    <CheckCircle2 size={13} />
+                    Enrolled
+                  </span>
+                )}
+              </div>
 
-              <a
-                href="#curriculum"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                <BookOpen size={17} />
-                View Curriculum
-              </a>
+              <h1 className="mt-6 max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                {program.title}
+              </h1>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                {enrollment && nextLesson ? (
+                  <a
+                    href={`/student/courses/${program.slug}/lessons/${nextLesson.id}`}
+
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-950/20 transition hover:-translate-y-0.5 hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:ring-offset-2 focus:ring-offset-indigo-900"
+                  >
+                    <PlayCircle size={17} />
+                    Continue Learning
+                    <ArrowRight size={16} />
+                  </a>
+                ) : !enrollment && program.registration_open ? (
+                  <a
+                    href={`/student/courses/${program.slug}/checkout`}
+
+                    className="inline-flex items-center gap-2 rounded-xl border border-white px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-950/20 transition hover:-translate-y-0.5 hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:ring-offset-2 focus:ring-offset-indigo-900"
+                  >
+                    <ShoppingCart size={17} />
+                    Enroll Now
+                    <ArrowRight size={16} />
+                  </a>
+                ) : null}
+
+                <a
+                  href="#curriculum"
+
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                >
+                  <BookOpen size={17} />
+                  View Curriculum
+                </a>
+              </div>
             </div>
           </div>
 
@@ -562,7 +884,9 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                 program.thumbnail_image_url ||
                 "/images/academy-placeholder.jpg"
               }
+
               alt={program.title}
+
               className="absolute inset-0 h-full w-full object-cover"
             />
 
@@ -578,66 +902,64 @@ export default function StudentProgramOverview({ programSlug }: Props) {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-950/40">
-            <Clock3 size={19} />
+      <section className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <Clock3 className="pointer-events-none absolute -bottom-3 -right-15 h-48 w-48 rotate-[-12deg] text-orange-500/[0.04] transition-transform duration-300 group-hover:scale-110 dark:text-orange-400/[0.10]" />
+
+          <div className="relative z-10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-950/40">
+              <Clock3 size={19} />
+            </div>
+
+            <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+              Duration
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+              {program.duration_value
+                ? `${program.duration_value} ${program.duration_unit ?? ""}`
+                : "Flexible"}
+            </p>
           </div>
-
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            Duration
-          </p>
-
-          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-            {program.duration_value
-              ? `${program.duration_value} ${program.duration_unit ?? ""}`
-              : "Flexible"}
-          </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500 dark:bg-blue-950/40">
-            <GraduationCap size={19} />
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <GraduationCap className="pointer-events-none absolute -bottom-3 -right-15 h-48 w-48 rotate-[-12deg] text-blue-500/[0.04] transition-transform duration-300 group-hover:scale-110 dark:text-blue-400/[0.10]" />
+
+          <div className="relative z-10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500 dark:bg-blue-950/40">
+              <GraduationCap size={19} />
+            </div>
+
+            <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+              Delivery
+            </p>
+
+            <p className="mt-1 text-sm font-semibold capitalize text-slate-900 dark:text-white">
+              {program.delivery_mode || "Academy"}
+            </p>
           </div>
-
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            Delivery
-          </p>
-
-          <p className="mt-1 text-sm font-semibold capitalize text-slate-900 dark:text-white">
-            {program.delivery_mode || "Academy"}
-          </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/40">
-            <BookOpen size={19} />
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+          <BookOpen className="pointer-events-none absolute -bottom-3 -right-8 h-48 w-48 rotate-[-12deg] text-emerald-500/[0.04] transition-transform duration-300 group-hover:scale-110 dark:text-emerald-400/[0.10]" />
+
+          <div className="relative z-10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-950/40">
+              <BookOpen size={19} />
+            </div>
+
+            <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+              Curriculum
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+              {modules.length} modules · {totalLessons} lessons
+            </p>
           </div>
-
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            Curriculum
-          </p>
-
-          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-            {modules.length} modules · {totalLessons} lessons
-          </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-500 dark:bg-violet-950/40">
-            <Award size={19} />
-          </div>
-
-          <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
-            Certification
-          </p>
-
-          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-            {program.certificate_enabled
-              ? "Certificate included"
-              : "No certificate"}
-          </p>
-        </div>
+        <CourseInstructorCarousel instructors={program.instructors ?? []} />
       </section>
 
       {enrollment && (
@@ -647,6 +969,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                   <Sparkles size={17} />
+
                   <span className="text-xs font-bold uppercase tracking-[0.16em]">
                     Your Learning Progress
                   </span>
@@ -664,6 +987,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               {nextLesson && (
                 <a
                   href={`/student/courses/${program.slug}/lessons/${nextLesson.id}`}
+
                   className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
                 >
                   Continue Learning
@@ -675,6 +999,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-orange-100 dark:bg-orange-950/50">
               <div
                 className="h-full rounded-full bg-orange-500 transition-all duration-500"
+
                 style={{ width: `${courseProgress}%` }}
               />
             </div>
@@ -702,14 +1027,33 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                 </div>
               </div>
 
-              <div className="mt-6 whitespace-pre-line text-sm leading-7 text-slate-600 dark:text-slate-300">
-                {program.description}
+              <div className="mt-6">
+                <div className="whitespace-pre-line text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  {displayedDescription}
+                </div>
+
+                {isDescriptionLong && (
+                  <button
+                    type="button"
+
+                    onClick={() =>
+                      setIsDescriptionExpanded((previous) => !previous)
+                    }
+
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-orange-600 transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:text-orange-400 dark:hover:text-orange-300"
+
+                    aria-expanded={isDescriptionExpanded}
+                  >
+                    {isDescriptionExpanded ? "View less" : "View more"}
+                  </button>
+                )}
               </div>
             </section>
           )}
 
           <section
             id="curriculum"
+
             className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
           >
             <div className="border-b border-slate-200 p-6 dark:border-slate-800 md:p-8">
@@ -742,6 +1086,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                 <div className="p-8 text-center">
                   <BookOpen
                     size={28}
+
                     className="mx-auto text-slate-300 dark:text-slate-600"
                   />
 
@@ -752,19 +1097,26 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               ) : (
                 modules.map((module) => {
                   const moduleLessons = lessons
+
                     .filter((lesson) => lesson.module_id === module.id)
+
                     .sort((a, b) => a.display_order - b.display_order);
 
                   const isOpen = expandedModules.has(module.id);
+
                   const moduleCompleted = getModuleCompletedCount(module.id);
+
                   const moduleLessonCount = getModuleLessonCount(module.id);
 
                   return (
                     <div key={module.id}>
                       <button
                         type="button"
+
                         onClick={() => toggleModule(module.id)}
+
                         className="flex w-full items-center gap-4 p-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50 md:p-6"
+
                         aria-expanded={isOpen}
                       >
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -804,8 +1156,10 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
                         <ChevronDown
                           size={19}
+
                           className={[
                             "shrink-0 text-slate-400 transition-transform duration-200",
+
                             isOpen ? "rotate-180" : "",
                           ].join(" ")}
                         />
@@ -835,12 +1189,15 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                             return canOpen ? (
                               <a
                                 key={lesson.id}
+
                                 href={`/student/courses/${program.slug}/lessons/${lesson.id}`}
+
                                 className="group flex items-center gap-4 border-b border-slate-200 px-5 py-4 transition last:border-0 hover:bg-white dark:border-slate-800 dark:hover:bg-slate-900 md:px-6"
                               >
                                 <div
                                   className={[
                                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
+
                                     isCompleted
                                       ? "bg-emerald-50 text-emerald-500 dark:bg-emerald-950/40"
                                       : "bg-white text-slate-400 dark:bg-slate-900",
@@ -882,6 +1239,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
                                   <ArrowRight
                                     size={16}
+
                                     className="text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-orange-500"
                                   />
                                 </div>
@@ -889,6 +1247,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                             ) : (
                               <div
                                 key={lesson.id}
+
                                 className="flex items-center gap-4 border-b border-slate-200 px-5 py-4 last:border-0 dark:border-slate-800 md:px-6"
                               >
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-slate-400 dark:bg-slate-900">
@@ -920,6 +1279,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                                 {!module.is_preview && (
                                   <LockKeyhole
                                     size={15}
+
                                     className="shrink-0 text-slate-300 dark:text-slate-600"
                                   />
                                 )}
@@ -990,6 +1350,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                 {program.registration_open ? (
                   <a
                     href={`/student/courses/${program.slug}/checkout`}
+
                     className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-orange-600"
                   >
                     <ShoppingCart size={17} />
@@ -1009,61 +1370,87 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               </div>
             </section>
           ) : (
-            <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-                <CheckCircle2 size={21} />
-              </div>
-
-              <h2 className="mt-4 text-lg font-bold text-slate-950 dark:text-white">
-                You are enrolled
-              </h2>
-
-              <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Continue working through your curriculum and complete each
-                lesson at your own pace.
-              </p>
-
+            <>
               {nextLesson && (
-                <a
-                  href={`/student/courses/${program.slug}/lessons/${nextLesson.id}`}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                >
-                  Continue Learning
-                  <ArrowRight size={16} />
-                </a>
+                <section className="rounded-3xl bg-white p-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                  <div className="group relative flex items-start gap-4 overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-900/60 dark:from-emerald-950/40 dark:via-slate-900 dark:to-teal-950/30">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200/70 transition-transform duration-300 group-hover:scale-105 dark:bg-emerald-900/60 dark:text-emerald-400 dark:ring-emerald-800/60">
+                      <CheckCircle2 size={22} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                          Keep up the great work!
+                        </h3>
+
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">
+                          Your learning journey
+                        </span>
+                      </div>
+
+                      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                        Continue working through your curriculum, complete each
+                        lesson at your own pace, and build practical skills one
+                        step at a time.
+                      </p>
+                    </div>
+
+                    <div
+                      aria-hidden="true"
+
+                      className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl dark:bg-emerald-500/10"
+                    />
+                  </div>
+
+                  <a
+                    href={`/student/courses/${program.slug}/lessons/${nextLesson.id}`}
+
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    Continue Learning
+                    <ArrowRight size={16} />
+                  </a>
+                </section>
               )}
-            </section>
+            </>
           )}
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              Course at a glance
-            </h3>
+            <div className="border-b border-slate-200 p-2">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Course at a glance
+              </h3>
+            </div>
 
             <div className="mt-5 space-y-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 border-b border-slate-200 p-2">
                 <span className="text-sm text-slate-500">Modules</span>
+
                 <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   {modules.length}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 border-b border-slate-200 p-2">
                 <span className="text-sm text-slate-500">Lessons</span>
+
                 <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   {totalLessons}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 border-b border-slate-200 p-2">
                 <span className="text-sm text-slate-500">Delivery</span>
+
                 <span className="text-sm font-semibold capitalize text-slate-900 dark:text-white">
                   {program.delivery_mode || "Online"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 p-2">
                 <span className="text-sm text-slate-500">Certificate</span>
+
                 <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   {program.certificate_enabled ? "Yes" : "No"}
                 </span>

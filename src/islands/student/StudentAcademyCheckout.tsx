@@ -11,10 +11,11 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  X,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import { getSession } from "../../lib/auth";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 type Program = {
   id: string;
@@ -73,6 +74,9 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
+  const [activePolicy, setActivePolicy] = useState<
+    "refund" | "terms" | "privacy" | null
+  >(null);
 
   useEffect(() => {
     // Loads the authenticated student's profile, selected program, and existing enrollment.
@@ -102,7 +106,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
 
       setStudentEmail(authenticatedEmail);
       // Loads the Academy profile belonging to the authenticated account.
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id, first_name, last_name, phone, country")
         .eq("user_id", session.user.id)
@@ -123,7 +127,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
       setProfile(profileData);
 
       // Loads the published program from the trusted Academy database.
-      const { data: programData, error: programError } = await supabase
+      const { data: programData, error: programError } = await studentSupabase
         .from("academy_programs")
         .select(
           `
@@ -167,13 +171,14 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
       setProgram(programData);
 
       // Checks whether the student already has an active enrollment.
-      const { data: enrollmentData, error: enrollmentError } = await supabase
-        .from("student_enrollments")
-        .select("id, status")
-        .eq("student_id", profileData.id)
-        .eq("program_id", programData.id)
-        .in("status", ["pending", "active", "paused", "completed"])
-        .maybeSingle();
+      const { data: enrollmentData, error: enrollmentError } =
+        await studentSupabase
+          .from("student_enrollments")
+          .select("id, status")
+          .eq("student_id", profileData.id)
+          .eq("program_id", programData.id)
+          .in("status", ["pending", "active", "paused", "completed"])
+          .maybeSingle();
 
       if (enrollmentError) {
         console.error("Failed to load existing enrollment:", enrollmentError);
@@ -437,123 +442,15 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* {errorMessage && (
-        <div
-          role="alert"
-          className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
-        >
-          {errorMessage}
-        </div>
-      )} */}
-
-      <section className="grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="p-7 md:p-10 lg:p-12">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-              <Sparkles size={13} />
-              Enrollment
-            </span>
-
-            {program.code && (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                {program.code}
-              </span>
-            )}
-          </div>
-
-          <h1 className="mt-6 max-w-3xl text-3xl font-bold tracking-tight text-slate-950 dark:text-white md:text-4xl">
-            Secure your place in{" "}
-            <span className="text-orange-500">{program.title}</span>
-          </h1>
-
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300">
-            {program.short_description ||
-              "Complete your enrollment and continue your learning journey with CloudTweak Academy."}
-          </p>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
-              <Clock3 size={18} className="text-orange-500" />
-
-              <p className="mt-3 text-xs text-slate-400">Duration</p>
-
-              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                {program.duration_value
-                  ? `${program.duration_value} ${program.duration_unit ?? ""}`
-                  : "Flexible"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
-              <GraduationCap size={18} className="text-blue-500" />
-
-              <p className="mt-3 text-xs text-slate-400">Delivery</p>
-
-              <p className="mt-1 text-sm font-semibold capitalize text-slate-900 dark:text-white">
-                {program.delivery_mode || "Online"}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
-              <Award size={18} className="text-emerald-500" />
-
-              <p className="mt-3 text-xs text-slate-400">Certificate</p>
-
-              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                {program.certificate_enabled ? "Included" : "Not included"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative min-h-[300px] overflow-hidden lg:min-h-full">
-          <img
-            src={
-              program.hero_image_url ||
-              program.hero_image_url ||
-              program.thumbnail_image_url ||
-              "/images/academy-placeholder.jpg"
-            }
-            alt={program.title}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent" />
-
-          <div className="absolute bottom-6 left-6 right-6">
-            <div className="rounded-2xl border border-white/20 bg-white/90 p-4 shadow-xl backdrop-blur dark:bg-slate-950/90">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Your enrollment
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                {profile.first_name} {profile.last_name}
-              </p>
-
-              <p className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
-                Your Academy account
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section className="space-y-6">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500 dark:bg-blue-950/40">
-                <CheckCircle2 size={19} />
-              </div>
-
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-orange-500">
-                  Included
+                <p className="mt-1 text-sm text-slate-900 dark:text-white">
+                  Hi, {profile.first_name} {profile.last_name}, see what your
+                  enrollment includes below:
                 </p>
-
-                <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                  What your enrollment includes
-                </h2>
               </div>
             </div>
 
@@ -633,7 +530,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-slate-800 dark:text-slate-200">
                 <ShieldCheck size={19} />
               </div>
 
@@ -653,6 +550,39 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
               not receive or store your card details. Your enrollment is
               activated only after the payment has been successfully verified.
             </p>
+
+            <p className="mt-5 text-sm leading-7 text-slate-500 dark:text-slate-400">
+              Review our policies before proceeding with your payment.
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a
+                href="#"
+                type="button"
+                onClick={() => setActivePolicy("refund")}
+                className="text-sm font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+              >
+                Refund Policy
+              </a>
+
+              <a
+                href="#"
+                type="button"
+                onClick={() => setActivePolicy("terms")}
+                className="text-sm font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+              >
+                Terms &amp; Conditions
+              </a>
+
+              <a
+                href="#"
+                type="button"
+                onClick={() => setActivePolicy("privacy")}
+                className="text-sm font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+              >
+                Privacy Policy
+              </a>
+            </div>
 
             <div className="mt-5 flex items-center gap-3 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/60">
               <LockKeyhole size={18} className="shrink-0 text-emerald-500" />
@@ -678,20 +608,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
             </div>
 
             <div className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
-                  <img
-                    src={
-                      program.thumbnail_image_url ||
-                      program.hero_image_url ||
-                      program.hero_image_url ||
-                      "/images/academy-placeholder.jpg"
-                    }
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-
+              <div className="flex flex-col gap-4">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-slate-900 dark:text-white">
                     {program.title}
@@ -702,6 +619,18 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
                       {program.code}
                     </p>
                   )}
+                </div>
+                <div className="flex h-14 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={
+                      program.thumbnail_image_url ||
+                      program.hero_image_url ||
+                      program.hero_image_url ||
+                      "/images/academy-placeholder.jpg"
+                    }
+                    alt=""
+                    className="h-full w-full object-contain"
+                  />
                 </div>
               </div>
 
@@ -797,6 +726,680 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
           </section>
         </aside>
       </div>
+      {activePolicy && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
+          onClick={() => setActivePolicy(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="policy-modal-title"
+            className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+              <h2
+                id="policy-modal-title"
+                className="text-lg font-bold text-slate-950 dark:text-white"
+              >
+                {activePolicy === "refund"
+                  ? "Refund Policy"
+                  : activePolicy === "terms"
+                    ? "Terms & Conditions"
+                    : "Privacy Policy"}
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setActivePolicy(null)}
+                aria-label="Close policy"
+                className="rounded-full p-3 text-sm font-semibold text-red-500 transition bg-red-50 hover:bg-red-500 hover:text-white dark:hover:bg-slate-800 dark:hover:text-white"
+              >
+                <X />
+              </button>
+            </header>
+
+            <div className="overflow-y-auto px-6 py-5 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              {activePolicy === "refund" && (
+                <div className="space-y-6">
+                  <div>
+                    <p className="mt-2">
+                      Please read our refund policy carefully before enrolling
+                      in any of our bootcamps or training programs.
+                    </p>
+                  </div>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      1. Enrollment &amp; Commitment
+                    </h4>
+                    <p className="mt-2">
+                      By registering for any CloudTweak bootcamp, course, or
+                      training program, you agree to the terms outlined in this
+                      Refund Policy.
+                    </p>
+                    <p className="mt-2">
+                      Our programs are structured, instructor-led learning
+                      experiences that require upfront planning, resource
+                      allocation, and limited seat reservations. As such,
+                      refunds are governed by the conditions below.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      2. Refund Eligibility
+                    </h4>
+                    <p className="mt-2">
+                      Students may request a refund within 7 calendar days from
+                      the official commencement date of the program.
+                    </p>
+                    <p className="mt-2">To qualify for a refund:</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>
+                        The request must be submitted within the 7-day refund
+                        window.
+                      </li>
+                      <li>
+                        The participant must not have excessively consumed
+                        course materials, downloadable resources, or recorded
+                        sessions.
+                      </li>
+                      <li>
+                        Refund requests must be submitted officially through our
+                        support channel or designated contact email.
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      3. Non-Refundable Period
+                    </h4>
+                    <p className="mt-2">
+                      After 7 days from the program commencement date, all
+                      payments become non-refundable.
+                    </p>
+                    <p className="mt-2">This policy applies regardless of:</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Attendance status</li>
+                      <li>Scheduling conflicts</li>
+                      <li>Change of mind</li>
+                      <li>Incomplete participation</li>
+                      <li>Failure to complete assignments or labs</li>
+                    </ul>
+                    <p className="mt-2">
+                      By continuing participation beyond the first week, you
+                      acknowledge and accept the value and access already
+                      provided through the program.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      4. Processing Time
+                    </h4>
+                    <p className="mt-2">
+                      Approved refunds are processed within 5–10 business days
+                      depending on your payment provider or financial
+                      institution.
+                    </p>
+                    <p className="mt-2">
+                      Refunds will be issued using the original payment method
+                      whenever possible.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      5. Program Transfers
+                    </h4>
+                    <p className="mt-2">
+                      In certain situations, eligible participants may request:
+                    </p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Transfer to a future cohort</li>
+                      <li>Credit toward another training program</li>
+                    </ul>
+                    <p className="mt-2">
+                      Transfer requests are reviewed on a case-by-case basis and
+                      are not guaranteed.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      6. Cancellation by CloudTweak
+                    </h4>
+                    <p className="mt-2">
+                      If a program is canceled by CloudTweak for operational
+                      reasons, enrolled participants will receive either:
+                    </p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>A full refund</li>
+                      <li>
+                        The option to transfer enrollment to a future session
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      7. Chargebacks &amp; Payment Disputes
+                    </h4>
+                    <p className="mt-2">
+                      Initiating unauthorized chargebacks or payment disputes
+                      without first contacting our support team may result in:
+                    </p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Immediate suspension from the program</li>
+                      <li>
+                        Revocation of access to course materials and communities
+                      </li>
+                      <li>Restriction from future enrollments</li>
+                    </ul>
+                    <p className="mt-2">
+                      We encourage all participants to contact us directly so we
+                      can resolve concerns professionally and efficiently.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      8. Contact Us
+                    </h4>
+                    <p className="mt-2"></p>
+                    <p>
+                      For refund inquiries or billing-related questions, please
+                      contact CloudTweak Academy through our designated support
+                      channel or contact email. {"  "}
+                      <span className="text-orange-500">
+                        support@cloudtweak.net
+                      </span>
+                    </p>
+                  </section>
+                </div>
+              )}
+
+              {activePolicy === "terms" && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      CloudTweak Academy Terms &amp; Conditions
+                    </h3>
+                    <p className="mt-2">
+                      By enrolling in any CloudTweak program or using our
+                      platform, you agree to comply with these terms.
+                    </p>
+                  </div>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      1. Eligibility
+                    </h4>
+                    <p className="mt-2">
+                      Participants must be at least 18 years old or have the
+                      permission of a parent or guardian before enrolling in any
+                      CloudTweak program.
+                    </p>
+                    <p className="mt-2">
+                      You are responsible for ensuring that your device,
+                      internet connection, and software environment are adequate
+                      for participating in online training.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      2. Enrollment &amp; Payments
+                    </h4>
+                    <p className="mt-2">
+                      Enrollment into any bootcamp or training program is
+                      confirmed only after successful payment processing.
+                    </p>
+                    <p className="mt-2">
+                      CloudTweak reserves the right to refuse, suspend, or
+                      cancel enrollment in situations involving payment
+                      disputes, fraudulent activity, or violations of these
+                      terms.
+                    </p>
+                    <p className="mt-2">
+                      All pricing displayed on our platform is subject to change
+                      without prior notice.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      3. Refund Policy
+                    </h4>
+                    <p className="mt-2">
+                      Refund requests are governed by our official Refund
+                      Policy.
+                    </p>
+                    <p className="mt-2">
+                      Participants may request refunds only within the eligible
+                      refund period stated in the Refund Policy page.
+                    </p>
+                    <p className="mt-2">
+                      After the refund eligibility window expires, all payments
+                      become non-refundable.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setActivePolicy("refund")}
+                      className="mt-3 font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+                    >
+                      Read our Refund Policy
+                    </button>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      4. Intellectual Property
+                    </h4>
+                    <p className="mt-2">
+                      All training materials, presentations, labs, recordings,
+                      documentation, videos, and downloadable resources provided
+                      by CloudTweak remain the intellectual property of
+                      CloudTweak Academy.
+                    </p>
+                    <p className="mt-2">Participants may not:</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Redistribute course materials.</li>
+                      <li>
+                        Resell or commercially reproduce training content.
+                      </li>
+                      <li>Share private learning resources publicly.</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      5. Account &amp; Access Restrictions
+                    </h4>
+                    <p className="mt-2">
+                      Access to training platforms, communities, labs, and
+                      recordings is intended solely for the enrolled
+                      participant.
+                    </p>
+                    <p className="mt-2">
+                      Sharing accounts, login credentials, or private access
+                      links with unauthorized individuals is prohibited.
+                    </p>
+                    <p className="mt-2">
+                      CloudTweak reserves the right to suspend or revoke access
+                      where misuse or unauthorized sharing is detected.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      6. Code of Conduct
+                    </h4>
+                    <p className="mt-2">
+                      Participants are expected to maintain respectful,
+                      professional, and constructive behavior throughout all
+                      CloudTweak programs and communities.
+                    </p>
+                    <p className="mt-2">
+                      Harassment, abuse, discrimination, disruptive conduct, or
+                      malicious behavior toward instructors, staff, or fellow
+                      participants will not be tolerated.
+                    </p>
+                    <p className="mt-2">
+                      Violations may result in immediate removal from the
+                      program without refund.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      7. No Employment Guarantee
+                    </h4>
+                    <p className="mt-2">
+                      CloudTweak Academy provides educational and practical
+                      training experiences designed to improve participants’
+                      technical skills.
+                    </p>
+                    <p className="mt-2">
+                      However, enrollment or completion of any program does not
+                      guarantee:
+                    </p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Employment opportunities.</li>
+                      <li>Job placement.</li>
+                      <li>Certification success.</li>
+                      <li>Career advancement outcomes.</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      8. Third-Party Services
+                    </h4>
+                    <p className="mt-2">
+                      Certain practical labs or demonstrations may involve
+                      third-party platforms, including Microsoft 365 services,
+                      Microsoft Azure, Power Platform, or other external tools.
+                    </p>
+                    <p className="mt-2">
+                      CloudTweak is not responsible for outages, service
+                      interruptions, pricing changes, or policy changes
+                      introduced by third-party providers.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      9. Limitation of Liability
+                    </h4>
+                    <p className="mt-2">
+                      CloudTweak Academy shall not be held liable for:
+                    </p>
+                    <ul className="mt-2 list-disc space-y-2 pl-5">
+                      <li>Indirect or consequential losses.</li>
+                      <li>Technical interruptions or platform downtime.</li>
+                      <li>
+                        Personal business or career decisions made based on
+                        training content.
+                      </li>
+                    </ul>
+                    <p className="mt-2">
+                      All services are provided on an “as available” basis.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      10. Changes to Programs &amp; Content
+                    </h4>
+                    <p className="mt-2">
+                      CloudTweak reserves the right to modify, update, improve,
+                      or restructure training materials, schedules, instructors,
+                      and program content at any time.
+                    </p>
+                    <p className="mt-2">
+                      We continuously improve our curriculum to align with
+                      evolving Microsoft technologies and industry best
+                      practices.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      11. Termination of Access
+                    </h4>
+                    <p className="mt-2">
+                      CloudTweak may suspend or terminate access to any
+                      participant who violates these Terms &amp; Conditions,
+                      engages in misconduct, or compromises the integrity of our
+                      learning environment.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      12. Privacy
+                    </h4>
+                    <p className="mt-2">
+                      Your use of CloudTweak services may involve the collection
+                      and processing of limited personal information required
+                      for enrollment, communication, and service delivery.
+                    </p>
+                    <p className="mt-2">
+                      Additional information regarding data handling practices
+                      may be outlined in our Privacy Policy.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setActivePolicy("privacy")}
+                      className="mt-3 font-semibold text-orange-600 underline underline-offset-4 hover:text-orange-700 dark:text-orange-400"
+                    >
+                      Read our Privacy Policy
+                    </button>
+                  </section>
+
+                  <section>
+                    <h4 className="font-semibold text-slate-900 dark:text-white">
+                      13. Contact Information
+                    </h4>
+
+                    <p>
+                      If you have questions regarding these Terms and
+                      conditions, or your personal information, please contact:{" "}
+                      {"  "}
+                      <span className="text-orange-500">
+                        support@cloudtweak.net
+                      </span>
+                    </p>
+                  </section>
+                </div>
+              )}
+
+              {activePolicy === "privacy" && (
+                <div className="space-y-6">
+                  <p>
+                    CloudTweak Academy (“CloudTweak”, “we”, “our”, or “us”)
+                    respects your privacy and is committed to protecting your
+                    personal information.
+                  </p>
+
+                  <p>
+                    This Privacy Policy explains how we collect, use, store, and
+                    protect your information when you use our website, enroll in
+                    our bootcamps, access training resources, or interact with
+                    our services.
+                  </p>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      1. Information We Collect
+                    </h3>
+                    <p>
+                      We may collect personal and technical information
+                      including:
+                    </p>
+                    <ul className="list-disc space-y-1 pl-6">
+                      <li>Full name and contact details</li>
+                      <li>Email address and communication records</li>
+                      <li>Payment and billing information</li>
+                      <li>Enrollment and training activity</li>
+                      <li>Device, browser, and IP address information</li>
+                      <li>Website analytics and usage data</li>
+                    </ul>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      2. How We Use Your Information
+                    </h3>
+                    <p>We use collected information to:</p>
+                    <ul className="list-disc space-y-1 pl-6">
+                      <li>Process enrollments and payments</li>
+                      <li>Deliver training programs and learning resources</li>
+                      <li>Provide customer support and communication</li>
+                      <li>
+                        Improve our website, services, and learning experience
+                      </li>
+                      <li>Monitor platform security and prevent abuse</li>
+                    </ul>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      3. Payment Information
+                    </h3>
+                    <p>
+                      Payments may be processed through trusted third-party
+                      payment providers.
+                    </p>
+                    <p>
+                      CloudTweak does not directly store complete credit card or
+                      banking details on our servers unless explicitly stated by
+                      the payment provider.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      4. Cookies &amp; Analytics
+                    </h3>
+                    <p>
+                      Our website may use cookies, analytics tools, and tracking
+                      technologies to improve user experience and understand
+                      website usage patterns.
+                    </p>
+                    <p>Cookies may be used for:</p>
+                    <ul className="list-disc space-y-1 pl-6">
+                      <li>Session management</li>
+                      <li>Analytics and performance monitoring</li>
+                      <li>Improving website functionality</li>
+                    </ul>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      5. Data Sharing
+                    </h3>
+                    <p>
+                      CloudTweak does not sell, rent, or trade your personal
+                      information to third parties.
+                    </p>
+                    <p>
+                      We may share limited information with trusted service
+                      providers strictly for operational purposes such as:
+                    </p>
+                    <ul className="list-disc space-y-1 pl-6">
+                      <li>Payment processing</li>
+                      <li>Email communication services</li>
+                      <li>Analytics and infrastructure hosting</li>
+                    </ul>
+                    <p>
+                      These providers are expected to maintain appropriate
+                      security and confidentiality standards.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      6. Data Security
+                    </h3>
+                    <p>
+                      We implement reasonable administrative, technical, and
+                      organizational measures to help protect your information
+                      against unauthorized access, disclosure, or misuse.
+                    </p>
+                    <p>
+                      However, no internet-based platform or storage system can
+                      be guaranteed to be completely secure.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      7. Retention of Information
+                    </h3>
+                    <p>
+                      We may retain certain information for operational, legal,
+                      compliance, educational, or support purposes.
+                    </p>
+                    <p>
+                      Retention periods may vary depending on the type of data
+                      collected and applicable business requirements.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      8. Third-Party Platforms
+                    </h3>
+                    <p>
+                      CloudTweak training programs may integrate with
+                      third-party platforms such as Microsoft 365, Microsoft
+                      Azure, Tally, Selar, Chatbase, or other external services.
+                    </p>
+                    <p>
+                      Your interactions with third-party services are governed
+                      by their respective privacy policies and terms.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      9. Your Rights
+                    </h3>
+                    <p>
+                      Depending on your location and applicable laws, you may
+                      have rights relating to your personal information,
+                      including the ability to:
+                    </p>
+                    <ul className="list-disc space-y-1 pl-6">
+                      <li>Request access to your data</li>
+                      <li>Request correction of inaccurate information</li>
+                      <li>Request deletion of certain information</li>
+                      <li>Opt out of non-essential communications</li>
+                    </ul>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      10. Children's Privacy
+                    </h3>
+                    <p>
+                      CloudTweak Academy services are not directed toward
+                      children under 13 years old.
+                    </p>
+                    <p>
+                      We do not knowingly collect personal information from
+                      children without appropriate parental consent.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      11. Changes to This Policy
+                    </h3>
+                    <p>
+                      CloudTweak may update or revise this Privacy Policy
+                      periodically to reflect operational, legal, or
+                      technological changes.
+                    </p>
+                    <p>
+                      Continued use of our services after updates constitutes
+                      acceptance of the revised policy.
+                    </p>
+                  </section>
+
+                  <section className="space-y-2">
+                    <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                      12. Contact Us
+                    </h3>
+                    <p>
+                      If you have questions regarding this Privacy Policy or
+                      your personal information, please contact: {"  "}
+                      <span className="text-orange-500">
+                        support@cloudtweak.net
+                      </span>
+                    </p>
+                  </section>
+                </div>
+              )}
+            </div>
+
+            <footer className="border-t border-slate-200 px-6 py-4 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setActivePolicy(null)}
+                className="w-full rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
+              >
+                Return to checkout
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
       <ToastContainer
         position="top-right"
         autoClose={5000}
