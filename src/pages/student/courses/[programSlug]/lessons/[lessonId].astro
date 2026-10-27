@@ -75,7 +75,7 @@ if (moduleData.program_id !== program.id) {
 const { data: programModules, error: programModulesError } =
   await studentSupabase
     .from("academy_program_modules")
-    .select("id, module_number, display_order")
+    .select("id, title, module_number, display_order")
     .eq("program_id", program.id)
     .order("module_number", { ascending: true })
     .order("display_order", { ascending: true });
@@ -102,7 +102,7 @@ const { data: programLessons, error: programLessonsError } =
   moduleIds.length > 0
     ? await studentSupabase
         .from("academy_program_lessons")
-        .select("id, module_id, display_order")
+        .select("id, module_id, title, lesson_type, duration, display_order")
         .in("module_id", moduleIds)
         .order("display_order", { ascending: true })
     : { data: [], error: null };
@@ -127,6 +127,21 @@ const orderedLessons = (programModules ?? []).flatMap((academyModule) => {
 /**
  * Find the current lesson's position in the complete program curriculum.
  */
+const curriculumModules = (programModules ?? []).map((academyModule) => ({
+  id: academyModule.id,
+  title: academyModule.title,
+  module_number: academyModule.module_number,
+  lessons: (programLessons ?? [])
+    .filter((programLesson) => programLesson.module_id === academyModule.id)
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((programLesson) => ({
+      id: programLesson.id,
+      title: programLesson.title,
+      lesson_type: programLesson.lesson_type,
+      duration: programLesson.duration,
+    })),
+}));
+
 const currentLessonIndex = orderedLessons.findIndex(
   (programLesson) => programLesson.id === lesson.id
 );
@@ -244,6 +259,7 @@ const lessonTypeLabel = lesson.lesson_type
         programSlug={programSlug}
         previousLessonUrl={previousLessonUrl}
         nextLessonUrl={nextLessonUrl}
+        curriculum={curriculumModules}
       />
     </div>
   </main>
