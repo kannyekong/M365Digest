@@ -18,7 +18,21 @@ interface StudentLessonAccessProps {
     id: string;
     title: string;
     module_number: number | null;
-    lessons: Array<{ id: string; title: string; lesson_type: string | null; duration: number | null }>;
+    lessons: Array<{
+      id: string;
+      title: string;
+      lesson_type: string | null;
+      duration: number | null;
+      material_count: number;
+      total_duration_seconds: number;
+      materials: Array<{
+        id: string;
+        title: string;
+        resource_type: string;
+        duration_seconds: number | null;
+        kind: "resource" | "quiz";
+      }>;
+    }>;
   }>;
 }
 
