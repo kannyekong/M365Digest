@@ -199,6 +199,7 @@ export default function StudentResourceViewer({
   const [errorMessage, setErrorMessage] = useState("");
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([moduleId]));
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   /**
    * Load the lesson resources and the student's existing resource progress.
@@ -440,7 +441,7 @@ export default function StudentResourceViewer({
       if (embedUrl) {
         return (
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-sm dark:border-slate-800">
-            <div className="aspect-video">
+            <div className={isFullscreen ? "aspect-video max-h-[78vh]" : "aspect-video"}>
               <iframe
                 src={embedUrl}
                 title={resource.title}
@@ -550,9 +551,10 @@ export default function StudentResourceViewer({
   }
 
   return (
-    <section className="space-y-5">
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <aside className="order-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-5 lg:order-2">
+    <section className={isFullscreen ? "fixed inset-0 z-[100] overflow-y-auto bg-white p-4 dark:bg-slate-950 sm:p-6" : "space-y-5"}>
+      <div className={isFullscreen ? "mx-auto grid min-h-full max-w-[1800px] items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]" : "grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]"}>
+        <div className={isFullscreen ? "col-span-full flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800" : "hidden"}><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Distraction-free learning</p><p className="text-sm text-slate-600 dark:text-slate-300">{activeResource?.title ?? activeQuiz?.title ?? "Course lesson"}</p></div><button type="button" onClick={() => setIsFullscreen(false)} className="rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">Close <X className="inline h-4 w-4" /></button></div>
+        <aside className={(isFullscreen ? "hidden " : "") + "order-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-5 lg:order-2"}>
           <div className="px-3 py-2">
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
@@ -625,8 +627,8 @@ export default function StudentResourceViewer({
           </div>
         </aside>
 
-        <div className="order-1 min-w-0 lg:order-1">
-          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className={"order-1 min-w-0 lg:order-1 " + (isFullscreen ? "lg:col-span-2" : "")}>
+          <div className={(isFullscreen ? "hidden " : "") + "mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900"}>
             <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Lesson materials</p>
             <div className="flex flex-wrap gap-2">
               {orderedSidebarItems.map((item) => {
@@ -676,9 +678,10 @@ export default function StudentResourceViewer({
                   )}
                 </div>
 
-                <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">
-                  {activeResource.title}
-                </h2>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h2 className="mt-3 min-w-0 flex-1 text-xl font-bold text-slate-900 dark:text-white">{activeResource.title}</h2>
+                  <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{isFullscreen ? "Exit full screen" : "Full screen"}</button>
+                </div>
 
                 {activeResource.description ? (
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">
