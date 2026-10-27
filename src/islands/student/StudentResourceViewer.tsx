@@ -282,7 +282,6 @@ export default function StudentResourceViewer({
 
     return items.sort(
       (a, b) =>
-        Number(b.completed) - Number(a.completed) ||
         a.displayOrder - b.displayOrder ||
         a.title.localeCompare(b.title)
     );
