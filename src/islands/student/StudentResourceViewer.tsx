@@ -241,6 +241,26 @@ export default function StudentResourceViewer({
         (!resource.available_until || new Date(resource.available_until).getTime() >= now)
       );
       const publishedQuizzes = (quizData ?? []).filter((quiz) => quiz.is_published);
+      const publishedQuizIds = publishedQuizzes.map((quiz) => quiz.id);
+      const { data: completedQuizAttempts, error: completedQuizAttemptsError } =
+        publishedQuizIds.length > 0
+          ? await studentSupabase
+              .from("student_quiz_attempts")
+              .select("quiz_id")
+              .eq("enrollment_id", enrollmentId)
+              .eq("passed", true)
+              .not("completed_at", "is", null)
+              .in("quiz_id", publishedQuizIds)
+          : { data: [], error: null };
+
+      if (completedQuizAttemptsError) {
+        console.error("Failed to load curriculum quiz completion:", completedQuizAttemptsError);
+      } else {
+        setPassedQuizIds((current) => new Set([
+          ...current,
+          ...(completedQuizAttempts ?? []).map((attempt) => attempt.quiz_id),
+        ]));
+      }
 
       setCurriculumData((current) => current.map((academyModule) => ({
         ...academyModule,
