@@ -546,22 +546,6 @@ export default function StudentResourceViewer({
     );
   }
 
-  if (resources.length === 0 && quizzes.length === 0) {
-    return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
-        <FileText className="mx-auto h-10 w-10 text-slate-400" />
-
-        <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
-          No resources available
-        </h3>
-
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Resources for this lesson will appear here when they are published.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <section className="space-y-5">
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -747,7 +731,15 @@ export default function StudentResourceViewer({
                 </button>
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
+              <FileText className="mx-auto h-10 w-10 text-slate-400" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">No lesson materials yet</h3>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                You can continue exploring the course curriculum. Materials will appear here when published.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>
