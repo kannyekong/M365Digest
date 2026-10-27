@@ -373,7 +373,10 @@ export default function StudentAccountSettings() {
                 htmlFor="avatar-url"
                 className="text-sm font-semibold text-slate-700 dark:text-slate-200"
               >
-                Profile image URL <span className="italic font-normal">(Paste image link from your desired CDN)</span>
+                Profile image URL{" "}
+                <span className="italic font-normal">
+                  (Paste image link from your desired CDN)
+                </span>
               </label>
               <input
                 id="avatar-url"
@@ -421,7 +424,7 @@ export default function StudentAccountSettings() {
           </form>
         </section>
 
-        <div className="space-y-6">
+        <div className="space-y-6" id="password">
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-start gap-4">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-300">
@@ -429,7 +432,7 @@ export default function StudentAccountSettings() {
               </div>
               <div>
                 <h2 className="font-semibold text-slate-950 dark:text-white">
-                  Password
+                  Change your password
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Use a strong password you do not reuse elsewhere.

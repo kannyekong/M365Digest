@@ -1,7 +1,11 @@
 import {
   CheckCircle2,
   ClipboardCheck,
+  BookOpen,
+  ChevronDown,
   Clock3,
+  Maximize2,
+  Minimize2,
   ExternalLink,
   FileArchive,
   FileSpreadsheet,
@@ -28,11 +32,30 @@ import type {
   StudentQuizResult,
 } from "../../types/academy";
 
+interface CurriculumLesson {
+  id: string;
+  title: string;
+  lesson_type: string | null;
+  duration: number | null;
+  material_count: number;
+  total_duration_seconds: number;
+  materials: Array<{ id: string; title: string; resource_type: string; duration_seconds: number | null; kind: "resource" | "quiz" }>;
+}
+
+interface CurriculumModule {
+  id: string;
+  title: string;
+  module_number: number | null;
+  lessons: CurriculumLesson[];
+}
+
 interface StudentResourceViewerProps {
   programId: string;
   moduleId: string;
   lessonId: string;
   enrollmentId: string;
+  programSlug: string;
+  curriculum: CurriculumModule[];
 }
 
 /**
@@ -162,6 +185,8 @@ export default function StudentResourceViewer({
   moduleId,
   lessonId,
   enrollmentId,
+  programSlug,
+  curriculum,
 }: StudentResourceViewerProps) {
   const [resources, setResources] = useState<AcademyResource[]>([]);
   const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
@@ -174,6 +199,104 @@ export default function StudentResourceViewer({
   const [loading, setLoading] = useState(true);
   const [savingResourceId, setSavingResourceId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
+  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([moduleId]));
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [curriculumData, setCurriculumData] = useState(curriculum);
+
+  /**
+   * Load curriculum materials with the authenticated student client so the
+   * dropdown reflects the same row-level security access as the lesson viewer.
+   */
+  useEffect(() => {
+    async function loadCurriculumMaterials() {
+      const lessonIds = curriculum.flatMap((academyModule) => academyModule.lessons.map((lesson) => lesson.id));
+      if (lessonIds.length === 0) return;
+
+      const [
+        { data: resourceData, error: resourceError },
+        { data: quizData, error: quizError },
+      ] = await Promise.all([
+        studentSupabase
+          .from("academy_program_resources")
+          .select("id, lesson_id, title, resource_type, duration_seconds, display_order, is_published, available_from, available_until")
+          .in("lesson_id", lessonIds)
+          .order("display_order", { ascending: true }),
+        studentSupabase
+          .from("academy_quizzes")
+          .select("id, lesson_id, title, display_order, is_published")
+          .in("lesson_id", lessonIds)
+          .order("display_order", { ascending: true }),
+      ]);
+
+      if (resourceError || quizError) {
+        console.error("Failed to load curriculum lesson materials:", resourceError ?? quizError);
+        return;
+      }
+
+      const now = Date.now();
+      const publishedResources = (resourceData ?? []).filter((resource) =>
+        resource.is_published &&
+        (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
+        (!resource.available_until || new Date(resource.available_until).getTime() >= now)
+      );
+      const publishedQuizzes = (quizData ?? []).filter((quiz) => quiz.is_published);
+      const publishedQuizIds = publishedQuizzes.map((quiz) => quiz.id);
+      const { data: completedQuizAttempts, error: completedQuizAttemptsError } =
+        publishedQuizIds.length > 0
+          ? await studentSupabase
+              .from("student_quiz_attempts")
+              .select("quiz_id")
+              .eq("enrollment_id", enrollmentId)
+              .eq("passed", true)
+              .not("completed_at", "is", null)
+              .in("quiz_id", publishedQuizIds)
+          : { data: [], error: null };
+
+      if (completedQuizAttemptsError) {
+        console.error("Failed to load curriculum quiz completion:", completedQuizAttemptsError);
+      } else {
+        setPassedQuizIds((current) => new Set([
+          ...current,
+          ...(completedQuizAttempts ?? []).map((attempt) => attempt.quiz_id),
+        ]));
+      }
+
+      setCurriculumData((current) => current.map((academyModule) => ({
+        ...academyModule,
+        lessons: academyModule.lessons.map((lesson) => {
+          const lessonResources = publishedResources
+            .filter((resource) => resource.lesson_id === lesson.id)
+            .map((resource) => ({
+              id: resource.id,
+              title: resource.title,
+              resource_type: resource.resource_type,
+              duration_seconds: resource.duration_seconds,
+              kind: "resource" as const,
+            }));
+          const lessonQuizzes = publishedQuizzes
+            .filter((quiz) => quiz.lesson_id === lesson.id)
+            .map((quiz) => ({
+              id: quiz.id,
+              title: quiz.title,
+              resource_type: "quiz",
+              duration_seconds: null,
+              kind: "quiz" as const,
+            }));
+          const materials = [...lessonResources, ...lessonQuizzes].sort((a, b) => a.title.localeCompare(b.title));
+
+          return {
+            ...lesson,
+            materials,
+            material_count: materials.length,
+            total_duration_seconds: lessonResources.reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
+          };
+        }),
+      })));
+    }
+
+    void loadCurriculumMaterials();
+  }, [curriculum]);
 
   /**
    * Load the lesson resources and the student's existing resource progress.
@@ -216,7 +339,12 @@ export default function StudentResourceViewer({
         setResources(publishedResources);
         const publishedQuizzes = quizData.filter((quiz) => quiz.is_published);
         setQuizzes(publishedQuizzes);
-        setActiveQuizId(publishedResources.length === 0 ? publishedQuizzes[0]?.id ?? null : null);
+        const requestedResourceId = new URLSearchParams(window.location.search).get("resourceId");
+        const requestedQuizId = new URLSearchParams(window.location.search).get("quizId");
+        const requestedResource = publishedResources.find((resource) => resource.id === requestedResourceId);
+        const requestedQuiz = publishedQuizzes.find((quiz) => quiz.id === requestedQuizId);
+        setActiveResourceId(requestedResource?.id ?? (requestedQuiz ? null : publishedResources[0]?.id ?? null));
+        setActiveQuizId(requestedQuiz?.id ?? (publishedResources.length === 0 ? publishedQuizzes[0]?.id ?? null : null));
 
         const progressMap: Record<string, StudentResourceProgress> = {};
 
@@ -226,11 +354,6 @@ export default function StudentResourceViewer({
 
         setProgress(progressMap);
 
-        if (publishedResources.length > 0) {
-          setActiveResourceId(publishedResources[0].id);
-        } else {
-          setActiveResourceId(null);
-        }
       } catch (error) {
         console.error("Failed to load student resources:", error);
 
@@ -245,6 +368,25 @@ export default function StudentResourceViewer({
     }
 
     void loadResources();
+
+    // Load lesson completion separately from resource and quiz completion.
+    async function loadLessonProgress() {
+      const { data, error } = await studentSupabase
+        .from("student_lesson_progress")
+        .select("lesson_id, status")
+        .eq("enrollment_id", enrollmentId);
+
+      if (error) {
+        console.error("Failed to load curriculum lesson progress:", error);
+        return;
+      }
+
+      setCompletedLessonIds(
+        new Set((data ?? []).filter((item) => item.status === "completed").map((item) => item.lesson_id))
+      );
+    }
+
+    void loadLessonProgress();
   }, [lessonId, enrollmentId]);
 
   /**
@@ -259,34 +401,7 @@ export default function StudentResourceViewer({
   /** Return the currently selected lesson quiz, if one is selected. */
   const activeQuiz = useMemo(() => quizzes.find((quiz) => quiz.id === activeQuizId) ?? null, [quizzes, activeQuizId]);
 
-  // Combine resources and quizzes so completed items sort ahead of unfinished items.
-  const orderedSidebarItems = useMemo(() => {
-    const items = [
-      ...quizzes.map((quiz) => ({
-        id: quiz.id,
-        kind: "quiz" as const,
-        title: quiz.title,
-        completed: passedQuizIds.has(quiz.id),
-        displayOrder: quiz.display_order,
-        quiz,
-      })),
-      ...resources.map((resource) => ({
-        id: resource.id,
-        kind: "resource" as const,
-        title: resource.title,
-        completed: progress[resource.id]?.status === "completed",
-        displayOrder: resource.display_order,
-        resource,
-      })),
-    ];
 
-    return items.sort(
-      (a, b) =>
-        Number(b.completed) - Number(a.completed) ||
-        a.displayOrder - b.displayOrder ||
-        a.title.localeCompare(b.title)
-    );
-  }, [quizzes, resources, passedQuizIds, progress]);
 
   /** Notify lesson progression controls when a student passes a quiz. */
   function handleQuizProceed(result: StudentQuizResult) {
@@ -397,7 +512,7 @@ export default function StudentResourceViewer({
       if (embedUrl) {
         return (
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-sm dark:border-slate-800">
-            <div className="aspect-video">
+            <div className={isFullscreen ? "aspect-video max-h-[78vh]" : "aspect-video"}>
               <iframe
                 src={embedUrl}
                 title={resource.title}
@@ -506,122 +621,96 @@ export default function StudentResourceViewer({
     );
   }
 
-  if (resources.length === 0 && quizzes.length === 0) {
-    return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
-        <FileText className="mx-auto h-10 w-10 text-slate-400" />
-
-        <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
-          No resources available
-        </h3>
-
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Resources for this lesson will appear here when they are published.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <section className="space-y-5">
-      <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className={isFullscreen ? "fixed inset-0 z-[100] overflow-y-auto bg-white p-4 dark:bg-slate-950 sm:p-6" : "space-y-5"}>
+      <div className={isFullscreen ? "mx-auto grid min-h-full max-w-[1800px] items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]" : "grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]"}>
+        <aside className={(isFullscreen ? "hidden " : "") + "order-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-5 lg:order-2"}>
           <div className="px-3 py-2">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              Lesson Resources
-            </h3>
-
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Course Curriculum</h3>
+            </div>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {resources.length + quizzes.length}{" "}
-              {resources.length + quizzes.length === 1 ? "item" : "items"}
+              {curriculumData.reduce((total, item) => total + item.lessons.length, 0)} lessons across {curriculumData.length} modules
             </p>
           </div>
-
-          <div className="mt-2 space-y-1">
-            {orderedSidebarItems.map((item) => {
-              if (item.kind === "quiz") {
-                const quiz = item.quiz;
-                const active = quiz.id === activeQuizId;
-
-                return (
-                  <button
-                    key={quiz.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveQuizId(quiz.id);
-                      setActiveResourceId(null);
-                    }}
-                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                      active
-                        ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
-                        : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">
-                        {quiz.title}
-                      </span>
-                      <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
-                        Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}
-                      </span>
-                    </span>
-                    {item.completed ? (
-                      <CheckCircle2
-                        className="h-5 w-5 shrink-0 text-emerald-500"
-                        aria-label="Quiz passed"
-                      />
-                    ) : null}
-                  </button>
-                );
-              }
-
-              const resource = item.resource;
-              const Icon = getResourceIcon(resource.resource_type);
-              const active = resource.id === activeResourceId;
+          <div className="mt-2 max-h-[72vh] space-y-2 overflow-y-auto">
+            {curriculumData.map((academyModule, index) => {
+              const expanded = expandedModuleIds.has(academyModule.id);
+              const moduleCompleted = academyModule.lessons.length > 0 && academyModule.lessons.every((lesson) => completedLessonIds.has(lesson.id));
+              const completedCount = academyModule.lessons.filter((lesson) => completedLessonIds.has(lesson.id)).length;
 
               return (
-                <button
-                  key={resource.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveQuizId(null);
-                    setActiveResourceId(resource.id);
-                  }}
-                  className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">
-                      {resource.title}
+                <section key={academyModule.id} className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedModuleIds((current) => {
+                      const next = new Set(current);
+                      if (next.has(academyModule.id)) next.delete(academyModule.id);
+                      else next.add(academyModule.id);
+                      return next;
+                    })}
+                    aria-expanded={expanded}
+                    className="flex w-full items-center gap-2 bg-slate-50 px-3 py-3 text-left dark:bg-slate-800/70"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                      {academyModule.module_number ?? index + 1}
                     </span>
-                    <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
-                      {formatResourceType(resource.resource_type)}
-                      {resource.is_required ? (
-                        <>
-                          <span>•</span>
-                          Required
-                        </>
-                      ) : null}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">{academyModule.title}</span>
+                      <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{completedCount} of {academyModule.lessons.length} completed</span>
                     </span>
-                  </span>
-                  {item.completed ? (
-                    <CheckCircle2
-                      className="h-5 w-5 shrink-0 text-emerald-500"
-                      aria-label="Resource completed"
-                    />
+                    {moduleCompleted ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" /> : null}
+                    <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                  </button>
+                  {expanded ? (
+                    <div className="space-y-1 p-2">
+                      {academyModule.lessons.map((lesson) => {
+                        const active = lesson.id === lessonId;
+                        const completed = completedLessonIds.has(lesson.id);
+                        const lessonType = (lesson.lesson_type ?? "lesson").replace(/_/g, " ");
+                        const hours = Math.floor(lesson.total_duration_seconds / 3600);
+                        const minutes = Math.round((lesson.total_duration_seconds % 3600) / 60);
+                        const timeLabel = hours > 0 ? (minutes > 0 ? `${hours} hr ${minutes} min` : `${hours} hr`) : (minutes > 0 ? `${minutes} min` : "Time varies");
+
+                        return (
+                          <details key={lesson.id} open={active} className="rounded-lg">
+                            <summary className={`flex cursor-pointer list-none items-start gap-2 rounded-lg px-3 py-2.5 transition ${active ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}>
+                              {completed ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> : <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 opacity-60" />}
+                              <span className="min-w-0 flex-1">
+                                <a href={`/student/courses/${programSlug}/lessons/${lesson.id}`} className="block text-sm font-medium leading-5 hover:underline">{lesson.title}</a>
+                                <span className="mt-1 block text-xs capitalize opacity-70">{lessonType} · {lesson.material_count} lesson materials · {timeLabel}</span>
+                              </span>
+                              <ChevronDown className="mt-1 h-4 w-4 shrink-0" />
+                            </summary>
+                            <div className="ml-5 space-y-1 border-l border-slate-200 py-2 pl-3 dark:border-slate-700">
+                              {lesson.materials.length > 0 ? lesson.materials.map((material) => {
+                                const materialCompleted = material.kind === "quiz"
+                                  ? passedQuizIds.has(material.id)
+                                  : progress[material.id]?.status === "completed";
+
+                                return (
+                                  <a key={material.id} href={material.kind === "quiz" ? `/student/courses/${programSlug}/lessons/${lesson.id}?quizId=${material.id}` : `/student/courses/${programSlug}/lessons/${lesson.id}?resourceId=${material.id}`} className="flex items-start gap-2 rounded-md px-2 py-2 text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
+                                    {materialCompleted ? <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> : material.kind === "quiz" ? <ClipboardCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <PlayCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+                                    <span className="min-w-0 flex-1">{material.title}</span>
+                                    {material.duration_seconds ? <span className="shrink-0 opacity-70">{Math.max(1, Math.round(material.duration_seconds / 60))} min</span> : null}
+                                  </a>
+                                );
+                              }) : <p className="px-2 py-2 text-xs text-slate-500">No published lesson materials</p>}
+                            </div>
+                          </details>
+                        );
+                      })}
+                    </div>
                   ) : null}
-                </button>
+                </section>
               );
             })}
           </div>
         </aside>
 
-        <div className="min-w-0">
+        <div className={"order-1 min-w-0 lg:order-1 " + (isFullscreen ? "lg:col-span-2" : "")}>
+
           {activeQuiz ? (
             <div className="space-y-5"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">Lesson quiz</span><span className={`rounded-full px-3 py-1 text-xs font-semibold ${activeQuiz.is_required ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>{activeQuiz.is_required ? "Required" : "Optional"}</span></div><h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">{activeQuiz.title}</h2>{activeQuiz.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">{activeQuiz.description}</p> : null}</div><StudentQuizPlayer key={activeQuiz.id} quizId={activeQuiz.id} enrollmentId={enrollmentId} onProceed={handleQuizProceed} /></div>
           ) : activeResource ? (
@@ -643,9 +732,10 @@ export default function StudentResourceViewer({
                   )}
                 </div>
 
-                <h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">
-                  {activeResource.title}
-                </h2>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <h2 className="mt-3 min-w-0 flex-1 text-xl font-bold text-slate-900 dark:text-white">{activeResource.title}</h2>
+                  <button type="button" onClick={() => setIsFullscreen(!isFullscreen)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">{isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}{isFullscreen ? "Exit full screen" : "Full screen"}</button>
+                </div>
 
                 {activeResource.description ? (
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">
@@ -701,7 +791,15 @@ export default function StudentResourceViewer({
                 </button>
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900">
+              <FileText className="mx-auto h-10 w-10 text-slate-400" />
+              <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">No lesson materials yet</h3>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                You can continue exploring the course curriculum. Materials will appear here when published.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>

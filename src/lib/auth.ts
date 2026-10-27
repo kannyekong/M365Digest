@@ -16,6 +16,8 @@ export async function adminLogin(email: string, password: string) {
 }
 
 export async function logout() {
+  // Clear the current onboarding cycle when the student signs out.
+  sessionStorage.removeItem("cloudtweak_student_onboarding_pending");
   return studentSupabase.auth.signOut();
 }
 

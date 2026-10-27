@@ -104,7 +104,7 @@ export default function UpcomingSessionWidget() {
 
       <div className="min-w-0 flex-1 mr-3">
         <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600 dark:text-orange-400">
-          Upcoming session
+          Live sessions
         </p>
 
         {loading ? (
@@ -120,7 +120,7 @@ export default function UpcomingSessionWidget() {
           </p>
         ) : !session ? (
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            No upcoming sessions
+            No upcoming session
           </p>
         ) : (
           <>
@@ -152,7 +152,7 @@ export default function UpcomingSessionWidget() {
               >
                 Live ({loading || error ? "—" : liveCount})
               </a>
-              {session && !loading && !error && (
+              {/* {session && !loading && !error && (
                 <a
                   href={session.meetingUrl}
                   target="_blank"
@@ -163,7 +163,7 @@ export default function UpcomingSessionWidget() {
                   <Video className="h-3.5 w-3.5" />
                   Join
                 </a>
-              )}
+              )} */}
             </div>
           </>
         )}

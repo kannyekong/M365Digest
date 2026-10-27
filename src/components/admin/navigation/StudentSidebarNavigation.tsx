@@ -304,7 +304,7 @@ function NavigationLevel({
     .map(({ key }) => key);
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 mt-2">
       {items.map((item, index) => {
         const itemKey = createItemKey(parentKey, item, index);
 

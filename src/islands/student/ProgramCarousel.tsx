@@ -74,14 +74,6 @@ export default function ProgramCarousel({
           error,
         } = await supabase.auth.getSession();
 
-        console.log("[ProgramCarousel] Shared Supabase session:", {
-          hasSession: Boolean(session),
-          expiresAt: session?.expires_at
-            ? new Date(session.expires_at * 1000).toISOString()
-            : null,
-          sessionError: error?.message ?? null,
-        });
-
         try {
           const result = await getAvailableAcademyPrograms();
 

@@ -14,6 +14,26 @@ interface StudentLessonAccessProps {
   programSlug: string;
   previousLessonUrl: string | null;
   nextLessonUrl: string | null;
+  curriculum: Array<{
+    id: string;
+    title: string;
+    module_number: number | null;
+    lessons: Array<{
+      id: string;
+      title: string;
+      lesson_type: string | null;
+      duration: number | null;
+      material_count: number;
+      total_duration_seconds: number;
+      materials: Array<{
+        id: string;
+        title: string;
+        resource_type: string;
+        duration_seconds: number | null;
+        kind: "resource" | "quiz";
+      }>;
+    }>;
+  }>;
 }
 
 /**
@@ -27,6 +47,7 @@ export default function StudentLessonAccess({
   programSlug,
   previousLessonUrl,
   nextLessonUrl,
+  curriculum,
 }: StudentLessonAccessProps) {
   const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,18 +137,20 @@ export default function StudentLessonAccess({
 
       {enrollmentId ? (
         <div className="space-y-6">
-          <StudentLessonControls
-            enrollmentId={enrollmentId}
-            lessonId={lessonId}
-            previousLessonUrl={previousLessonUrl}
-            nextLessonUrl={nextLessonUrl}
-          />
-
           <StudentResourceViewer
             programId={programId}
             moduleId={moduleId}
             lessonId={lessonId}
             enrollmentId={enrollmentId}
+            programSlug={programSlug}
+            curriculum={curriculum}
+          />
+
+          <StudentLessonControls
+            enrollmentId={enrollmentId}
+            lessonId={lessonId}
+            previousLessonUrl={previousLessonUrl}
+            nextLessonUrl={nextLessonUrl}
           />
         </div>
       ) : null}

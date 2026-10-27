@@ -379,7 +379,7 @@ export const POST: APIRoute = async ({ request }) => {
           amount: String(amountInSubunit),
           currency,
           reference: paymentReference,
-          callback_url: `${origin}/academy/payment/callback`,
+          callback_url: `${origin}/student/payment-history`,
           metadata: JSON.stringify({
             registration_id: registrationId,
             program_id: program.id,

@@ -2058,24 +2058,6 @@ export interface AcademyProgramCarouselItem {
 export async function getAvailableAcademyPrograms(): Promise<
   AcademyProgramCarouselItem[]
 > {
-  // Inspect the shared client's session immediately before the program query.
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  // Log session timing without exposing authentication tokens.
-  console.log("[Academy Programs] Session before query:", {
-    hasSession: Boolean(session),
-    expiresAt: session?.expires_at
-      ? new Date(session.expires_at * 1000).toISOString()
-      : null,
-    now: new Date().toISOString(),
-    isExpired: session?.expires_at
-      ? session.expires_at * 1000 <= Date.now()
-      : null,
-    sessionError: sessionError?.message ?? null,
-  });
   const { data, error } = await supabase
 
     .from("academy_programs")

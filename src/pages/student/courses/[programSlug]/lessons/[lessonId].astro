@@ -3,6 +3,7 @@ import StudentLayout from "../../../../../layouts/StudentLayout.astro";
 import StudentHeader from "../../../../../components/admin/UI/StudentHeader.astro";
 import { studentSupabase } from "../../../../../lib/superbase";
 import StudentLessonAccess from "../../../../../islands/student/StudentLessonAccess";
+import { ChevronRight, Info } from "lucide-astro";
 
 const { programSlug, lessonId } = Astro.params;
 
@@ -74,7 +75,7 @@ if (moduleData.program_id !== program.id) {
 const { data: programModules, error: programModulesError } =
   await studentSupabase
     .from("academy_program_modules")
-    .select("id, module_number, display_order")
+    .select("id, title, module_number, display_order")
     .eq("program_id", program.id)
     .order("module_number", { ascending: true })
     .order("display_order", { ascending: true });
@@ -101,7 +102,7 @@ const { data: programLessons, error: programLessonsError } =
   moduleIds.length > 0
     ? await studentSupabase
         .from("academy_program_lessons")
-        .select("id, module_id, display_order")
+        .select("id, module_id, title, lesson_type, duration, display_order")
         .in("module_id", moduleIds)
         .order("display_order", { ascending: true })
     : { data: [], error: null };
@@ -126,6 +127,87 @@ const orderedLessons = (programModules ?? []).flatMap((academyModule) => {
 /**
  * Find the current lesson's position in the complete program curriculum.
  */
+const curriculumLessonIds = (programLessons ?? []).map((item) => item.id);
+const { data: curriculumResources, error: curriculumResourcesError } =
+  curriculumLessonIds.length > 0
+    ? await studentSupabase
+        .from("academy_program_resources")
+        .select("id, lesson_id, title, resource_type, duration_seconds, display_order, is_published, available_from, available_until")
+        .in("lesson_id", curriculumLessonIds)
+        .order("display_order", { ascending: true })
+    : { data: [], error: null };
+
+if (curriculumResourcesError) {
+  console.error("Failed to load curriculum resource summaries:", curriculumResourcesError);
+}
+
+const availableCurriculumResources = (curriculumResources ?? []).filter((resource) => {
+  const now = Date.now();
+  return resource.is_published &&
+    (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
+    (!resource.available_until || new Date(resource.available_until).getTime() >= now);
+});
+
+const { data: curriculumQuizzes, error: curriculumQuizzesError } =
+  curriculumLessonIds.length > 0
+    ? await studentSupabase
+        .from("academy_quizzes")
+        .select("id, lesson_id, title, display_order, is_published")
+        .in("lesson_id", curriculumLessonIds)
+        .order("display_order", { ascending: true })
+    : { data: [], error: null };
+
+if (curriculumQuizzesError) {
+  console.error("Failed to load curriculum quiz summaries:", curriculumQuizzesError);
+}
+
+const availableCurriculumQuizzes = (curriculumQuizzes ?? []).filter((quiz) => quiz.is_published);
+const curriculumResourceMap = new Map<string, typeof availableCurriculumResources>();
+for (const resource of availableCurriculumResources) {
+  const current = curriculumResourceMap.get(resource.lesson_id) ?? [];
+  current.push(resource);
+  curriculumResourceMap.set(resource.lesson_id, current);
+}
+const curriculumQuizMap = new Map<string, typeof availableCurriculumQuizzes>();
+for (const quiz of availableCurriculumQuizzes) {
+  const current = curriculumQuizMap.get(quiz.lesson_id) ?? [];
+  current.push(quiz);
+  curriculumQuizMap.set(quiz.lesson_id, current);
+}
+
+const curriculumModules = (programModules ?? []).map((academyModule) => ({
+  id: academyModule.id,
+  title: academyModule.title,
+  module_number: academyModule.module_number,
+  lessons: (programLessons ?? [])
+    .filter((programLesson) => programLesson.module_id === academyModule.id)
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((programLesson) => ({
+      id: programLesson.id,
+      title: programLesson.title,
+      lesson_type: programLesson.lesson_type,
+      duration: programLesson.duration,
+      materials: [
+        ...(curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
+          id: resource.id,
+          title: resource.title,
+          resource_type: resource.resource_type,
+          duration_seconds: resource.duration_seconds,
+          kind: "resource" as const,
+        })),
+        ...(curriculumQuizMap.get(programLesson.id) ?? []).map((quiz) => ({
+          id: quiz.id,
+          title: quiz.title,
+          resource_type: "quiz",
+          duration_seconds: null,
+          kind: "quiz" as const,
+        })),
+      ].sort((a, b) => a.title.localeCompare(b.title)),
+      material_count: (curriculumResourceMap.get(programLesson.id) ?? []).length + (curriculumQuizMap.get(programLesson.id) ?? []).length,
+      total_duration_seconds: (curriculumResourceMap.get(programLesson.id) ?? []).reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
+    })),
+}));
+
 const currentLessonIndex = orderedLessons.findIndex(
   (programLesson) => programLesson.id === lesson.id
 );
@@ -174,8 +256,7 @@ const lessonTypeLabel = lesson.lesson_type
   <StudentHeader
     eyebrow={`${moduleData.title} • ${lessonTypeLabel}`}
     title={lesson.title}
-    description={lesson.description ??
-      "Continue your CloudTweak Academy learning."}
+    description={"Learn at your own pace. Complete each lesson to unlock the next one. If a lesson or module includes a live session, you’ll be notified when it’s time to join."}
     backHref={`/student/courses/${programSlug}`}
     backLabel="Back to Course"
   />
@@ -193,19 +274,47 @@ const lessonTypeLabel = lesson.lesson_type
           {
             lesson.duration ? (
               <span class="rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-white">
-                {lesson.duration} mins
+                {lesson.duration}
               </span>
             ) : null
           }
         </div>
+        {/* Lesson description accordion */}
+        <details
+          class="mt-3 w-full rounded-lg border border-slate-200 dark:border-slate-700"
+        >
+          <summary
+            class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            <span class="inline-flex items-center gap-1.5">
+              Lesson Description
 
-        {
-          lesson.description ? (
-            <div class="prose prose-slate mt-3 max-w-none dark:prose-invert">
-              <p>{lesson.description}</p>
-            </div>
-          ) : null
-        }
+              <span class="group relative inline-flex cursor-help items-center">
+                <Info size={20} className="text-orange-500"/>
+
+                <span
+                  role="tooltip"
+                  class="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-normal text-white opacity-0 shadow-md transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
+                >
+                  Expand to view
+                </span>
+              </span>
+            </span>
+            <ChevronRight
+              size={18}
+              aria-hidden="true"
+              className="shrink-0 transition-transform duration-200 details-open-rotate"
+            />
+          </summary>
+
+          <div
+            class="border-t border-slate-200 px-4 py-3 text-sm leading-6 font-light dark:border-slate-700 dark:text-slate-300"
+          >
+            <p>
+              {lesson.description?.trim() || "No lesson description available"}
+            </p>
+          </div>
+        </details>
       </div>
 
       <StudentLessonAccess
@@ -216,6 +325,7 @@ const lessonTypeLabel = lesson.lesson_type
         programSlug={programSlug}
         previousLessonUrl={previousLessonUrl}
         nextLessonUrl={nextLessonUrl}
+        curriculum={curriculumModules}
       />
     </div>
   </main>
