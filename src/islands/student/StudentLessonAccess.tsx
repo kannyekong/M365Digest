@@ -123,13 +123,6 @@ export default function StudentLessonAccess({
 
       {enrollmentId ? (
         <div className="space-y-6">
-          <StudentLessonControls
-            enrollmentId={enrollmentId}
-            lessonId={lessonId}
-            previousLessonUrl={previousLessonUrl}
-            nextLessonUrl={nextLessonUrl}
-          />
-
           <StudentResourceViewer
             programId={programId}
             moduleId={moduleId}
@@ -137,6 +130,13 @@ export default function StudentLessonAccess({
             enrollmentId={enrollmentId}
             programSlug={programSlug}
             curriculum={curriculum}
+          />
+
+          <StudentLessonControls
+            enrollmentId={enrollmentId}
+            lessonId={lessonId}
+            previousLessonUrl={previousLessonUrl}
+            nextLessonUrl={nextLessonUrl}
           />
         </div>
       ) : null}
