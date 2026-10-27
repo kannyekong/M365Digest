@@ -134,7 +134,6 @@ const { data: curriculumResources, error: curriculumResourcesError } =
         .from("academy_program_resources")
         .select("id, lesson_id, title, resource_type, duration_seconds, display_order, is_published, available_from, available_until")
         .in("lesson_id", curriculumLessonIds)
-        .eq("is_published", true)
         .order("display_order", { ascending: true })
     : { data: [], error: null };
 
@@ -144,15 +143,36 @@ if (curriculumResourcesError) {
 
 const availableCurriculumResources = (curriculumResources ?? []).filter((resource) => {
   const now = Date.now();
-  return (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
+  return resource.is_published &&
+    (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
     (!resource.available_until || new Date(resource.available_until).getTime() >= now);
 });
 
+const { data: curriculumQuizzes, error: curriculumQuizzesError } =
+  curriculumLessonIds.length > 0
+    ? await studentSupabase
+        .from("academy_quizzes")
+        .select("id, lesson_id, title, display_order, is_published")
+        .in("lesson_id", curriculumLessonIds)
+        .order("display_order", { ascending: true })
+    : { data: [], error: null };
+
+if (curriculumQuizzesError) {
+  console.error("Failed to load curriculum quiz summaries:", curriculumQuizzesError);
+}
+
+const availableCurriculumQuizzes = (curriculumQuizzes ?? []).filter((quiz) => quiz.is_published);
 const curriculumResourceMap = new Map<string, typeof availableCurriculumResources>();
 for (const resource of availableCurriculumResources) {
   const current = curriculumResourceMap.get(resource.lesson_id) ?? [];
   current.push(resource);
   curriculumResourceMap.set(resource.lesson_id, current);
+}
+const curriculumQuizMap = new Map<string, typeof availableCurriculumQuizzes>();
+for (const quiz of availableCurriculumQuizzes) {
+  const current = curriculumQuizMap.get(quiz.lesson_id) ?? [];
+  current.push(quiz);
+  curriculumQuizMap.set(quiz.lesson_id, current);
 }
 
 const curriculumModules = (programModules ?? []).map((academyModule) => ({
@@ -167,13 +187,23 @@ const curriculumModules = (programModules ?? []).map((academyModule) => ({
       title: programLesson.title,
       lesson_type: programLesson.lesson_type,
       duration: programLesson.duration,
-      resources: (curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
-        id: resource.id,
-        title: resource.title,
-        resource_type: resource.resource_type,
-        duration_seconds: resource.duration_seconds,
-      })),
-      resource_count: (curriculumResourceMap.get(programLesson.id) ?? []).length,
+      materials: [
+        ...(curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
+          id: resource.id,
+          title: resource.title,
+          resource_type: resource.resource_type,
+          duration_seconds: resource.duration_seconds,
+          kind: "resource" as const,
+        })),
+        ...(curriculumQuizMap.get(programLesson.id) ?? []).map((quiz) => ({
+          id: quiz.id,
+          title: quiz.title,
+          resource_type: "quiz",
+          duration_seconds: null,
+          kind: "quiz" as const,
+        })),
+      ].sort((a, b) => a.title.localeCompare(b.title)),
+      material_count: (curriculumResourceMap.get(programLesson.id) ?? []).length + (curriculumQuizMap.get(programLesson.id) ?? []).length,
       total_duration_seconds: (curriculumResourceMap.get(programLesson.id) ?? []).reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
     })),
 }));
