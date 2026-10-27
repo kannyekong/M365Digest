@@ -6,7 +6,6 @@ import {
   Clock3,
   Maximize2,
   Minimize2,
-  X,
   ExternalLink,
   FileArchive,
   FileSpreadsheet,
@@ -605,7 +604,6 @@ export default function StudentResourceViewer({
   return (
     <section className={isFullscreen ? "fixed inset-0 z-[100] overflow-y-auto bg-white p-4 dark:bg-slate-950 sm:p-6" : "space-y-5"}>
       <div className={isFullscreen ? "mx-auto grid min-h-full max-w-[1800px] items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]" : "grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]"}>
-        <div className={isFullscreen ? "col-span-full flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800" : "hidden"}><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Distraction-free learning</p><p className="text-sm text-slate-600 dark:text-slate-300">{activeResource?.title ?? activeQuiz?.title ?? "Course lesson"}</p></div><button type="button" onClick={() => setIsFullscreen(false)} className="rounded-xl border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">Close <X className="inline h-4 w-4" /></button></div>
         <aside className={(isFullscreen ? "hidden " : "") + "order-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-5 lg:order-2"}>
           <div className="px-3 py-2">
             <div className="flex items-center gap-2">
@@ -666,13 +664,19 @@ export default function StudentResourceViewer({
                               <ChevronDown className="mt-1 h-4 w-4 shrink-0" />
                             </summary>
                             <div className="ml-5 space-y-1 border-l border-slate-200 py-2 pl-3 dark:border-slate-700">
-                              {lesson.materials.length > 0 ? lesson.materials.map((material) => (
-                                <a key={material.id} href={material.kind === "quiz" ? `/student/courses/${programSlug}/lessons/${lesson.id}?quizId=${material.id}` : `/student/courses/${programSlug}/lessons/${lesson.id}?resourceId=${material.id}`} className="flex items-start gap-2 rounded-md px-2 py-2 text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
-                                  {material.kind === "quiz" ? <ClipboardCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <PlayCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
-                                  <span className="min-w-0 flex-1">{material.title}</span>
-                                  {material.duration_seconds ? <span className="shrink-0 opacity-70">{Math.max(1, Math.round(material.duration_seconds / 60))} min</span> : null}
-                                </a>
-                              )) : <p className="px-2 py-2 text-xs text-slate-500">No published lesson materials</p>}
+                              {lesson.materials.length > 0 ? lesson.materials.map((material) => {
+                                const materialCompleted = material.kind === "quiz"
+                                  ? passedQuizIds.has(material.id)
+                                  : progress[material.id]?.status === "completed";
+
+                                return (
+                                  <a key={material.id} href={material.kind === "quiz" ? `/student/courses/${programSlug}/lessons/${lesson.id}?quizId=${material.id}` : `/student/courses/${programSlug}/lessons/${lesson.id}?resourceId=${material.id}`} className="flex items-start gap-2 rounded-md px-2 py-2 text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
+                                    {materialCompleted ? <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /> : material.kind === "quiz" ? <ClipboardCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <PlayCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+                                    <span className="min-w-0 flex-1">{material.title}</span>
+                                    {material.duration_seconds ? <span className="shrink-0 opacity-70">{Math.max(1, Math.round(material.duration_seconds / 60))} min</span> : null}
+                                  </a>
+                                );
+                              }) : <p className="px-2 py-2 text-xs text-slate-500">No published lesson materials</p>}
                             </div>
                           </details>
                         );
