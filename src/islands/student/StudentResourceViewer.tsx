@@ -38,6 +38,9 @@ interface CurriculumLesson {
   title: string;
   lesson_type: string | null;
   duration: number | null;
+  resource_count: number;
+  total_duration_seconds: number;
+  resources: Array<{ id: string; title: string; resource_type: string; duration_seconds: number | null }>;
 }
 
 interface CurriculumModule {
@@ -599,26 +602,31 @@ export default function StudentResourceViewer({
                         const active = lesson.id === lessonId;
                         const completed = completedLessonIds.has(lesson.id);
                         const lessonType = (lesson.lesson_type ?? "lesson").replace(/_/g, " ");
+                        const hours = Math.floor(lesson.total_duration_seconds / 3600);
+                        const minutes = Math.round((lesson.total_duration_seconds % 3600) / 60);
+                        const timeLabel = hours > 0 ? (minutes > 0 ? `${hours} hr ${minutes} min` : `${hours} hr`) : (minutes > 0 ? `${minutes} min` : "Time varies");
 
                         return (
-                          <a
-                            key={lesson.id}
-                            href={`/student/courses/${programSlug}/lessons/${lesson.id}`}
-                            aria-current={active ? "page" : undefined}
-                            className={`flex items-start gap-2 rounded-lg px-3 py-2.5 transition ${active ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}
-                          >
-                            {completed ? (
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                            ) : (
-                              <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 opacity-60" />
-                            )}
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-medium leading-5">{lesson.title}</span>
-                              <span className="mt-1 block text-xs capitalize opacity-70">{lessonType}{lesson.duration ? ` · ${lesson.duration}` : ""}</span>
-                            </span>
-                          </a>
+                          <details key={lesson.id} open={active} className="rounded-lg">
+                            <summary className={`flex cursor-pointer list-none items-start gap-2 rounded-lg px-3 py-2.5 transition ${active ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}>
+                              {completed ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> : <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 opacity-60" />}
+                              <span className="min-w-0 flex-1">
+                                <a href={`/student/courses/${programSlug}/lessons/${lesson.id}`} className="block text-sm font-medium leading-5 hover:underline">{lesson.title}</a>
+                                <span className="mt-1 block text-xs capitalize opacity-70">{lessonType} · {lesson.resource_count} resources · {timeLabel}</span>
+                              </span>
+                              <ChevronDown className="mt-1 h-4 w-4 shrink-0" />
+                            </summary>
+                            <div className="ml-5 space-y-1 border-l border-slate-200 py-2 pl-3 dark:border-slate-700">
+                              {lesson.resources.length > 0 ? lesson.resources.map((resource) => (
+                                <a key={resource.id} href={`/student/courses/${programSlug}/lessons/${lesson.id}?resourceId=${resource.id}`} className="flex items-start gap-2 rounded-md px-2 py-2 text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
+                                  <PlayCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                  <span className="min-w-0 flex-1">{resource.title}</span>
+                                  {resource.duration_seconds ? <span className="shrink-0 opacity-70">{Math.max(1, Math.round(resource.duration_seconds / 60))} min</span> : null}
+                                </a>
+                              )) : <p className="px-2 py-2 text-xs text-slate-500">No published resources</p>}
+                            </div>
+                          </details>
                         );
-                      })}
                     </div>
                   ) : null}
                 </section>
