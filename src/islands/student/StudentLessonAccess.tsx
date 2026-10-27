@@ -14,6 +14,12 @@ interface StudentLessonAccessProps {
   programSlug: string;
   previousLessonUrl: string | null;
   nextLessonUrl: string | null;
+  curriculum: Array<{
+    id: string;
+    title: string;
+    module_number: number | null;
+    lessons: Array<{ id: string; title: string; lesson_type: string | null; duration: number | null }>;
+  }>;
 }
 
 /**
@@ -27,6 +33,7 @@ export default function StudentLessonAccess({
   programSlug,
   previousLessonUrl,
   nextLessonUrl,
+  curriculum,
 }: StudentLessonAccessProps) {
   const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,6 +135,8 @@ export default function StudentLessonAccess({
             moduleId={moduleId}
             lessonId={lessonId}
             enrollmentId={enrollmentId}
+            programSlug={programSlug}
+            curriculum={curriculum}
           />
         </div>
       ) : null}
