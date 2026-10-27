@@ -627,6 +627,7 @@ export default function StudentResourceViewer({
                             </div>
                           </details>
                         );
+                      })}
                     </div>
                   ) : null}
                 </section>
