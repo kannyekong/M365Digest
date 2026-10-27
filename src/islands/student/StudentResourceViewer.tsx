@@ -203,6 +203,81 @@ export default function StudentResourceViewer({
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([moduleId]));
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [curriculumData, setCurriculumData] = useState(curriculum);
+
+  /**
+   * Load curriculum materials with the authenticated student client so the
+   * dropdown reflects the same row-level security access as the lesson viewer.
+   */
+  useEffect(() => {
+    async function loadCurriculumMaterials() {
+      const lessonIds = curriculum.flatMap((academyModule) => academyModule.lessons.map((lesson) => lesson.id));
+      if (lessonIds.length === 0) return;
+
+      const [
+        { data: resourceData, error: resourceError },
+        { data: quizData, error: quizError },
+      ] = await Promise.all([
+        studentSupabase
+          .from("academy_program_resources")
+          .select("id, lesson_id, title, resource_type, duration_seconds, display_order, is_published, available_from, available_until")
+          .in("lesson_id", lessonIds)
+          .order("display_order", { ascending: true }),
+        studentSupabase
+          .from("academy_quizzes")
+          .select("id, lesson_id, title, display_order, is_published")
+          .in("lesson_id", lessonIds)
+          .order("display_order", { ascending: true }),
+      ]);
+
+      if (resourceError || quizError) {
+        console.error("Failed to load curriculum lesson materials:", resourceError ?? quizError);
+        return;
+      }
+
+      const now = Date.now();
+      const publishedResources = (resourceData ?? []).filter((resource) =>
+        resource.is_published &&
+        (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
+        (!resource.available_until || new Date(resource.available_until).getTime() >= now)
+      );
+      const publishedQuizzes = (quizData ?? []).filter((quiz) => quiz.is_published);
+
+      setCurriculumData((current) => current.map((academyModule) => ({
+        ...academyModule,
+        lessons: academyModule.lessons.map((lesson) => {
+          const lessonResources = publishedResources
+            .filter((resource) => resource.lesson_id === lesson.id)
+            .map((resource) => ({
+              id: resource.id,
+              title: resource.title,
+              resource_type: resource.resource_type,
+              duration_seconds: resource.duration_seconds,
+              kind: "resource" as const,
+            }));
+          const lessonQuizzes = publishedQuizzes
+            .filter((quiz) => quiz.lesson_id === lesson.id)
+            .map((quiz) => ({
+              id: quiz.id,
+              title: quiz.title,
+              resource_type: "quiz",
+              duration_seconds: null,
+              kind: "quiz" as const,
+            }));
+          const materials = [...lessonResources, ...lessonQuizzes].sort((a, b) => a.title.localeCompare(b.title));
+
+          return {
+            ...lesson,
+            materials,
+            material_count: materials.length,
+            total_duration_seconds: lessonResources.reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
+          };
+        }),
+      })));
+    }
+
+    void loadCurriculumMaterials();
+  }, [curriculum]);
 
   /**
    * Load the lesson resources and the student's existing resource progress.
@@ -538,11 +613,11 @@ export default function StudentResourceViewer({
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Course Curriculum</h3>
             </div>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {curriculum.reduce((total, item) => total + item.lessons.length, 0)} lessons across {curriculum.length} modules
+              {curriculumData.reduce((total, item) => total + item.lessons.length, 0)} lessons across {curriculumData.length} modules
             </p>
           </div>
           <div className="mt-2 max-h-[72vh] space-y-2 overflow-y-auto">
-            {curriculum.map((academyModule, index) => {
+            {curriculumData.map((academyModule, index) => {
               const expanded = expandedModuleIds.has(academyModule.id);
               const moduleCompleted = academyModule.lessons.length > 0 && academyModule.lessons.every((lesson) => completedLessonIds.has(lesson.id));
               const completedCount = academyModule.lessons.filter((lesson) => completedLessonIds.has(lesson.id)).length;
