@@ -152,7 +152,7 @@ export default function UpcomingSessionWidget() {
               >
                 Live ({loading || error ? "—" : liveCount})
               </a>
-              {session && !loading && !error && (
+              {/* {session && !loading && !error && (
                 <a
                   href={session.meetingUrl}
                   target="_blank"
@@ -163,7 +163,7 @@ export default function UpcomingSessionWidget() {
                   <Video className="h-3.5 w-3.5" />
                   Join
                 </a>
-              )}
+              )} */}
             </div>
           </>
         )}

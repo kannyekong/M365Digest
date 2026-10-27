@@ -1119,7 +1119,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
 
                         aria-expanded={isOpen}
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-sm font-bold text-orange-500 dark:bg-slate-800 dark:text-slate-300">
                           {module.module_number ?? module.display_order}
                         </div>
 
@@ -1199,8 +1199,8 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
 
                                     isCompleted
-                                      ? "bg-emerald-50 text-emerald-500 dark:bg-emerald-950/40"
-                                      : "bg-white text-slate-400 dark:bg-slate-900",
+                                      ? "bg-emerald-100 text-emerald-500 dark:bg-emerald-950/40"
+                                      : "bg-slate-100 text-slate-500 dark:bg-slate-900",
                                   ].join(" ")}
                                 >
                                   {isCompleted ? (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, Shapes } from "lucide-react";
-import { supabase } from "../../lib/superbase";
+import { studentSupabase } from "../../lib/superbase";
 
 type BackgroundStyle = "ocean" | "sunset" | "forest" | "midnight";
 
@@ -42,7 +42,7 @@ export default function PromotionalCarousel({
     async function loadPromotions() {
       const now = new Date().toISOString();
 
-      const { data, error } = await supabase
+      const { data, error } = await studentSupabase
         .from("academy_promotions")
         .select(
           "id, title, description, eyebrow, button_label, destination_url, background_style, image_url, display_order"
@@ -53,7 +53,13 @@ export default function PromotionalCarousel({
         .order("display_order", { ascending: true });
 
       if (error) {
-        console.error("Failed to load academy promotions:", error);
+        console.error("Failed to load academy promotions:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+        });
+
         return;
       }
 
@@ -69,9 +75,11 @@ export default function PromotionalCarousel({
     };
   }, []);
 
-  // Advances automatically through the welcome slide and available promotions.
+  // Keeps the active slide within the available slides and advances the carousel automatically.
   useEffect(() => {
     const slideCount = promotions.length + 1;
+
+    setActiveIndex((current) => (current >= slideCount ? 0 : current));
 
     if (slideCount <= 1) return;
 
@@ -90,10 +98,17 @@ export default function PromotionalCarousel({
 
   const backgroundImage = promotion?.image_url;
 
+  // Exposes carousel state temporarily so we can diagnose mobile autoplay.
+  const debugInfo = {
+    promotionsCount: promotions.length,
+    activeIndex,
+    isWelcomeSlide,
+  };
+
   return (
     <section
       aria-label="Student welcome and academy promotions"
-      className="relative isolate h-[160px] overflow-hidden rounded-2xl px-5 py-5 text-white shadow-sm sm:h-[160px] sm:px-6 sm:py-8 md:h-[150px] md:px-7"
+      className="relative isolate h-[190px] overflow-hidden rounded-2xl px-5 py-5 text-white shadow-sm sm:px-6 sm:py-8 md:h-[150px] md:px-7"
       style={{ background: gradients[backgroundStyle] }}
     >
       {backgroundImage && (

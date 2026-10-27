@@ -264,7 +264,7 @@ export default function AcademyChat({ role, floating = false }: Props) {
         className={
           floating && role === "student"
             ? "flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-white dark:bg-slate-950"
-            : "flex min-h-[650px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"
+            : "flex min-h-[650px] min-w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"
         }
       >
         <header className="flex items-center gap-3 border-b border-slate-200 p-5 dark:border-slate-800">

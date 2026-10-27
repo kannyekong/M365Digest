@@ -347,10 +347,9 @@ export default function StudentResourcesLibrary() {
                             {resource.description}
                           </p>
                         )}
-
-                        <p className="mt-1 text-xs capitalize text-slate-400">
+                        <span className="mt-1 px-2 py-0.5 rounded-2xl bg-orange-50 text-xs capitalize text-orange-500">
                           {resource.resource_type.replaceAll("_", " ")}
-                        </p>
+                        </span>
                       </div>
 
                       {url ? (
@@ -408,7 +407,7 @@ export default function StudentResourcesLibrary() {
                     className="rounded-full border border-slate-400 p-3 text-sm disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700"
                     aria-label={`Next resources for ${program.programTitle}`}
                   >
-                    <ChevronRight size={20}/>
+                    <ChevronRight size={20} />
                   </button>
                 </div>
               </div>

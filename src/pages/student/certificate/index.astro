@@ -2,8 +2,8 @@
 import StudentLayout from "../../../layouts/StudentLayout.astro";
 import StudentHeader from "../../../components/admin/UI/StudentHeader.astro";
 import SummaryCard from "../../../components/student/SummaryCard";
-import { ChevronLeft, ChevronRight, Search } from "lucide-astro";
-import { Award, Clock3, GraduationCap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader, Search } from "lucide-astro";
+import { Award, Clock3, GraduationCap, Loader2, LoaderPinwheel, LucideLoader } from "lucide-react";
 ---
 
 <StudentLayout
@@ -58,8 +58,8 @@ import { Award, Clock3, GraduationCap } from "lucide-react";
           title="Programs In Progress"
           value="—"
           valueColor="text-amber-600 dark:text-amber-400"
-          icon={Clock3}
-          watermarkIcon={Clock3}
+          icon={LucideLoader}
+          watermarkIcon={LoaderPinwheel}
           accentColor="text-amber-600"
           iconBackgroundColor="bg-amber-50 dark:bg-amber-950/40"
           iconColor="text-amber-600 dark:text-amber-400"

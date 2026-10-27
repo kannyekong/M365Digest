@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
+  ArrowLeft,
   Award,
   BookOpen,
   Clock3,
@@ -14,6 +15,7 @@ import {
   BookmarkCheck,
   Shapes,
 } from "lucide-react";
+
 import SummaryCard from "../../components/student/SummaryCard";
 import { getSession } from "../../lib/auth";
 import { studentSupabase } from "../../lib/superbase";
@@ -31,6 +33,7 @@ type EnrollmentProgram = {
   id: string;
   title: string;
   slug: string;
+  thumbnail_image_url: string | null;
   status: string;
 };
 
@@ -57,6 +60,7 @@ type CourseSummary = {
   progress: number;
   completedLessons: number;
   totalLessons: number;
+  thumbnail_image_url: string | null;
 };
 
 const emptyStats = {
@@ -72,21 +76,18 @@ export default function StudentDashboard() {
   const [progressRecords, setProgressRecords] = useState<LessonProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [activeCourseIndex, setActiveCourseIndex] = useState(0);
   // Loads the authenticated student's profile, enrollments, and lesson progress.
   useEffect(() => {
     async function loadDashboard() {
       setLoading(true);
       setErrorMessage("");
-
       const sessionResult = await getSession();
       const session = sessionResult.data?.session ?? null;
-
       if (!session) {
         window.location.replace("/student/login");
         return;
       }
-
       const { data: profileData, error: profileError } = await studentSupabase
         .from("student_profiles")
         .select("id, first_name, last_name")
@@ -105,7 +106,6 @@ export default function StudentDashboard() {
       }
 
       setProfile(profileData);
-
       // Loads the student's enrollments and their related Academy programs.
       const { data: enrollmentData, error: enrollmentError } =
         await studentSupabase
@@ -119,7 +119,8 @@ export default function StudentDashboard() {
               id,
               title,
               status,
-              slug
+              slug,
+              thumbnail_image_url
             )
           `
           )
@@ -135,14 +136,11 @@ export default function StudentDashboard() {
           errorDetails: enrollmentError.details,
           errorHint: enrollmentError.hint,
         });
-
         setErrorMessage("We could not load your courses.");
         setLoading(false);
         return;
       }
-
-      // Converts Supabase's nested relationship result into the single Academy
-      // program object expected by the dashboard.
+      // Converts Supabase's nested relationship result into the single Academy  // program object expected by the dashboard.
       const normalizedEnrollments: Enrollment[] = (enrollmentData ?? []).map(
         (enrollment) => ({
           id: enrollment.id,
@@ -155,7 +153,6 @@ export default function StudentDashboard() {
       );
 
       setEnrollments(normalizedEnrollments);
-
       const enrollmentIds = normalizedEnrollments.map(
         (enrollment) => enrollment.id
       );
@@ -167,10 +164,11 @@ export default function StudentDashboard() {
       }
 
       const { data: progressData, error: progressError } = await studentSupabase
+
         .from("student_lesson_progress")
+
         .select(
-          `
-            enrollment_id,
+          ` enrollment_id,
             lesson_id,
             status,
             progress_percent,
@@ -178,29 +176,30 @@ export default function StudentDashboard() {
           `
         )
         .in("enrollment_id", enrollmentIds);
-
       if (progressError) {
         console.error("Failed to load lesson progress:", progressError);
         setErrorMessage("We could not load your learning progress.");
         setLoading(false);
         return;
       }
-
       setProgressRecords(progressData ?? []);
+
       setLoading(false);
     }
-
     loadDashboard();
   }, []);
 
-  /* Calculates course progress while excluding archived programs. */
+  // Calculates course progress while excluding archived programs.
+
   const courseSummaries = useMemo<CourseSummary[]>(() => {
     return enrollments
+
       .filter(
         (enrollment) =>
           enrollment.academy_programs &&
           enrollment.academy_programs.status !== "archived"
       )
+
       .map((enrollment) => {
         const program = enrollment.academy_programs!;
 
@@ -220,6 +219,7 @@ export default function StudentDashboard() {
                 courseProgress.reduce(
                   (total, lesson) =>
                     total + Number(lesson.progress_percent || 0),
+
                   0
                 ) / totalLessons
               )
@@ -233,10 +233,10 @@ export default function StudentDashboard() {
           progress,
           completedLessons,
           totalLessons,
+          thumbnail_image_url: program.thumbnail_image_url,
         };
       });
   }, [enrollments, progressRecords]);
-
   // Calculates the summary statistics displayed at the top of the dashboard.
   const stats = useMemo(() => {
     if (courseSummaries.length === 0) {
@@ -267,15 +267,11 @@ export default function StudentDashboard() {
     };
   }, [courseSummaries]);
 
-  // Finds the course with the most recently accessed lesson for the continue-learning card.
-  const continueLearningCourse = useMemo(() => {
+  // Sorts active courses by recent lesson activity and limits the carousel to three.
+  const continueLearningCourses = useMemo(() => {
     const activeCourses = courseSummaries.filter(
       (course) => course.status === "active" && course.progress < 100
     );
-
-    if (activeCourses.length === 0) {
-      return null;
-    }
 
     const lastAccessByEnrollment = new Map<string, number>();
 
@@ -288,15 +284,46 @@ export default function StudentDashboard() {
       );
     });
 
-    return [...activeCourses].sort((a, b) => {
-      const aLastAccess = lastAccessByEnrollment.get(a.enrollmentId) ?? 0;
-      const bLastAccess = lastAccessByEnrollment.get(b.enrollmentId) ?? 0;
-
-      return bLastAccess - aLastAccess;
-    })[0];
+    return [...activeCourses]
+      .sort((a, b) => {
+        const aLastAccess = lastAccessByEnrollment.get(a.enrollmentId) ?? 0;
+        const bLastAccess = lastAccessByEnrollment.get(b.enrollmentId) ?? 0;
+        return bLastAccess - aLastAccess;
+      })
+      .slice(0, 3);
   }, [courseSummaries, progressRecords]);
 
+  // Selects the course currently displayed in the carousel.
+  const continueLearningCourse =
+    continueLearningCourses[activeCourseIndex] ?? null;
+
+  // Advances to the next course, wrapping around to the first.
+  const nextCourse = () => {
+    if (continueLearningCourses.length < 2) return;
+    setActiveCourseIndex(
+      (current) => (current + 1) % continueLearningCourses.length
+    );
+  };
+
+  // Returns to the previous course, wrapping around to the last.
+  const previousCourse = () => {
+    if (continueLearningCourses.length < 2) return;
+    setActiveCourseIndex(
+      (current) =>
+        (current - 1 + continueLearningCourses.length) %
+        continueLearningCourses.length
+    );
+  };
+
+  // Keeps the selected index valid when the available courses change.
+  useEffect(() => {
+    if (activeCourseIndex >= continueLearningCourses.length) {
+      setActiveCourseIndex(0);
+    }
+  }, [activeCourseIndex, continueLearningCourses.length]);
+
   // Returns the student's preferred display name for the welcome section.
+
   const displayName = useMemo(() => {
     if (!profile) return "Student";
 
@@ -314,6 +341,7 @@ export default function StudentDashboard() {
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
+
                   className="h-32 rounded-2xl bg-white shadow-sm dark:bg-slate-900"
                 />
               ))}
@@ -347,7 +375,9 @@ export default function StudentDashboard() {
 
             <button
               type="button"
+
               onClick={() => window.location.reload()}
+
               className="mt-6 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               Try again
@@ -366,61 +396,103 @@ export default function StudentDashboard() {
         <section className="grid gap-5 xl:grid-cols-2">
           <div className="grid grid-cols-2 gap-3">
             <SummaryCard
-              title="Enrolled Courses"
+              title="Enrolled"
+
               value={stats.totalCourses}
+
               valueColor="text-primary"
+
               icon={BookOpen}
+
               watermarkIcon={Laptop}
+
               accentColor="text-primary"
+
               iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
+
               iconColor="text-blue-600 dark:text-blue-400"
+
               href="/student/courses"
+
               linkLabel="Browse"
             />
 
             <SummaryCard
               title="In Progress"
+
               value={stats.inProgress}
+
               valueColor="text-orange-600"
+
               icon={Podium}
+
               watermarkIcon={Footprints}
+
               accentColor="text-orange-600"
+
               iconBackgroundColor="bg-orange-50 dark:bg-orange-950/40"
+
               iconColor="text-orange-600 dark:text-orange-400"
+
               href="/student/courses"
+
               linkLabel="Browse"
             />
+
             <SummaryCard
               title="Completed"
+
               value={stats.completed}
+
               valueColor="text-green-600"
+
               icon={CheckCircle}
+
               watermarkIcon={BookmarkCheck}
+
               accentColor="text-green-600"
+
               iconBackgroundColor="bg-green-50 dark:bg-green-950/40"
+
               iconColor="text-green-600 dark:text-green-400"
+
               href="/student/courses"
+
               linkLabel="Browse"
             />
+
             <SummaryCard
-              title="Overall Progress"
+              title="All Progress"
+
               value={stats.overallProgress + "%"}
-              valueColor="text-blue-600"
+
+              valueColor="text-purple-700"
+
               icon={Medal}
+
               watermarkIcon={GraduationCap}
-              accentColor="text-blue-600"
-              iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
-              iconColor="text-blue-600 dark:text-blue-400"
+
+              accentColor="text-purple-600"
+
+              iconBackgroundColor="bg-purple-50 dark:bg-purple-950/40"
+
+              iconColor="text-purple-600 dark:text-purple-400"
+
               href="/student/progress"
-              linkLabel="View Progress"
+
+              linkLabel="Browse"
             />
           </div>
 
           <ProgramCarousel
             title="Explore Courses"
+
             eyebrow="Available Courses"
+
             description="Discover more programs from CloudTweak Academy."
+
             exploreAllHref="/student/courses/allcourses"
+
             exploreAllLabel="Explore All Courses"
           />
         </section>
@@ -440,67 +512,122 @@ export default function StudentDashboard() {
 
               <a
                 href="/student/courses"
-                className="hidden items-center gap-1 text-sm font-semibold text-slate-600 hover:text-orange-500 dark:text-slate-300 dark:hover:text-orange-400 sm:flex"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 hover:text-orange-500 dark:text-slate-300 dark:hover:text-orange-400"
               >
                 View all
                 <ArrowRight size={15} />
               </a>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="grid md:grid-cols-[220px_1fr]">
-                <div className="flex min-h-[180px] items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-orange-100 text-sky-600 dark:from-sky-950 dark:via-emerald-950 dark:to-yellow-950 dark:text-sky-300">
-                  <GraduationCap size={52} strokeWidth={1.5} />
-                </div>
-
-                <div className="flex flex-col justify-between p-6">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
-                      Continue Course
-                    </p>
-
-                    <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
-                      {continueLearningCourse.title}
-                    </h3>
-
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                      {continueLearningCourse.completedLessons} of{" "}
-                      {continueLearningCourse.totalLessons} tracked lessons
-                      completed.
-                    </p>
+            {/* Relative wrapper anchors the arrows to the course card. */}
+            <div className="relative">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="grid md:grid-cols-[220px_1fr]">
+                  <div className="flex min-h-[180px] items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-blue-50 to-orange-100 text-sky-600 dark:from-sky-950 dark:via-emerald-950 dark:to-yellow-950 dark:text-sky-300">
+                    <img
+                      src="/images/image.png"
+                      alt="Checker"
+                      className="h-full w-full object-cover -scale-x-100 brightness-30 md:brightness-50"
+                    />
                   </div>
 
-                  <div className="mt-6">
-                    <div className="mb-2 flex items-center justify-between text-xs font-semibold">
-                      <span className="text-slate-500 dark:text-slate-400">
-                        Course progress
-                      </span>
+                  <div className="flex flex-col justify-between p-6">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-orange-500">
+                        Continue Course
+                      </p>
 
-                      <span className="text-slate-900 dark:text-white">
-                        {continueLearningCourse.progress}%
-                      </span>
+                      <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
+                        {continueLearningCourse.title}
+                      </h3>
+
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                        {continueLearningCourse.completedLessons} of{" "}
+                        {continueLearningCourse.totalLessons} tracked lessons
+                        completed.
+                      </p>
                     </div>
 
-                    <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                      <div
-                        className="h-full rounded-full bg-orange-500 transition-all"
-                        style={{
-                          width: `${continueLearningCourse.progress}%`,
-                        }}
-                      />
-                    </div>
+                    <div className="mt-6">
+                      <div className="mb-2 flex items-center justify-between text-xs font-semibold">
+                        <span className="text-slate-500 dark:text-slate-400">
+                          Course progress
+                        </span>
 
-                    <a
-                      href={`/student/courses/${continueLearningCourse.slug}`}
-                      className="mt-5 inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
-                    >
-                      Continue Learning
-                      <ArrowRight size={16} />
-                    </a>
+                        <span className="text-slate-900 dark:text-white">
+                          {continueLearningCourse.progress}%
+                        </span>
+                      </div>
+
+                      <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                        <div
+                          className="h-full rounded-full bg-orange-500 transition-all duration-300"
+                          style={{
+                            width: `${continueLearningCourse.progress}%`,
+                          }}
+                        />
+                      </div>
+
+                      <a
+                        href={`/student/courses/${continueLearningCourse.slug}`}
+                        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
+                      >
+                        Continue Learning
+                        <ArrowRight size={16} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <>
+                <button
+                  type="button"
+                  onClick={previousCourse}
+                  aria-label="Previous course"
+                  className="absolute left-10 top-1/2 z-10 flex h-13 w-13 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-transparent text-white shadow-md transition hover:bg-orange-500 hover:text-white dark:border-slate-700 dark:bg-slate-900/95 dark:text-white"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextCourse}
+                  aria-label="Next course"
+                  className="absolute right-10 top-1/2 z-10 flex h-13 w-13 -translate-y-1/2 items-center justify-center rounded-full border border-orange-500 bg-transparent text-orange-500 shadow-md transition hover:bg-orange-500 hover:text-white dark:border-slate-700 dark:bg-slate-900/95 dark:text-white"
+                >
+                  <ArrowRight size={20} />
+                </button>
+              </>
             </div>
+
+            {continueLearningCourses.length > 1 && (
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Course {activeCourseIndex + 1} of{" "}
+                  {continueLearningCourses.length}
+                </p>
+
+                <div className="flex gap-1.5">
+                  {continueLearningCourses.map((course, index) => (
+                    <button
+                      key={course.enrollmentId}
+                      type="button"
+                      onClick={() => setActiveCourseIndex(index)}
+                      aria-label={`Show course ${index + 1}`}
+                      aria-current={
+                        index === activeCourseIndex ? "true" : undefined
+                      }
+                      className={`h-2 rounded-full transition-all ${
+                        index === activeCourseIndex
+                          ? "w-6 bg-orange-500"
+                          : "w-2 bg-slate-300 dark:bg-slate-700"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
@@ -518,7 +645,8 @@ export default function StudentDashboard() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <a
               href="/student/courses"
-              className="group rounded-2xl border border-blue-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
                 <BookOpen size={21} />
@@ -536,6 +664,7 @@ export default function StudentDashboard() {
                 Open
                 <ArrowRight
                   size={14}
+
                   className="transition-transform group-hover:translate-x-1"
                 />
               </div>
@@ -543,7 +672,8 @@ export default function StudentDashboard() {
 
             <a
               href="/student/resources"
-              className="group rounded-2xl border border-green-300 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
                 <LibraryBig size={21} />
@@ -561,6 +691,7 @@ export default function StudentDashboard() {
                 Browse
                 <ArrowRight
                   size={14}
+
                   className="transition-transform group-hover:translate-x-1"
                 />
               </div>
@@ -568,7 +699,8 @@ export default function StudentDashboard() {
 
             <a
               href="/student/progress"
-              className="group rounded-2xl border border-purple-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
                 <Footprints size={21} />
@@ -586,6 +718,7 @@ export default function StudentDashboard() {
                 View progress
                 <ArrowRight
                   size={14}
+
                   className="transition-transform group-hover:translate-x-1"
                 />
               </div>
@@ -593,7 +726,8 @@ export default function StudentDashboard() {
 
             <a
               href="/student/certificate"
-              className="group rounded-2xl border border-orange-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-400">
                 <Award size={21} />
@@ -611,6 +745,7 @@ export default function StudentDashboard() {
                 View certificates
                 <ArrowRight
                   size={14}
+
                   className="transition-transform group-hover:translate-x-1"
                 />
               </div>
@@ -632,6 +767,7 @@ export default function StudentDashboard() {
 
             <a
               href="/student/courses"
+
               className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 transition hover:text-orange-500 dark:text-slate-300 dark:hover:text-orange-400"
             >
               View all
@@ -655,6 +791,7 @@ export default function StudentDashboard() {
 
               <a
                 href="/student/courses"
+
                 className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
               >
                 Explore Courses
@@ -666,11 +803,24 @@ export default function StudentDashboard() {
               {courseSummaries.map((course) => (
                 <a
                   key={course.enrollmentId}
+
                   href={`/student/courses/${course.slug}`}
+
                   className="group flex flex-col gap-5 p-6 transition hover:bg-slate-50 dark:hover:bg-slate-800/40 md:flex-row md:items-center"
                 >
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-slate-800 dark:text-slate-500">
-                    <GraduationCap size={25} />
+                  <div className="flex h-30 w-full md:w-50 shrink-0 items-center justify-center">
+                    {course.thumbnail_image_url ? (
+                      <img
+                        src={course.thumbnail_image_url}
+                        alt={`${course.title} thumbnail`}
+                        className="h-full w-full object-cover rounded-md"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-blue-600 dark:text-blue-400">
+                        <GraduationCap size={25} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -700,6 +850,7 @@ export default function StudentDashboard() {
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-full rounded-full bg-orange-500 transition-all"
+
                           style={{
                             width: `${course.progress}%`,
                           }}
@@ -716,17 +867,19 @@ export default function StudentDashboard() {
                       lessons completed
                     </p>
                   </div>
-
-                  <ArrowRight
-                    size={18}
-                    className="shrink-0 text-slate-300 transition group-hover:translate-x-1 group-hover:text-orange-500 dark:text-slate-600"
-                  />
+                  <span className="p-2 rounded-full bg-orange-50 ">
+                    <ArrowRight
+                      size={18}
+                      className="shrink-0 text-orange-500 transition group-hover:translate-x-1 group-hover:text-orange-500 dark:text-slate-600"
+                    />
+                  </span>
                 </a>
               ))}
             </div>
           )}
         </section>
       </div>
+
       <StudentOnboardingWizard finishHref="/student/courses" />
     </div>
   );

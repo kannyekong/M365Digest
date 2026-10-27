@@ -36,7 +36,40 @@ export default function CourseInstructorCarousel({
     );
   };
 
-  if (!instructors.length) return null;
+  if (!instructors.length) {
+    return (
+      <section className="flex h-full min-h-[180px] flex-col justify-between rounded-2xl border border-dashed border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-500 dark:bg-violet-950/40 dark:text-violet-400">
+              <ShieldUser size={24} />
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Your Instructor
+              </h3>
+
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Instructor information
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">
+            No instructor has been assigned to this course yet.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 border-t border-slate-100 pt-2 dark:border-slate-800">
+          <ShieldUser size={15} className="text-slate-400" />
+          <span className="text-xs text-slate-400">
+            Instructor details unavailable
+          </span>
+        </div>
+      </section>
+    );
+  }
 
   const instructor = instructors[activeIndex];
 
