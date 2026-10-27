@@ -661,7 +661,7 @@ export default function StudentResourceViewer({
                               {completed ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> : <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 opacity-60" />}
                               <span className="min-w-0 flex-1">
                                 <a href={`/student/courses/${programSlug}/lessons/${lesson.id}`} className="block text-sm font-medium leading-5 hover:underline">{lesson.title}</a>
-                                <span className="mt-1 block text-xs capitalize opacity-70">{lessonType} · {lesson.resource_count} resources · {timeLabel}</span>
+                                <span className="mt-1 block text-xs capitalize opacity-70">{lessonType} · {lesson.material_count} lesson materials · {timeLabel}</span>
                               </span>
                               <ChevronDown className="mt-1 h-4 w-4 shrink-0" />
                             </summary>
