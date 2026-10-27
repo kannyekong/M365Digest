@@ -127,29 +127,6 @@ const orderedLessons = (programModules ?? []).flatMap((academyModule) => {
 /**
  * Find the current lesson's position in the complete program curriculum.
  */
-const curriculumModules = (programModules ?? []).map((academyModule) => ({
-  id: academyModule.id,
-  title: academyModule.title,
-  module_number: academyModule.module_number,
-  lessons: (programLessons ?? [])
-    .filter((programLesson) => programLesson.module_id === academyModule.id)
-    .sort((a, b) => a.display_order - b.display_order)
-    .map((programLesson) => ({
-      id: programLesson.id,
-      title: programLesson.title,
-      lesson_type: programLesson.lesson_type,
-      duration: programLesson.duration,
-      resources: (curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
-        id: resource.id,
-        title: resource.title,
-        resource_type: resource.resource_type,
-        duration_seconds: resource.duration_seconds,
-      })),
-      resource_count: (curriculumResourceMap.get(programLesson.id) ?? []).length,
-      total_duration_seconds: (curriculumResourceMap.get(programLesson.id) ?? []).reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
-    })),
-}));
-
 const curriculumLessonIds = (programLessons ?? []).map((item) => item.id);
 const { data: curriculumResources, error: curriculumResourcesError } =
   curriculumLessonIds.length > 0
@@ -177,6 +154,29 @@ for (const resource of availableCurriculumResources) {
   current.push(resource);
   curriculumResourceMap.set(resource.lesson_id, current);
 }
+
+const curriculumModules = (programModules ?? []).map((academyModule) => ({
+  id: academyModule.id,
+  title: academyModule.title,
+  module_number: academyModule.module_number,
+  lessons: (programLessons ?? [])
+    .filter((programLesson) => programLesson.module_id === academyModule.id)
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((programLesson) => ({
+      id: programLesson.id,
+      title: programLesson.title,
+      lesson_type: programLesson.lesson_type,
+      duration: programLesson.duration,
+      resources: (curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
+        id: resource.id,
+        title: resource.title,
+        resource_type: resource.resource_type,
+        duration_seconds: resource.duration_seconds,
+      })),
+      resource_count: (curriculumResourceMap.get(programLesson.id) ?? []).length,
+      total_duration_seconds: (curriculumResourceMap.get(programLesson.id) ?? []).reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
+    })),
+}));
 
 const currentLessonIndex = orderedLessons.findIndex(
   (programLesson) => programLesson.id === lesson.id
