@@ -139,8 +139,44 @@ const curriculumModules = (programModules ?? []).map((academyModule) => ({
       title: programLesson.title,
       lesson_type: programLesson.lesson_type,
       duration: programLesson.duration,
+      resources: (curriculumResourceMap.get(programLesson.id) ?? []).map((resource) => ({
+        id: resource.id,
+        title: resource.title,
+        resource_type: resource.resource_type,
+        duration_seconds: resource.duration_seconds,
+      })),
+      resource_count: (curriculumResourceMap.get(programLesson.id) ?? []).length,
+      total_duration_seconds: (curriculumResourceMap.get(programLesson.id) ?? []).reduce((total, resource) => total + (resource.duration_seconds ?? 0), 0),
     })),
 }));
+
+const curriculumLessonIds = (programLessons ?? []).map((item) => item.id);
+const { data: curriculumResources, error: curriculumResourcesError } =
+  curriculumLessonIds.length > 0
+    ? await studentSupabase
+        .from("academy_program_resources")
+        .select("id, lesson_id, title, resource_type, duration_seconds, display_order, is_published, available_from, available_until")
+        .in("lesson_id", curriculumLessonIds)
+        .eq("is_published", true)
+        .order("display_order", { ascending: true })
+    : { data: [], error: null };
+
+if (curriculumResourcesError) {
+  console.error("Failed to load curriculum resource summaries:", curriculumResourcesError);
+}
+
+const availableCurriculumResources = (curriculumResources ?? []).filter((resource) => {
+  const now = Date.now();
+  return (!resource.available_from || new Date(resource.available_from).getTime() <= now) &&
+    (!resource.available_until || new Date(resource.available_until).getTime() >= now);
+});
+
+const curriculumResourceMap = new Map<string, typeof availableCurriculumResources>();
+for (const resource of availableCurriculumResources) {
+  const current = curriculumResourceMap.get(resource.lesson_id) ?? [];
+  current.push(resource);
+  curriculumResourceMap.set(resource.lesson_id, current);
+}
 
 const currentLessonIndex = orderedLessons.findIndex(
   (programLesson) => programLesson.id === lesson.id
