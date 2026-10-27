@@ -525,7 +525,7 @@ export default function StudentDashboard() {
                 <div className="grid md:grid-cols-[220px_1fr]">
                   <div className="flex min-h-[180px] items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-blue-50 to-orange-100 text-sky-600 dark:from-sky-950 dark:via-emerald-950 dark:to-yellow-950 dark:text-sky-300">
                     <img
-                      src="/images/image.png"
+                      src="https://uziqrzfbfjucelzmaaeq.supabase.co/storage/v1/object/public/cloudtweak-media/general/2026/10/fa638bd2-c8b3-4835-8f80-6f3f550fec4c.png"
                       alt="Checker"
                       className="h-full w-full object-cover -scale-x-100 brightness-30 md:brightness-50"
                     />
