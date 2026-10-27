@@ -1,6 +1,8 @@
 import {
   CheckCircle2,
   ClipboardCheck,
+  BookOpen,
+  ChevronDown,
   Clock3,
   ExternalLink,
   FileArchive,
@@ -28,11 +30,27 @@ import type {
   StudentQuizResult,
 } from "../../types/academy";
 
+interface CurriculumLesson {
+  id: string;
+  title: string;
+  lesson_type: string | null;
+  duration: number | null;
+}
+
+interface CurriculumModule {
+  id: string;
+  title: string;
+  module_number: number | null;
+  lessons: CurriculumLesson[];
+}
+
 interface StudentResourceViewerProps {
   programId: string;
   moduleId: string;
   lessonId: string;
   enrollmentId: string;
+  programSlug: string;
+  curriculum: CurriculumModule[];
 }
 
 /**
@@ -162,6 +180,8 @@ export default function StudentResourceViewer({
   moduleId,
   lessonId,
   enrollmentId,
+  programSlug,
+  curriculum,
 }: StudentResourceViewerProps) {
   const [resources, setResources] = useState<AcademyResource[]>([]);
   const [quizzes, setQuizzes] = useState<AcademyQuiz[]>([]);
@@ -174,6 +194,8 @@ export default function StudentResourceViewer({
   const [loading, setLoading] = useState(true);
   const [savingResourceId, setSavingResourceId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
+  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([moduleId]));
 
   /**
    * Load the lesson resources and the student's existing resource progress.
@@ -245,6 +267,25 @@ export default function StudentResourceViewer({
     }
 
     void loadResources();
+
+    // Load lesson completion separately from resource and quiz completion.
+    async function loadLessonProgress() {
+      const { data, error } = await studentSupabase
+        .from("student_lesson_progress")
+        .select("lesson_id, status")
+        .eq("enrollment_id", enrollmentId);
+
+      if (error) {
+        console.error("Failed to load curriculum lesson progress:", error);
+        return;
+      }
+
+      setCompletedLessonIds(
+        new Set((data ?? []).filter((item) => item.status === "completed").map((item) => item.lesson_id))
+      );
+    }
+
+    void loadLessonProgress();
   }, [lessonId, enrollmentId]);
 
   /**
@@ -523,104 +564,110 @@ export default function StudentResourceViewer({
 
   return (
     <section className="space-y-5">
-      <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <aside className="order-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-5 lg:order-2">
           <div className="px-3 py-2">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              Lesson Resources
-            </h3>
-
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Course Curriculum</h3>
+            </div>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {resources.length + quizzes.length}{" "}
-              {resources.length + quizzes.length === 1 ? "item" : "items"}
+              {curriculum.reduce((total, item) => total + item.lessons.length, 0)} lessons across {curriculum.length} modules
             </p>
           </div>
-
-          <div className="mt-2 space-y-1">
-            {orderedSidebarItems.map((item) => {
-              if (item.kind === "quiz") {
-                const quiz = item.quiz;
-                const active = quiz.id === activeQuizId;
-
-                return (
-                  <button
-                    key={quiz.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveQuizId(quiz.id);
-                      setActiveResourceId(null);
-                    }}
-                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                      active
-                        ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
-                        : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">
-                        {quiz.title}
-                      </span>
-                      <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
-                        Quiz <span>•</span>{quiz.is_required ? "Required" : "Optional"}
-                      </span>
-                    </span>
-                    {item.completed ? (
-                      <CheckCircle2
-                        className="h-5 w-5 shrink-0 text-emerald-500"
-                        aria-label="Quiz passed"
-                      />
-                    ) : null}
-                  </button>
-                );
-              }
-
-              const resource = item.resource;
-              const Icon = getResourceIcon(resource.resource_type);
-              const active = resource.id === activeResourceId;
+          <div className="mt-2 max-h-[72vh] space-y-2 overflow-y-auto">
+            {curriculum.map((academyModule, index) => {
+              const expanded = expandedModuleIds.has(academyModule.id);
+              const moduleCompleted = academyModule.lessons.length > 0 && academyModule.lessons.every((lesson) => completedLessonIds.has(lesson.id));
+              const completedCount = academyModule.lessons.filter((lesson) => completedLessonIds.has(lesson.id)).length;
 
               return (
-                <button
-                  key={resource.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveQuizId(null);
-                    setActiveResourceId(resource.id);
-                  }}
-                  className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition ${
-                    active
-                      ? "bg-primary/10 text-primary"
-                      : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon className="mt-0.5 h-5 w-5 shrink-0" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">
-                      {resource.title}
+                <section key={academyModule.id} className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedModuleIds((current) => {
+                      const next = new Set(current);
+                      if (next.has(academyModule.id)) next.delete(academyModule.id);
+                      else next.add(academyModule.id);
+                      return next;
+                    })}
+                    aria-expanded={expanded}
+                    className="flex w-full items-center gap-2 bg-slate-50 px-3 py-3 text-left dark:bg-slate-800/70"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                      {academyModule.module_number ?? index + 1}
                     </span>
-                    <span className="mt-1 flex items-center gap-2 text-xs opacity-70">
-                      {formatResourceType(resource.resource_type)}
-                      {resource.is_required ? (
-                        <>
-                          <span>•</span>
-                          Required
-                        </>
-                      ) : null}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">{academyModule.title}</span>
+                      <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">{completedCount} of {academyModule.lessons.length} completed</span>
                     </span>
-                  </span>
-                  {item.completed ? (
-                    <CheckCircle2
-                      className="h-5 w-5 shrink-0 text-emerald-500"
-                      aria-label="Resource completed"
-                    />
+                    {moduleCompleted ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" /> : null}
+                    <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                  </button>
+                  {expanded ? (
+                    <div className="space-y-1 p-2">
+                      {academyModule.lessons.map((lesson) => {
+                        const active = lesson.id === lessonId;
+                        const completed = completedLessonIds.has(lesson.id);
+                        const lessonType = (lesson.lesson_type ?? "lesson").replace(/_/g, " ");
+
+                        return (
+                          <a
+                            key={lesson.id}
+                            href={`/student/courses/${programSlug}/lessons/${lesson.id}`}
+                            aria-current={active ? "page" : undefined}
+                            className={`flex items-start gap-2 rounded-lg px-3 py-2.5 transition ${active ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"}`}
+                          >
+                            {completed ? (
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                            ) : (
+                              <PlayCircle className="mt-0.5 h-4 w-4 shrink-0 opacity-60" />
+                            )}
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-sm font-medium leading-5">{lesson.title}</span>
+                              <span className="mt-1 block text-xs capitalize opacity-70">{lessonType}{lesson.duration ? ` · ${lesson.duration}` : ""}</span>
+                            </span>
+                          </a>
+                        );
+                      })}
+                    </div>
                   ) : null}
-                </button>
+                </section>
               );
             })}
           </div>
         </aside>
 
-        <div className="min-w-0">
+        <div className="order-1 min-w-0 lg:order-1">
+          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Lesson materials</p>
+            <div className="flex flex-wrap gap-2">
+              {orderedSidebarItems.map((item) => {
+                const active = item.kind === "quiz" ? item.id === activeQuizId : item.id === activeResourceId;
+                const Icon = item.kind === "quiz" ? ClipboardCheck : getResourceIcon(item.resource.resource_type);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (item.kind === "quiz") {
+                        setActiveQuizId(item.id);
+                        setActiveResourceId(null);
+                      } else {
+                        setActiveQuizId(null);
+                        setActiveResourceId(item.id);
+                      }
+                    }}
+                    className={`inline-flex max-w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition ${active ? "border-primary/30 bg-primary/10 text-primary" : "border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"}`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="max-w-56 truncate">{item.title}</span>
+                    {item.completed ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {activeQuiz ? (
             <div className="space-y-5"><div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">Lesson quiz</span><span className={`rounded-full px-3 py-1 text-xs font-semibold ${activeQuiz.is_required ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>{activeQuiz.is_required ? "Required" : "Optional"}</span></div><h2 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">{activeQuiz.title}</h2>{activeQuiz.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-400">{activeQuiz.description}</p> : null}</div><StudentQuizPlayer key={activeQuiz.id} quizId={activeQuiz.id} enrollmentId={enrollmentId} onProceed={handleQuizProceed} /></div>
           ) : activeResource ? (
