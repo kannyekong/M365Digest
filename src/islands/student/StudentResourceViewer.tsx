@@ -454,6 +454,39 @@ export default function StudentResourceViewer({
   }, [lessonId, enrollmentId]);
 
   /**
+   * Keep the selected lesson material in sync with browser back/forward
+   * navigation when only the resourceId or quizId query parameter changes.
+   */
+  useEffect(() => {
+    function syncSelectedMaterialFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const requestedResourceId = params.get("resourceId");
+      const requestedQuizId = params.get("quizId");
+
+      const requestedResource = resources.find(
+        (resource) => resource.id === requestedResourceId
+      );
+      const requestedQuiz = quizzes.find(
+        (quiz) => quiz.id === requestedQuizId
+      );
+
+      if (requestedResource) {
+        setActiveResourceId(requestedResource.id);
+        setActiveQuizId(null);
+      } else if (requestedQuiz) {
+        setActiveResourceId(null);
+        setActiveQuizId(requestedQuiz.id);
+      }
+    }
+
+    window.addEventListener("popstate", syncSelectedMaterialFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncSelectedMaterialFromUrl);
+    };
+  }, [resources, quizzes]);
+
+  /**
    * Return the currently selected resource.
    */
   const activeResource = useMemo(() => {
@@ -843,7 +876,33 @@ export default function StudentResourceViewer({
                                           ? `/student/courses/${programSlug}/lessons/${lesson.id}?quizId=${material.id}`
                                           : `/student/courses/${programSlug}/lessons/${lesson.id}?resourceId=${material.id}`
                                       }
-                                      className="flex items-start gap-2 rounded-md px-2 py-2 text-xs text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                                      onClick={(event) => {
+                                        if (
+                                          event.button !== 0 ||
+                                          event.metaKey ||
+                                          event.ctrlKey ||
+                                          event.shiftKey ||
+                                          event.altKey
+                                        ) {
+                                          return;
+                                        }
+
+                                        event.preventDefault();
+                                        window.history.pushState(
+                                          {},
+                                          "",
+                                          event.currentTarget.href
+                                        );
+
+                                        if (material.kind === "quiz") {
+                                          setActiveResourceId(null);
+                                          setActiveQuizId(material.id);
+                                        } else {
+                                          setActiveQuizId(null);
+                                          setActiveResourceId(material.id);
+                                        }
+                                      }}
+                                      className={`flex items-start gap-2 rounded-md px-2 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 ${(material.kind === "quiz" ? activeQuizId === material.id : activeResourceId === material.id) ? "bg-primary/10 text-primary" : "text-slate-600 dark:text-slate-300"}`}
                                     >
                                       {materialCompleted ? (
                                         <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
