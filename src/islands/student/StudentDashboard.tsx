@@ -14,6 +14,7 @@ import {
   Laptop,
   BookmarkCheck,
   Shapes,
+  Waypoints,
 } from "lucide-react";
 
 import SummaryCard from "../../components/student/SummaryCard";
@@ -396,91 +397,59 @@ export default function StudentDashboard() {
         <section className="grid gap-5 xl:grid-cols-2">
           <div className="grid grid-cols-2 gap-3">
             <SummaryCard
-              title="Enrolled"
-
+              title="Enrolled Courses"
               value={stats.totalCourses}
-
               valueColor="text-primary"
-
               icon={BookOpen}
-
+              description="Total number of enrolled courses."
               watermarkIcon={Laptop}
-
               accentColor="text-primary"
-
               iconBackgroundColor="bg-blue-50 dark:bg-blue-950/40"
-
               iconColor="text-blue-600 dark:text-blue-400"
-
               href="/student/courses"
-
-              linkLabel="Browse"
+              linkLabel="Explore Courses"
             />
 
             <SummaryCard
-              title="In Progress"
-
+              title="In Progress Courses"
               value={stats.inProgress}
-
               valueColor="text-orange-600"
-
               icon={Podium}
-
               watermarkIcon={Footprints}
-
               accentColor="text-orange-600"
-
               iconBackgroundColor="bg-orange-50 dark:bg-orange-950/40"
-
               iconColor="text-orange-600 dark:text-orange-400"
-
               href="/student/courses"
-
-              linkLabel="Browse"
+              description="Number of courses currently in progress."
+              linkLabel="Explore Courses"
             />
 
             <SummaryCard
-              title="Completed"
-
+              title="Completed Courses"
               value={stats.completed}
-
               valueColor="text-green-600"
-
               icon={CheckCircle}
-
               watermarkIcon={BookmarkCheck}
-
               accentColor="text-green-600"
-
               iconBackgroundColor="bg-green-50 dark:bg-green-950/40"
-
               iconColor="text-green-600 dark:text-green-400"
-
               href="/student/courses"
-
-              linkLabel="Browse"
+              description="Learning milestones achieved"
+              linkLabel="View Achievements"
             />
 
             <SummaryCard
-              title="All Progress"
-
+              title="Course Progress"
               value={stats.overallProgress + "%"}
-
               valueColor="text-purple-700"
-
               icon={Medal}
-
-              watermarkIcon={GraduationCap}
-
+              watermarkIcon={Waypoints}
               accentColor="text-purple-600"
-
               iconBackgroundColor="bg-purple-50 dark:bg-purple-950/40"
-
               iconColor="text-purple-600 dark:text-purple-400"
-
               href="/student/progress"
-
-              linkLabel="Browse"
+              description="Overall progress across all enrolled courses."
+              linkLabel="View Course Progress"
             />
           </div>
 

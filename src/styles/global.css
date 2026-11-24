@@ -22,6 +22,10 @@ p {
   font-family: "Montserrat", sans-serif;
 }
 
+.digital-clock {
+  font-family: "Orbitron", sans-serif;
+}
+
 body {
   background-color: rgb(var(--color-bg));
   font-family: var(--font-display);

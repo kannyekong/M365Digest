@@ -86,7 +86,7 @@ export default function AnalogClockWidget({
   return (
     <section className="w-full rounded-2xl bg-white p-2 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col items-center gap-3">
-        <div className="relative aspect-square w-full max-w-[120px]">
+        {/* <div className="relative aspect-square w-full max-w-[120px]">
           <svg
             viewBox="0 0 200 200"
             role="img"
@@ -185,11 +185,11 @@ export default function AnalogClockWidget({
 
             <circle cx="100" cy="100" r="5" fill="currentColor" className="text-orange-500 dark:text-white" />
           </svg>
-        </div>
+        </div> */}
 
-        <div className="text-center">
+        <div className="text-center border-2 border-orange-200 p-3 rounded-lg">
           <p
-            className="text-2xl font-semibold tracking-tight tabular-nums text-slate-900 dark:text-white"
+            className="text-2xl digital-clock font-semibold tracking-tight tabular-nums text-slate-900 dark:text-white"
             aria-live="off"
           >
             {clock.digitalTime}

@@ -530,13 +530,9 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-slate-800 dark:text-slate-200">
-                <ShieldCheck size={19} />
-              </div>
-
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-orange-500">
-                  Secure payment
+                  Secured payment
                 </p>
 
                 <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
@@ -546,7 +542,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
             </div>
 
             <p className="mt-5 text-sm leading-7 text-slate-500 dark:text-slate-400">
-              Payment is securely processed by Paystack. CloudTweak Academy does
+              All payment is securely processed by Paystack. CloudTweak Academy does
               not receive or store your card details. Your enrollment is
               activated only after the payment has been successfully verified.
             </p>
@@ -620,7 +616,7 @@ export default function StudentAcademyCheckout({ programSlug }: Props) {
                     </p>
                   )}
                 </div>
-                <div className="flex h-14 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
+                <div className="flex h-full w-full shrink-0 items-center justify-center overflow-hidden rounded-xl dark:bg-slate-800">
                   <img
                     src={
                       program.thumbnail_image_url ||

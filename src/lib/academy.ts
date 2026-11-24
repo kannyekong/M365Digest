@@ -2058,7 +2058,7 @@ export interface AcademyProgramCarouselItem {
 export async function getAvailableAcademyPrograms(): Promise<
   AcademyProgramCarouselItem[]
 > {
-  const { data, error } = await supabase
+  const { data, error } = await studentSupabase
 
     .from("academy_programs")
     .select(
@@ -2261,6 +2261,7 @@ export async function getStudentLiveSessions() {
       description,
       platform,
       meeting_url,
+      recording_url,
       start_at,
       end_at,
       status,
@@ -2294,6 +2295,7 @@ export async function getStudentLiveSessions() {
       description: session.description,
       platform: session.platform,
       meetingUrl: session.meeting_url,
+      recordingUrl: session.recording_url,
       startAt: session.start_at,
       endAt: session.end_at,
       status: session.status,

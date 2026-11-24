@@ -11,6 +11,7 @@ import {
   LoaderCircle,
   Search,
   Sparkles,
+  Award,
 } from "lucide-react";
 
 import { getSession } from "../../lib/auth";
@@ -461,7 +462,7 @@ export default function StudentCourses() {
       .map((enrollment) => {
         const program = programMap.get(enrollment.program_id);
 
-        if (!program) {
+        if (!program || program.status !== "published") {
           return null;
         }
 
@@ -691,8 +692,8 @@ export default function StudentCourses() {
                         "Continue your CloudTweak Academy learning journey."}
                     </p>
 
-                    <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">
+                    <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-orange-50 text-orange-500 px-2.5 py-1.5 dark:bg-slate-800">
                         <Clock3 size={13} />
 
                         {formatDuration(
@@ -703,8 +704,8 @@ export default function StudentCourses() {
                       </span>
 
                       {course.certificate_enabled && (
-                        <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">
-                          <CheckCircle2 size={13} />
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-blue-50 text-blue-500 px-2.5 py-1.5 dark:bg-slate-800">
+                          <Award size={13} />
                           Certificate
                         </span>
                       )}
@@ -741,7 +742,7 @@ export default function StudentCourses() {
               <ChevronLeft size={16} />
             </button>
             <span className="text-sm text-slate-600 dark:text-slate-300">
-              Page {enrolledPage} of {enrolledTotalPages}
+              Page {enrolledPage}
             </span>
             <button
               type="button"

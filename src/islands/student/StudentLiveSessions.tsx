@@ -6,6 +6,7 @@ import {
   Clock3,
   ExternalLink,
   GraduationCap,
+  Play,
   RefreshCw,
   Video,
 } from "lucide-react";
@@ -14,7 +15,6 @@ import { SiZoom, SiGooglemeet } from "react-icons/si";
 import { BsMicrosoftTeams } from "react-icons/bs";
 
 type LiveSession = Awaited<ReturnType<typeof getStudentLiveSessions>>[number];
-
 type SessionFilter = "all" | "upcoming" | "live" | "completed";
 
 // Formats session dates and times in the student's local timezone.
@@ -95,6 +95,9 @@ export default function StudentLiveSessions() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<SessionFilter>("all");
   const [now, setNow] = useState(Date.now());
+  const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(
+    null
+  );
 
   // Stores the current page. Each page displays six sessions.
   const [currentPage, setCurrentPage] = useState(1);
@@ -350,11 +353,30 @@ export default function StudentLiveSessions() {
                       </div>
                     </div>
 
-                    <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getStatusClasses(state)}`}
-                    >
-                      {getStatusLabel(state)}
-                    </span>
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${getStatusClasses(state)}`}
+                      >
+                        {getStatusLabel(state)}
+                      </span>
+
+                      {state === "completed" && session.recordingUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.open(
+                              session.recordingUrl,
+                              "_blank",
+                              "noopener,noreferrer"
+                            );
+                          }}
+                          className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-400 dark:hover:bg-blue-950/50"
+                        >
+                          <Play className="h-4 w-4" />
+                          Watch Recording
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {session.description && (
@@ -400,6 +422,25 @@ export default function StudentLiveSessions() {
                       })()}
                     </div>
                   </div>
+
+                  {selectedRecordingId === session.id &&
+                    session.recordingUrl && (
+                      <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-black dark:border-slate-700">
+                        <div className="flex items-center justify-between bg-slate-900 px-4 py-3">
+                          <p className="text-sm font-semibold text-white">
+                            Session Recording
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRecordingId(null)}
+                            className="text-xs font-medium text-slate-300 transition hover:text-white"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                   {state !== "completed" && (
                     <div className="mt-5 border-t border-slate-100 pt-4 dark:border-slate-800">

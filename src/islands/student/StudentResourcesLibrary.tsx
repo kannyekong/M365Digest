@@ -342,11 +342,6 @@ export default function StudentResourcesLibrary() {
                           {resource.lessonTitle}
                         </p>
 
-                        {resource.description && (
-                          <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                            {resource.description}
-                          </p>
-                        )}
                         <span className="mt-1 px-2 py-0.5 rounded-2xl bg-orange-50 text-xs capitalize text-orange-500">
                           {resource.resource_type.replaceAll("_", " ")}
                         </span>

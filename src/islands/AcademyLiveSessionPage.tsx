@@ -58,6 +58,7 @@ interface LiveSession {
   description: string | null;
   platform: SessionPlatform;
   meeting_url: string;
+  recording_url: string | null;
   start_at: string;
   end_at: string | null;
   is_published: boolean;
@@ -78,6 +79,7 @@ interface SessionForm {
   startAt: string;
   endAt: string;
   isPublished: boolean;
+  recordingUrl: string;
 }
 
 const PAGE_SIZE = 10;
@@ -91,6 +93,7 @@ const emptyForm: SessionForm = {
   startAt: "",
   endAt: "",
   isPublished: true,
+  recordingUrl: "",
 };
 
 /**
@@ -230,6 +233,7 @@ export default function AcademyLiveSessionsPage() {
             description,
             platform,
             meeting_url,
+            recording_url,
             start_at,
             end_at,
             is_published,
@@ -276,6 +280,7 @@ export default function AcademyLiveSessionsPage() {
           resource_id: session.resource_id,
           title: session.title,
           description: session.description,
+          recording_url: session.recording_url,
           platform: session.platform as SessionPlatform,
           meeting_url: session.meeting_url,
           start_at: session.start_at,
@@ -428,6 +433,7 @@ export default function AcademyLiveSessionsPage() {
       title: session.title,
       description: session.description ?? "",
       platform: session.platform,
+      recordingUrl: session.recording_url ?? "",
       meetingUrl: session.meeting_url,
       startAt: toDateTimeLocal(session.start_at),
       endAt: toDateTimeLocal(session.end_at),
@@ -501,7 +507,7 @@ export default function AcademyLiveSessionsPage() {
     try {
       const payload = {
         program_id: form.programId,
-
+        recording_url: form.recordingUrl.trim() || null,
         module_id: targetType === "module" ? targetId : null,
         lesson_id: targetType === "lesson" ? targetId : null,
         resource_id: targetType === "resource" ? targetId : null,
@@ -1107,6 +1113,37 @@ export default function AcademyLiveSessionsPage() {
                     required
                   />
                 </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="live-session-recording-url"
+                  className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
+                >
+                  Recording URL
+                  <span className="ml-2 text-xs font-normal text-slate-400">
+                    Optional
+                  </span>
+                </label>
+
+                <input
+                  id="live-session-recording-url"
+                  type="url"
+                  value={form.recordingUrl}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      recordingUrl: event.target.value,
+                    }))
+                  }
+                  placeholder="https://..."
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-950"
+                />
+
+                <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  Add the video embed URL after the session has been recorded.
+                  Students will use this link to watch the recording from their
+                  dashboard.
+                </p>
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">

@@ -830,7 +830,7 @@ export default function StudentProgramOverview({ programSlug }: Props) {
                 )}
 
                 {enrollment && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-400/15 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
                     <CheckCircle2 size={13} />
                     Enrolled
                   </span>
@@ -1012,10 +1012,6 @@ export default function StudentProgramOverview({ programSlug }: Props) {
           {program.description && (
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                  <BookOpen size={19} />
-                </div>
-
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange-500">
                     About the course
@@ -1374,19 +1370,14 @@ export default function StudentProgramOverview({ programSlug }: Props) {
               {nextLesson && (
                 <section className="rounded-3xl bg-white p-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
                   <div className="group relative flex items-start gap-4 overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-900/60 dark:from-emerald-950/40 dark:via-slate-900 dark:to-teal-950/30">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200/70 transition-transform duration-300 group-hover:scale-105 dark:bg-emerald-900/60 dark:text-emerald-400 dark:ring-emerald-800/60">
-                      <CheckCircle2 size={22} />
-                    </div>
-
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                          Keep up the great work!
-                        </h3>
-
                         <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">
                           Your learning journey
                         </span>
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                          Keep up the great work!
+                        </h3>
                       </div>
 
                       <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">

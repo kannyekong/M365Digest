@@ -30,59 +30,58 @@ export default function SummaryCard({
   valueId,
   description,
 }: SummaryCardProps) {
-  // Render a consistent summary card with an optional watermark, description, and navigation link.
+  // Render a premium dashboard summary card.
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-start justify-between gap-3">
-        <div className="group relative isolate overflow-hidden">
-          {WatermarkIcon && (
-            <WatermarkIcon
-              size={120}
-              strokeWidth={1.5}
-              aria-hidden="true"
-              className={`pointer-events-none absolute -top-3 -z-10 ${accentColor} opacity-10 dark:text-white/5`}
-            />
-          )}
+    <div className="group relative isolate overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
+      {/* Decorative watermark */}
+      {WatermarkIcon && (
+        <WatermarkIcon
+          size={150}
+          strokeWidth={1}
+          aria-hidden="true"
+          className={`pointer-events-none absolute -right-12 -top-12 -z-10 rotate-12 ${iconColor} opacity-10 transition-transform duration-500 group-hover:rotate-6 dark:text-slate-700/20`}
+        />
+      )}
 
-          <p
-            className={`relative text-xs font-semibold uppercase tracking-wide ${accentColor}`}
-          >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className={`text-[12px] font-semibold uppercase ${accentColor}`}>
             {title}
           </p>
 
           <p
             id={valueId}
-            className={`relative mt-3 text-3xl font-bold ${valueColor || "text-primary"} dark:text-white`}
+            className={`mt-1 text-3xl font-bold tracking-tight ${valueColor ?? "text-slate-900 dark:text-white"}`}
           >
             {value}
           </p>
 
           {description && (
-            <p className="relative mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
               {description}
             </p>
           )}
-
-          {href && (
-            <a
-              href={href}
-              className={`relative mt-4 flex items-center gap-1 text-sm font-semibold ${accentColor} dark:text-green-400`}
-            >
-              {linkLabel}
-              <ArrowRight
-                size={14}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </a>
-          )}
         </div>
 
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBackgroundColor} ${iconColor}`}
+        {/* <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${iconBackgroundColor} ${iconColor} ring-1 ring-inset ring-black/[0.03] dark:ring-white/[0.04]`}
         >
-          <Icon size={20} aria-hidden="true" />
-        </div>
+          <Icon size={20} strokeWidth={1.8} aria-hidden="true" />
+        </div> */}
       </div>
+
+      {href && (
+        <a
+          href={href}
+          className={`mt-2 inline-flex items-center gap-2 text-sm font-light ${accentColor} transition-colors hover:opacity-80`}
+        >
+          {linkLabel}
+          <ArrowRight
+            size={15}
+            className="transition-transform duration-200 group-hover:translate-x-1"
+          />
+        </a>
+      )}
     </div>
   );
 }

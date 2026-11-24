@@ -64,7 +64,7 @@ export default function StudentAuthCheck() {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white dark:bg-slate-950">
       <div className="text-center">
         <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="text-slate-500">Loading your Academy account...</p>
+        <p className="text-slate-500">Loading resources...</p>
       </div>
     </div>
   );
