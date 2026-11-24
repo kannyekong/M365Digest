@@ -44,6 +44,7 @@ interface CurriculumLesson {
     title: string;
     resource_type: string;
     duration_seconds: number | null;
+    display_order: number;
     kind: "resource" | "quiz";
   }>;
 }
@@ -303,6 +304,7 @@ export default function StudentResourceViewer({
                 title: resource.title,
                 resource_type: resource.resource_type,
                 duration_seconds: resource.duration_seconds,
+                display_order: resource.display_order,
                 kind: "resource" as const,
               }));
             const lessonQuizzes = publishedQuizzes
@@ -312,10 +314,12 @@ export default function StudentResourceViewer({
                 title: quiz.title,
                 resource_type: "quiz",
                 duration_seconds: null,
+                display_order: quiz.display_order,
                 kind: "quiz" as const,
               }));
+            // Keep the configured curriculum sequence regardless of completion state.
             const materials = [...lessonResources, ...lessonQuizzes].sort(
-              (a, b) => a.title.localeCompare(b.title)
+              (a, b) => a.display_order - b.display_order
             );
 
             return {
