@@ -89,36 +89,20 @@ export default function StudentLessonControls({
     }
   }
 
-  /**
-   * Navigate to the previous lesson when one exists.
-   */
-  function handlePrevious() {
-    if (previousLessonUrl) {
-      window.location.href = previousLessonUrl;
-    }
-  }
-
-  /**
-   * Navigate to the next lesson when one exists.
-   */
-  function handleNext() {
-    if (nextLessonUrl) {
-      window.location.href = nextLessonUrl;
-    }
-  }
-
   return (
     <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-800">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <button
-          type="button"
-          onClick={handlePrevious}
-          disabled={!previousLessonUrl}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+        <a
+          href={previousLessonUrl ?? undefined}
+          aria-disabled={!previousLessonUrl}
+          onClick={(event) => {
+            if (!previousLessonUrl) event.preventDefault();
+          }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           <ArrowLeft className="h-4 w-4" />
           Previous Lesson
-        </button>
+        </a>
 
         <button
           type="button"
@@ -146,15 +130,17 @@ export default function StudentLessonControls({
           )}
         </button>
 
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={!nextLessonUrl}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+        <a
+          href={nextLessonUrl ?? undefined}
+          aria-disabled={!nextLessonUrl}
+          onClick={(event) => {
+            if (!nextLessonUrl) event.preventDefault();
+          }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
         >
           Next Lesson
           <ArrowRight className="h-4 w-4" />
-        </button>
+        </a>
       </div>
     </div>
   );
